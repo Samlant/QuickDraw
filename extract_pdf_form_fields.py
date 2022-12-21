@@ -1,12 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import * 
-import win32com.client as win32
+#import win32com.client as win32
 
 	# this is the function to check the status of each checkbox (1 means checked, and 0 means unchecked)
 def getCarrierValues():
 	carrier_to_submit = (seawave_check.get(), primetime_check.get(), newhampshire_check.get(), americanmodern_check.get(), kemah_check.get(), concept_check.get(), yachtinsure_check.get(), century_check.get(), intact_check.get(), travelers_check.get())
-	carrier_address = {'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net',}
+	carrier_address = ('sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net')
 #	carrier address = ('boatprograms@one80intermediaries.com', 'boatprograms@one80intermediaries.com', 'boatprograms@one80intermediaries.com', 'boatbrokerage@one80intermediaries.com', 'tom_carroll@kemah_marine.com', 'quote@concept_special_risks.co.uk', 'quotes@yachtinsure.co.uk', 'richard@bassuw.com', 'yachtquotes@intact.com', 'yachtquotes@travelers.com')
 	carrier_greeting = ('Hey Boat Programs,', 'Hey Boat Programs,', 'Hey Boat Programs,', 'Hey BoatBrokerage,', 'Hey Tom,', 'Hey Concept Quote team,', 'Hey Yachtinsure quote team,', 'Hey there Richard,',  'Hey Intact Quote team,', 'Hey Travelers quote team,')
 	carrier_body = (' for the Seawave market.', 'for the Prime Time market.', 'for the New Hampshire market,', 'for the American Modern market.  Also submitting with paid-in-full discount,  paperless, & homeowners discounts to apply.', '.', '.', '.', '.', '.', '.')
@@ -30,9 +30,21 @@ def additional_notes():
 
 # this is the function called when the button is clicked
 def btnClickFunction():
-	#additional_email_body_notes_.get()
+	#additional_email_body_notes.get()
 	subject_line = f"{last_name.get()}, {first_name.get()} | {year.get()} {make.get()} {length.get()} | New Quote Submission"
-	getCarrierValues()
+	#print(subject_line)
+	carrier_values = getCarrierValues()
+	(carrier_submit, carrier_address, carrier_greeting, carrier_body) = carrier_values
+	#print(carrier_values)
+	for i in carrier_values[0]:
+		if i == 1:
+			print(i)
+			print(carrier_address[i])
+			print(carrier_greeting[i])
+				#print('This is j: ')
+				#print(j)
+				#print('This is k: ')
+				#print(k)
 
 	
 
@@ -77,12 +89,12 @@ first_name.place(x=131, y=56)
 first_name.focus()
 last_name=Entry(root)
 last_name.place(x=131, y=76)
-year_=Entry(root)
-year_.place(x=101, y=136)
-make_=Entry(root)
-make_.place(x=101, y=156)
-length_=Entry(root)
-length_.place(x=101, y=176)
+year=Entry(root)
+year.place(x=101, y=136)
+make=Entry(root)
+make.place(x=101, y=156)
+length=Entry(root)
+length.place(x=101, y=176)
 additional_email_body_notes=Entry(root)
 additional_email_body_notes.place(x=41, y=276)
 
@@ -103,7 +115,7 @@ yachtinsure=Checkbutton(root, text='Yachtinsure', variable=yachtinsure_check, bg
 concept.place(x=371, y=246)
 century=Checkbutton(root, text='Century Insurance', variable=century_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
 century.place(x=371, y=276)
-intact=Checkbutton(root, text='Intact', variable=intacte_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
+intact=Checkbutton(root, text='Intact', variable=intact_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
 intact.place(x=371, y=306)
 travelers=Checkbutton(root, text='Travelers', variable=travelers_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
 travelers.place(x=371, y=336)
