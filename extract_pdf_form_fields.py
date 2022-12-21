@@ -5,12 +5,16 @@ from tkinter import *
 
 	# this is the function to check the status of each checkbox (1 means checked, and 0 means unchecked)
 def getCarrierValues():
+#If desired,  can work on creating a list for each carrier...)	
 	carrier_to_submit = (seawave_check.get(), primetime_check.get(), newhampshire_check.get(), americanmodern_check.get(), kemah_check.get(), concept_check.get(), yachtinsure_check.get(), century_check.get(), intact_check.get(), travelers_check.get())
-	carrier_address = ('sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net')
-#	carrier address = ('boatprograms@one80intermediaries.com', 'boatprograms@one80intermediaries.com', 'boatprograms@one80intermediaries.com', 'boatbrokerage@one80intermediaries.com', 'tom_carroll@kemah_marine.com', 'quote@concept_special_risks.co.uk', 'quotes@yachtinsure.co.uk', 'richard@bassuw.com', 'yachtquotes@intact.com', 'yachtquotes@travelers.com')
+#	carrier_address = ('sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net', 'sam@novamar.net')
+	carrier_address = ('boatprograms@one80intermediaries.com', 'boatprograms@one80intermediaries.com', 'boatprograms@one80intermediaries.com', 'boatbrokerage@one80intermediaries.com', 'tom_carroll@kemah_marine.com', 'quote@concept_special_risks.co.uk', 'quotes@yachtinsure.co.uk', 'richard@bassuw.com', 'yachtquotes@intact.com', 'yachtquotes@travelers.com')
 	carrier_greeting = ('Hey Boat Programs,', 'Hey Boat Programs,', 'Hey Boat Programs,', 'Hey BoatBrokerage,', 'Hey Tom,', 'Hey Concept Quote team,', 'Hey Yachtinsure quote team,', 'Hey there Richard,',  'Hey Intact Quote team,', 'Hey Travelers quote team,')
 	carrier_body = (' for the Seawave market.', 'for the Prime Time market.', 'for the New Hampshire market,', 'for the American Modern market.  Also submitting with paid-in-full discount,  paperless, & homeowners discounts to apply.', '.', '.', '.', '.', '.', '.')
-	return carrier_to_submit, carrier_address, carrier_greeting, carrier_body
+#	for cs, ca, cg, cb in zip(carrier_to_submit, carrier_address, carrier_greeting, carrier_body):
+#		carrier_values = (cs, ca, cg, cb)
+
+	return carrier_to_submit, carrier_address, carrier_greeting, carrier_greeting
 
 def get_html_msgs():
 	add_notes = additional_notes()
@@ -31,16 +35,21 @@ def additional_notes():
 # this is the function called when the button is clicked
 def btnClickFunction():
 	#additional_email_body_notes.get()
-	subject_line = f"{last_name.get()}, {first_name.get()} | {year.get()} {make.get()} {length.get()} | New Quote Submission"
+#	subject_line = f"{last_name.get()}, {first_name.get()} | {year.get()} {make.get()} {length.get()} | New Quote Submission"
 	#print(subject_line)
+	#(carrier_submit, carrier_address, carrier_greeting, carrier_body) = carrier_values
+	carrier_values = ()
 	carrier_values = getCarrierValues()
-	(carrier_submit, carrier_address, carrier_greeting, carrier_body) = carrier_values
-	#print(carrier_values)
-	for i in carrier_values[0]:
-		if i == 1:
-			print(i)
-			print(carrier_address[i])
-			print(carrier_greeting[i])
+	#for i in range(0, len(carrier_values[0])):
+	if carrier_values[0] == 1:
+		print(carrier_value[1])
+#		if cs == 1:
+#			print(i)
+#			print(ca)
+#			print(cg)
+#			print(cb)
+
+		print('Success?')
 				#print('This is j: ')
 				#print(j)
 				#print('This is k: ')
