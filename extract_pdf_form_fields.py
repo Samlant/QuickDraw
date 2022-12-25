@@ -1,22 +1,57 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import * 
-import win32com.client as win32
+from tkinterdnd2 import *
+
+global attachments
+attachments = []
+
+def path_to_quoteform(event):
+	if '{' in event.data:
+		attachments.append(event.data.translate({ord(c): None for c in '{}'}))
+	else:
+		attachments.append(event.data)
+	print(attachments)
+	return attachments
+
+def passing():
+	pass
 
 	# this is the function to check the status of each checkbox (1 means checked, and 0 means unchecked)
 def getCarrierValues():
-	sw = (seawave_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,',' for the Seawave market.')
-	pt = (primetime_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'for the Prime Time market.')
-	nh = (newhampshire_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'for the New Hampshire market.')
-	am = (americanmodern_check.get(), 'boatbrokerage@one80intermediaries.com', 'for the American Modern market.  Also submitting with paid-in-full discount,  paperless, & homeowners discounts to apply.')
-	km = (kemah_check.get(), 'tom_carroll@kemah_marine.com', 'Hey Tom,', '.')
-	cp = (concept_check.get(), 'quote.team@special-risks.co.uk', 'Hey Concept Quote team,', '.')
-	yi = (yachtinsure_check.get(), 'quotes@yachtinsure.uk.com', 'Hey Yachtinsure quote team,', '.') 
-	ce = (century_check.get(), 'rsmith@bassuw.com', 'Hey Richard,', '.')
-	in_ = (intact_check.get(), 'yucusa@intactinsurance.com', 'Hey Intact,', '.')
-	tv = (travelers_check.get(), 'mzadrick@travelers.com', 'Hey Mark,', '.')
+	sw_pt = 0
+    pt_nh = 0
+    sw_pt_nh = 0
+    if((sw == 1) and (pt == 1) and (nh == 0)):
+        sw = 0
+        pt = 0
+        sw_pt = 1
+    elif((sw == 1) and (pt ==1) and (nh == 1)):
+        sw, pt, nh = 0
+        sw_pt_nh = 1
+		elif((sw ==))
+    elif((pt ==1) and (nh == 1)):
+        pt,nh = 0
+        pt_nh = 1
+    else:
+        print('no combos detected')
+    (print(sw, pt, sw_pt, sw_pt_nh, pt_nh))
+	else:
+		passing()
+	finally:
+	sw = (seawave_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs', 'for the Seawave market.')
+	pt = (primetime_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs', 'for the Prime Time market.')
+	nh = (newhampshire_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs', 'for the New Hampshire market.')
+	am = (americanmodern_check.get(), 'boatbrokerage@one80intermediaries.com', 'Hey BoatBrokerage', 'for the American Modern market.  Also submitting with paid-in-full + paperless + homeowners discounts to apply')
+	km = (kemah_check.get(), 'tom_carroll@kemah_marine.com', 'Hey Tom', '.')
+	cp = (concept_check.get(), 'quote.team@special-risks.co.uk', 'Hey Concept Quote team', '.')
+	yi = (yachtinsure_check.get(), 'quotes@yachtinsure.uk.com', 'Hey Yachtinsure quote team', '.') 
+	ce = (century_check.get(), 'rsmith@bassuw.com', 'Hey Richard', '.')
+	in_ = (intact_check.get(), 'yucusa@intactinsurance.com', 'Hey Intact', '.')
+	#tv = (travelers_check.get(), 'mzadrick@travelers.com', 'Hey Mark', '.')
+	tv = (travelers_check.get(), 'sam@novamar.net', 'Hey Mark', '.')
 	return (sw, pt, nh, am, km, cp, yi, ce, in_, tv)
-	
+
 
 def additional_notes():
 	additional_notes = additional_email_body_notes.get()
@@ -24,31 +59,50 @@ def additional_notes():
 
 # this is the function called when the button is clicked
 def btnClickFunction():
-	subject_line = f"{last_name.get()}, {first_name.get()} | {year.get()} {make.get()} {length.get()} | New Quote Submission"
+	import win32com.client as win32
+	outlook = win32.Dispatch('outlook.application')
+	mail = outlook.CreateItem(0)
+	mail.Subject = f"{last_name.get()}, {first_name.get()} | {year.get()} {make.get()} {length.get()} | New Quote Submission"
 	add_notes = additional_notes()
 	carrier_values = getCarrierValues()
 	for i in carrier_values:
 		if i[0] == 1:
-			intro = {i[2]}
-			print('Will try to print html msg: ')
-			html_msg = '''<html>
-					<head>
-						<title>New Quote Submission</title>
-					</head>
-					<body>
-						<p>{i[3]},</p>
-						<p>Please see the attached for a new quote submission{i[3]}  Thank you in advance for your consideration of our client.{add_notes}</p>
-					</body>
-				</html>
-				'''
-			print(cc_address_1.get())
-			print(cc_address_2.get())
-			outlook = win32.Dispatch('outlook.application')
-        	mail = outlook.CreateItem(0)
-        	mail.To = {i[1]}
- 	        mail.CC = cc_address_1, cc_address_2
-        	mail.Subject = subject_line
-        	mail.HTMLBody = html_msg
+			mail.To = i[1]
+			#mail.CC = [cc_address_1, cc_address_2]
+			intro = i[2]
+			body = i[3]
+			mail.HTMLBody = '''
+			<html><head>
+			<title>New Quote Submission</title>
+			<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+			<meta name="ProgId" content="Word.Document">
+			<meta name="Generator" content="Microsoft Word 15">
+			<meta name="Originator" content="Microsoft Word 15">
+			</head>
+			<body>
+			<p style="font-size=14px;color:#1F3864">%s,</p>
+			<p style="font-size=14px;color:#1F3864">Please see the attached for a new quote submission%s  Thank you in advance for your consideration of our client. %s</p><br>
+			</body>
+			<footer>
+			<p style='margin:0in;font-size:14px;font-family:Calibri,sans-serif;color:#1F3864;'>With Pleasure,</p>
+			<p style='margin:0in;font-size=14px;font-family:Calibri,sans-serif;color:#1F3864;'>Samuel Alexander Lanteigne</p><br>
+			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Main:(800)-823-2798</p>
+			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Office :(941)-444-5099</p>
+			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Fax:(941)-328-3598</p><br>
+			<p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>1549 Ringling Blvd., Suite 101</p>
+			<p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>Sarasota, FL 34236</p><br>
+			<p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com/" target="_blank">www.novamarinsurance.com</a></p>
+			<p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com.mx/" target="_blank">www.novamarinsurance.com.mx</a></p>
+
+			<p style'margin:0in'><a href="https://www.facebook.com/NovamarInsurance" target="_blank"><img width=24 height=24 src="https://cdn1.iconfinder.com/data/icons/social-media-2285/512/Colored_Facebook3_svg-512.png"></a>  <a href="https://www.instagram.com/novamar_insurance/" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-512.png" style="display:block"></a>  <a href="https://twitter.com/NovamarIns" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Twitter3_colored_svg-512.png" style="display:block"></a>  <a href="https://www.linkedin.com/company/novamar-insurance-group-inc" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Linkedin_unofficial_colored_svg-512.png" style="display:block"></a></p>
+			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
+			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
+			</footer></html>
+			''' %(intro, body, add_notes)
+			for attachment in attachments:
+				mail.Attachments.Add(attachment)
+			mail.Display()
+#			mail.Send()
 
 
 root = Tk()
@@ -64,6 +118,20 @@ yachtinsure_check = tk.IntVar()
 century_check = tk.IntVar()
 intact_check = tk.IntVar()
 travelers_check = tk.IntVar()
+
+#This is the declaration for the drag-and-drop box
+quoteform = TkinterDnD.Tk()
+quoteform.title('QuoteForm Drop')
+quoteform.geometry('400x300')
+quoteform.config(bg='#fcb103')
+
+frame = Frame(quoteform)
+frame.pack()
+
+textarea = Text(frame, height=18, width=40,)
+textarea.pack(side=LEFT)
+textarea.drop_target_register(DND_FILES)
+textarea.dnd_bind('<<Drop>>', path_to_quoteform)
 
 # This is the section of code which creates the main window
 root.geometry('750x470')
