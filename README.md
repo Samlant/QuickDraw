@@ -33,17 +33,19 @@ Program Steps to success
 [X]  Connect launcher fields to HTML email field & test they work
 [X]  Create drag-n-drop functionality to auto-load quote info/details
 [-]  Fix mistakes within HTML msg
-[-]  Create a config file to keep some settings/fields persistent (CC-settings, process to merge cc-addresses (def+user_input)
-[-]  Once a publishable version is satisfactorily established,  bundle pkg into .exe for usability & sharing.
+[-]  Create a config file to keep some data persistent
+[-]  Include html msg parts from userinput to be persistent
+[-]  Connect config file to main script
+[-]  Once a publishable version is satisfactorily established,  bundle pkg into .exe for usability & sharing. (Pyinstaller or Alt.)
 [-]  Test .exe to ensure it works.
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 Future Goals to Incorporate/Implement
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 [-]  Update GUI to PyQT6 when able.
-[-]  Establish a working database to feed data from quote intake ==> submissions to markets
+[-]  Establish a workflow to feed data from quote intake ==> submissions to markets
 [-]  Auto-populate an entry into our excell tracking report
-[-]  Inquire about changing database system (yaml, MySQL) and location & what best practices are considering our implementation (local in-office vs. company-wide)
 
 
-Expected date of completion:  01/14/2022
+
+Expected date of publishing:  01/14/2022

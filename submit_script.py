@@ -5,7 +5,7 @@ from tkinter import *
 from tkinterdnd2 import *
 import fillpdf as fillpdf
 from fillpdf import fillpdfs
-#from configurations.ini import 
+#from configurations.ini import
 
 #Global variables
 settings_merge_cc_addresses = int
