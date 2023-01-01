@@ -18,6 +18,17 @@ length = 0
 #-----------------------
 
 #Functions--------------
+#SETTINGS#
+def btn_save_carrier_details():
+	carrier = 
+	email = 
+	greeting = 
+	body = 
+	salutation = 
+	update_carrier_email('SW', 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'Please see the attached for a new quote submission for the Seawave market. Thank you in advance for your consideration of our client. ', '')
+
+
+#End of SETTINGS#
 def Get_Path(event):
 	if '{' in event.data:
 		Get_Path.quoteform_path = ''
@@ -101,11 +112,12 @@ def Get_Add_Notes():
 	return additional_notes
 
 def Get_CC_Addresses():
-	if settings_merge_cc_addresses=='0':
+	config = read_config()
+	if eval['CarbonCopy Settings'],['settings_merge_cc_addresses'] =='0':
 		#insert default addresses from config
 		cc_1 = cc_address_1_user_input.get()
 		cc_2 = cc_address_2_user_input.get()
-		cc_total = f"{def_cc_1}; {cc_1}; {def_cc_2}; {cc_2}"
+		cc_total = f"{insertdefaultcc1}; {cc_1}; {insertdefaultcc2}; {cc_2}"
 		print(cc_total)
 	else:
 		cc_1 = cc_address_1_user_input
@@ -178,14 +190,17 @@ root.title('Quote Submissions Tool')
 root.attributes('-alpha',0.84)
 #use below to replace title icon when ready
 #root.iconbitmap('./assets/example.ico') 
-
+#TabControl
 tabControl = ttk.Notebook(root)
 main = ttk.Frame(tabControl)
+template_settings = ttk.Frame(tabControl)
 settings = ttk.Frame(tabControl)
 tabControl.add(main, text='Main')
+tabControl.add(template_settings, text='Templates')
 tabControl.add(settings, text='Settings')
 tabControl.pack(expand=1, fill="both")
-#these are the declarations of the variables associated with the checkboxes
+#tkinter modules by tab
+#main
 seawave_check = tk.IntVar()
 primetime_check = tk.IntVar()
 newhampshire_check = tk.IntVar()
@@ -197,59 +212,24 @@ century_check = tk.IntVar()
 intact_check = tk.IntVar()
 travelers_check = tk.IntVar()
 
-frame1 = Frame(main, bg='red', padx=2, pady=2)
-frame1.place(x=0, y=0)
-frame2 = Frame(main, bg='green', padx=2, pady=2)
-frame2.place(x=265, y=0)
-frame3 = Frame(main, bg='green', padx=2, pady=2)
-frame3.place(x=475, y=0)
-
-
-textarea = Text(frame1, height=4, width=25)
+textarea = Text(main, height=4, width=25)
 textarea.grid(row=2, column=0, pady=10)
 textarea.drop_target_register(DND_FILES)
 textarea.dnd_bind('<<Drop>>', Get_Path)
-
-attachmentsarea = Text(frame1, height=4, width=25)
+attachmentsarea = Text(main, height=4, width=25)
 attachmentsarea.grid(row=5, column=0, pady=10)
 attachmentsarea.drop_target_register(DND_FILES)
 attachmentsarea.dnd_bind('<<Drop>>', path_to_additional_attachments)
 
+Label(main, text='Input Client Information', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, pady=25)
+Label(main, text='Dag-N-Drop Quoteform Below', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=1, column=0)
+Label(main, text='Dag-N-Drop Additional Attachments Below', bg='#5F9EA0', font=('helvetica', 10, 'normal')).grid(row=4, column=0)
+Label(main, text='Additional e-mail Notes', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=1, column=1)
+Label(main, text='CC-Address 1:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=4, column=1, pady=10)
+Label(main, text='CC-Address 2:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=1, pady=15) 
+Label(main, text='Additional Notes/CC', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=1, pady=25)
+Label(main, text='Markets to Submit to:', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=3, pady=15)
 
-# This is the section of code which creates the a labels--------------------------------------------------------------------------------------|
-Label(frame1, text='Input Client Information', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, pady=25)
-Label(frame1, text='Dag-N-Drop Quoteform Below', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=1, column=0)
-Label(frame1, text='Dag-N-Drop Additional Attachments Below', bg='#5F9EA0', font=('helvetica', 10, 'normal')).grid(row=4, column=0)
-Label(frame2, text='Additional e-mail Notes', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=1, column=0)
-Label(frame2, text='CC-Address 1:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=4, column=0, pady=10)
-Label(frame2, text='CC-Address 2:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=0, pady=15) 
-Label(frame2, text='Additional Notes/CC', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, pady=25)
-Label(frame3, text='Markets to Submit to:', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=3, pady=15)
-#Settings Tab~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Label(settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=0, column=0, columnspan=2, pady=25)
-Label(settings, text='Preference on merging CC-addresses:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=2, column=0, pady=25)
-Label(settings, text='Placeholder setting', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=4, column=0, pady=25)
-Label(settings, text='Placeholder setting', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=25)
-#---------------------------------------------------------------------------------------------------------------------------------------------|
-
-
-#---------------------------------------------------------------------------------------------------------------------------------------------|
-# This is the section of code which creates the text input boxes
-additional_email_body_notes = Entry(frame2)
-additional_email_body_notes.grid(row=2, column=0, pady=5)
-cc_address_1_user_input = Entry(frame2)
-cc_address_1_user_input.grid(row=5, column=0)
-cc_address_2_user_input = Entry(frame2)
-cc_address_2_user_input.grid(row=8, column=0)
-#Settings Tab~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cc_def_1 = Radiobutton(settings, text="Add user input to the below.", variable=settings_merge_cc_addresses, value='0')
-cc_def_1.grid(row=2, column=1)
-cc_def_2 = Radiobutton(settings, text="Replace the below with user input.", variable=settings_merge_cc_addresses, value='1')
-cc_def_2.grid(row=2, column=1)
-#---------------------------------------------------------------------------------------------------------------------------------------------|
-
-
-# This is the section of code which creates the checkboxes
 seawave = Checkbutton(frame3, text='Seawave Insurance', variable=seawave_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
 seawave.grid(row=1, column=3)
 primetime = Checkbutton(frame3, text='Prime Time Insurance', variable=primetime_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
@@ -271,10 +251,80 @@ intact.grid(row=9, column=3)
 travelers = Checkbutton(frame3, text='Travelers', variable=travelers_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
 travelers.grid(row=10, column=3, pady=5)
 
-# This is the section of code which creates a button
-Button(frame3, text='Submit and sent to markets!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=btnClickFunction).grid(row=11, column=3, pady=10)
+additional_email_body_notes = Entry(main)
+additional_email_body_notes.grid(row=2, column=1, pady=5)
+cc_address_1_user_input = Entry(main)
+cc_address_1_user_input.grid(row=5, column=1)
+cc_address_2_user_input = Entry(main)
+cc_address_2_user_input.grid(row=8, column=1)
+
+Button(main, text='Submit and sent to markets!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=btnClickFunction).grid(row=11, column=3, pady=10)
+
+#settings
+cc_def_1 = Radiobutton(settings, text="Add user input to the below.", variable=settings_merge_cc_addresses, value='0')
+cc_def_1.grid(row=3, column=0)
+cc_def_2 = Radiobutton(settings, text="Replace the below with user input.", variable=settings_merge_cc_addresses, value='1')
+cc_def_2.grid(row=4, column=0)
+cc_def_address_1 = Entry(settings)
+cc_def_address_1.grid(row=6, column=0)
+cc_def_address_2 = Entry(settings)
+cc_def_address_2.grid(row=8, column=0)
+
+Label(settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, columnspan=2, pady=10)
+Label(settings, text='General Settings', bg='#5F9EA0', font=('helvetica', 14, 'normal')).grid(row=1, column=0, pady=10)
+Label(settings, text='Preference on merging CC-addresses:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=2, column=0, pady=10)
+Label(settings, text='Insert address to always CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=10)
+Label(settings, text='Insert another address to CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=0, pady=10)
+
 Button(settings, text='Save Settings!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=btnSave_Settings).grid(row=11, column=3, pady=10)
 
+#email_template
+Label(settings, text = 'Email Template Adjustment', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, pady=10)
+Label(settings, text = 'Select a specific market, or one of the combo options, to change the template for the email message.', bg='#5F9EA0', font=('helvetica', 14, 'normal')).grid(row=1, column=0, columnspan=3 pady=10)
+
+options = [
+	"Select Carrier"
+    "Seawave",
+    "Prime Time",
+    "New Hampshire",
+    "American Modern",
+    "Kemah",
+    "Concept",
+    "Yachtinsure"
+	"Century"
+	"Intact"
+	"Travelers"
+	"Combo SW and TP"
+	"Combo SW and NH"
+	"Combo SW, PT and NH"
+	"Combo PT and NH"
+]
+dropdown_email_template = StringVar()
+dropdown_email_template.set('Select Carrier')
+drop = OptionMenu(settings, dropdown_email_template, *options)
+drop.grid(row=2, column=1)
+
+Label(settings, text = 'Submission Address: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=3, column=0, pady=10)
+Label(settings, text = 'Greeting: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=4, column=0, pady=10)
+Label(settings, text = 'Body of the email: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=10)
+Label(settings, text = 'Salutation: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=6, column=0, pady=10)
+Label(settings, text = 'Your name: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=0, pady=10)
+carrier_ = Entry(main)
+cc_def_1_entry.grid(row=5, column=1)
+cc_def_2_entry = Entry(main)
+cc_def_2_entry.grid(row=8, column=1)
+
+button = Button(settings, text = "Save!", command = btn_save_carrier_details).grid(row=4, column=1)
+#these are the declarations of the variables associated with the checkboxes
+
+#frame1 = Frame(main, bg='red', padx=2, pady=2)
+#frame1.place(x=0, y=0)
+#frame2 = Frame(main, bg='green', padx=2, pady=2)
+#frame2.place(x=265, y=0)
+#frame3 = Frame(main, bg='green', padx=2, pady=2)
+#frame3.place(x=475, y=0)
+
+# This is the section of code which creates the checkboxes
 
 #SETTING THE WINDOW TO CENTER
 # get the screen dimension
