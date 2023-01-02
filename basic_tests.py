@@ -20,7 +20,7 @@ def getEmailContentToSend():
     config = read_config()
     check_dict = [(seawave_check.get()), (primetime_check.get()), (newhampshire_check.get()), (americanmodern_check.get()), (kemah_check.get()), (concept_check.get()), (yachtinsure_check.get()), (century_check.get()), (intact_check.get()), (travelers_check.get())]
     if check_dict[0]==1 and check_dict[1]==1 and check_dict[2]==0:
-		pt[0] = 0
+	        pt[0] = 0
 		sw[3] = config.get('Combo email', 'sw_and_pt_body')
 	elif check_dict[0]==1 and check_dict[1]==0 and check_dict[2]==1:
 		nh[0] = 0
@@ -44,10 +44,10 @@ def getEmailContentToSend():
         body_key = config.get(section, 'name')
         salutation_key = config.get(section, 'salutation')
         your_name = config.get('General Settings', 'your name')
-        create_var_name = (carrier_name
-        locals()[create_var_name] = 2020
-        carrier_tuple = (get_check, address_key, greeting_key, body_key, salutation_key, your_name)
-        return carrier_tuple
+        locals()[carrier_name] = (get_check, address_key, greeting_key, body_key, salutation_key, your_name)
+        carrier
+    carrier_tuple = (sw, pt, nh, am, km, cp, yi, ce, in, tv)
+    return carrier_tuple
 
 #print(config.get('SW email', 'sw_greeting'))
 
