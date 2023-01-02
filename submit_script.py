@@ -76,7 +76,7 @@ def passing():
 	# this is the function to check the status of each checkbox (1 means checked, and 0 means unchecked)
 
 def getCarrierValues():
-	import basic_tests
+	config = read_config()
 	sw = [(seawave_check.get()), (config.get('SW email', 'sw_address'))]
 	print(sw)
 	pt = [primetime_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'Please see the attached for a new quote submission for the Prime Time market. Thank you in advance for your consideration of our client. ']
@@ -91,17 +91,17 @@ def getCarrierValues():
 	#tv = (travelers_check.get(), 'sam@novamar.net', 'Hey Mark', 'Please see the attached for a new quote submission.')
 	if sw[0]==1 and pt[0]==1 and nh[0]==0:
 		pt[0] = 0
-		sw[3] = updater['Combo email']['sw_and_pt_body']
+		sw[3] = config.get('Combo email', 'sw_and_pt_body')
 	elif sw[0]==1 and pt[0]==0 and nh[0]==1:
 		nh[0] = 0
-		sw[3] = ' for both the Seawave and New Hampshire markets.'
+		sw[3] = config.get('Combo email', 'sw_and_nh_body')
 	elif sw[0]==1 and pt[0]==1 and nh[0]==1:
 		pt[0] = 0
 		nh[0] = 0
-		sw[3] = ' for the Seawave, Prime Time, & New Hampshire markets.'
+		sw[3] = config.get('Combo email', 'pt_and_nh_and_sw_body')
 	elif pt[0]==1 and nh[0]==1:
 		nh[0] = 0
-		pt[3] = ' for both the Prime Time and New Hampshire markets.'
+		pt[3] = config.get('Combo email', 'pt_and_nh_body')
 	else:
 		passing
 	return (sw, pt, nh, am, km, cp, yi, ce, in_, tv)
