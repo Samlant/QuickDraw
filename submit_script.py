@@ -18,7 +18,7 @@ length = 0
 #-----------------------
 
 #Functions--------------
-#SETTINGS#
+#SETTINGS - Save & update#
 def btn_save_carrier_details():
 	carrier = 
 	email = 
@@ -29,6 +29,8 @@ def btn_save_carrier_details():
 
 
 #End of SETTINGS#
+
+# Helper Functions------------------
 def Get_Path(event):
 	if '{' in event.data:
 		Get_Path.quoteform_path = ''
@@ -53,6 +55,24 @@ def Get_Subject():
 	msg_subject = f"{last_name}, {first_name} | {year} {make} {length} | New Quote Submission"
 	return msg_subject
 
+def Get_Add_Notes():
+	additional_notes = additional_email_body_notes.get()
+	return additional_notes
+
+def Get_CC_Addresses():
+	# config = read_config()
+	# if config.get('CarbonCopy Settings', 'settings_merge_cc_addresses')=='0':
+	# insert default addresses from config
+    # cc_1 = cc_address_1_user_input.get()
+    # cc_2 = cc_address_2_user_input.get()
+    # cc_total = f"{insertdefaultcc1}; {cc_1}; {insertdefaultcc2}; {cc_2}"
+    #     print(cc_total)
+	# else:
+	# 	cc_1 = cc_address_1_user_input
+	# 	cc_2 = cc_address_2_user_input.get()
+	# 	cc_total = f"{cc_1}; {cc_2}"
+	# 	print(cc_total)
+	return ''
 
 def path_to_additional_attachments(event):
 	if '{' in event.data:
@@ -73,45 +93,6 @@ def listToString(s):
 def passing():
 	pass
 
-	# this is the function to check the status of each checkbox (1 means checked, and 0 means unchecked)
-
-def getCarrierValues():
-	config = read_config()
-	sw = [(seawave_check.get()), (config.get('SW email', 'sw_address'))]
-	print(sw)
-	pt = [primetime_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'Please see the attached for a new quote submission for the Prime Time market. Thank you in advance for your consideration of our client. ']
-	nh = [newhampshire_check.get(), 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'Please see the attached for a new quote submission for the New Hampshire market. Thank you in advance for your consideration of our client. ']
-	am = (americanmodern_check.get(), 'boatbrokerage@one80intermediaries.com', 'Hey BoatBrokerage,', 'Please see the attached for a new quote submission for the American Modern market.  Also submitting with paid-in-full + paperless + homeowners discounts to apply. Thank you in advance for your consideration of our client. ')
-	km = (kemah_check.get(), 'tom_carroll@kemah_marine.com', 'Hey Tom,', 'Please see the attached for a new quote submission. Thank you in advance for your consideration of our client. ')
-	cp = (concept_check.get(), 'quote.team@special-risks.co.uk', 'Hey Concept Quote team,', 'Please see the attached for a new quote submission. Thank you in advance for your consideration of our client. ')
-	yi = (yachtinsure_check.get(), 'quotes@yachtinsure.uk.com', 'Hey Yachtinsure quote team,', 'Please see the attached for a new quote submission. Thank you in advance for your consideration of our client. ') 
-	ce = (century_check.get(), 'rsmith@bassuw.com', 'Hey Richard,', 'Please see the attached for a new quote submission. Thank you in advance for your consideration of our client. ')
-	in_ = (intact_check.get(), 'yucusa@intactinsurance.com', 'Hey Intact,', 'Please see the attached for a new quote submission. Thank you in advance for your consideration of our client. ')
-	tv = (travelers_check.get(), 'mzadrick@travelers.com', 'Hey Mark,', 'Please see the attached for a new quote submission. Thank you in advance for your consideration of our client. ')
-	#tv = (travelers_check.get(), 'sam@novamar.net', 'Hey Mark', 'Please see the attached for a new quote submission.')
-	if sw[0]==1 and pt[0]==1 and nh[0]==0:
-		pt[0] = 0
-		sw[3] = config.get('Combo email', 'sw_and_pt_body')
-	elif sw[0]==1 and pt[0]==0 and nh[0]==1:
-		nh[0] = 0
-		sw[3] = config.get('Combo email', 'sw_and_nh_body')
-	elif sw[0]==1 and pt[0]==1 and nh[0]==1:
-		pt[0] = 0
-		nh[0] = 0
-		sw[3] = config.get('Combo email', 'pt_and_nh_and_sw_body')
-	elif pt[0]==1 and nh[0]==1:
-		nh[0] = 0
-		pt[3] = config.get('Combo email', 'pt_and_nh_body')
-	else:
-		passing
-	return (sw, pt, nh, am, km, cp, yi, ce, in_, tv)
-
-
-def Get_Add_Notes():
-	additional_notes = additional_email_body_notes.get()
-	return additional_notes
-
-def Get_CC_Addresses():
 	config = read_config()
 	if eval['CarbonCopy Settings'],['settings_merge_cc_addresses'] =='0':
 		#insert default addresses from config
@@ -127,60 +108,125 @@ def Get_CC_Addresses():
 	return cc_total
 
 # this is the function called when the buttons are clicked:
-def btnSave_Settings():
+def btnSave_Settings():  #NEED TO DOUBLE CHECK & EDIT,  and copy for other settings...
 	import update_config
 	updater["CC-address Settings"]["settings_merge_cc_addresses"].value = settings_merge_cc_addresses.get()
 	updater["CC-address Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
 	updater["CC-address Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
 
 def btnClickFunction():
-	import win32com.client as win32
-	outlook = win32.Dispatch('outlook.application')
-#	cc_output = ''
-	cc_output = Get_CC_Addresses()
-	mail = outlook.CreateItem(0)
-	mail.Subject = Get_Subject()
-	add_notes = Get_Add_Notes()
-	carrier_values = getCarrierValues()
-	for i in carrier_values:
-		if i[0] == 1:
-			mail.To = i[1]
-			mail.CC = cc_output
-			intro = i[2]
-			body = i[3]
-			mail.HTMLBody = '''
-			<html><head>
-			<title>New Quote Submission</title>
-			<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-			<meta name="ProgId" content="Word.Document">
-			<meta name="Generator" content="Microsoft Word 15">
-			<meta name="Originator" content="Microsoft Word 15">
-			</head>
-			<body>
-			<p style="font-size=14px;color:#1F3864">%s</p>
-			<p style="font-size=14px;color:#1F3864">%s %s</p><br>
-			</body>
-			<footer>
-			<p style='margin:0in;font-size:14px;font-family:Calibri,sans-serif;color:#1F3864;'>With Pleasure,</p>
-			<p style='margin:0in;font-size=14px;font-family:Calibri,sans-serif;color:#1F3864;'>Samuel Alexander Lanteigne</p><br>
-			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Main:(800)-823-2798</p>
-			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Office :(941)-444-5099</p>
-			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Fax:(941)-328-3598</p><br>
-			<p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>1549 Ringling Blvd., Suite 101</p>
-			<p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>Sarasota, FL 34236</p><br>
-			<p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com/" target="_blank">www.novamarinsurance.com</a></p>
-			<p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com.mx/" target="_blank">www.novamarinsurance.com.mx</a></p>
+	#TO POPULATE
 
-			<p style'margin:0in'><a href="https://www.facebook.com/NovamarInsurance" target="_blank"><img width=24 height=24 src="https://cdn1.iconfinder.com/data/icons/social-media-2285/512/Colored_Facebook3_svg-512.png"></a>  <a href="https://www.instagram.com/novamar_insurance/" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-512.png" style="display:block"></a>  <a href="https://twitter.com/NovamarIns" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Twitter3_colored_svg-512.png" style="display:block"></a>  <a href="https://www.linkedin.com/company/novamar-insurance-group-inc" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Linkedin_unofficial_colored_svg-512.png" style="display:block"></a></p>
-			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
-			<p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
-			</footer></html>
-			''' %(intro, body, add_notes)
-			mail.Attachments.Add(Get_Path.quoteform_path)
-			for attachment in attachments:
-				mail.Attachments.Add(attachment)
-			mail.Display()
-#			mail.Send()
+#Main Functions
+def sameCarrierSubmission():
+    config = read_config()
+    dict0 = [seawave_check.get(), primetime_check.get(), newhampshire_check.get()]
+    if dict0[0]==1 and dict0[1]==1 and dict0[2]==0:
+        address = config.get('SW email', 'address')
+        greeting = config.get('SW email', 'greeting')
+        body = config.get('Combo email', 'sw_and_pt_body')
+        salutation = config.get('SW email', 'salutation')
+        your_name = config.get('General settings', 'your_name')
+        sendEmail(address, greeting, body, salutation, your_name)
+    elif dict0[0]==1 and dict0[1]==0 and dict0[2]==1:
+        address = config.get('SW email', 'address')
+        greeting = config.get('SW email', 'greeting')
+        body = config.get('Combo email', 'sw_and_nh_body')
+        salutation = config.get('SW email', 'salutation')
+        your_name = config.get('General settings', 'your_name')
+        sendEmail(address, greeting, body, salutation, your_name)
+    elif dict0[0]==1 and dict0[1]==1 and dict0[2]==1:
+        address = config.get('SW email', 'address')
+        greeting = config.get('SW email', 'greeting')
+        body = config.get('Combo email', 'pt_and_nh_and_sw_body')
+        salutation = config.get('SW email', 'salutation')
+        your_name = config.get('General settings', 'your_name')
+        sendEmail(address, greeting, body, salutation, your_name)
+    elif dict0[1]==1 and dict0[2]==1:
+        address = config.get('SW email', 'address')
+        greeting = config.get('SW email', 'greeting')
+        body = config.get('Combo email', 'pt_and_nh_body')
+        salutation = config.get('SW email', 'salutation')
+        your_name = config.get('General settings', 'your_name')
+        sendEmail(address, greeting, body, salutation, your_name)
+    elif dict0[0]==1 or dict0[1]==1 or dict0[2]==1:
+        if dict0[0]==1:
+            address = config.get('SW email', 'address')
+            greeting = config.get('SW email', 'greeting')
+            body = config.get('SW email', 'body')
+            salutation = config.get('SW email', 'salutation')
+            your_name = config.get('General settings', 'your_name')
+            sendEmail(address, greeting, body, salutation, your_name)
+        elif dict0[1]==1:
+            address = config.get('PT email', 'address')
+            greeting = config.get('PT email', 'greeting')
+            body = config.get('PT email', 'body')
+            salutation = config.get('PT email', 'salutation')
+            your_name = config.get('General settings', 'your_name')
+            sendEmail(address, greeting, body, salutation, your_name)
+        else:
+            address = config.get('NH email', 'address')
+            greeting = config.get('NH email', 'greeting')
+            body = config.get('NH email', 'body')
+            salutation = config.get('NH email', 'salutation')
+            your_name = config.get('General settings', 'your_name')
+            sendEmail(address, greeting, body, salutation, your_name)
+    else:
+        pass
+    for section in config:
+        if section=='SW email' or section=='PT email' or 'NH email':
+            pass
+        else:
+            address = config.get(section, 'address')
+            greeting = config.get(section, 'name')
+            body = config.get(section, 'name')
+            salutation = config.get(section, 'salutation')
+            your_name = config.get('General Settings', 'your name')
+            sendEmail(address, greeting, body, salutation, your_name)
+
+def sendEmail(address, greeting, body, salutation, your_name):
+    import win32com.client as win32
+    outlook = win32.Dispatch('outlook.application')
+    cc_output = Get_CC_Addresses()
+    add_notes = Get_Add_Notes()
+    mail = outlook.CreateItem(0)
+    mail.Subject = Get_Subject()
+    mail.To = address
+    mail.CC = cc_output
+    mail.HTMLBody = '''
+    <html><head>
+    <title>New Quote Submission</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <meta name="ProgId" content="Word.Document">
+    <meta name="Generator" content="Microsoft Word 15">
+    <meta name="Originator" content="Microsoft Word 15">
+    </head>
+    <body>
+    <p style="font-size=14px;color:#1F3864">%s</p>
+    <p style="font-size=14px;color:#1F3864">%s %s</p><br>
+    </body>
+    <footer>
+    <p style='margin:0in;font-size:14px;font-family:Calibri,sans-serif;color:#1F3864;'>%s</p>
+    <p style='margin:0in;font-size=14px;font-family:Calibri,sans-serif;color:#1F3864;'>%s</p><br>
+    <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Main:(800)-823-2798</p>
+    <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Office :(941)-444-5099</p>
+    <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Fax:(941)-328-3598</p><br>
+    <p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>1549 Ringling Blvd., Suite 101</p>
+    <p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>Sarasota, FL 34236</p><br>
+    <p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com/" target="_blank">www.novamarinsurance.com</a></p>
+    <p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com.mx/" target="_blank">www.novamarinsurance.com.mx</a></p>
+
+    <p style'margin:0in'><a href="https://www.facebook.com/NovamarInsurance" target="_blank"><img width=24 height=24 src="https://cdn1.iconfinder.com/data/icons/social-media-2285/512/Colored_Facebook3_svg-512.png"></a>  <a href="https://www.instagram.com/novamar_insurance/" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-512.png" style="display:block"></a>  <a href="https://twitter.com/NovamarIns" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Twitter3_colored_svg-512.png" style="display:block"></a>  <a href="https://www.linkedin.com/company/novamar-insurance-group-inc" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Linkedin_unofficial_colored_svg-512.png" style="display:block"></a></p>
+    <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
+    <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
+    </footer></html>
+    ''' %(greeting, body, add_notes, salutation, your_name)
+    mail.Attachments.Add(Get_Path.quoteform_path)
+    for attachment in attachments:
+        mail.Attachments.Add(attachment)
+    mail.Display()
+#   mail.Send()
+
 
 # This is the section of code which creates the main window
 root = Tk()
