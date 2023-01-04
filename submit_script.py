@@ -5,7 +5,6 @@ from tkinter import *
 from tkinterdnd2 import *
 import fillpdf as fillpdf
 from helper import *
-#import .ini file via *update* (preferred) ..or.. helper.py scripts
 
 #Global variables
 settings_merge_cc_addresses = int
@@ -20,14 +19,21 @@ length = 0
 #Functions--------------
 #SETTINGS - Save & update#
 def btn_save_carrier_details():
-	carrier = 
-	email = 
-	greeting = 
-	body = 
-	salutation = 
-	update_carrier_email('SW', 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'Please see the attached for a new quote submission for the Seawave market. Thank you in advance for your consideration of our client. ', '')
+	try:
+		carrier = dropdown_email_template.get()
+		email = .get()
+		greeting = .get()
+		body = .get()
+		salutation = .get()
+		#??? whatisthis? update_carrier_email('SW', 'boatprograms@one80intermediaries.com', 'Hey Boat Programs,', 'Please see the attached for a new quote submission for the Seawave market. Thank you in advance for your consideration of our client. ', '')
+		#copy below to 
+	insert function to update config file with these values and save
 
-
+def btnSave_Settings():  #NEED TO DOUBLE CHECK & EDIT,  and copy for other settings...
+	updater["CC-address Settings"]["settings_merge_cc_addresses"].value = settings_merge_cc_addresses.get()
+	updater["CC-address Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
+	updater["CC-address Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
+	
 #End of SETTINGS#
 
 # Helper Functions------------------
@@ -60,64 +66,41 @@ def Get_Add_Notes():
 	return additional_notes
 
 def Get_CC_Addresses():
-	# config = read_config()
-	# if config.get('CarbonCopy Settings', 'settings_merge_cc_addresses')=='0':
-	# insert default addresses from config
-    # cc_1 = cc_address_1_user_input.get()
-    # cc_2 = cc_address_2_user_input.get()
-    # cc_total = f"{insertdefaultcc1}; {cc_1}; {insertdefaultcc2}; {cc_2}"
-    #     print(cc_total)
-	# else:
-	# 	cc_1 = cc_address_1_user_input
-	# 	cc_2 = cc_address_2_user_input.get()
-	# 	cc_total = f"{cc_1}; {cc_2}"
-	# 	print(cc_total)
-	return ''
+	config = read_config()
+        cc_addresses = [cc_address_1_user_input.get(), cc_address_2_user_input.get()]
+	if config.get('CarbonCopy Settings', 'settings_merge_cc_addresses')=='0':
+	    try:
+		cc_addresses.append(config.get('CarbonCopy Settings', ''), config.get('CarbonCopy Settings', ''))
+	    except
+	        print('The cc append didnt work, trying the other way...')
+		cc_addresses.append(config.get('CarbonCopy Settings', '')
+                cc_addresses.append(config.get('CarbonCopy Settings', '')
+	        print('Done.')
+        #cc_total = f"{insertdefaultcc1}; {cc_1}; {insertdefaultcc2}; {cc_2}"
+        return cc_addresses
 
 def path_to_additional_attachments(event):
 	if '{' in event.data:
 		attachments.append(event.data.translate({ord(c): None for c in '{}'}))
 	else:
 		attachments.append(event.data)
-	print(attachments)
 	return attachments
 
 def listToString(s):
     str1 = ""
-    # traverse in the string
-    for ele in s:
-        str1 += ele
-    # return string
+    for element in s:
+        str1 += element
     return str1
 
 def passing():
 	pass
 
-	config = read_config()
-	if eval['CarbonCopy Settings'],['settings_merge_cc_addresses'] =='0':
-		#insert default addresses from config
-		cc_1 = cc_address_1_user_input.get()
-		cc_2 = cc_address_2_user_input.get()
-		cc_total = f"{insertdefaultcc1}; {cc_1}; {insertdefaultcc2}; {cc_2}"
-		print(cc_total)
-	else:
-		cc_1 = cc_address_1_user_input
-		cc_2 = cc_address_2_user_input.get()
-		cc_total = f"{cc_1}; {cc_2}"
-		print(cc_total)
-	return cc_total
-
-# this is the function called when the buttons are clicked:
-def btnSave_Settings():  #NEED TO DOUBLE CHECK & EDIT,  and copy for other settings...
-	import update_config
-	updater["CC-address Settings"]["settings_merge_cc_addresses"].value = settings_merge_cc_addresses.get()
-	updater["CC-address Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
-	updater["CC-address Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
+				    
+#Main Functions
 
 def btnClickFunction():
 	#TO POPULATE
-
-#Main Functions
+	
 def sameCarrierSubmission():
     config = read_config()
     dict0 = [seawave_check.get(), primetime_check.get(), newhampshire_check.get()]
@@ -177,12 +160,15 @@ def sameCarrierSubmission():
         if section=='SW email' or section=='PT email' or 'NH email':
             pass
         else:
-            address = config.get(section, 'address')
-            greeting = config.get(section, 'name')
-            body = config.get(section, 'name')
-            salutation = config.get(section, 'salutation')
-            your_name = config.get('General Settings', 'your name')
-            sendEmail(address, greeting, body, salutation, your_name)
+            try:
+	        address = config.get(section, 'address')
+                greeting = config.get(section, 'name')
+                body = config.get(section, 'name')
+                salutation = config.get(section, 'salutation')
+                your_name = config.get('General Settings', 'your name')
+                sendEmail(address, greeting, body, salutation, your_name)
+	    except:
+		pass
 
 def sendEmail(address, greeting, body, salutation, your_name):
     import win32com.client as win32
