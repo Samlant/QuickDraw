@@ -4,6 +4,7 @@ from tkinter.ttk import Notebook, Style
 from tkinter import * 
 from tkinterdnd2 import *
 import fillpdf
+from fillpdf import fillpdfs
 from helper import *
 
 #Global variables
@@ -105,7 +106,7 @@ def Get_Add_Notes():
     additional_notes = additional_email_body_notes.get()
     return additional_notes
 
-def Get_CC_Addresses():
+def Get_CC_Addresses(): #NEED TO REVISE HOW WE KEEP ADDRESS...It gets replaced with "None"
     config = read_config()
     cc_addresses = [cc_address_1_user_input.get(), cc_address_2_user_input.get()]
     if config.get('CarbonCopy Settings', 'settings_merge_cc_addresses')=='0':
@@ -357,13 +358,13 @@ options = [
     "American Modern",
     "Kemah",
     "Concept",
-    "Yachtinsure"
-	"Century"
-	"Intact"
-	"Travelers"
-	"Combo SW and PT"
-	"Combo SW and NH"
-	"Combo SW, PT and NH"
+    "Yachtinsure",
+	"Century",
+	"Intact",
+	"Travelers",
+	"Combo SW and PT",
+	"Combo SW and NH",
+	"Combo SW, PT and NH",
 	"Combo PT and NH"
 ]
 dropdown_email_template = StringVar()
@@ -386,6 +387,8 @@ carrier_salutation = Entry(template_settings)
 carrier_salutation.grid(row=8, column=1, columnspan=2)
 your_name = Entry(template_settings)
 your_name.grid(row=9, column=1)
+#----Seperating creating entries above,  and entry functions below---------
+
 
 button = Button(settings, text = "Save!", command = btn_save_carrier_template).grid(row=4, column=1)
 
