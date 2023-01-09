@@ -19,61 +19,78 @@ length = 0
 
 #Functions--------------
 #SETTINGS - Save & update
-def btn_save_carrier_template():
-    updater = update_config()
-    try:
-        carrier = dropdown_email_template.get()
-        if carrier!='Combo SW and PT' or 'Combo SW and NH' or 'Combo SW, PT and NH' or 'Combo SW, PT and NH':
-            if carrier=='Seawave':
-                carrier = 'SW email'
-            if carrier=='Prime Time':
-                carrier = 'PT email'
-            if carrier=='New Hampshire':
-                carrier = 'NH email'
-            if carrier=='American Modern':
-                carrier = 'AM email'
-            if carrier=='Kemah':
-                carrier = 'KM email'
-            if carrier=='Concept':
-                carrier = 'CP email'
-            if carrier=='Yachtinsure':
-                carrier = 'YI email'
-            if carrier=='Century':
-                carrier = 'CE email'
-            if carrier=='Intact':
-                carrier = 'IN email'
-            if carrier=='Travelers':
-                carrier = 'TV email'
-            updater[carrier]['address'].value = carrier_address.get()
-            updater[carrier]['greeting'].value = carrier_greeting.get()
-            updater[carrier]['body'].value = carrier_body.get()
-            updater[carrier]['salutation'].value = carrier_salutation.get()
-        else:
-            if carrier=='Combo SW and PT':
-                carrier = 'Combo email'
-                key = 'sw_and_pt_body'
-                updater[carrier][key].value = carrier_body.get()
-            if carrier=='Combo SW and NH':
-                carrier = 'Combo email'
-                key = 'sw_and_nh_body'
-                updater[carrier][key].value = carrier_body.get()
-            if carrier=='Combo SW, PT and NH':
-                carrier = 'Combo email'
-                key = 'pt_and_nh_body'
-                updater[carrier][key].value = carrier_body.get()
-            if carrier=='Combo PT and NH':
-                carrier = 'Combo email'
-                key = 'pt_and_nh_and_sw_body'
-                updater[carrier][key].value = carrier_body.get()
-        updater['General settings']['your_name'].value = your_name.get()
-    except:
-        print('save carrier template to config file FAILED!')
-
+def btnSaveCarrierTemplate(carrier):
+    config = update_configm#WORK ON THIS AREA, 'function' obj not subscriptable' on line 28
+    carrier = 'Seawave'
+    carrier_dict = assignCorrectCarrierNames(carrier)
+    section_name = f"{carrier_dict.get('section_name')}"
+    if carrier_dict['combo_body']==0:
+        config[section_name]['address'].value = carrier_address.get()
+        config[section_name]['greeting'].value = carrier_greeting.get()
+        config[section_name]['body'].value = carrier_body.get()
+        config[section_name]['salutation'].value = carrier_salutation.get()
+    else:
+        key = carrier_dict['combo_body']
+        config[section_name][key].value = carrier_body.get()
+  
 def btnSaveMainSettings():
     updater = update_config()
     updater["CC-address Settings"]["settings_merge_cc_addresses"].value = settings_merge_cc_addresses.get()
     updater["CC-address Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
     updater["CC-address Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
+
+#Helper Functions
+def assignCorrectCarrierNames(carrier):
+    carrier_dict = dict()
+    if carrier!='Combo SW and PT' or 'Combo SW and NH' or 'Combo SW, PT and NH' or 'Combo SW, PT and NH':
+        if carrier=='Seawave':
+            carrier = 'SW email'
+        elif carrier =='Prime Time':
+            carrier = 'PT email'
+        elif carrier=='New Hampshire':
+            carrier = 'NH email'
+        elif carrier=='American Modern':
+            carrier = 'AM email'
+        elif carrier=='Kemah':
+            carrier = 'KM email'
+        elif carrier=='Concept':
+            carrier = 'CP email'
+        elif carrier=='Yachtinsure':
+            carrier = 'YI email'
+        elif carrier=='Century':
+            carrier = 'CE email'
+        elif carrier=='Intact':
+            carrier = 'IN email'
+        elif carrier=='Travelers':
+            carrier = 'TV email'
+        carrier_dict = {'section_name':carrier, 'combo_body':0}
+    else:
+        if carrier=='Combo SW and PT':
+            carrier = 'Combo email'
+            key = 'sw_and_pt_body'
+        elif carrier=='Combo SW and NH':
+            carrier = 'Combo email'
+            key = 'sw_and_nh_body'
+        elif carrier=='Combo SW, PT and NH':
+            carrier = 'Combo email'
+            key = 'pt_and_nh_body'
+        elif carrier=='Combo PT and NH':
+            carrier = 'Combo email'
+            key = 'pt_and_nh_and_sw_body'
+        carrier_dict = {'section_name':carrier, 'combo_body':key}
+    return carrier_dict
+
+def updateCarrierChoice():
+    current_selection = dropdown_email_template.get()
+    if 'Combo' in current_selection:
+        carrier_address.configure(state='disabled')
+        carrier_greeting.configure(state='disabled')
+        carrier_salutation.configure(state='disabled')
+    else:
+        carrier_address.configure(state='normal')
+        carrier_greeting.configure(state='normal')
+        carrier_salutation.configure(state='normal')        
+
 
 #End of SETTINGS#
 
@@ -247,15 +264,26 @@ def sendEmail(address, greeting, body, salutation, your_name):
 
 
 # This is the section of code which creates the main window
+
 root = Tk()
-root.geometry('690x500')
+root.geometry('760x548')
 root.configure(background='#5F9EA0')
 root.title('Quote Submissions Tool')
-root.attributes('-alpha',0.84)
+root.attributes('-alpha',0.95)
 #use below to replace title icon when ready
 #root.iconbitmap('./assets/example.ico') 
-#TabControl
+
+#Creating and Styling Tabs on main window
+
+# Create an instance of ttk style
+style = Style()
+style.theme_use('default')
+style.configure('TNotebook', background='#5F9EA0')
+style.configure('TFrame', background='#5F9EA0')
+style.map("TNotebook", background= [("selected", '#5F9EA0')])
+#Create tabs
 tabControl = ttk.Notebook(root)
+#tabControl.configure(bg='#5F9EA0')
 main = ttk.Frame(tabControl)
 template_settings = ttk.Frame(tabControl)
 settings = ttk.Frame(tabControl)
@@ -263,11 +291,51 @@ tabControl.add(main, text='Main')
 tabControl.add(template_settings, text='Templates')
 tabControl.add(settings, text='Settings')
 tabControl.pack(expand=1, fill="both")
-#tkinter modules by tab
-#main
 
-frame3 = Frame(main)
-frame3.grid(row=0, rowspan=10, column=3)
+#tkinter modules by tab
+
+#MAIN TAB
+
+frame_header = Frame(main, bg='#5F9EA0', pady=17)
+frame_left = Frame(main, bg='#5F9EA0')
+frame_middle = Frame(main, bg='#5F9EA0')
+frame_right = Frame(main, bg='#5F9EA0')
+frame_header.pack(padx=5, fill=X, expand=False)
+frame_left.pack(padx=5, fill = Y, side='left', expand = False, anchor=NE)
+frame_middle.pack(padx=5, fill = Y, side='left', expand = False, anchor=N)
+frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
+
+#DECLARE VARIABLES THEN PACKING OF frame_left ELEMENTS
+
+textarea = Text(frame_left, height=7, width=27, background='#59f3e3')
+attachmentsarea = Text(frame_left, height=9, width=27, background='#59f3e3')
+
+Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+textarea.pack(fill=BOTH, anchor=N, expand=True)
+Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+attachmentsarea.pack(fill=X, expand=True, anchor=N)
+
+textarea.drop_target_register(DND_FILES)
+textarea.dnd_bind('<<Drop>>', Get_Path)
+attachmentsarea.drop_target_register(DND_FILES)
+attachmentsarea.dnd_bind('<<Drop>>', path_to_additional_attachments)
+
+#DECLARE VARIABLES THEN PACKING OF frame_middle ELEMENTS
+
+additional_email_body_notes = Text(frame_middle, height=7, width=30)
+cc_address_1_user_input = Text(frame_middle, height=1, width=30)
+cc_address_2_user_input = Text(frame_middle, height=1, width=30)
+
+Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill=BOTH, expand=True, side='left')
+Label(frame_middle, text='Add Extra eMail Notes', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+additional_email_body_notes.pack(fill = X, anchor=N, expand=True)
+Label(frame_middle, text='CC-Address 1:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+cc_address_1_user_input.pack(ipady=5, anchor=N, fill = X, expand=True)
+Label(frame_middle, text='CC-Address 2:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+cc_address_2_user_input.pack(ipady=5, anchor=N, fill = X, expand=True)
+
+#DECLARE VARIABLES THEN PACKING OF frame_right ELEMENTS
 
 seawave_check = tk.IntVar()
 primetime_check = tk.IntVar()
@@ -279,76 +347,32 @@ yachtinsure_check = tk.IntVar()
 century_check = tk.IntVar()
 intact_check = tk.IntVar()
 travelers_check = tk.IntVar()
+seawave = Checkbutton(frame_right, text='Seawave Insurance', variable=seawave_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+primetime = Checkbutton(frame_right, text='Prime Time Insurance', variable=primetime_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+newhampshire = Checkbutton(frame_right, text='New Hampshire', variable=newhampshire_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+americanmodern = Checkbutton(frame_right, text='American Modern', variable=americanmodern_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+kemah = Checkbutton(frame_right, text='Kemah Marine', variable=kemah_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+concept = Checkbutton(frame_right, text='Concept Special ', variable=concept_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+yachtinsure = Checkbutton(frame_right, text='Yachtinsure', variable=yachtinsure_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+century = Checkbutton(frame_right, text='Century Insurance', variable=century_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+intact = Checkbutton(frame_right, text='Intact', variable=intact_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+travelers = Checkbutton(frame_right, text='Travelers', variable=travelers_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
 
-textarea = Text(main, height=4, width=25)
-textarea.grid(row=2, column=0, pady=10)
-textarea.drop_target_register(DND_FILES)
-textarea.dnd_bind('<<Drop>>', Get_Path)
-attachmentsarea = Text(main, height=4, width=25)
-attachmentsarea.grid(row=5, column=0, pady=10)
-attachmentsarea.drop_target_register(DND_FILES)
-attachmentsarea.dnd_bind('<<Drop>>', path_to_additional_attachments)
+Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill=BOTH, expand=True, side='left')
+seawave.pack(ipady=3, fill=BOTH, expand=True)
+primetime.pack(ipady=3, fill=BOTH, expand=True)
+newhampshire.pack(ipady=3, fill=BOTH, expand=True)
+americanmodern.pack(ipady=3, fill=BOTH, expand=True)
+kemah.pack(ipady=3, fill=BOTH, expand=True)
+concept.pack(ipady=3, fill=BOTH, expand=True)
+yachtinsure.pack(ipady=3, fill=BOTH, expand=True)
+century.pack(ipady=3, fill=BOTH, expand=True)
+intact.pack(ipady=3, fill=BOTH, expand=True)
+travelers.pack(ipady=3, fill=BOTH, expand=True)
 
-Label(main, text='Input Client Information', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, pady=25)
-Label(main, text='Dag-N-Drop Quoteform Below', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=1, column=0)
-Label(main, text='Dag-N-Drop Additional Attachments Below', bg='#5F9EA0', font=('helvetica', 10, 'normal')).grid(row=4, column=0)
-Label(main, text='Additional e-mail Notes', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=1, column=1)
-Label(main, text='CC-Address 1:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=4, column=1, pady=10)
-Label(main, text='CC-Address 2:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=1, pady=15) 
-Label(main, text='Additional Notes/CC', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=1, pady=25)
-Label(frame3, text='Markets to Submit to:', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=3, pady=15)
+Button(frame_right, text='Submit and sent to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'), command=sameCarrierSubmission).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
 
-seawave = Checkbutton(frame3, text='Seawave Insurance', variable=seawave_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-seawave.grid(row=1, column=3)
-primetime = Checkbutton(frame3, text='Prime Time Insurance', variable=primetime_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-primetime.grid(row=2, column=3, pady=5)
-newhampshire = Checkbutton(frame3, text='New Hampshire', variable=newhampshire_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-newhampshire.grid(row=3, column=3)
-americanmodern = Checkbutton(frame3, text='American Modern', variable=americanmodern_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-americanmodern.grid(row=4, column=3, pady=5)
-kemah = Checkbutton(frame3, text='Kemah Marine', variable=kemah_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-kemah.grid(row=5, column=3)
-concept = Checkbutton(frame3, text='Concept Special ', variable=concept_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-concept.grid(row=6, column=3, pady=5)
-yachtinsure = Checkbutton(frame3, text='Yachtinsure', variable=yachtinsure_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-yachtinsure.grid(row=7, column=3)
-century = Checkbutton(frame3, text='Century Insurance', variable=century_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-century.grid(row=8, column=3, pady=5)
-intact = Checkbutton(frame3, text='Intact', variable=intact_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-intact.grid(row=9, column=3)
-travelers = Checkbutton(frame3, text='Travelers', variable=travelers_check, bg='#7FFFD4', font=('helvetica', 12, 'normal'))
-travelers.grid(row=10, column=3, pady=5)
-
-additional_email_body_notes = Entry(main)
-additional_email_body_notes.grid(row=2, column=1, pady=5)
-cc_address_1_user_input = Entry(main)
-cc_address_1_user_input.grid(row=5, column=1)
-cc_address_2_user_input = Entry(main)
-cc_address_2_user_input.grid(row=8, column=1)
-
-Button(frame3, text='Submit and sent to markets!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=sameCarrierSubmission).grid(row=11, column=3, pady=10)
-
-#settings
-cc_merge_0 = Radiobutton(settings, text="Add user input to the below.", variable=settings_merge_cc_addresses, value='0')
-cc_merge_0.grid(row=3, column=0)
-cc_merge_1 = Radiobutton(settings, text="Replace the below with user input.", variable=settings_merge_cc_addresses, value='1')
-cc_merge_1.grid(row=4, column=0)
-def_cc_address_1 = Entry(settings)
-def_cc_address_1.grid(row=6, column=0)
-def_cc_address_2 = Entry(settings)
-def_cc_address_2.grid(row=8, column=0)
-
-Label(settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, columnspan=2, pady=10)
-Label(settings, text='General Settings', bg='#5F9EA0', font=('helvetica', 14, 'normal')).grid(row=1, column=0, pady=10)
-Label(settings, text='Preference on merging CC-addresses:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=2, column=0, pady=10)
-Label(settings, text='Insert address to always CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=10)
-Label(settings, text='Insert another address to CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=0, pady=10)
-
-Button(settings, text='Save Settings!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=btnSaveMainSettings).grid(row=11, column=3, pady=10)
-
-#email_template
-Label(template_settings, text = 'Email Template Adjustment', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, pady=10)
-Label(template_settings, text = 'Select a specific market, or one of the combo options, to change the template for the email message.', bg='#5F9EA0', font=('helvetica', 14, 'normal')).grid(row=1, column=0, columnspan=3, pady=10)
+#-----------------EMAIL_TEMPLATE TAB-------------------------
 
 options = [
 	"Select Carrier"
@@ -367,30 +391,68 @@ options = [
 	"Combo SW, PT and NH",
 	"Combo PT and NH"
 ]
+e_frame_header_spacer = Frame(template_settings, bg='#5F9EA0', height=17)
+e_frame_header = Frame(template_settings, bg='#5F9EA0')
+e_frame_top = Frame(template_settings, bg='#5F9EA0')
+e_frame_content = Frame(template_settings, bg='#5F9EA0')
+e_frame_bottomL = Frame(template_settings, bg='#5F9EA0' )
+e_frame_bottomR = Frame(template_settings, bg='#5F9EA0')
+e_frame_header_spacer.pack(fill=X, expand=False)
+e_frame_header.pack(padx=5, fill = X, expand=True)
+e_frame_top.pack(fill=BOTH, expand=False)
+e_frame_content.pack(fill=BOTH, expand=False, anchor=N)
+e_frame_bottomL.pack(fill=X, expand=True, side='left', anchor=N)
+e_frame_bottomR.pack(fill=X, expand=True, side='left', anchor=N)
+
+
 dropdown_email_template = StringVar()
+dropdown_email_template.trace_add('write', updateCarrierChoice)
 dropdown_email_template.set('Select Carrier')
-drop = OptionMenu(template_settings, dropdown_email_template, *options)
-drop.grid(row=2, column=1)
+drop = OptionMenu(e_frame_top, dropdown_email_template, *options)
+drop.configure(background='#aedadb', foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0')
+drop["menu"].configure(background='#aedadb')
+your_name = Entry(e_frame_header)
 
-Label(template_settings, text = 'Submission Address: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=3, column=0, pady=10)
-Label(template_settings, text = 'Greeting: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=4, column=0, pady=10)
-Label(template_settings, text = 'Body of the email: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=10)
-Label(template_settings, text = 'Salutation: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=8, column=0, pady=10)
-Label(template_settings, text = 'Your name: ', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=9, column=0, pady=10)
-carrier_address = Entry(template_settings)
-carrier_address.grid(row=3, column=1)
-carrier_greeting = Entry(template_settings)
-carrier_greeting.grid(row=4, column=1, columnspan=2)
-carrier_body = Entry(template_settings)
-carrier_body.grid(row=5, column=1, columnspan=2)
-carrier_salutation = Entry(template_settings)
-carrier_salutation.grid(row=8, column=1, columnspan=2)
-your_name = Entry(template_settings)
-your_name.grid(row=9, column=1)
-#----Seperating creating entries above,  and entry functions below---------
+carrier_address = Entry(e_frame_bottomR)
+carrier_greeting = Entry(e_frame_bottomR)
+carrier_body = Text(e_frame_bottomR, width=10, height=5)
+carrier_salutation = Entry(e_frame_bottomR, width=27, highlightbackground='green', highlightcolor='red')
 
+Label(e_frame_header, text = 'Adjust the Default Email Templates for Each Carrier', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill = X, expand=True, side='top')
+Label(e_frame_header, text = 'Your name (used in Signature):', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(padx=4, pady=5, fill=BOTH, expand=True, side='left', anchor=E)
+your_name.pack(ipadx=900, pady=5, fill=BOTH, expand=True, side='right', anchor=NW)
+Label(e_frame_top, text = "This drop-down menu allows you to view & edit a specific carrier's, or combo carriers', email message contents.", bg='#5F9EA0', font=('helvetica', 10, 'normal')).pack(fill = X, expand=True)
+drop.pack(padx=15, ipady=5, fill = X, expand=True)
 
-button = Button(settings, text = "Save!", command = btn_save_carrier_template).grid(row=4, column=1)
+Label(e_frame_bottomL, text = 'Submission Address:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side='top')
+carrier_address.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
+Label(e_frame_bottomL, text = 'Greeting:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, fill=BOTH, expand=True, anchor=E, side='top')
+carrier_greeting.pack(padx=4, pady=1, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
+Label(e_frame_bottomL, text = 'Body of the email:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side='top')
+carrier_body.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
+Label(e_frame_bottomL, text = 'Salutation:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side='top')
+carrier_salutation.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
+button = Button(e_frame_bottomR, text = "Save template for this carrier choice!", command = btnSaveCarrierTemplate(dropdown_email_template)).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
+
+#-------------------SETTINGS TAB------------------
+
+cc_merge_0 = Radiobutton(settings, text="Add user input to the below.", variable=settings_merge_cc_addresses, value='0')
+cc_merge_0.grid(row=3, column=0)
+cc_merge_1 = Radiobutton(settings, text="Replace the below with user input.", variable=settings_merge_cc_addresses, value='1')
+cc_merge_1.grid(row=4, column=0)
+def_cc_address_1 = Entry(settings)
+def_cc_address_1.grid(row=6, column=0)
+def_cc_address_2 = Entry(settings)
+def_cc_address_2.grid(row=8, column=0)
+
+Label(settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, columnspan=2, pady=10)
+Label(settings, text='General Settings', bg='#5F9EA0', font=('helvetica', 14, 'normal')).grid(row=1, column=0, pady=10)
+Label(settings, text='Preference on merging CC-addresses:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=2, column=0, pady=10)
+Label(settings, text='Insert address to always CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=10)
+Label(settings, text='Insert another address to CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=0, pady=10)
+
+Button(settings, text='Save Settings!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=btnSaveMainSettings).grid(row=11, column=3, pady=10)
+
 
 #SETTING THE WINDOW TO CENTER
 # get the screen dimension
