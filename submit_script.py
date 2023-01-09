@@ -20,12 +20,15 @@ length = 0
 #Functions--------------
 #SETTINGS - Save & update
 def btnSaveCarrierTemplate(carrier):
-    config = update_configm#WORK ON THIS AREA, 'function' obj not subscriptable' on line 28
+    config = update_config #WORK ON THIS AREA, 'function' obj not subscriptable' on line 29
     carrier = 'Seawave'
-    carrier_dict = assignCorrectCarrierNames(carrier)
-    section_name = f"{carrier_dict.get('section_name')}"
-    if carrier_dict['combo_body']==0:
-        config[section_name]['address'].value = carrier_address.get()
+    carrier_tuple = assignCorrectCarrierNames(carrier)
+    section_name = carrier_tuple[0]
+    if carrier_tuple[1]==0:
+        address = 'boatprograms@one80intermediaries.com'
+        desired_value = settings_merge_cc_addresses.get()
+        config["CC-address Settings"]["settings_merge_cc_addresses"].value = desired_value
+        config['SW email']['address'].value = 0
         config[section_name]['greeting'].value = carrier_greeting.get()
         config[section_name]['body'].value = carrier_body.get()
         config[section_name]['salutation'].value = carrier_salutation.get()
@@ -35,13 +38,12 @@ def btnSaveCarrierTemplate(carrier):
   
 def btnSaveMainSettings():
     updater = update_config()
-    updater["CC-address Settings"]["settings_merge_cc_addresses"].value = settings_merge_cc_addresses.get()
     updater["CC-address Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
     updater["CC-address Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
 
 #Helper Functions
 def assignCorrectCarrierNames(carrier):
-    carrier_dict = dict()
+    carrier_tuple = tuple()
     if carrier!='Combo SW and PT' or 'Combo SW and NH' or 'Combo SW, PT and NH' or 'Combo SW, PT and NH':
         if carrier=='Seawave':
             carrier = 'SW email'
@@ -63,7 +65,7 @@ def assignCorrectCarrierNames(carrier):
             carrier = 'IN email'
         elif carrier=='Travelers':
             carrier = 'TV email'
-        carrier_dict = {'section_name':carrier, 'combo_body':0}
+        carrier_tuple = (carrier, 0)
     else:
         if carrier=='Combo SW and PT':
             carrier = 'Combo email'
@@ -77,8 +79,8 @@ def assignCorrectCarrierNames(carrier):
         elif carrier=='Combo PT and NH':
             carrier = 'Combo email'
             key = 'pt_and_nh_and_sw_body'
-        carrier_dict = {'section_name':carrier, 'combo_body':key}
-    return carrier_dict
+        carrier_tuple = (carrier, key)
+    return carrier_tuple
 
 def updateCarrierChoice():
     current_selection = dropdown_email_template.get()
@@ -432,10 +434,9 @@ Label(e_frame_bottomL, text = 'Body of the email:', bg='#aedadb', font=('helveti
 carrier_body.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
 Label(e_frame_bottomL, text = 'Salutation:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side='top')
 carrier_salutation.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-button = Button(e_frame_bottomR, text = "Save template for this carrier choice!", command = btnSaveCarrierTemplate(dropdown_email_template)).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
-
+button = Button(e_frame_bottomR, text = "Save template for this carrier choice!", command = btnSaveCarrierTemplate('Seawave')).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
+#REPLACE THE ABOVE BTN COMMAND'S PARAMETER WITH THE VARIABLE dropdown_email_template#
 #-------------------SETTINGS TAB------------------
-
 cc_merge_0 = Radiobutton(settings, text="Add user input to the below.", variable=settings_merge_cc_addresses, value='0')
 cc_merge_0.grid(row=3, column=0)
 cc_merge_1 = Radiobutton(settings, text="Replace the below with user input.", variable=settings_merge_cc_addresses, value='1')
