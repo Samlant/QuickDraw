@@ -8,7 +8,7 @@ from fillpdf import fillpdfs
 from helper import *
 
 #Global variables
-settings_merge_cc_addresses = int
+settings_merge_cc_addresses = IntVar()
 attachments = []
 last_name = ''
 first_name = ''
@@ -20,26 +20,23 @@ length = 0
 #Functions--------------
 #SETTINGS - Save & update
 def btnSaveCarrierTemplate(carrier):
-    config = update_config #WORK ON THIS AREA, 'function' obj not subscriptable' on line 29
-    carrier = 'Seawave'
+    config = update_config()
     carrier_tuple = assignCorrectCarrierNames(carrier)
     section_name = carrier_tuple[0]
     if carrier_tuple[1]==0:
-        address = 'boatprograms@one80intermediaries.com'
-        desired_value = settings_merge_cc_addresses.get()
-        config["CC-address Settings"]["settings_merge_cc_addresses"].value = desired_value
-        config['SW email']['address'].value = 0
+        config[section_name]['address'].value = 0
         config[section_name]['greeting'].value = carrier_greeting.get()
         config[section_name]['body'].value = carrier_body.get()
         config[section_name]['salutation'].value = carrier_salutation.get()
     else:
-        key = carrier_dict['combo_body']
+        key = carrier_tuple[1]
         config[section_name][key].value = carrier_body.get()
   
 def btnSaveMainSettings():
     updater = update_config()
-    updater["CC-address Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
-    updater["CC-address Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
+    updater["CarbonCopy Settings']['settings_merge_cc_addresses'].value = settings_merge_cc-addresses.get()
+    updater["CarbonCopy Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
+    updater["CarbonCopy Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
 
 #Helper Functions
 def assignCorrectCarrierNames(carrier):
