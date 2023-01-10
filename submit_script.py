@@ -7,6 +7,103 @@ import fillpdf
 from fillpdf import fillpdfs
 from helper import *
 
+#Create GUI launcher & initiate creating tkinter instance so that the functions that needs its functionality is able to perform without error.
+
+# This is the section of code which creates the main window
+root = Tk()
+root.geometry('760x548')
+root.configure(background='#5F9EA0')
+root.title('Quote Submissions Tool')
+root.attributes('-alpha',0.95)
+#use below to replace title icon when ready
+#root.iconbitmap('./assets/example.ico') 
+
+#Creating and Styling Tabs on main window
+
+# Create an instance of ttk style
+style = Style()
+style.theme_use('default')
+style.configure('TNotebook', background='#5F9EA0')
+style.configure('TFrame', background='#5F9EA0')
+style.map('TNotebook', background= [('selected', '#5F9EA0')])
+#Create tabs
+tabControl = ttk.Notebook(root)
+#tabControl.configure(bg='#5F9EA0')
+main = ttk.Frame(tabControl)
+template_settings = ttk.Frame(tabControl)
+settings = ttk.Frame(tabControl)
+tabControl.add(main, text='Main')
+tabControl.add(template_settings, text='Templates')
+tabControl.add(settings, text='Settings')
+tabControl.pack(expand=1, fill='both')
+
+#tkinter modules by tab
+
+#MAIN TAB
+
+frame_header = Frame(main, bg='#5F9EA0', pady=17)
+frame_left = Frame(main, bg='#5F9EA0')
+frame_middle = Frame(main, bg='#5F9EA0')
+frame_right = Frame(main, bg='#5F9EA0')
+frame_header.pack(padx=5, fill=X, expand=False)
+frame_left.pack(padx=5, fill = Y, side='left', expand = False, anchor=NE)
+frame_middle.pack(padx=5, fill = Y, side='left', expand = False, anchor=N)
+frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
+
+#DECLARE VARIABLES THEN PACKING OF frame_left ELEMENTS
+
+textarea = Text(frame_left, height=7, width=27, background='#59f3e3')
+attachmentsarea = Text(frame_left, height=9, width=27, background='#59f3e3')
+
+
+Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+textarea.pack(fill=BOTH, anchor=N, expand=True)
+Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+attachmentsarea.pack(fill=X, expand=True, anchor=N)
+
+your_name_placeholder = str
+carrier_address_placeholder = str
+carrier_body_placeholder = str
+carrier_greeting_placeholder = str
+carrier_salutation_placeholder = str
+options = [
+	'Select Carrier'
+    'Seawave',
+    'Prime Time',
+    'New Hampshire',
+    'American Modern',
+    'Kemah',
+    'Concept',
+    'Yachtinsure',
+	'Century',
+	'Intact',
+	'Travelers',
+	'Combo SW and PT',
+	'Combo SW and NH',
+	'Combo SW, PT and NH',
+	'Combo PT and NH'
+]
+e_frame_header_spacer = Frame(template_settings, bg='#5F9EA0', height=17)
+e_frame_header = Frame(template_settings, bg='#5F9EA0')
+e_frame_top = Frame(template_settings, bg='#5F9EA0')
+e_frame_content = Frame(template_settings, bg='#5F9EA0')
+e_frame_bottomL = Frame(template_settings, bg='#5F9EA0' )
+e_frame_bottomR = Frame(template_settings, bg='#5F9EA0')
+e_frame_header_spacer.pack(fill=X, expand=False)
+e_frame_header.pack(padx=5, fill = X, expand=True)
+e_frame_top.pack(fill=BOTH, expand=False)
+e_frame_content.pack(fill=BOTH, expand=False, anchor=N)
+e_frame_bottomL.pack(fill=X, expand=True, side='left', anchor=N)
+e_frame_bottomR.pack(fill=X, expand=True, side='left', anchor=N)
+
+carrier_address = Entry(e_frame_bottomR)
+carrier_greeting = Entry(e_frame_bottomR)
+carrier_body = Text(e_frame_bottomR, width=10, height=5)
+carrier_salutation = Entry(e_frame_bottomR, width=27, highlightbackground='green', highlightcolor='red')
+
 #GLOBAL variables that have a need to be announced at the top of the script. 
 attachments = []
 last_name = ''
@@ -18,6 +115,67 @@ length = 0
 
 #Functions--------------
 #SETTINGS - Save & update
+
+def updateCarrierChoice(*args):
+    config = update_config()
+    raw_input_carrier_selection = dropdown_email_template.get()
+    current_selection = assignCorrectCarrierNames(raw_input_carrier_selection)
+    if raw_input_carrier_selection=='Select Carrier':
+        carrier_address.delete(1.0, 'end')
+        carrier_greeting.delete(1.0, 'end')
+        carrier_body.delete(1.0, 'end')
+        carrier_salutation.delete(1.0, 'end')
+        pass
+    elif 'Combo' in current_selection: #Combo_sw_and_pt_body
+        #ANYTIME THE DROPDOWN BOX IS CHANGED, DO THIS:
+        #Remove & replace placeholder text
+        #disable entry irrelevant boxes for Combo selections
+        placeholder = config[current_selection[0]][current_selection[1]].value
+        carrier_body.insert(1.0, placeholder)
+        carrier_body.configure(state='normal')
+        # carrier_address.configure(state='disabled')
+        # carrier_greeting.configure(state='disabled')
+        # carrier_salutation.configure(state='disabled')
+    else:
+        carrier_address.insert(1.0, config[current_selection[0]]['address'])
+        carrier_address.configure(state='normal')
+        carrier_greeting.insert(1.0, config[current_selection[0]]['greeting'])
+        carrier_greeting.configure(state='normal')
+        carrier_body.insert(1.0, config[current_selection[0]]['body'])
+        carrier_body.configure(state='normal')
+        carrier_salutation.insert(1.0, config[current_selection[0]]['salutation'])
+        carrier_salutation.configure(state='normal')        
+
+#ADD PLACEHOLDER TEXT TO TEXT ENTRY BOXES TO REPRESENT THE SELECTED OPTION's CURRENT DEFAULT.
+
+def on_focus_in(entry):
+    if entry.cget('state') == 'disabled':
+        entry.configure(state='normal')
+        entry.delete(1.0, 'end')
+
+def on_focus_out(entry):
+    config = update_config
+    if entry.get() == "":
+        section_name = assignCorrectCarrierNames(dropdown_email_template.get())
+        if 'Combo' in section_name:
+            placeholder = config[section_name]['body'].value
+        else:
+            if 'name' in entry:
+                placeholder = config['General settings']['your_name'].value
+            elif 'address' in entry:
+                placeholder = config[section_name]['address'].value
+            elif 'greeting' in entry:
+                placeholder = config[section_name]['greeting'].value
+            elif 'body' in entry:
+                placeholder = config[section_name]['body'].value
+            elif 'salutation' in entry:
+                placeholder = config[section_name]['salutation'].value
+            else:
+                pass
+        entry.insert(1.0, placeholder)
+        entry.configure(state='disabled')
+    else:
+        pass
 
 def btnSaveCarrierTemplate(carrier): # WORKS IS GOOD
     config = update_config()
@@ -250,61 +408,7 @@ def sendEmail(address, greeting, body, salutation, your_name):
 #   mail.Send()
 
 
-# This is the section of code which creates the main window
 
-root = Tk()
-root.geometry('760x548')
-root.configure(background='#5F9EA0')
-root.title('Quote Submissions Tool')
-root.attributes('-alpha',0.95)
-#use below to replace title icon when ready
-#root.iconbitmap('./assets/example.ico') 
-
-#Creating and Styling Tabs on main window
-
-# Create an instance of ttk style
-style = Style()
-style.theme_use('default')
-style.configure('TNotebook', background='#5F9EA0')
-style.configure('TFrame', background='#5F9EA0')
-style.map('TNotebook', background= [('selected', '#5F9EA0')])
-#Create tabs
-tabControl = ttk.Notebook(root)
-#tabControl.configure(bg='#5F9EA0')
-main = ttk.Frame(tabControl)
-template_settings = ttk.Frame(tabControl)
-settings = ttk.Frame(tabControl)
-tabControl.add(main, text='Main')
-tabControl.add(template_settings, text='Templates')
-tabControl.add(settings, text='Settings')
-tabControl.pack(expand=1, fill='both')
-
-#tkinter modules by tab
-
-#MAIN TAB
-
-frame_header = Frame(main, bg='#5F9EA0', pady=17)
-frame_left = Frame(main, bg='#5F9EA0')
-frame_middle = Frame(main, bg='#5F9EA0')
-frame_right = Frame(main, bg='#5F9EA0')
-frame_header.pack(padx=5, fill=X, expand=False)
-frame_left.pack(padx=5, fill = Y, side='left', expand = False, anchor=NE)
-frame_middle.pack(padx=5, fill = Y, side='left', expand = False, anchor=N)
-frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
-
-#DECLARE VARIABLES THEN PACKING OF frame_left ELEMENTS
-
-textarea = Text(frame_left, height=7, width=27, background='#59f3e3')
-attachmentsarea = Text(frame_left, height=9, width=27, background='#59f3e3')
-
-
-Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
-Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
-Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
-Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
-textarea.pack(fill=BOTH, anchor=N, expand=True)
-Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
-attachmentsarea.pack(fill=X, expand=True, anchor=N)
 
 textarea.drop_target_register(DND_FILES)
 textarea.dnd_bind('<<Drop>>', Get_Path)
@@ -366,107 +470,6 @@ Button(frame_right, text='Submit and sent to markets!', bg='#22c26a', font=('hel
 
 #-----------------EMAIL_TEMPLATE TAB-------------------------
 
-your_name_placeholder = str
-carrier_address_placeholder = str
-carrier_body_placeholder = str
-carrier_greeting_placeholder = str
-carrier_salutation_placeholder = str
-options = [
-	'Select Carrier'
-    'Seawave',
-    'Prime Time',
-    'New Hampshire',
-    'American Modern',
-    'Kemah',
-    'Concept',
-    'Yachtinsure',
-	'Century',
-	'Intact',
-	'Travelers',
-	'Combo SW and PT',
-	'Combo SW and NH',
-	'Combo SW, PT and NH',
-	'Combo PT and NH'
-]
-e_frame_header_spacer = Frame(template_settings, bg='#5F9EA0', height=17)
-e_frame_header = Frame(template_settings, bg='#5F9EA0')
-e_frame_top = Frame(template_settings, bg='#5F9EA0')
-e_frame_content = Frame(template_settings, bg='#5F9EA0')
-e_frame_bottomL = Frame(template_settings, bg='#5F9EA0' )
-e_frame_bottomR = Frame(template_settings, bg='#5F9EA0')
-e_frame_header_spacer.pack(fill=X, expand=False)
-e_frame_header.pack(padx=5, fill = X, expand=True)
-e_frame_top.pack(fill=BOTH, expand=False)
-e_frame_content.pack(fill=BOTH, expand=False, anchor=N)
-e_frame_bottomL.pack(fill=X, expand=True, side='left', anchor=N)
-e_frame_bottomR.pack(fill=X, expand=True, side='left', anchor=N)
-
-carrier_address = Entry(e_frame_bottomR)
-carrier_greeting = Entry(e_frame_bottomR)
-carrier_body = Text(e_frame_bottomR, width=10, height=5)
-carrier_salutation = Entry(e_frame_bottomR, width=27, highlightbackground='green', highlightcolor='red')
-
-def updateCarrierChoice(*args):
-    config = update_config()
-    raw_input_carrier_selection = dropdown_email_template.get()
-    current_selection = assignCorrectCarrierNames(raw_input_carrier_selection)
-    if raw_input_carrier_selection=='Select Carrier':
-        carrier_address.delete(1.0, 'end')
-        carrier_greeting.delete(1.0, 'end')
-        carrier_body.delete(1.0, 'end')
-        carrier_salutation.delete(1.0, 'end')
-        pass
-    elif 'Combo' in current_selection: #Combo_sw_and_pt_body
-        #ANYTIME THE DROPDOWN BOX IS CHANGED, DO THIS:
-        #Remove & replace placeholder text
-        #disable entry irrelevant boxes for Combo selections
-        placeholder = config[current_selection[0]][current_selection[1]].value
-        carrier_body.insert(1.0, placeholder)
-        carrier_body.configure(state='normal')
-        # carrier_address.configure(state='disabled')
-        # carrier_greeting.configure(state='disabled')
-        # carrier_salutation.configure(state='disabled')
-    else:
-        carrier_address.insert(1.0, config[current_selection[0]]['address'])
-        carrier_address.configure(state='normal')
-        carrier_greeting.insert(1.0, config[current_selection[0]]['greeting'])
-        carrier_greeting.configure(state='normal')
-        carrier_body.insert(1.0, config[current_selection[0]]['body'])
-        carrier_body.configure(state='normal')
-        carrier_salutation.insert(1.0, config[current_selection[0]]['salutation'])
-        carrier_salutation.configure(state='normal')        
-
-#ADD PLACEHOLDER TEXT TO TEXT ENTRY BOXES TO REPRESENT THE SELECTED OPTION's CURRENT DEFAULT.
-
-def on_focus_in(entry):
-    if entry.cget('state') == 'disabled':
-        entry.configure(state='normal')
-        entry.delete(1.0, 'end')
-
-def on_focus_out(entry):
-    config = update_config
-    if entry.get() == "":
-        section_name = assignCorrectCarrierNames(dropdown_email_template.get())
-        if 'Combo' in section_name:
-            placeholder = config[section_name]['body'].value
-        else:
-            if 'name' in entry:
-                placeholder = config['General settings']['your_name'].value
-            elif 'address' in entry:
-                placeholder = config[section_name]['address'].value
-            elif 'greeting' in entry:
-                placeholder = config[section_name]['greeting'].value
-            elif 'body' in entry:
-                placeholder = config[section_name]['body'].value
-            elif 'salutation' in entry:
-                placeholder = config[section_name]['salutation'].value
-            else:
-                pass
-        entry.insert(1.0, placeholder)
-        entry.configure(state='disabled')
-    else:
-        pass
-
 dropdown_email_template = StringVar()
 dropdown_email_template.trace_add('write', updateCarrierChoice)
 dropdown_email_template.set('Select Carrier')
@@ -480,18 +483,18 @@ your_name = Entry(e_frame_header)
 Label(e_frame_header, text = 'Adjust the Default Email Templates for Each Carrier', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill = X, expand=True, side='top')
 Label(e_frame_header, text = 'Your name (used in Signature):', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(padx=4, pady=5, fill=BOTH, expand=True, side='left', anchor=E)
 your_name.pack(ipadx=900, pady=5, fill=BOTH, expand=True, side='right', anchor=NW)
-your_name.insert(1.0, your_name_placeholder)
+your_name.insert(0, your_name_placeholder)
 your_name.configure(state='disabled')
 Label(e_frame_top, text = "This drop-down menu allows you to view & edit a specific carrier's, or combo carriers', email message contents.", bg='#5F9EA0', font=('helvetica', 10, 'normal')).pack(fill = X, expand=True)
 drop.pack(padx=15, ipady=5, fill = X, expand=True)
 
 Label(e_frame_bottomL, text = 'Submission Address:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side='top')
 carrier_address.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-carrier_address.insert(1.0, carrier_address_placeholder)
+carrier_address.insert(0, carrier_address_placeholder)
 carrier_address.configure(state='disabled')
 Label(e_frame_bottomL, text = 'Greeting:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, fill=BOTH, expand=True, anchor=E, side='top')
 carrier_greeting.pack(padx=4, pady=1, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-carrier_greeting.insert(1.0, carrier_greeting_placeholder)
+carrier_greeting.insert(0, carrier_greeting_placeholder)
 carrier_greeting.configure(state='disabled')
 Label(e_frame_bottomL, text = 'Body of the email:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side='top')
 carrier_body.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
@@ -499,7 +502,7 @@ carrier_body.insert(1.0, carrier_body_placeholder)
 carrier_body.configure(state='disabled')
 Label(e_frame_bottomL, text = 'Salutation:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side='top')
 carrier_salutation.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-carrier_salutation.insert(1.0, carrier_salutation_placeholder)
+carrier_salutation.insert(0, carrier_salutation_placeholder)
 carrier_salutation.configure(state='disabled')
 button = Button(e_frame_bottomR, text = 'Save template for this carrier choice!', command = btnSaveCarrierTemplate(dropdown_email_template.get())).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
 
