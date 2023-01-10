@@ -8,7 +8,6 @@ from fillpdf import fillpdfs
 from helper import *
 
 #Global variables
-settings_merge_cc_addresses = IntVar()
 attachments = []
 last_name = ''
 first_name = ''
@@ -23,8 +22,10 @@ def btnSaveCarrierTemplate(carrier):
     config = update_config()
     carrier_tuple = assignCorrectCarrierNames(carrier)
     section_name = carrier_tuple[0]
-    if carrier_tuple[1]==0:
-        config[section_name]['address'].value = 0
+    if carrier_tuple[0]=='Select Carrier':
+        pass
+    elif carrier_tuple[1]==0:
+        config[section_name]['address'].value = carrier_address.get()
         config[section_name]['greeting'].value = carrier_greeting.get()
         config[section_name]['body'].value = carrier_body.get()
         config[section_name]['salutation'].value = carrier_salutation.get()
@@ -34,9 +35,9 @@ def btnSaveCarrierTemplate(carrier):
   
 def btnSaveMainSettings():
     updater = update_config()
-    updater["CarbonCopy Settings']['settings_merge_cc_addresses'].value = settings_merge_cc-addresses.get()
-    updater["CarbonCopy Settings"]["def_cc_address_1"].value = def_cc_address_1.get()
-    updater["CarbonCopy Settings"]["def_cc_address_2"].value = def_cc_address_2.get()
+    updater['CarbonCopy Settings']['settings_merge_cc_addresses'].value = settings_merge_cc-addresses.get()
+    updater['CarbonCopy Settings']['def_cc_address_1'].value = def_cc_address_1.get()
+    updater['CarbonCopy Settings']['def_cc_address_2'].value = def_cc_address_2.get()
 
 #Helper Functions
 def assignCorrectCarrierNames(carrier):
@@ -115,17 +116,17 @@ def Get_Subject():
     year = needed_values_dict.get('Year')
     make = needed_values_dict.get('4d616b6520616e64204d6f64656c')
     length = needed_values_dict.get('Length')
-    msg_subject = f"{last_name}, {first_name} | {year} {make} {length} | New Quote Submission"
+    msg_subject = f'{last_name}, {first_name} | {year} {make} {length} | New Quote Submission'
     return msg_subject
 
 def Get_Add_Notes():
     additional_notes = additional_email_body_notes.get()
     return additional_notes
 
-def Get_CC_Addresses(): #NEED TO REVISE HOW WE KEEP ADDRESS...It gets replaced with "None"
+def Get_CC_Addresses(): #NEED TO REVISE HOW WE KEEP ADDRESS...It gets replaced with 'None'
     config = read_config()
     cc_addresses = [cc_address_1_user_input.get(), cc_address_2_user_input.get()]
-    if config.get('CarbonCopy Settings', 'settings_merge_cc_addresses')=='0':
+    if cc_default_check.get()=='0':
         try:
             cc_addresses.append(config.get('CarbonCopy Settings', ''), config.get('CarbonCopy Settings', ''))
         except:
@@ -146,7 +147,7 @@ def path_to_additional_attachments(event):
 	return attachments
 
 def listToString(s):
-    str1 = ""
+    str1 = ''
     for element in s:
         str1 += element
     return str1
@@ -230,14 +231,14 @@ def sendEmail(address, greeting, body, salutation, your_name):
     mail.HTMLBody = '''
     <html><head>
     <title>New Quote Submission</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-    <meta name="ProgId" content="Word.Document">
-    <meta name="Generator" content="Microsoft Word 15">
-    <meta name="Originator" content="Microsoft Word 15">
+    <meta http-equiv='Content-Type' content='text/html; charset=windows-1252'>
+    <meta name='ProgId' content='Word.Document'>
+    <meta name='Generator' content='Microsoft Word 15'>
+    <meta name='Originator' content='Microsoft Word 15'>
     </head>
     <body>
-    <p style="font-size=14px;color:#1F3864">%s</p>
-    <p style="font-size=14px;color:#1F3864">%s %s</p><br>
+    <p style='font-size=14px;color:#1F3864'>%s</p>
+    <p style='font-size=14px;color:#1F3864'>%s %s</p><br>
     </body>
     <footer>
     <p style='margin:0in;font-size:14px;font-family:Calibri,sans-serif;color:#1F3864;'>%s</p>
@@ -247,10 +248,10 @@ def sendEmail(address, greeting, body, salutation, your_name):
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Fax:(941)-328-3598</p><br>
     <p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>1549 Ringling Blvd., Suite 101</p>
     <p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>Sarasota, FL 34236</p><br>
-    <p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com/" target="_blank">www.novamarinsurance.com</a></p>
-    <p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href="http://www.novamarinsurance.com.mx/" target="_blank">www.novamarinsurance.com.mx</a></p>
+    <p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href='http://www.novamarinsurance.com/' target='_blank'>www.novamarinsurance.com</a></p>
+    <p style='margin:0in;color:#1F3864;font-size:10.0pt;font-family:Georgia Pro,serif;color:blue;'><a href='http://www.novamarinsurance.com.mx/' target='_blank'>www.novamarinsurance.com.mx</a></p>
 
-    <p style'margin:0in'><a href="https://www.facebook.com/NovamarInsurance" target="_blank"><img width=24 height=24 src="https://cdn1.iconfinder.com/data/icons/social-media-2285/512/Colored_Facebook3_svg-512.png"></a>  <a href="https://www.instagram.com/novamar_insurance/" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-512.png" style="display:block"></a>  <a href="https://twitter.com/NovamarIns" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Twitter3_colored_svg-512.png" style="display:block"></a>  <a href="https://www.linkedin.com/company/novamar-insurance-group-inc" target="_blank"><img width=24 height=24 src="https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Linkedin_unofficial_colored_svg-512.png" style="display:block"></a></p>
+    <p style'margin:0in'><a href='https://www.facebook.com/NovamarInsurance' target='_blank'><img width=24 height=24 src='https://cdn1.iconfinder.com/data/icons/social-media-2285/512/Colored_Facebook3_svg-512.png'></a>  <a href='https://www.instagram.com/novamar_insurance/' target='_blank'><img width=24 height=24 src='https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-512.png' style='display:block'></a>  <a href='https://twitter.com/NovamarIns' target='_blank'><img width=24 height=24 src='https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Twitter3_colored_svg-512.png' style='display:block'></a>  <a href='https://www.linkedin.com/company/novamar-insurance-group-inc' target='_blank'><img width=24 height=24 src='https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Linkedin_unofficial_colored_svg-512.png' style='display:block'></a></p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
     </footer></html>
@@ -279,7 +280,7 @@ style = Style()
 style.theme_use('default')
 style.configure('TNotebook', background='#5F9EA0')
 style.configure('TFrame', background='#5F9EA0')
-style.map("TNotebook", background= [("selected", '#5F9EA0')])
+style.map('TNotebook', background= [('selected', '#5F9EA0')])
 #Create tabs
 tabControl = ttk.Notebook(root)
 #tabControl.configure(bg='#5F9EA0')
@@ -289,7 +290,7 @@ settings = ttk.Frame(tabControl)
 tabControl.add(main, text='Main')
 tabControl.add(template_settings, text='Templates')
 tabControl.add(settings, text='Settings')
-tabControl.pack(expand=1, fill="both")
+tabControl.pack(expand=1, fill='both')
 
 #tkinter modules by tab
 
@@ -309,7 +310,10 @@ frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
 textarea = Text(frame_left, height=7, width=27, background='#59f3e3')
 attachmentsarea = Text(frame_left, height=9, width=27, background='#59f3e3')
 
-Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill=X, expand=True, side='left')
+
+Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
 Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
 textarea.pack(fill=BOTH, anchor=N, expand=True)
 Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
@@ -321,18 +325,21 @@ attachmentsarea.drop_target_register(DND_FILES)
 attachmentsarea.dnd_bind('<<Drop>>', path_to_additional_attachments)
 
 #DECLARE VARIABLES THEN PACKING OF frame_middle ELEMENTS
+addNotes_labelframe = LabelFrame(frame_middle, text= 'To end with a message, enter it below:', bg='#aedadb', font=('helvetica', 8, 'normal'))
+cc_labelframe = LabelFrame(frame_middle, text= 'CC-address settings for this submission:', bg='#aedadb')
+cc_default_check = tk.IntVar()
+additional_email_body_notes = Text(addNotes_labelframe, height=7, width=30)
+cc_address_1_user_input = Text(cc_labelframe, height=1, width=30)
+cc_address_2_user_input = Text(cc_labelframe, height=1, width=30)
 
-additional_email_body_notes = Text(frame_middle, height=7, width=30)
-cc_address_1_user_input = Text(frame_middle, height=1, width=30)
-cc_address_2_user_input = Text(frame_middle, height=1, width=30)
-
-Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill=BOTH, expand=True, side='left')
-Label(frame_middle, text='Add Extra eMail Notes', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
-additional_email_body_notes.pack(fill = X, anchor=N, expand=True)
-Label(frame_middle, text='CC-Address 1:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
-cc_address_1_user_input.pack(ipady=5, anchor=N, fill = X, expand=True)
-Label(frame_middle, text='CC-Address 2:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
-cc_address_2_user_input.pack(ipady=5, anchor=N, fill = X, expand=True)
+addNotes_labelframe.pack(fill=X, expand=False, side='top')
+additional_email_body_notes.pack(fill = X, anchor=N, expand=FALSE, side='top')
+cc_labelframe.pack(fill=X, expand=True, side='top')
+cc_default_check = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=cc_default_check, bg='#aedadb').pack(pady=5, fill=X, expand=False, side='top')
+Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
+cc_address_1_user_input.pack(pady=2, ipady=4, anchor=N, fill = X, expand=True, side='top')
+Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
+cc_address_2_user_input.pack(ipady=4, anchor=N, fill = X, expand=True, side='top')
 
 #DECLARE VARIABLES THEN PACKING OF frame_right ELEMENTS
 
@@ -357,7 +364,6 @@ century = Checkbutton(frame_right, text='Century Insurance', variable=century_ch
 intact = Checkbutton(frame_right, text='Intact', variable=intact_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
 travelers = Checkbutton(frame_right, text='Travelers', variable=travelers_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
 
-Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill=BOTH, expand=True, side='left')
 seawave.pack(ipady=3, fill=BOTH, expand=True)
 primetime.pack(ipady=3, fill=BOTH, expand=True)
 newhampshire.pack(ipady=3, fill=BOTH, expand=True)
@@ -374,21 +380,21 @@ Button(frame_right, text='Submit and sent to markets!', bg='#22c26a', font=('hel
 #-----------------EMAIL_TEMPLATE TAB-------------------------
 
 options = [
-	"Select Carrier"
-    "Seawave",
-    "Prime Time",
-    "New Hampshire",
-    "American Modern",
-    "Kemah",
-    "Concept",
-    "Yachtinsure",
-	"Century",
-	"Intact",
-	"Travelers",
-	"Combo SW and PT",
-	"Combo SW and NH",
-	"Combo SW, PT and NH",
-	"Combo PT and NH"
+	'Select Carrier'
+    'Seawave',
+    'Prime Time',
+    'New Hampshire',
+    'American Modern',
+    'Kemah',
+    'Concept',
+    'Yachtinsure',
+	'Century',
+	'Intact',
+	'Travelers',
+	'Combo SW and PT',
+	'Combo SW and NH',
+	'Combo SW, PT and NH',
+	'Combo PT and NH'
 ]
 e_frame_header_spacer = Frame(template_settings, bg='#5F9EA0', height=17)
 e_frame_header = Frame(template_settings, bg='#5F9EA0')
@@ -409,7 +415,7 @@ dropdown_email_template.trace_add('write', updateCarrierChoice)
 dropdown_email_template.set('Select Carrier')
 drop = OptionMenu(e_frame_top, dropdown_email_template, *options)
 drop.configure(background='#aedadb', foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0')
-drop["menu"].configure(background='#aedadb')
+drop['menu'].configure(background='#aedadb')
 your_name = Entry(e_frame_header)
 
 carrier_address = Entry(e_frame_bottomR)
@@ -431,23 +437,25 @@ Label(e_frame_bottomL, text = 'Body of the email:', bg='#aedadb', font=('helveti
 carrier_body.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
 Label(e_frame_bottomL, text = 'Salutation:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side='top')
 carrier_salutation.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-button = Button(e_frame_bottomR, text = "Save template for this carrier choice!", command = btnSaveCarrierTemplate('Seawave')).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
+button = Button(e_frame_bottomR, text = 'Save template for this carrier choice!', command = btnSaveCarrierTemplate(dropdown_email_template.get())).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
 #REPLACE THE ABOVE BTN COMMAND'S PARAMETER WITH THE VARIABLE dropdown_email_template#
 #-------------------SETTINGS TAB------------------
-cc_merge_0 = Radiobutton(settings, text="Add user input to the below.", variable=settings_merge_cc_addresses, value='0')
-cc_merge_0.grid(row=3, column=0)
-cc_merge_1 = Radiobutton(settings, text="Replace the below with user input.", variable=settings_merge_cc_addresses, value='1')
-cc_merge_1.grid(row=4, column=0)
+settings_merge_cc_addresses = IntVar()
 def_cc_address_1 = Entry(settings)
-def_cc_address_1.grid(row=6, column=0)
 def_cc_address_2 = Entry(settings)
+cc_merge_0 = Radiobutton(settings, text='Add user input to the below.', variable=settings_merge_cc_addresses, value='0')
+cc_merge_1 = Radiobutton(settings, text='Replace the below with user input.', variable=settings_merge_cc_addresses, value='1')
+
+cc_merge_0.grid(row=3, column=0)
+cc_merge_1.grid(row=4, column=0)
+def_cc_address_1.grid(row=6, column=0)
 def_cc_address_2.grid(row=8, column=0)
 
 Label(settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 16, 'normal')).grid(row=0, column=0, columnspan=2, pady=10)
-Label(settings, text='General Settings', bg='#5F9EA0', font=('helvetica', 14, 'normal')).grid(row=1, column=0, pady=10)
-Label(settings, text='Preference on merging CC-addresses:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=2, column=0, pady=10)
-Label(settings, text='Insert address to always CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=10)
-Label(settings, text='Insert another address to CC', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=0, pady=10)
+Label(settings, text='CC-address Settings (more to be added later or upon your request)', bg='#5F9EA0', font=('helvetica', 14, 'normal')).grid(row=1, column=0, pady=10)
+Label(settings, text='If you find yourself wanting to CC the same people on most quote submissions,  enter their email address below.  This will CC them on all outgoing emails, UNLESS you check the "ignore default CC addresses" checkbox on the front page!', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=2, column=0, pady=10)
+Label(settings, text='If desired, enter an address to always CC:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=5, column=0, pady=10)
+Label(settings, text='If desired, enter an address to always CC:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).grid(row=7, column=0, pady=10)
 
 Button(settings, text='Save Settings!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=btnSaveMainSettings).grid(row=11, column=3, pady=10)
 
