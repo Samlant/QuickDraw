@@ -7,7 +7,8 @@ import fillpdf
 from fillpdf import fillpdfs
 from helper import *
 
-#Global variables
+#GLOBAL variables that have a need to be announced at the top of the script. 
+settings_merge_cc_addresses = IntVar()
 attachments = []
 last_name = ''
 first_name = ''
@@ -18,7 +19,19 @@ length = 0
 
 #Functions--------------
 #SETTINGS - Save & update
-def btnSaveCarrierTemplate(carrier):
+def updateCarrierChoice(): #NEEDS WORK
+    current_selection = dropdown_email_template.get()
+    if 'Combo' in current_selection:
+        carrier_address.configure(state='disabled')
+        carrier_greeting.configure(state='disabled')
+        carrier_salutation.configure(state='disabled')
+    else:
+        carrier_address.configure(state='normal')
+        carrier_greeting.configure(state='normal')
+        carrier_salutation.configure(state='normal')        
+#ADD PLACEHOLDER TEXT TO TEXT ENTRY BOXES TO REPRESENT THE SELECTED OPTION's CURRENT DEFAULT.
+
+def btnSaveCarrierTemplate(carrier): # WORKS IS GOOD
     config = update_config()
     carrier_tuple = assignCorrectCarrierNames(carrier)
     section_name = carrier_tuple[0]
@@ -33,14 +46,12 @@ def btnSaveCarrierTemplate(carrier):
         key = carrier_tuple[1]
         config[section_name][key].value = carrier_body.get()
   
-def btnSaveMainSettings():
+def btnSaveMainSettings(): #WORKS IS GOOD!
     updater = update_config()
-    updater['CarbonCopy Settings']['settings_merge_cc_addresses'].value = settings_merge_cc-addresses.get()
     updater['CarbonCopy Settings']['def_cc_address_1'].value = def_cc_address_1.get()
     updater['CarbonCopy Settings']['def_cc_address_2'].value = def_cc_address_2.get()
 
-#Helper Functions
-def assignCorrectCarrierNames(carrier):
+def assignCorrectCarrierNames(carrier): #WORKS IS GOOD
     carrier_tuple = tuple()
     if carrier!='Combo SW and PT' or 'Combo SW and NH' or 'Combo SW, PT and NH' or 'Combo SW, PT and NH':
         if carrier=='Seawave':
@@ -79,18 +90,6 @@ def assignCorrectCarrierNames(carrier):
             key = 'pt_and_nh_and_sw_body'
         carrier_tuple = (carrier, key)
     return carrier_tuple
-
-def updateCarrierChoice():
-    current_selection = dropdown_email_template.get()
-    if 'Combo' in current_selection:
-        carrier_address.configure(state='disabled')
-        carrier_greeting.configure(state='disabled')
-        carrier_salutation.configure(state='disabled')
-    else:
-        carrier_address.configure(state='normal')
-        carrier_greeting.configure(state='normal')
-        carrier_salutation.configure(state='normal')        
-
 
 #End of SETTINGS#
 
@@ -335,7 +334,7 @@ cc_address_2_user_input = Text(cc_labelframe, height=1, width=30)
 addNotes_labelframe.pack(fill=X, expand=False, side='top')
 additional_email_body_notes.pack(fill = X, anchor=N, expand=FALSE, side='top')
 cc_labelframe.pack(fill=X, expand=True, side='top')
-cc_default_check = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=cc_default_check, bg='#aedadb').pack(pady=5, fill=X, expand=False, side='top')
+cc_def_check = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=cc_default_check, bg='#aedadb').pack(pady=5, fill=X, expand=False, side='top')
 Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
 cc_address_1_user_input.pack(pady=2, ipady=4, anchor=N, fill = X, expand=True, side='top')
 Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
@@ -440,7 +439,6 @@ carrier_salutation.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, sid
 button = Button(e_frame_bottomR, text = 'Save template for this carrier choice!', command = btnSaveCarrierTemplate(dropdown_email_template.get())).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
 #REPLACE THE ABOVE BTN COMMAND'S PARAMETER WITH THE VARIABLE dropdown_email_template#
 #-------------------SETTINGS TAB------------------
-settings_merge_cc_addresses = IntVar()
 def_cc_address_1 = Entry(settings)
 def_cc_address_2 = Entry(settings)
 cc_merge_0 = Radiobutton(settings, text='Add user input to the below.', variable=settings_merge_cc_addresses, value='0')
