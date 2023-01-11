@@ -19,7 +19,6 @@ root.attributes('-alpha',0.95)
 #root.iconbitmap('./assets/example.ico') 
 
 #Creating and Styling Tabs on main window
-
 # Create an instance of ttk style
 style = Style()
 style.theme_use('default')
@@ -36,34 +35,7 @@ tabControl.add(main, text='Main')
 tabControl.add(template_settings, text='Templates')
 tabControl.add(settings, text='Settings')
 tabControl.pack(expand=1, fill='both')
-
-#tkinter modules by tab
-
-#MAIN TAB
-
-frame_header = Frame(main, bg='#5F9EA0', pady=17)
-frame_left = Frame(main, bg='#5F9EA0')
-frame_middle = Frame(main, bg='#5F9EA0')
-frame_right = Frame(main, bg='#5F9EA0')
-frame_header.pack(padx=5, fill=X, expand=False)
-frame_left.pack(padx=5, fill = Y, side='left', expand = False, anchor=NE)
-frame_middle.pack(padx=5, fill = Y, side='left', expand = False, anchor=N)
-frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
-
-#DECLARE VARIABLES THEN PACKING OF frame_left ELEMENTS
-
-textarea = Text(frame_left, height=7, width=27, background='#59f3e3')
-attachmentsarea = Text(frame_left, height=9, width=27, background='#59f3e3')
-
-
-Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
-Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
-Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
-Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
-textarea.pack(fill=BOTH, anchor=N, expand=True)
-Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
-attachmentsarea.pack(fill=X, expand=True, anchor=N)
-
+# Done setting up main window with tabs---Declaring needed variables upfront below:
 your_name_placeholder = str
 carrier_address_placeholder = str
 carrier_body_placeholder = str
@@ -114,39 +86,45 @@ length = 0
 #-----------------------
 
 #Functions--------------
-#SETTINGS - Save & update
-
 def updateCarrierChoice(*args):
-    config = update_config()
-    raw_input_carrier_selection = dropdown_email_template.get()
-    current_selection = assignCorrectCarrierNames(raw_input_carrier_selection)
-    if raw_input_carrier_selection=='Select Carrier':
-        carrier_address.delete(1.0, 'end')
-        carrier_greeting.delete(1.0, 'end')
-        carrier_body.delete(1.0, 'end')
-        carrier_salutation.delete(1.0, 'end')
-        pass
-    elif 'Combo' in current_selection: #Combo_sw_and_pt_body
-        #ANYTIME THE DROPDOWN BOX IS CHANGED, DO THIS:
-        #Remove & replace placeholder text
-        #disable entry irrelevant boxes for Combo selections
-        placeholder = config[current_selection[0]][current_selection[1]].value
-        carrier_body.insert(1.0, placeholder)
+    current_raw_selection = dropdown_email_template.get()
+    current_selected_carrier = assignCorrectCarrierNames(current_raw_selection)
+    config = update_config
+#If current choice is not a real carrier,  then delete all placeholders.
+    if current_selected_carrier=='Select Carrier':
+        carrier_address.delete('1.0', 'end')
+        carrier_greeting.delete('1.0', 'end')
+        carrier_body.delete('1.0', 'end')
+        carrier_salutation.delete('1.0', 'end')
+# If current choice is a combo carrier submission, use the right placeholder.
+    elif 'Combo' in current_selected_carrier:
+        placeholder = config[current_selected_carrier[0]][current_selected_carrier[1]].value
+        carrier_body.insert('1.0', placeholder)
         carrier_body.configure(state='normal')
-        # carrier_address.configure(state='disabled')
-        # carrier_greeting.configure(state='disabled')
-        # carrier_salutation.configure(state='disabled')
+        carrier_address.configure(state='disabled')
+        carrier_greeting.configure(state='disabled')
+        carrier_salutation.configure(state='disabled')
     else:
-        carrier_address.insert(1.0, config[current_selection[0]]['address'])
+# Otherwise,  first activate all fields if they're disabled, then assign placeholders.
+        if carrier_address.cget('state')=='disabled':
+            carrier_address.configure(state='normal')
+            carrier_greeting.configure(state='normal')
+            carrier_salutation.configure(state='normal')
+        else:
+            pass
+        section_name = current_selected_carrier[0]
+        placeholder_address = config[section_name]['address']
+        placeholder_greeting = config[current_selected_carrier[0]]['greeting']
+        placeholder_body = config[current_selected_carrier[0]]['body']
+        placeholder_salutation = config[current_selected_carrier[0]]['salutation']
+        carrier_address.insert('1.0', placeholder_address)
         carrier_address.configure(state='normal')
-        carrier_greeting.insert(1.0, config[current_selection[0]]['greeting'])
+        carrier_greeting.insert('1.0', placeholder_greeting)
         carrier_greeting.configure(state='normal')
-        carrier_body.insert(1.0, config[current_selection[0]]['body'])
+        carrier_body.insert('1.0', placeholder_body)
         carrier_body.configure(state='normal')
-        carrier_salutation.insert(1.0, config[current_selection[0]]['salutation'])
-        carrier_salutation.configure(state='normal')        
-
-#ADD PLACEHOLDER TEXT TO TEXT ENTRY BOXES TO REPRESENT THE SELECTED OPTION's CURRENT DEFAULT.
+        carrier_salutation.insert('1.0', placeholder_salutation)
+        carrier_salutation.configure(state='normal')  
 
 def on_focus_in(entry):
     if entry.cget('state') == 'disabled':
@@ -197,88 +175,23 @@ def btnSaveMainSettings(): #WORKS IS GOOD!
     updater['CarbonCopy Settings']['def_cc_address_1'].value = def_cc_address_1.get()
     updater['CarbonCopy Settings']['def_cc_address_2'].value = def_cc_address_2.get()
 
-def assignCorrectCarrierNames(carrier): #WORKS IS GOOD
-    carrier_tuple = tuple()
-    if carrier!='Combo SW and PT' or 'Combo SW and NH' or 'Combo SW, PT and NH' or 'Combo SW, PT and NH':
-        if carrier=='Seawave':
-            carrier = 'SW email'
-        elif carrier =='Prime Time':
-            carrier = 'PT email'
-        elif carrier=='New Hampshire':
-            carrier = 'NH email'
-        elif carrier=='American Modern':
-            carrier = 'AM email'
-        elif carrier=='Kemah':
-            carrier = 'KM email'
-        elif carrier=='Concept':
-            carrier = 'CP email'
-        elif carrier=='Yachtinsure':
-            carrier = 'YI email'
-        elif carrier=='Century':
-            carrier = 'CE email'
-        elif carrier=='Intact':
-            carrier = 'IN email'
-        elif carrier=='Travelers':
-            carrier = 'TV email'
-        carrier_tuple = (carrier, 0)
-    else:
-        if carrier=='Combo SW and PT':
-            carrier = 'Combo email'
-            key = 'sw_and_pt_body'
-        elif carrier=='Combo SW and NH':
-            carrier = 'Combo email'
-            key = 'sw_and_nh_body'
-        elif carrier=='Combo SW, PT and NH':
-            carrier = 'Combo email'
-            key = 'pt_and_nh_body'
-        elif carrier=='Combo PT and NH':
-            carrier = 'Combo email'
-            key = 'pt_and_nh_and_sw_body'
-        carrier_tuple = (carrier, key)
-    return carrier_tuple
+
 
 #End of SETTINGS#
 
 # Helper Functions------------------
-def Get_Path(event):
-	if '{' in event.data:
-		Get_Path.quoteform_path = ''
-		Get_Path.quoteform_path = event.data.translate({ord(c): None for c in '{}'})
-		print(Get_Path.quoteform_path)
-	else:
-		Get_Path.quoteform_path = event.data
-		print(Get_Path.quoteform_path)
-		listToString(Get_Path.quoteform_path)
-		print(Get_Path.quoteform_path)
-	return Get_Path.quoteform_path
-
-def Get_Subject():
-    needed_values_dict = fillpdfs.get_form_fields(Get_Path.quoteform_path)
-    needed_values_dict = {key: needed_values_dict[key] for key in needed_values_dict.keys()
-       & {'4669727374204e616d65', '4c617374204e616d65', 'Year', '4d616b6520616e64204d6f64656c', 'Length'}}
-    first_name = needed_values_dict.get('4669727374204e616d65')
-    last_name = needed_values_dict.get('4c617374204e616d65')
-    year = needed_values_dict.get('Year')
-    make = needed_values_dict.get('4d616b6520616e64204d6f64656c')
-    length = needed_values_dict.get('Length')
-    msg_subject = f'{last_name}, {first_name} | {year} {make} {length} | New Quote Submission'
-    return msg_subject
-
-def Get_Add_Notes():
-    additional_notes = additional_email_body_notes.get()
-    return additional_notes
 
 def Get_CC_Addresses(): #NEED TO REVISE HOW WE KEEP ADDRESS...It gets replaced with 'None'
     config = read_config()
-    cc_addresses = [cc_address_1_user_input.get(), cc_address_2_user_input.get()]
+    cc_addresses = [cc_address_1_user_input.get('1.0', 'end-1c'), cc_address_2_user_input.get('1.0', 'end-1c')]
     if cc_default_check.get()=='0':
         try:
-            cc_addresses.append(config.get('CarbonCopy Settings', ''), config.get('CarbonCopy Settings', ''))
+            cc_addresses.append(config.get('CarbonCopy Settings', 'default_cc_address_1'), config.get('CarbonCopy Settings', 'default_cc_address_2'))
         except:
             print('The cc append didnt work, trying the other way...')
             try:
-                cc_addresses.append(config.get('CarbonCopy Settings', ''))
-                cc_addresses.append(config.get('CarbonCopy Settings', ''))
+                cc_addresses.append(config.get('CarbonCopy Settings', 'default_cc_address_1'))
+                cc_addresses.append(config.get('CarbonCopy Settings', 'default_cc_address_2'))
                 print('Done.')
             except:
                 print('Not successful in saving CC addresses')
@@ -290,17 +203,7 @@ def path_to_additional_attachments(event):
 	else:
 		attachments.append(event.data)
 	return attachments
-
-def listToString(s):
-    str1 = ''
-    for element in s:
-        str1 += element
-    return str1
-
-def passing():
-	pass
-
-				    
+			    
 #MAIN FUNCTIONS-------|
 def sameCarrierSubmission():
     config = read_config()
@@ -363,14 +266,27 @@ def sameCarrierSubmission():
             except:
                 pass
     sendEmail(address, greeting, body, salutation, your_name)
+    
+def Get_Path(event):
+	if '{' in event.data:
+		Get_Path.quoteform_path = ''
+		Get_Path.quoteform_path = event.data.translate({ord(c): None for c in '{}'})
+		print(Get_Path.quoteform_path)
+	else:
+		Get_Path.quoteform_path = event.data
+		print(Get_Path.quoteform_path)
+		listToString(Get_Path.quoteform_path)
+		print(Get_Path.quoteform_path)
+	return Get_Path.quoteform_path
 
 def sendEmail(address, greeting, body, salutation, your_name):
     import win32com.client as win32
     outlook = win32.Dispatch('outlook.application')
     cc_output = Get_CC_Addresses()
-    add_notes = Get_Add_Notes()
+    add_notes = additional_email_body_notes.get('1.0', 'end-1c')
     mail = outlook.CreateItem(0)
-    mail.Subject = Get_Subject()
+    quoteform_fields_dict = fillpdfs.get_form_fields(Get_Path.quoteform_path)
+    mail.Subject = Get_Subject(quoteform_fields_dict)
     mail.To = address
     mail.CC = cc_output
     mail.HTMLBody = '''
@@ -407,8 +323,31 @@ def sendEmail(address, greeting, body, salutation, your_name):
     mail.Display()
 #   mail.Send()
 
+#tkinter modules by tab
+
+#MAIN TAB
+frame_header = Frame(main, bg='#5F9EA0', pady=17)
+frame_left = Frame(main, bg='#5F9EA0')
+frame_middle = Frame(main, bg='#5F9EA0')
+frame_right = Frame(main, bg='#5F9EA0')
+frame_header.pack(padx=5, fill=X, expand=False)
+frame_left.pack(padx=5, fill = Y, side='left', expand = False, anchor=NE)
+frame_middle.pack(padx=5, fill = Y, side='left', expand = False, anchor=N)
+frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
+
+#DECLARE VARIABLES THEN PACKING OF frame_left ELEMENTS
+
+textarea = Text(frame_left, height=7, width=27, background='#59f3e3')
+attachmentsarea = Text(frame_left, height=9, width=27, background='#59f3e3')
 
 
+Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+textarea.pack(fill=BOTH, anchor=N, expand=True)
+Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+attachmentsarea.pack(fill=X, expand=True, anchor=N)
 
 textarea.drop_target_register(DND_FILES)
 textarea.dnd_bind('<<Drop>>', Get_Path)
