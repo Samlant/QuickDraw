@@ -10,7 +10,7 @@ def read_config():
 # Method to read/update config file settings (REPLACE CONFIGPARSER ABOVE????)
 def update_config():
     updater = ConfigUpdater()
-    updater.read("configurations.ini")
+    updater.read('configurations.ini')
     return updater
     
 #Method to get the path of the quoteform
@@ -22,42 +22,43 @@ def update_config():
 def assignCorrectCarrierNames(carrier):
     key = str
     print(carrier)
-    if 'Combo' not in carrier:
+    if 'Combo' not in carrier and carrier!='':
         key='none'
         if carrier=='Seawave':
-            carrier = 'SW email'
+            section_name = 'SW email'
         elif carrier =='Prime Time':
-            carrier = 'PT email'
+            section_name = 'PT email'
         elif carrier=='New Hampshire':
-            carrier = 'NH email'
+            section_name = 'NH email'
         elif carrier=='American Modern':
-            carrier = 'AM email'
+            section_name = 'AM email'
         elif carrier=='Kemah':
-            carrier = 'KM email'
+            section_name = 'KM email'
         elif carrier=='Concept':
-            carrier = 'CP email'
+            section_name = 'CP email'
         elif carrier=='Yachtinsure':
-            carrier = 'YI email'
+            section_name = 'YI email'
         elif carrier=='Century':
-            carrier = 'CE email'
+            section_name = 'CE email'
         elif carrier=='Intact':
-            carrier = 'IN email'
+            section_name = 'IN email'
         elif carrier=='Travelers':
-            carrier = 'TV email'
-    else:
+            section_name = 'TV email'
+    elif 'Combo' in carrier:
+        section_name = 'Combo email'
         if carrier=='Combo SW and PT':
-            carrier = 'Combo email'
             key = 'SWandPTbody'
         elif carrier=='Combo SW and NH':
-            carrier = 'Combo email'
             key = 'SWandNHbody'
         elif carrier=='Combo SW, PT and NH':
-            carrier = 'Combo email'
             key = 'PTandNHandSWbody'
         elif carrier=='Combo PT and NH':
-            carrier = 'Combo email'
             key = 'PTandNHandSWbody'
-    return carrier, key
+        else:
+            print(f"Assign CorrectCarrierNsmes in helper file wasnt able to allocate the carrier variable: {carrier} ... correctly to a specific Combo option so it was left for the last else statement")
+    else:
+        print(f"Assign CorrectCarrierNsmes in helper file wasnt able to allocate the carrier variable: {carrier} ... correctly so it was left for the last else statement")
+    return section_name, key
 
 def Get_Subject(quoteform_fields_dict):
     import string
@@ -79,7 +80,8 @@ def getYourName():
 def getPlaceholders(entry, section_name):
     config = update_config
     if 'Combo' in section_name:
-        placeholder = config[section_name]['body'].value
+        key_ name = 'SWandPTbody' #TODO: Replace hard coded value to .get() the key name asit is in the config file.  i can use assign correct carrier name i think..
+        placeholder = config[section_name][key_name].value
     else:
         if 'address' in entry:
             placeholder = config[section_name]['address'].value
@@ -90,7 +92,7 @@ def getPlaceholders(entry, section_name):
         elif 'salutation' in entry:
             placeholder = config[section_name]['salutation'].value
         else:
-            pass
+            print('Was not a Combo according to section_name, and then entry did not match any of the listed options such asbody, greeting..')
     return placeholder
 
 def getyourName():
