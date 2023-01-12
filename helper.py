@@ -22,7 +22,7 @@ def update_config():
 def assignCorrectCarrierNames(carrier):
     key = str
     print(carrier)
-    if carrier!='Combo SW and PT' or 'Combo SW and NH' or 'Combo SW, PT and NH' or 'Combo SW, PT and NH':
+    if 'Combo' not in carrier:
         key='none'
         if carrier=='Seawave':
             carrier = 'SW email'
@@ -47,28 +47,56 @@ def assignCorrectCarrierNames(carrier):
     else:
         if carrier=='Combo SW and PT':
             carrier = 'Combo email'
-            key = 'sw_and_pt_body'
+            key = 'SWandPTbody'
         elif carrier=='Combo SW and NH':
             carrier = 'Combo email'
-            key = 'sw_and_nh_body'
+            key = 'SWandNHbody'
         elif carrier=='Combo SW, PT and NH':
             carrier = 'Combo email'
-            key = 'pt_and_nh_body'
+            key = 'PTandNHandSWbody'
         elif carrier=='Combo PT and NH':
             carrier = 'Combo email'
-            key = 'pt_and_nh_and_sw_body'
+            key = 'PTandNHandSWbody'
     return carrier, key
 
 def Get_Subject(quoteform_fields_dict):
+    import string
     quoteform_fields_dict = {key: quoteform_fields_dict[key] for key in quoteform_fields_dict.keys()
        & {'4669727374204e616d65', '4c617374204e616d65', 'Year', '4d616b6520616e64204d6f64656c', 'Length'}}
-    first_name = quoteform_fields_dict.get('4669727374204e616d65')
-    last_name = quoteform_fields_dict.get('4c617374204e616d65')
+    first_name = string.capwords(quoteform_fields_dict.get('4669727374204e616d65'), sep=None)
+    last_name = quoteform_fields_dict.get('4c617374204e616d65').upper()
     year = quoteform_fields_dict.get('Year')
-    make = quoteform_fields_dict.get('4d616b6520616e64204d6f64656c')
+    make = string.capwords(quoteform_fields_dict.get('4d616b6520616e64204d6f64656c'), sep=None)
     length = quoteform_fields_dict.get('Length')
     msg_subject = f'{last_name}, {first_name} | {year} {make} {length} | New Quote Submission'
     return msg_subject
+
+def getYourName():
+    config = update_config()
+    placeholder = config['General settings']['your_name'].value
+    return placeholder
+
+def getPlaceholders(entry, section_name):
+    config = update_config
+    if 'Combo' in section_name:
+        placeholder = config[section_name]['body'].value
+    else:
+        if 'address' in entry:
+            placeholder = config[section_name]['address'].value
+        elif 'greeting' in entry:
+            placeholder = config[section_name]['greeting'].value
+        elif 'body' in entry:
+            placeholder = config[section_name]['body'].value
+        elif 'salutation' in entry:
+            placeholder = config[section_name]['salutation'].value
+        else:
+            pass
+    return placeholder
+
+def getyourName():
+    config = read_config()
+    placeholder_your_name = config.get('General settings', 'your_name')
+    return placeholder_your_name
 
 def listToString(s):
     str1 = ''

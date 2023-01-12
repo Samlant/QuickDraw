@@ -36,11 +36,11 @@ tabControl.add(template_settings, text='Templates')
 tabControl.add(settings, text='Settings')
 tabControl.pack(expand=1, fill='both')
 # Done setting up main window with tabs---Declaring needed variables upfront below:
-your_name_placeholder = str
-carrier_address_placeholder = str
-carrier_body_placeholder = str
-carrier_greeting_placeholder = str
-carrier_salutation_placeholder = str
+your_name_placeholder = getYourName()
+carrier_address_placeholder = 'N/A, select a carrier from the drop-down menu.'
+carrier_body_placeholder = 'N/A, select a carrier from the drop-down menu.'
+carrier_greeting_placeholder = 'N/A, select a carrier from the drop-down menu.'
+carrier_salutation_placeholder = 'N/A, select a carrier from the drop-down menu.'
 options = [
 	'Select Carrier',
     'Seawave',
@@ -94,17 +94,22 @@ def updateCarrierChoice(*args):
     carrier_greeting.delete(0, 'end')
     carrier_body.delete('1.0', 'end')
     carrier_salutation.delete(0, 'end')
+    
 # If current choice is the default 'Select Carriers' option,  then disable the fields.
     if current_selected_carrier[0]=='Select Carrier':
         carrier_address.configure(state='disabled')
-        carrier_greeting.configure(state='readonly')
+        carrier_greeting.configure(state='disabled')
         carrier_body.configure(state='disabled')
         carrier_salutation.configure(state='disabled')
 # If current choice is a combo-market email, use the correct placeholder text.
     elif 'Combo' in current_selected_carrier[0]:
+        print(current_selected_carrier)
         placeholder = config['Combo email'][current_selected_carrier[1]].value
-        carrier_body.insert('1.0', placeholder)
         carrier_body.configure(state='normal')
+        carrier_body.insert('1.0', placeholder)
+        carrier_address.insert(0, 'N/A, uses same as Seawaves template')
+        carrier_greeting.insert(0, 'N/A, uses same as Seawaves template')
+        carrier_salutation.insert(0, 'N/A, uses same as Seawaves template')
         carrier_address.configure(state='disabled')
         carrier_greeting.configure(state='disabled')
         carrier_salutation.configure(state='disabled')
@@ -112,6 +117,7 @@ def updateCarrierChoice(*args):
 # Otherwise,  first activate all fields if they're disabled, then assign placeholders.
         if carrier_address.cget('state')=='disabled':
             carrier_address.configure(state='normal')
+            carrier_body.configure(state='normal')
             carrier_greeting.configure(state='normal')
             carrier_salutation.configure(state='normal')
         else:
@@ -121,42 +127,27 @@ def updateCarrierChoice(*args):
         placeholder_body = config[current_selected_carrier[0]]['body'].value
         placeholder_salutation = config[current_selected_carrier[0]]['salutation'].value
         carrier_address.insert(0, placeholder_address)
-        carrier_address.configure(state='normal')
         carrier_greeting.insert(0, placeholder_greeting)
-        carrier_greeting.configure(state='normal')
         carrier_body.insert('1.0', placeholder_body)
-        carrier_body.configure(state='normal')
-        carrier_salutation.insert(0, placeholder_salutation)
-        carrier_salutation.configure(state='normal')  
+        carrier_salutation.insert(0, placeholder_salutation) 
 
 def on_focus_in(entry):
     if entry.cget('state') == 'disabled':
-        entry.configure(state='normal')
-        entry.delete(1.0, 'end')
+        pass
+    else:
+        if entry == tk.Entry:
+            entry.delete('1.0', 'end')
+        else:
+            entry.delete(0, 'end')
 
 def on_focus_out(entry):
-    config = update_config
     if entry.get() == "":
         section_name = assignCorrectCarrierNames(dropdown_email_template.get())
-        if 'Combo' in section_name:
-            placeholder = config[section_name]['body'].value
-        else:
-            if 'name' in entry:
-                placeholder = config['General settings']['your_name'].value
-            elif 'address' in entry:
-                placeholder = config[section_name]['address'].value
-            elif 'greeting' in entry:
-                placeholder = config[section_name]['greeting'].value
-            elif 'body' in entry:
-                placeholder = config[section_name]['body'].value
-            elif 'salutation' in entry:
-                placeholder = config[section_name]['salutation'].value
-            else:
-                pass
+        placeholder = getPlaceholders(entry, section_name)
         if entry == tk.Entry:
             entry.insert('1.0', placeholder)
         else:
-            entry.insert(1.0, placeholder)
+            entry.insert(0, placeholder)
         entry.configure(state='disabled')
     else:
         pass
@@ -166,7 +157,7 @@ def btnSaveCarrierTemplate(carrier): # WORKS IS GOOD
     carrier_tuple = assignCorrectCarrierNames(carrier)
     if carrier_tuple[0]=='Select Carrier':
         pass
-    elif carrier_tuple[1]==0:
+    elif carrier_tuple[1]=='none':
         config[carrier_tuple[0]]['address'].value = carrier_address.get()
         config[carrier_tuple[0]]['greeting'].value = carrier_greeting.get()
         config[carrier_tuple[0]]['body'].value = carrier_body.get()
@@ -176,8 +167,8 @@ def btnSaveCarrierTemplate(carrier): # WORKS IS GOOD
   
 def btnSaveMainSettings(): #WORKS IS GOOD!
     updater = update_config()
-    updater['CarbonCopy Settings']['def_cc_address_1'].value = def_cc_address_1.get()
-    updater['CarbonCopy Settings']['def_cc_address_2'].value = def_cc_address_2.get()
+    updater['CarbonCopy Settings']['defaultCCaddress1'].value = defaultCCaddress1.get()
+    updater['CarbonCopy Settings']['defaultCCaddress2'].value = defaultCCaddress2.get()
 
 
 
@@ -190,19 +181,20 @@ def Get_CC_Addresses(): #NEED TO REVISE HOW WE KEEP ADDRESS...It gets replaced w
     cc_addresses = [cc_address_1_user_input.get('1.0', 'end-1c'), cc_address_2_user_input.get('1.0', 'end-1c')]
     if cc_default_check.get()=='0':
         try:
-            cc_addresses.append(config.get('CarbonCopy Settings', 'default_cc_address_1'), config.get('CarbonCopy Settings', 'default_cc_address_2'))
+            cc_addresses.append(config.get('CarbonCopy Settings', 'defaultCCaddress1'), config.get('CarbonCopy Settings', 'defaultCCaddress2'))
             cc_addresses = f"{cc_addresses}"
         except:
             print('The cc append didnt work, trying the other way...')
             try:
-                cc_addresses.append(config.get('CarbonCopy Settings', 'default_cc_address_1'))
-                cc_addresses.append(config.get('CarbonCopy Settings', 'default_cc_address_2'))
+                cc_addresses.append(config.get('CarbonCopy Settings', 'defaultCCaddress1'))
+                cc_addresses.append(config.get('CarbonCopy Settings', 'defaultCCaddress2'))
                 cc_addresses = f"{cc_addresses}"
                 print('Done.')
             except:
                 print('Not successful in saving CC addresses')
     else:
-        cc_addresses = f"{cc_addresses}"
+        cc_addresses = ';'.join(str(element) for element in cc_addresses)
+        print(cc_addresses)
     return cc_addresses
 
 def path_to_additional_attachments(event):
@@ -219,25 +211,25 @@ def sameCarrierSubmission():
     if dict0[0]==1 and dict0[1]==1 and dict0[2]==0:
         address = config.get('SW email', 'address')
         greeting = config.get('SW email', 'greeting')
-        body = config.get('Combo email', 'sw_and_pt_body')
+        body = config.get('Combo email', 'SWandPTbody')
         salutation = config.get('SW email', 'salutation')
         your_name = config.get('General settings', 'your_name')
     elif dict0[0]==1 and dict0[1]==0 and dict0[2]==1:
         address = config.get('SW email', 'address')
         greeting = config.get('SW email', 'greeting')
-        body = config.get('Combo email', 'sw_and_nh_body')
+        body = config.get('Combo email', 'SWandNHbody')
         salutation = config.get('SW email', 'salutation')
         your_name = config.get('General settings', 'your_name')
     elif dict0[0]==1 and dict0[1]==1 and dict0[2]==1:
         address = config.get('SW email', 'address')
         greeting = config.get('SW email', 'greeting')
-        body = config.get('Combo email', 'pt_and_nh_and_sw_body')
+        body = config.get('Combo email', 'PTandNHandSWbody')
         salutation = config.get('SW email', 'salutation')
         your_name = config.get('General settings', 'your_name')
     elif dict0[1]==1 and dict0[2]==1:
         address = config.get('SW email', 'address')
         greeting = config.get('SW email', 'greeting')
-        body = config.get('Combo email', 'pt_and_nh_body')
+        body = config.get('Combo email', 'PTandNHbody')
         salutation = config.get('SW email', 'salutation')
         your_name = config.get('General settings', 'your_name')
     elif dict0[0]==1 or dict0[1]==1 or dict0[2]==1:
@@ -418,8 +410,8 @@ Button(frame_right, text='Submit and sent to markets!', bg='#22c26a', font=('hel
 #-----------------EMAIL_TEMPLATE TAB-------------------------
 
 dropdown_email_template = StringVar()
-dropdown_email_template.trace_add('write', updateCarrierChoice)
 dropdown_email_template.set('Select Carrier')
+dropdown_email_template.trace_add('write', updateCarrierChoice())
 drop = OptionMenu(e_frame_top, dropdown_email_template, *options)
 drop.configure(background='#aedadb', foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0')
 drop['menu'].configure(background='#aedadb')
@@ -428,8 +420,8 @@ your_name = Entry(e_frame_header)
 Label(e_frame_header, text = 'Adjust the Default Email Templates for Each Carrier', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill = X, expand=True, side='top')
 Label(e_frame_header, text = 'Your name (used in Signature):', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(padx=4, pady=5, fill=BOTH, expand=True, side='left', anchor=E)
 your_name.pack(ipadx=900, pady=5, fill=BOTH, expand=True, side='right', anchor=NW)
+your_name_placeholder = getYourName()
 your_name.insert(0, your_name_placeholder)
-your_name.configure(state='disabled')
 Label(e_frame_top, text = "This drop-down menu allows you to view & edit a specific carrier's, or combo carriers', email message contents.", bg='#5F9EA0', font=('helvetica', 10, 'normal')).pack(fill = X, expand=True)
 drop.pack(padx=15, ipady=5, fill = X, expand=True)
 
@@ -452,27 +444,27 @@ carrier_salutation.configure(state='disabled')
 button = Button(e_frame_bottomR, text = 'Save template for this carrier choice!', command = btnSaveCarrierTemplate(dropdown_email_template.get())).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
 
 your_name_focus_in = your_name.bind('<Button-1>', lambda x: on_focus_in(your_name))
-your_name_focus_out = your_name.bind('<FocusOut>', lambda x: on_focus_out(your_name, your_name_placeholder))
+your_name_focus_out = your_name.bind('<FocusOut>', lambda x: on_focus_out(your_name, getYourName()))
 carrier_address_focus_in = carrier_address.bind('<Button-1>', lambda x: on_focus_in(carrier_address))
-carrier_address_focus_out = carrier_address.bind('<FocusOut>', lambda x: on_focus_out(carrier_address, carrier_address_placeholder))
+carrier_address_focus_out = carrier_address.bind('<FocusOut>', lambda x: on_focus_out(carrier_address))
 carrier_greeting_focus_in = carrier_greeting.bind('<Button-1>', lambda x: on_focus_in(carrier_greeting))
-carrier_greeting_focus_out = carrier_greeting.bind('<FocusOut>', lambda x: on_focus_out(carrier_greeting, carrier_greeting_placeholder))
+carrier_greeting_focus_out = carrier_greeting.bind('<FocusOut>', lambda x: on_focus_out(carrier_greeting))
 carrier_body_focus_in = carrier_body.bind('<Button-1>', lambda x: on_focus_in(carrier_body))
-carrier_body_focus_out = carrier_body.bind('<FocusOut>', lambda x: on_focus_out(carrier_body, carrier_body_placeholder))
+carrier_body_focus_out = carrier_body.bind('<FocusOut>', lambda x: on_focus_out(carrier_body))
 carrier_salutation_focus_in = carrier_salutation.bind('<Button-1>', lambda x: on_focus_in(carrier_salutation))
-carrier_salutation_focus_out = carrier_salutation.bind('<FocusOut>', lambda x: on_focus_out(carrier_salutation, carrier_salutation_placeholder))
+carrier_salutation_focus_out = carrier_salutation.bind('<FocusOut>', lambda x: on_focus_out(carrier_salutation))
 
 #-------------------SETTINGS TAB------------------
 
-def_cc_address_1 = Entry(settings)
-def_cc_address_2 = Entry(settings)
+defaultCCaddress1 = Entry(settings)
+defaultCCaddress2 = Entry(settings)
 
 Label(settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=False, side='top')
 Label(settings, text='CC-address Settings (more to be added later or upon your request)', bg='#5F9EA0', font=('helvetica', 14, 'normal')).pack(fill=X, expand=False, side='top')
 Label(settings, text='If desired, enter an address to always CC:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).pack(fill=X, expand=False, side='top')
-def_cc_address_1.pack(fill=X, expand=False, side='top')
+defaultCCaddress1.pack(fill=X, expand=False, side='top')
 Label(settings, text='If desired, enter an address to always CC:', bg='#5F9EA0', font=('helvetica', 12, 'normal')).pack(fill=X, expand=False, side='top')
-def_cc_address_2.pack(fill=X, expand=False, side='top')
+defaultCCaddress2.pack(fill=X, expand=False, side='top')
 
 Button(settings, text='Save Settings!', bg='#7FFFD4', font=('helvetica', 12, 'normal'), command=btnSaveMainSettings).pack(fill=X, expand=False, side='top')
 
