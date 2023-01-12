@@ -20,8 +20,10 @@ def update_config():
 # Above not used yet,  but below are functions I want to put in helper.py
 
 def assignCorrectCarrierNames(carrier):
-    carrier_tuple = tuple()
+    key = str
+    print(carrier)
     if carrier!='Combo SW and PT' or 'Combo SW and NH' or 'Combo SW, PT and NH' or 'Combo SW, PT and NH':
+        key='none'
         if carrier=='Seawave':
             carrier = 'SW email'
         elif carrier =='Prime Time':
@@ -42,7 +44,6 @@ def assignCorrectCarrierNames(carrier):
             carrier = 'IN email'
         elif carrier=='Travelers':
             carrier = 'TV email'
-        carrier_tuple = (carrier, 0)
     else:
         if carrier=='Combo SW and PT':
             carrier = 'Combo email'
@@ -56,8 +57,7 @@ def assignCorrectCarrierNames(carrier):
         elif carrier=='Combo PT and NH':
             carrier = 'Combo email'
             key = 'pt_and_nh_and_sw_body'
-        carrier_tuple = (carrier, key)
-    return carrier_tuple
+    return carrier, key
 
 def Get_Subject(quoteform_fields_dict):
     quoteform_fields_dict = {key: quoteform_fields_dict[key] for key in quoteform_fields_dict.keys()

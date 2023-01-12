@@ -1,6 +1,12 @@
 from helper import *
 
 
-cars_tuple = ('honda', 'toyota', 'chevy')
+a=20
 
-print(cars_tuple[0])
+if a == 10:
+    print('wrong')
+elif a == 19:
+    print('almost there!')
+else:
+    print('you got it!')
+
