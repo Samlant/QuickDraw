@@ -435,7 +435,8 @@ Label(e_frame_bottomL, text = 'Body of the email:', bg='#aedadb', font=('helveti
 carrier_body.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
 Label(e_frame_bottomL, text = 'Salutation:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side='top')
 carrier_salutation.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-button = Button(e_frame_bottomR, text = 'Click to SAVE template for this market, & save your name!', bg='#22c26a', command = btnSaveCarrierTemplate(dropdown_email_template.get())).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
+get_dropdown_selection = dropdown_email_template.get()
+button = Button(e_frame_bottomR, text = 'Click to SAVE template for this market, & save your name!', bg='#22c26a', command = btnSaveCarrierTemplate(get_dropdown_selection)).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
 #-------------------SETTINGS TAB------------------
 Label(settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=BOTH, expand=False, side='top')
 Label(settings, text='CC-address Settings (more to be added later or upon your request)', bg='#5F9EA0', font=('helvetica', 14, 'normal')).pack(fill=X, expand=False, side='top')
@@ -445,6 +446,9 @@ Label(settings, text='2nd address to set as default cc: ', bg='#5F9EA0', font=('
 defaultCCaddress2.pack(fill=X, ipadx=10, ipady=4, expand=True, side='left', anchor=N)
 Button(settings, text='Save Settings!', bg='#22c26a', font=('helvetica', 12, 'normal'), command=btnSaveMainSettings(defaultCCaddress1.get(), defaultCCaddress2.get())).pack(fill=X, expand=False, anchor=W, side=LEFT)
 #---------END OF DECLARATIONS---BEGIN TKINTER FUNCTIONS---------#
+# def getDropDownSelection():
+#     get_dropdown_selection = dropdown_email_template.get()
+#     return get_dropdown_selection
 
 #SETTING THE WINDOW TO CENTER
 # get the screen dimension

@@ -98,6 +98,7 @@ def Get_Path(event):
 def getPlaceholders(entry, section_name):
     config = update_config()
     print(entry)
+    print('yay')
     print(section_name[0])
     print(section_name[1])
     if 'Combo' in section_name[0]:
@@ -105,14 +106,29 @@ def getPlaceholders(entry, section_name):
         # key_name = section_name[1]
         placeholder = config[section_name][key_name].value
     else:
-        if 'address' in entry:
-            placeholder = config[section_name]['address'].value
-        elif 'greeting' in entry:
-            placeholder = config[section_name]['greeting'].value
-        elif 'body' in entry:
-            placeholder = config[section_name]['body'].value
-        elif 'salutation' in entry:
-            placeholder = config[section_name]['salutation'].value
+        if 'text' in entry:
+            if 'address' in entry:
+                placeholder = config[section_name]['address'].value
+            elif 'greeting' in entry:
+                placeholder = config[section_name]['greeting'].value
+            elif 'body' in entry:
+                placeholder = config[section_name]['body'].value
+            elif 'salutation' in entry:
+                placeholder = config[section_name]['salutation'].value
+            else:
+                print('couldnt recognize text entry')
+        elif 'entry' in entry:
+            if 'address' in entry:
+                placeholder = config[section_name]['address'].value
+            elif 'greeting' in entry:
+                placeholder = config[section_name]['greeting'].value
+            elif 'body' in entry:
+                placeholder = config[section_name]['body'].value
+            elif 'salutation' in entry:
+                placeholder = config[section_name]['salutation'].value
+            else:
+                print('couldnt recognize text entry')
+                placeholder = 'sammy'
         else:
             placeholder = 'sammy'
             print('Was not a Combo according to section_name, and then entry did not match any of the listed options such asbody, greeting..')
