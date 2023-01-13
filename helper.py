@@ -21,9 +21,14 @@ def update_config():
 
 def assignCorrectCarrierNames(carrier):
     key = str
-    print(carrier)
-    if 'Combo' not in carrier and carrier!='':
-        key='none'
+    section_name=''
+    print(f"this is the carrier: {carrier}")
+    if carrier == 'Select Carrier':
+        print('found a Select Carrier value!')
+        section_name = 'Select Carrier'
+        key = 'sammy'
+    elif 'Combo' not in carrier and carrier!='':
+        key='sammy'
         if carrier=='Seawave':
             section_name = 'SW email'
         elif carrier =='Prime Time':
@@ -55,6 +60,7 @@ def assignCorrectCarrierNames(carrier):
         elif carrier=='Combo PT and NH':
             key = 'PTandNHandSWbody'
         else:
+            section_name=''
             print(f"Assign CorrectCarrierNsmes in helper file wasnt able to allocate the carrier variable: {carrier} ... correctly to a specific Combo option so it was left for the last else statement")
     else:
         print(f"Assign CorrectCarrierNsmes in helper file wasnt able to allocate the carrier variable: {carrier} ... correctly so it was left for the last else statement")
@@ -77,10 +83,22 @@ def getYourName():
     placeholder = config['General settings']['your_name'].value
     return placeholder
 
+def Get_Path(event):
+	if '{' in event.data:
+		Get_Path.quoteform_path = ''
+		Get_Path.quoteform_path = event.data.translate({ord(c): None for c in '{}'})
+		print(Get_Path.quoteform_path)
+	else:
+		Get_Path.quoteform_path = event.data
+		print(Get_Path.quoteform_path)
+		listToString(Get_Path.quoteform_path)
+		print(Get_Path.quoteform_path)
+	return Get_Path.quoteform_path
+
 def getPlaceholders(entry, section_name):
-    config = update_config
-    if 'Combo' in section_name:
-        key_ name = 'SWandPTbody' #TODO: Replace hard coded value to .get() the key name asit is in the config file.  i can use assign correct carrier name i think..
+    config = update_config()
+    if 'Combo' in section_name[0]:
+        key_name = 'SWandPTbody' #TODO: Replace hard coded value to .get() the key name as it is in the config file.  i can use assign correct carrier name i think..
         placeholder = config[section_name][key_name].value
     else:
         if 'address' in entry:
@@ -92,6 +110,7 @@ def getPlaceholders(entry, section_name):
         elif 'salutation' in entry:
             placeholder = config[section_name]['salutation'].value
         else:
+            placeholder = 'sammy'
             print('Was not a Combo according to section_name, and then entry did not match any of the listed options such asbody, greeting..')
     return placeholder
 
@@ -108,3 +127,8 @@ def listToString(s):
 
 def passing():
 	pass
+
+def btnSaveMainSettings(cc1, cc2): #WORKS IS GOOD!
+    updater = update_config()
+    updater['CarbonCopy Settings']['defaultCCaddress1'].value = cc1
+    updater['CarbonCopy Settings']['defaultCCaddress2'].value = cc2
