@@ -21,7 +21,7 @@ def update_config():
 
 def assignCorrectCarrierNames(carrier):
     key = str
-    section_name=''
+    section_name = str
     print(f"this is the carrier: {carrier}")
     if carrier == 'Select Carrier':
         print('found a Select Carrier value!')
@@ -60,7 +60,7 @@ def assignCorrectCarrierNames(carrier):
         elif carrier=='Combo PT and NH':
             key = 'PTandNHandSWbody'
         else:
-            section_name=''
+            section_name='sammy'
             print(f"Assign CorrectCarrierNsmes in helper file wasnt able to allocate the carrier variable: {carrier} ... correctly to a specific Combo option so it was left for the last else statement")
     else:
         print(f"Assign CorrectCarrierNsmes in helper file wasnt able to allocate the carrier variable: {carrier} ... correctly so it was left for the last else statement")
@@ -78,10 +78,10 @@ def Get_Subject(quoteform_fields_dict):
     msg_subject = f'{last_name}, {first_name} | {year} {make} {length} | New Quote Submission'
     return msg_subject
 
-def getYourName():
-    config = update_config()
-    placeholder = config['General settings']['your_name'].value
-    return placeholder
+#def getYourName():
+    #config = update_config()
+    #placeholder = config['General settings']['your_name'].value
+    #return placeholder
 
 def Get_Path(event):
 	if '{' in event.data:
@@ -97,8 +97,12 @@ def Get_Path(event):
 
 def getPlaceholders(entry, section_name):
     config = update_config()
+    print(entry)
+    print(section_name[0])
+    print(section_name[1])
     if 'Combo' in section_name[0]:
         key_name = 'SWandPTbody' #TODO: Replace hard coded value to .get() the key name as it is in the config file.  i can use assign correct carrier name i think..
+        # key_name = section_name[1]
         placeholder = config[section_name][key_name].value
     else:
         if 'address' in entry:
