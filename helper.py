@@ -58,7 +58,7 @@ def assignCorrectCarrierNames(carrier):
         elif carrier=='Combo SW, PT and NH':
             key = 'PTandNHandSWbody'
         elif carrier=='Combo PT and NH':
-            key = 'PTandNHandSWbody'
+            key = 'PTandNHbody'
         else:
             section_name='sammy'
             print(f"Assign CorrectCarrierNsmes in helper file wasnt able to allocate the carrier variable: {carrier} ... correctly to a specific Combo option so it was left for the last else statement")
@@ -95,44 +95,32 @@ def Get_Path(event):
 		print(Get_Path.quoteform_path)
 	return Get_Path.quoteform_path
 
-def getPlaceholders(entry, section_name):
+def getPlaceholders(section_name, type_of_entry, name_of_field):
     config = update_config()
-    print(entry)
-    print('yay')
-    print(section_name[0])
-    print(section_name[1])
-    if 'Combo' in section_name[0]:
-        key_name = 'SWandPTbody' #TODO: Replace hard coded value to .get() the key name as it is in the config file.  i can use assign correct carrier name i think..
-        # key_name = section_name[1]
-        placeholder = config[section_name][key_name].value
+    if type_of_entry == 'entry':
+        index_var = '1.0'
     else:
-        if 'text' in entry:
-            if 'address' in entry:
-                placeholder = config[section_name]['address'].value
-            elif 'greeting' in entry:
-                placeholder = config[section_name]['greeting'].value
-            elif 'body' in entry:
-                placeholder = config[section_name]['body'].value
-            elif 'salutation' in entry:
-                placeholder = config[section_name]['salutation'].value
-            else:
-                print('couldnt recognize text entry')
-        elif 'entry' in entry:
-            if 'address' in entry:
-                placeholder = config[section_name]['address'].value
-            elif 'greeting' in entry:
-                placeholder = config[section_name]['greeting'].value
-            elif 'body' in entry:
-                placeholder = config[section_name]['body'].value
-            elif 'salutation' in entry:
-                placeholder = config[section_name]['salutation'].value
-            else:
-                print('couldnt recognize text entry')
-                placeholder = 'sammy'
+        index_var = 0
+
+    if 'Combo' in section_name[0]:
+        key_name = section_name[1]
+        placeholder = config[section_name[0]][key_name].value
+
+    else:
+        if name_of_field == 'name':
+            placeholder = config['General settings']['your_name'].value
+        elif name_of_field == 'address':
+            placeholder = config[section_name[0]]['address'].value
+        elif name_of_field == 'greeting':
+            placeholder = config[section_name[0]]['greeting'].value
+        elif name_of_field == 'body':
+            placeholder = config[section_name[0]]['body'].value
+        elif name_of_field == 'salutation':
+            placeholder = config[section_name[0]]['salutation'].value
         else:
+            print(f"getPlaceholders() couldn't process the input: {name_of_field}")
             placeholder = 'sammy'
-            print('Was not a Combo according to section_name, and then entry did not match any of the listed options such asbody, greeting..')
-    return placeholder
+    return placeholder, index_var
 
 def getyourName():
     config = read_config()
@@ -147,8 +135,3 @@ def listToString(s):
 
 def passing():
 	pass
-
-def btnSaveMainSettings(cc1, cc2): #WORKS IS GOOD!
-    updater = update_config()
-    updater['CarbonCopy Settings']['defaultCCaddress1'].value = cc1
-    updater['CarbonCopy Settings']['defaultCCaddress2'].value = cc2
