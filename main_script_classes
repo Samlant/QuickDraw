@@ -1,0 +1,216 @@
+import tkinter as tk
+from tkinter import ttk
+from tkinter.ttk import Notebook, Style
+from tkinter import * 
+from tkinterdnd2 import *
+import fillpdf
+from fillpdf import fillpdfs
+
+class QuickSubmitTool(tk.Tk):
+
+    # class attributes
+    self.title('Quick-Submit Tool')
+    self.geometry('760x548')
+    self.attributes('-alpha', 0.95)
+    self.seawave_check = tk.IntVar(name='seawave_check')
+    self.primetime_check = tk.IntVar(name='primetime_check')
+    self.newhampshire_check = tk.IntVar(name='newhampshire_check')
+    self.americanmodern_check = tk.IntVar(name='americanmodern_check')
+    self.kemah_check = tk.IntVar(name='kemah_check')
+    self.concept_check = tk.IntVar(name='concept_check')
+    self.yachtinsure_check = tk.IntVar(name='yachtinsure_check')
+    self.century_check = tk.IntVar(name='century_check')
+    self.intact_check = tk.IntVar(name='intact_check')
+    self.travelers_check = tk.IntVar(name='travelers_check')
+    self.cc_default_check = tk.IntVar(name='cc_default_check')
+    self.attachments = []
+    self.last_name = ''
+    self.first_name = ''
+    self.year = 0
+    self.make = ''
+    self.length = 0
+    self.cc_addresses = ''
+
+    def __init__(self, *args, **kwargs):
+        super.__init__(self, *args, **kwargs)
+        self.createStyle()
+        self.createTabs()
+        self.createMainFrames()
+        self.createTemplateSettingsFrames()
+        self.createSettingsFrames()
+        self.insert_placeholders()
+    
+    def createStyle(self):
+        self.style = Style()
+        self.style.theme_use('default')
+        self.style.configure('TNotebook', background='#5F9EA0')
+        self.style.configure('TFrame', background='#5F9EA0')
+        self.style.map('TNotebook', background= [('selected', '#5F9EA0')])
+
+    def createTabs(self, main):
+        self.tabControl = ttk.Notebook(main)
+        self.home = ttk.Frame(self.tabControl)
+        self.template_settings = ttk.Frame(self.tabControl)
+        self.settings = ttk.Frame(self.tabControl)
+        self.tabControl.add(self.home, text='Main')
+        self.tabControl.add(self.template_settings, text='Templates')
+        self.tabControl.add(self.settings, text='Settings')
+    
+
+        
+    def createMainFrames(self, main):
+        frame_header = Frame(main, bg='#5F9EA0', pady=17)
+        frame_header.pack(padx=5, fill=X, expand=False)
+
+        frame_left = Frame(main, bg='#5F9EA0')
+        frame_left.pack(padx=5, fill = Y, side='left', expand = False, anchor=NE)
+
+        frame_middle = Frame(main, bg='#5F9EA0')
+        frame_middle.pack(padx=5, fill = Y, side='left', expand = False, anchor=N)
+
+        frame_right = Frame(main, bg='#5F9EA0')
+        frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
+
+        # Frame Header
+        Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+        Label(frame_header, text='Extra Notes & CC', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+        Label(frame_header, text='Choose Markets:', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
+
+        # Frame Left
+        Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+
+        self.textarea = Text(frame_left, height=7, width=27, background='#59f3e3', name='raw_quoteform_path')
+        self.textarea.pack(fill=BOTH, anchor=N, expand=True)
+
+        Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
+
+        self.attachmentsarea = Text(frame_left, height=9, width=27, background='#59f3e3', name='raw_list_of_attachments_paths')
+        self.attachmentsarea.pack(fill=X, expand=True, anchor=N)
+
+        # Frame middle
+        
+        # label_frame
+        addNotes_labelframe = LabelFrame(frame_middle, text= 'To end with a message, enter it below:', bg='#aedadb', font=('helvetica', 8, 'normal'))
+        addNotes_labelframe.pack(fill=X, expand=False, side='top')
+
+        self.additional_email_body_notes = Text(addNotes_labelframe, height=7, width=30, name='raw_additional_body_notes')
+        additional_email_body_notes.pack(fill = X, anchor=N, expand=FALSE, side='top')
+        #end label_frame
+
+        # label_frame
+        cc_labelframe = LabelFrame(frame_middle, text= 'CC-address settings for this submission:', bg='#aedadb', name='cc_labelframe')
+        cc_labelframe.pack(fill=X, expand=True, side='top')
+
+        self.cc_def_check = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self.cc_default_check, bg='#aedadb', name='cc_def_chcek').pack(pady=5, fill=X, expand=False, side='top')
+
+        Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
+
+        self.cc_address_1_user_input = Text(cc_labelframe, height=1, width=30)
+        self.cc_address_1_user_input.pack(pady=2, ipady=4, anchor=N, fill = X, expand=True, side='top')
+
+        Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
+
+        self.cc_address_2_user_input = Text(cc_labelframe, height=1, width=30)
+        self.cc_address_2_user_input.pack(ipady=4, anchor=N, fill = X, expand=True, side='top')
+        #end label_frame
+
+        
+        # Frame right
+
+        seawave = Checkbutton(frame_right, text='Seawave Insurance', variable=self.seawave_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        seawave.pack(ipady=3, fill=BOTH, expand=True)
+        primetime = Checkbutton(frame_right, text='Prime Time Insurance', variable=primetime_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        primetime.pack(ipady=3, fill=BOTH, expand=True)
+        newhampshire = Checkbutton(frame_right, text='New Hampshire', variable=newhampshire_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        newhampshire.pack(ipady=3, fill=BOTH, expand=True)
+        americanmodern = Checkbutton(frame_right, text='American Modern', variable=americanmodern_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        americanmodern.pack(ipady=3, fill=BOTH, expand=True)
+        kemah = Checkbutton(frame_right, text='Kemah Marine', variable=kemah_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        kemah.pack(ipady=3, fill=BOTH, expand=True)
+        concept = Checkbutton(frame_right, text='Concept Special ', variable=concept_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        concept.pack(ipady=3, fill=BOTH, expand=True)
+        yachtinsure = Checkbutton(frame_right, text='Yachtinsure', variable=yachtinsure_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        yachtinsure.pack(ipady=3, fill=BOTH, expand=True)
+        century = Checkbutton(frame_right, text='Century Insurance', variable=century_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        century.pack(ipady=3, fill=BOTH, expand=True)
+        intact = Checkbutton(frame_right, text='Intact', variable=intact_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        intact.pack(ipady=3, fill=BOTH, expand=True)
+        travelers = Checkbutton(frame_right, text='Travelers', variable=travelers_check, bg='#aedadb', font=('helvetica', 12, 'normal'))
+        travelers.pack(ipady=3, fill=BOTH, expand=True)
+
+        
+    def createTemplateSettingsFrames():
+        e_frame_header_spacer = Frame(template_settings, bg='#5F9EA0', height=17)
+        e_frame_header = Frame(template_settings, bg='#5F9EA0')
+        e_frame_top = Frame(template_settings, bg='#5F9EA0')
+        e_frame_content = Frame(template_settings, bg='#5F9EA0')
+        e_frame_bottomL = Frame(template_settings, bg='#5F9EA0' )
+        e_frame_bottomR = Frame(template_settings, bg='#5F9EA0')
+        # Universal header content
+        your_name_placeholder = getyourName()
+        your_name = Entry(e_frame_header)
+        your_name.insert(0, your_name_placeholder)
+        # Dropdown selection
+        options = [
+            'Select Carrier',
+            'Seawave',
+            'Prime Time',
+            'New Hampshire',
+            'American Modern',
+            'Kemah',
+            'Concept',
+            'Yachtinsure',
+            'Century',
+            'Intact',
+            'Travelers',
+            'Combo SW and PT',
+            'Combo SW and NH',
+            'Combo SW, PT and NH',
+            'Combo PT and NH'
+        ]
+        dropdown_email_template = StringVar(value='Select Carrier')
+        #drop = OptionMenu(e_frame_top, dropdown_email_template, 'Select Carrier', *options)
+        # The above line includes a default value choice,  whereas below doesn't.
+        drop = OptionMenu(e_frame_top, dropdown_email_template, *options)
+        drop.configure(background='#aedadb', foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0')
+        drop['menu'].configure(background='#aedadb')
+        # Template content section
+        carrier_address_placeholder = ''
+        carrier_body_placeholder = ''
+        carrier_greeting_placeholder = ''
+        carrier_salutation_placeholder = ''
+        carrier_address = Entry(e_frame_bottomR)
+        carrier_greeting = Entry(e_frame_bottomR)
+        carrier_body = Text(e_frame_bottomR, width=10, height=5)
+        carrier_salutation = Entry(e_frame_bottomR, width=27, highlightbackground='green', highlightcolor='red')
+        carrier_address.insert(0, carrier_address_placeholder)
+        carrier_address.configure(state='disabled')
+        carrier_greeting.insert(0, carrier_greeting_placeholder)
+        carrier_greeting.configure(state='disabled')
+        carrier_body.insert(1.0, carrier_body_placeholder)
+        carrier_body.configure(state='disabled', wrap='word')
+        carrier_salutation.insert(0, carrier_salutation_placeholder)
+        carrier_salutation.configure(state='disabled')
+        your_name_focus_out = your_name.bind('<FocusOut>', lambda x: on_focus_out_entry(your_name, 'name'))
+        carrier_address_focus_out = carrier_address.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_address, 'address'))
+        carrier_greeting_focus_out = carrier_greeting.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_greeting, 'greeting'))
+        carrier_body_focus_out = carrier_body.bind('<FocusOut>', lambda x: on_focus_out_text(carrier_body, 'body'))
+        carrier_salutation_focus_out = carrier_salutation.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_salutation, 'salutation'))
+
+    def createSettingsFrames():
+        entry_boxes_frame = Frame(settings, bg='#5F9EA0')
+        save_btn_frame = Frame(settings, bg='#5F9EA0')
+        # Settings variables (more to come with time and requests)
+        defaultCCaddress1 = Entry(entry_boxes_frame)
+        defaultCCaddress2 = Entry(entry_boxes_frame)
+
+    def insert_placeholders():
+        pass
+
+def main():
+    root = Tk()
+    app = QuickSubmitTool(root)
+    app.mainloop()
+
+if __name__ == '__main__':
+    main()

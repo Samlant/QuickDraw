@@ -99,6 +99,8 @@ options = [
 	'Combo PT and NH'
 ]
 dropdown_email_template = StringVar(value='Select Carrier')
+#drop = OptionMenu(e_frame_top, dropdown_email_template, 'Select Carrier', *options)
+# The above line includes a default value choice,  whereas below doesn't.
 drop = OptionMenu(e_frame_top, dropdown_email_template, *options)
 drop.configure(background='#aedadb', foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0')
 drop['menu'].configure(background='#aedadb')
@@ -262,7 +264,7 @@ def Get_CC_Addresses(): #NEED TO REVISE HOW WE KEEP ADDRESS...It gets replaced w
             except:
                 print('Not successful in saving CC addresses')
     else:
-        cc_addresses = ';'.join(str(element) for element in cc_addresses)
+        cc_addresses = '; '.join(str(element) for element in cc_addresses)
         print(cc_addresses)
     return cc_addresses
 
