@@ -19,6 +19,9 @@ class Model:
     self.intact_check = tk.IntVar(name='intact_check')
     self.travelers_check = tk.IntVar(name='travelers_check')
     self.cc_default_check = tk.IntVar(name='cc_default_check')
+
+    self.current_dropdown_selection = StringVar(value='Select Carrier')
+    
     self.attachments = []
     self.last_name = ''
     self.first_name = ''
@@ -26,7 +29,7 @@ class Model:
     self.make = ''
     self.length = 0
     self.cc_addresses = ''
-    self.dropdown_email_template = StringVar(value='Select Carrier')
+  
     self.carrier_address_placeholder = ''
     self.carrier_body_placeholder = ''
     self.carrier_greeting_placeholder = ''
@@ -107,7 +110,31 @@ class Controller:
         self.setInitialView()
 
     def setInitialView(self)
-        self.view.
+        '''Set the entries and textboxes on the 
+        template page to disabled since the default 
+        drop-down isn't a valid choice.'''
+        self.view.carrier_address.insert(0, carrier_address_placeholder)
+        self.view.carrier_address.configure(state='disabled')
+        self.view.carrier_greeting.insert(0, carrier_greeting_placeholder)
+        self.view.carrier_greeting.configure(state='disabled')
+        self.view.carrier_body.insert(1.0, carrier_body_placeholder)
+        self.view.carrier_body.configure(state='disabled', wrap='word')
+        self.view.carrier_salutation.insert(0, carrier_salutation_placeholder)
+        self.view.carrier_salutation.configure(state='disabled')
+        # REPLACE BELOW LINES' functions by creating & using some in this controller class. Remain basic and use multiple if needed...
+        self.view.your_name_focus_out = your_name.bind('<FocusOut>', lambda x: on_focus_out_entry(your_name, 'name'))
+        self.view.carrier_address_focus_out = carrier_address.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_address, 'address'))
+        self.view.carrier_greeting_focus_out = carrier_greeting.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_greeting, 'greeting'))
+        self.view.carrier_body_focus_out = carrier_body.bind('<FocusOut>', lambda x: on_focus_out_text(carrier_body, 'body'))
+        self.view.carrier_salutation_focus_out = carrier_salutation.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_salutation, 'salutation'))
+
+    def getCurrentDropDownSelection(self):
+
+
+    def onFocusOut(self, item, current_dropdown_selection):
+        
+        
+        
 
 class TkView(View):
     def setup(self, controller):
@@ -338,6 +365,10 @@ class TkView(View):
 
     def disableField(self, item):
         item.configure(state='disabled')
+
+    def getCurrentDropDownSelection(self):
+        return self.cu
+
 
 # def main():
 #     root = Tk()
