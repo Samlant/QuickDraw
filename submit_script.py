@@ -48,7 +48,7 @@ cc_address_1_user_input = Text(cc_labelframe, height=1, width=30)
 cc_address_2_user_input = Text(cc_labelframe, height=1, width=30)
 cc_def_check = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=cc_default_check, bg='#aedadb').pack(pady=5, fill=X, expand=False, side='top')
 # Frame right
-seawave_check = tk.IntVar()
+seawave_check = tk.IntVar() 
 primetime_check = tk.IntVar()
 newhampshire_check = tk.IntVar()
 americanmodern_check = tk.IntVar()

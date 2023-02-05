@@ -72,11 +72,11 @@ class View(ABC):
         pass
 
     @abstractmethod        
-     def createMainTabWidgets(self, main):
+    def createMainTabWidgets(self, main):
         pass
 
     @abstractmethod
-     def createTemplateSettingsTabWidgets(self, main):
+    def createTemplateSettingsTabWidgets(self, main):
         pass
 
     @abstractmethod
@@ -100,7 +100,7 @@ class View(ABC):
         pass
 
 class Controller:
-    def __init__(self, model: Model, view: View)
+    def __init__(self, model: Model, view: View):
         self.model = model
         self.view = view
 
@@ -109,7 +109,7 @@ class Controller:
         self.view.start_main_loop()
         self.setInitialView()
 
-    def setInitialView(self)
+    def setInitialView(self):
         '''Set the entries and textboxes on the 
         template page to disabled since the default 
         drop-down isn't a valid choice.'''
