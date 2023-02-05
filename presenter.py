@@ -5,7 +5,25 @@ from __future__ import annotations
 
 
 class View(Protocol):
+    def create_GUI_obj(self) -> None:
+        ...
+
+    def start_main_loop(self) -> None:
+        ...
+
     def setInitialView(self) -> None:
+        ...
+
+    def selected_template(self) -> str:
+        ...
+
+    def get_combo_checkbttns(self, possible_duplicates: list) -> str:
+        ...
+
+    def get_template_page_values(self) -> dict:
+        ...
+    #THESE ARE KEPT FOR PLACEHOLDERS WHEN IMPLEMENTED
+    def assign_placeholders(self, payload: dict) -> None:
         ...
 
     def clear_placeholder_content(self) -> None:
@@ -13,7 +31,7 @@ class View(Protocol):
     
     def insert_placeholder_content(self) -> None:
         ...
-    
+    #END OF PLACEHOLDER PLACEHOLDERS -haha
     def savePath(self, event, isquoteform: bool) -> None:
         ...
         
@@ -23,37 +41,30 @@ class View(Protocol):
     def save_CC(self, input) -> None:
         ...
 
-    def check_if_combo(self, name):
+    def check_if_combo(self) -> bool: #All above, excluding placeholders, are GOOD
         ...
     
-    def create_GUI_obj(self) -> None:
-        ...
 
-    def start_main_loop(self) -> None:
-        ...
 
-    def get_selected_template(self, selected_template: str) -> str:
-        ...
-
-    def get_username(self, username: str) -> str:
+    def username(self,) -> str:
         ...
     
-    def get_recipient(self, recipient: str) -> str:
+    def recipient(self, recipient: str) -> str:
         ...
 
-    def get_greeting(self, greeting: str) -> str:
+    def greeting(self, greeting: str) -> str:
         ...
     
-    def get_body(self, body: str) -> str:
+    def body(self, body: str) -> str:
         ...
     
-    def get_salutation(self, salutation: str) -> str:
+    def salutation(self, salutation: str) -> str:
         ...
     
-    def get_default_CC1(self, default_CC1: str) -> str:
+    def default_CC1(self, default_CC1: str) -> str:
         ...
 
-    def get_default_CC2(self, default_cc2: str) -> str:
+    def default_CC2(self, default_cc2: str) -> str:
         ...
 
 
@@ -82,21 +93,23 @@ class Presenter:
         email_handler = 'outlook.application'
         self.init_email_handler(email_handler)
 
+    def get_dropdown_options(self) -> list:
+        return self.model.get_dropdown_options()
 
-    def getCurrentDropDownSelection(self) -> str:
-        """ Gets the current selection of the email template 
-        dropdown menu.
-        """
-        self.view.get_current_drop_down()
+    def update_template_page(self, current_selection) -> None:
+        payload = self.model.get_section(current_selection)
 
-    def onFocusOut(self, item, current_dropdown_selection):
-        pass
+
+
+    def get_selected_template(self) -> str:#GOOD
+        """ Gets the current selection of the dropdown menu."""
+        return self.view.selected_template()
     
-    def save_path(self, event, usage_type: bool ):
-        """ Saves the path of the file."""
-        self.model.save_path(event, usage_type)
+    def save_path(self, raw_path, is_quoteform: bool) -> None:#GOOD
+        """ Sends the raw path to model for saving."""
+        self.model.save_path(raw_path, usage_type)
 
-    def save_extra_notes(self, notes: str) -> None:
+    def save_extra_notes(self, notes: str) -> None:#GOOD
         self.model.save_extra_notes(input)
 
     def save_CC(self, cc_addresses) -> None:
@@ -111,9 +124,14 @@ class Presenter:
         input_dict = self.view.get_combo_checkbttns(possible_duplicates_list)
         self.model.check_if_duplicates_exist(input_dict)
 
-    def btnSaveMainSettings(self):
-        settings_dict = self.view.get_main_settings_values()
-        self.model.save_main_settings(settings_dict)
+    def btnSaveMainSettings(self) -> None:
+        save_contents = dict()
+        def_CC1 = self.view.get_default_CC1()
+        def_CC2 = self.view.get_default_CC2()
+        save_contents.update({'default_CC1', def_CC1},
+                             {'default_CC2', def_CC2}
+                             )
+        self.model.handle_save_contents('General settings', save_contents)
 
     def btnSendEmail(self):
         pass
