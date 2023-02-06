@@ -105,9 +105,11 @@ class TkView(tk.Tk):
         self.create_extra_attachments_path_box(frame_left)
 
         # Create widgets inside Frame Middle
-        
         # this is a label_frame
-        extra_notes_labelframe = LabelFrame(frame_middle, text= 'To end with a message, enter it below:', bg='#aedadb', font=('helvetica', 8, 'normal'))
+        extra_notes_labelframe = LabelFrame(frame_middle,
+                                            text= 'To end with a message, enter it below:', bg='#aedadb', 
+                                            font=('helvetica', 8, 'normal')
+                                            )
         extra_notes_labelframe.pack(fill=X, expand=False, side='top')
 
         self.extra_notes = Text(extra_notes_labelframe, height=7, width=30, name='raw_extra_notes')
@@ -115,7 +117,9 @@ class TkView(tk.Tk):
         # end of label_frame
 
         # this is a label_frame
-        cc_labelframe = LabelFrame(frame_middle, text= 'CC-address settings for this submission:', bg='#aedadb', name='cc_labelframe')
+        cc_labelframe = LabelFrame(frame_middle,
+                                   text= 'CC-address settings for this submission:', bg='#aedadb', name='cc_labelframe'
+                                   )
         cc_labelframe.pack(fill=X, expand=True, side='top')
 
         self.ignore_CC_defaults = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self.cc_default_check, bg='#aedadb', name='cc_def_chcek').pack(pady=5, fill=X, expand=False, side='top')
@@ -131,165 +135,85 @@ class TkView(tk.Tk):
         self.userinput_CC2.pack(ipady=4, anchor=N, fill = X, expand=True, side='top')
         # end of label_frame
 
-        
-        # Create widgets inside Frame Right
+        # Create checkboxes and StringVars
         self.seawave = StringVar(name='Seawave', value='skip')
-        seawave = Checkbutton(master=frame_right, text='Seawave Insurance',
-                              variable=self.seawave_var, onvalue='submit',
-                              offvalue='skip', bg='#aedadb',
-                              font=('helvetica', 12, 'normal'),
-                              command=Presenter.check_if_combo
-                              )
-        seawave.pack(ipady=3, fill=BOTH, expand=True)
-       
+        self.create_carrier_checkboxes('Seawave Insurance', self.seawave)
         self.primetime = StringVar(name='Prime Time', value='skip')
-        primetime = Checkbutton(frame_right, text='Prime Time Insurance', 
-                                variable=self.primetime_var, onvalue='submit',
-                                offvalue='skip', bg='#aedadb',
-                                font=('helvetica', 12, 'normal'),
-                                command=Presenter.check_if_combo
-                                )
-        primetime.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('Seawave Insurance', self.seawave)        
         self.newhampshire = StringVar(name='New Hampshire', value='skip')
-        newhampshire = Checkbutton(frame_right, text='New Hampshire',
-                                   variable=self.newhampshire_var,
-                                   onvalue='submit',
-                                   offvalue='skip', bg='#aedadb',
-                                   font=('helvetica', 12, 'normal'),
-                                   command=Presenter.check_if_combo
-                                   )
-        newhampshire.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('New Hampshire', self.newhampshire)   
         self.americanmodern = StringVar(name='American Modern', value='skip')
-        americanmodern_chckbttn = Checkbutton(frame_right, text='American Modern',
-                                     variable=self.americanmodern_var,
-                                     onvalue='submit',
-                                     offvalue='skip', bg='#aedadb',
-                                     font=('helvetica', 12, 'normal')
-                                     )
-        americanmodern_chckbttn.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('American Modern', self.americanmodern)   
         self.kemah = StringVar(name='Kemah Marine', value='skip')
-        kemah_chckbttn = Checkbutton(frame_right, text='Kemah Marine',
-                            variable=self.kemah_var, onvalue='submit',
-                            offvalue='skip', bg='#aedadb',
-                            font=('helvetica', 12, 'normal')
-                            )
-        kemah_chckbttn.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('Kemah Marine', self.kemah)
         self.concept = StringVar(name='Concept Special Risks', value='skip')
-        concept_chckbttn = Checkbutton(frame_right, text='Concept Special Risks',
-                              variable=self.concept_var, onvalue='submit',
-                              offvalue='skip', bg='#aedadb',
-                              font=('helvetica', 12, 'normal')
-                              )
-        concept_chckbttn.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('Concept Special Risks', self.concept)
         self.yachtinsure = StringVar(name='Yachtinsure', value='skip')
-        yachtinsure_chckbttn = Checkbutton(frame_right, text='Yachtinsure',
-                                  variable=self.yachtinsure_var, onvalue='submit',
-                                  offvalue='skip', bg='#aedadb',
-                                  font=('helvetica', 12, 'normal')
-                                  )
-        yachtinsure_chckbttn.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('Yachtinsure', self.yachtinsure)
         self.century = StringVar(name='Century', value='skip')
-        century_chckbttn = Checkbutton(frame_right, text='Century Insurance',
-                              variable=self.century_var, onvalue='submit',
-                              offvalue='skip', bg='#aedadb',
-                              font=('helvetica', 12, 'normal')
-                              )
-        century_chckbttn.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('Century', self.century)
         self.intact = StringVar(name='Intact', value='skip')
-        intact_chckbttn = Checkbutton(frame_right, text='Intact',
-                             variable=self.intact_var,
-                             onvalue='submit',
-                             offvalue='skip', bg='#aedadb', 
-                             font=('helvetica', 12, 'normal')
-                             )
-        intact_chckbttn.pack(ipady=3, fill=BOTH, expand=True)
-        
+        self.create_carrier_checkboxes('Intact', self.intact)
         self.travelers = StringVar(name='Travelers', value='skip')
-        travelers_chckbttn = Checkbutton(frame_right, text='Travelers',
-                                variable=self.travelers_var, onvalue='submit',
-                                offvalue='skip', bg='#aedadb',
-                                font=('helvetica', 12, 'normal')
-                                )
-        travelers_chckbttn.pack(ipady=3, fill=BOTH, expand=True)
-
+        self.create_carrier_checkboxes('Travelers', self.travelers)
         Button(frame_right, text='Submit and sent to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'), command=Presenter.btnSendEmail).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
-        # End of creating the MAIN tab widgets
+        # End of creating the MAIN tab.
 
     def createTemplateSettingsTabWidgets(self):
         # Add the frames to tab
         e_frame_header_spacer = Frame(self.template_settings, bg='#5F9EA0', height=17)
         e_frame_header_spacer.pack(fill=X, expand=False)
-
         e_frame_header = Frame(self.template_settings, bg='#5F9EA0')
         e_frame_header.pack(padx=5, fill = X, expand=True)
-
         e_frame_top = Frame(self.template_settings, bg='#5F9EA0')
         e_frame_top.pack(fill=BOTH, expand=False)
-
         e_frame_content = Frame(self.template_settings, bg='#5F9EA0')
         e_frame_content.pack(fill=BOTH, expand=False, anchor=N)
-
         e_frame_bottomL = Frame(self.template_settings, bg='#5F9EA0' )
         e_frame_bottomL.pack(fill=X, expand=True, side='left', anchor=N)
-
         e_frame_bottomR = Frame(self.template_settings, bg='#5F9EA0')
         e_frame_bottomR.pack(fill=X, expand=True, side='left', anchor=N)
         
         # Crfeate widgets for the Header Frame
         Label(e_frame_header, text = 'Adjust the Default Email Templates for Each Carrier', bg='#5F9EA0', font=('helvetica', 16, 'normal')).pack(fill = X, expand=True, side='top')
-        
         Label(e_frame_header, text = 'Your name (used in Signature):', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(padx=4, pady=5, fill=BOTH, expand=True, side='left', anchor=E)
-        
-        self.username = StringVar(master=e_frame_header, name='username')
 
+        self.username = StringVar(master=e_frame_header, name='username')
         self.username_entry = Entry(master=e_frame_header, textvariable=self.username)
         self.username_entry.pack(ipadx=900, pady=5, fill=BOTH, expand=True, side='right', anchor=NW)
-        self.your_name_focus_out = username_entry.bind('<FocusOut>', lambda x: self.on_focus_out(self.username))
-
+        self.your_name_focus_out = self.username_entry.bind('<FocusOut>', lambda x: self.on_focus_out(self.username))
         # End of Header
-        
         # Create widgets for the Top Frame
         Label(e_frame_top, text = "This drop-down menu allows you to view & edit a specific carrier's, or combo carriers', email message contents.", bg='#5F9EA0', font=('helvetica', 10, 'normal')).pack(fill = X, expand=True)
         self.create_dropdown_variable()
         self.create_dropdown(e_frame_top)
-        
-      # MOVE TO CONTROLLER?
         # End of Top Frame
-
         # Create widgets for the Bottom Left Frames
         Label(e_frame_bottomL, text = 'Submission Address:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side='top')
         Label(e_frame_bottomL, text = 'Greeting:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, fill=BOTH, expand=True, anchor=E, side='top')
         Label(e_frame_bottomL, text = 'Body of the email:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side='top')
         Label(e_frame_bottomL, text = 'Salutation:', bg='#aedadb', font=('helvetica', 16, 'normal')).pack(padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side='top')
-
         # Create widgets for the Bottom Right Frames
         #TO CREATE THE FUNCTIONS TO REPLACE THE LAMDA functions in bindings.
         self.recipient = StringVar(master=e_frame_bottomR, name='recipient')
         self.recipient_entry = Entry(master=e_frame_bottomR, textvariable=self.recipient)
         self.recipient_entry.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.recipient_entry_focus_out = recipient_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
+        self.recipient_entry_focus_out = self.recipient_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
 
         self.greeting = StringVar(master=e_frame_bottomR, name='greeting')
         self.greeting_entry = Entry(e_frame_bottomR)
         self.greeting_entry.pack(padx=4, pady=1, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.greeting_entry_focus_out = greeting_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
+        self.greeting_entry_focus_out = self.greeting_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
         
         self.body = StringVar(master=e_frame_bottomR, name='body')
         self.body_entry = Text(e_frame_bottomR, width=10, height=5)
         self.body_entry.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.body_entry_focus_out = body_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
+        self.body_entry_focus_out = self.body_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
         
         self.salutation = StringVar(master=e_frame_bottomR, name='salutation')
         self.salutation_entry = Entry(e_frame_bottomR, width=27, highlightbackground='green', highlightcolor='red')
         self.salutation_entry.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.salutation_entry_focus_out = salutation_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
+        self.salutation_entry_focus_out = self.salutation_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
         
         self.btnSaveEmailTemplate = Button(e_frame_bottomR, text = 'Click to SAVE template for this market, & save your name!', bg='#22c26a', command = Presenter.btnSaveEmailTemplate).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
 
@@ -297,17 +221,14 @@ class TkView(tk.Tk):
         # Create frames for the tab
         entry_boxes_frame = Frame(master=self.settings, bg='#5F9EA0')
         entry_boxes_frame.pack(fill=BOTH, expand=False, side='top')
-
         save_btn_frame = Frame(master=self.settings, bg='#5F9EA0')
         save_btn_frame.pack(fill=BOTH, expand=False, side='top')
-
         # Header
         Label(self.settings, text='Settings Page', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=BOTH, expand=False, side='top')
+        # Content
+        Label(master=entry_boxes_frame, text='CC-address Settings (more to be added later or upon your request)', bg='#5F9EA0', font=('helvetica', 14, 'normal')).pack(fill=X, expand=False, side='top')
         
-        # content
-        Label(settings, text='CC-address Settings (more to be added later or upon your request)', bg='#5F9EA0', font=('helvetica', 14, 'normal')).pack(fill=X, expand=False, side='top')
-        
-        Label(entry_boxes_frame, text='1st address to set as default cc: ', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(pady=3, ipady=2, padx=1, fill='none', expand=False, side='left', anchor=NW)
+        Label(master=entry_boxes_frame, text='1st address to set as default cc: ', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(pady=3, ipady=2, padx=1, fill='none', expand=False, side='left', anchor=NW)
         
         self.default_CC1 = StringVar(master=entry_boxes_frame, name='default_CC1')
         self.default_CC1_entry = Entry(entry_boxes_frame,textvariable=self.default_CC1)
@@ -347,10 +268,9 @@ class TkView(tk.Tk):
         self.extra_attachments_path_box.drop_target_register(DND_FILES)
         self.extra_attachments_path_box.dnd_bind('<<Drop>>', self.save_path(False))
 
-    # def create_checkboxes(self,) -> None:
-    #     self.seawave_var = StringVar(master=frame_right, name='Seawave')
-    #     seawave = Checkbutton(master=frame_right, text='Seawave Insurance', variable=self.seawave_var, onvalue='Submit', offvalue='skip', bg='#aedadb', font=('helvetica', 12, 'normal'), command=self.check_if_combo)
-    #     seawave.pack(ipady=3, fill=BOTH, expand=True)
+    def create_carrier_checkboxes(self, name: str, var_name: str,) -> None:
+        Checkbutton(master=frame_right, name=name, text=name, variable=var_name, onvalue='Submit', offvalue='skip', bg='#aedadb', font=('helvetica', 12, 'normal'))
+        name.pack(ipady=3, fill=BOTH, expand=True)
 
 
     def create_dropdown_variable(self, initial_value: str, name: str) -> None:
@@ -400,29 +320,51 @@ class TkView(tk.Tk):
         return combo_checkbttns_dict
     
     @property
-    def checkbox_value(self, name_of_carrier: StringVar):
-        return self.getvar(name_of_carrier)
+    def sw_checkbox_value(self):
+        return self.seawave.get()
+    @property
+    def pt_checkbox_value(self):
+        return self.primetime.get()
+    @property
+    def nh_checkbox_value(self):
+        return self.newhampshire.get()
+    @property
+    def am_checkbox_value(self):
+        return self.americanmodern.get()
+    @property
+    def km_checkbox_value(self):
+        return self.kemah.get()
+    @property
+    def cp_checkbox_value(self):
+        return self.concept.get()
+    @property
+    def yi_checkbox_value(self):
+        return self.yachtinsure.get()
+    @property
+    def ce_checkbox_value(self):
+        return self.century.get()
+    @property
+    def in_checkbox_value(self):
+        return self.intact.get()
+    @property
+    def tv_checkbox_value(self):
+        return self.travelers.get()
     
     @property
     def selected_template(self) -> str:
         return self.dropdown_menu_var.get()
-    
     @property
     def username(self) -> str:
         return self.username.get()
-    
     @property
     def recipient(self) -> str:
         return self.msg_recipient.get()
-    
     @property
     def greeting(self) -> str:
         return self.msg_greeting.get()
-    
     @property
     def body(self) -> str:
         return self.msg_body.get()
-    
     @property
     def salutation(self) -> str:
         return self.msg_salutation.get()
@@ -430,7 +372,6 @@ class TkView(tk.Tk):
     @property
     def default_CC1(self) -> str:
         return self.default_CC1.get()
-
     @property
     def default_CC2(self) -> str:
         return self.default_CC2.get()
@@ -490,11 +431,18 @@ class TkView(tk.Tk):
     def save_CC(self,input):
         Presenter.save_CC(input)
 
-    def check_if_combo(self) -> bool: #GOOD
-        """ This checks if a combo submission is required."""
-        #Presenter.check_if_combo is a possibility, not needed ATM.
-        list = [self.seawave_var.get(), self.primetime_var.get(), self.newhampshire_var.get()]
-        if list.count('submit') >= 2:
-            return True
-        else:
-            return False
+    def get_all_carrier_checkboxes(self) -> dict:
+        payload_dict = {}
+        payload_dict.update({'sw', self.sw_checkbox_value},
+                            {'pt', self.pt_checkbox_value},
+                            {'nh', self.nh_checkbox_value},
+                            {'am', self.am_checkbox_value},
+                            {'km', self.km_checkbox_value},
+                            {'cp', self.cp_checkbox_value},
+                            {'yi', self.yi_checkbox_value},
+                            {'ce', self.ce_checkbox_value},
+                            {'in', self.in_checkbox_value},
+                            {'in', self.in_checkbox_value},
+                            )
+        return payload_dict
+

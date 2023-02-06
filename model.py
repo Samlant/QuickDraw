@@ -5,7 +5,7 @@ class Model:
     """ This is our model which handles validating, transforming, moving and storing data appropriately. 
     NOTE: any config interactions are routed to the Config class object.
     """
-    #These are class vars bc we want to keep them until emails are sent...store in email obj not here
+    #NOTE: change this LAST:  These are class vars bc we want to keep them until emails are sent...store in email obj not here.
     self.quoteform_path = str
     self.extra_attachments = []
     self.attachments = []
@@ -13,7 +13,7 @@ class Model:
     self.subject = str
     self.cc_addresses = []
 
-    
+    # FNs used to SAVE stuff
     def handle_save_contents(self, section_name: str, save_contents: dict) -> bool: #NEED TO FINISH !!!
         """ This is a generic function to save all three save buttons' data to the appropriate config section. It also ensures the section exists.
         """
@@ -49,28 +49,6 @@ class Model:
         self.view.carrier_body.configure(state='disabled', wrap='word')
         self.view.carrier_salutation.insert(0, carrier_salutation_placeholder)
         self.view.carrier_salutation.configure(state='disabled')
-        # REPLACE BELOW LINES' functions by creating & using some in this presenter class. Remain basic and use multiple if needed...
-        self.view.your_name_focus_out = your_name.bind('<FocusOut>', lambda x: on_focus_out_entry(your_name, 'name'))
-        self.view.carrier_address_focus_out = carrier_address.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_address, 'address'))
-        self.view.carrier_greeting_focus_out = carrier_greeting.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_greeting, 'greeting'))
-        self.view.carrier_body_focus_out = carrier_body.bind('<FocusOut>', lambda x: on_focus_out_text(carrier_body, 'body'))
-        self.view.carrier_salutation_focus_out = carrier_salutation.bind('<FocusOut>', lambda x: on_focus_out_entry(carrier_salutation, 'salutation'))
-    def onFocusOut(self, field_item): #NEED TO MOVE TO VIEW OR PRESENTER...
-        section_name = self.model.assignCorrectCarrierNames(dropdown_email_template.get())
-        # Replace above line with below function that gets the current selection for dropdown_email_template
-        # current_selection = self.view.getCurrentDropdownSelection()
-        
-        # Then, assign same section name that's in the config file
-        # section_name = self.AssignCorrectSectionName(current_selection)
-        if section_name[0] != 'Select Carrier':
-            # Put placeholder txt & index_variable (to tell if it's entry or text widget: 0 or '1.0') in a tuple.
-            placeholder_tuple = getPlaceholders(section_name, 'entry', field_name)
-            if entry.get() == "":
-            # The below uses either '1.0' or 0 for the index to insert txt at.
-                entry.insert(placeholder_tuple[1], placeholder_tuple[0])
-        else:
-            print(f"On ENTRY_focus out, the section_name is: {section_name}")
-
 
     def savePath(self, raw_path, is_quoteform: bool):#GOOD
         path = self.__validatePath(raw_path)
@@ -81,7 +59,7 @@ class Model:
         else:
             print('Raising type error: is_quoted parameter is either empty or wrong type. It needs to be boolean.')
     
-    def save_extra_notes(self, notes: str):
+    def save_extra_notes(self, notes: str) -> None: #GOOD
         self.extra_notes = notes
 
     def getAllAttachments(self) -> list:
@@ -97,7 +75,26 @@ class Model:
             return None
         return path
     
+    def check_list(self, num: int) -> bool:
+        if num > 1:
+            return True
+        elif num <= 1:
+            return False
+        else:
+            print('This model function failed to count.')
+            return None
+        
+    def check_if_combo(self, carrier_checkboxes: dict) -> bool: #GOOD
+        """ This checks if a combo submission is required."""
+        #Presenter.check_if_combo is a possibility, not needed ATM.
+        list = [carrier_checkboxes.get('sw'), carrier_checkboxes.get('pt'), carrier_checkboxes.get('nh')]
+        if list.count('submit') >= 2:
+            return True
+        else:
+            return False
+        
     def check_if_duplicates_exist(self, input: dict):
+        self.list of possible duplicates
         num = self.count_list(input)
         check_bool = self.check_list(num)
         if check_bool:
@@ -125,14 +122,6 @@ class Model:
             print('Not offering four combo markets- check this model function for errors in unexpected input & accomodate for more if needed.')
             return None
 
-    def check_list(self, num: int) -> bool:
-        if num > 1:
-            return True
-        elif num <= 1:
-            return False
-        else:
-            print('This model function failed to count.')
-            return None
 
     def count_list(self, input:dict) -> int:
         return input.items().count('Submit')
@@ -195,10 +184,9 @@ class ConfigWorker:
         open_read_update.read('configurations.ini')
         return open_read_update
     
-    def get_config_value(self, request: dict) -> bool: #GOOD
+    def get_value_from_config(self, request: dict) -> bool: #GOOD - prior name: get_config_value()
         """ This returns the value from config given a section:key dict."""
         worker = self.open_config()
-        request = 
         for section_name, key in request:
             return worker.get(section_name, key)
     

@@ -65,7 +65,7 @@ list_of_options = [
     'Combination: Prime Time and New Hampshire',
     'Combination: Seawave, Primetime and New Hampshire'
     ]
-    
+
 #drop = OptionMenu(root, example_string_var, *options)
 drop = OptionMenu(root, example_string_var, *list_of_options)
 drop.configure(background='#aedadb', foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0')

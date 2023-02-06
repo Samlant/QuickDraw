@@ -1,7 +1,7 @@
+from __future__ import annotations
 from model import Model
 from typing import Protocol
 import win32com.client as win32
-from __future__ import annotations
 
 
 class View(Protocol):

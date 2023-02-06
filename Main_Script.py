@@ -1,10 +1,10 @@
 from model import Model
-from view import View
+from view import TkView
 from presenter import Presenter
 
 def main() -> None:
     model = Model()
-    view = View()
+    view = TkView()
     presenter = Presenter(model, view)
     presenter.start_program()
 
