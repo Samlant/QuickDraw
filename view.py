@@ -11,7 +11,7 @@ class Presenter(Protocol):
     """
     def get_drop_down_options(self) -> list:
         ...
-    def save_path(self, event, is_quoteform: bool):
+    def save_path(self, event, is_quoteform: bool) -> None:#GOOD
         ...
     def btnSaveMainSettings(self):
         ...
@@ -33,21 +33,23 @@ class Presenter(Protocol):
 
 
 class TkView(tk.Tk):
-    """ Using Tkinter,  this class creates a view object when called on from the Presenter.  There is an aggregate setup function (create_GUI_obj) calling on individual widget creation functions separated by page/tab, and finally methods to update widgets and send data to the Presenter.
+    """ This class uses tkinter to create a view object when instantiated by the main_script.  After __init__,  there's a parent method, create_GUI_obj, responsivle for creating the widgets.  These sub-functions are divided by page/tab. Lastly, there are methods to allow data retrieval and updating.
     """
-        # Add more class attributes as needed/desired.
+
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.geometry('760x548')
+        self.configure(background='#5F9EA0')
+        self.title('Quick Submit Tool')
+        self.attributes('-alpha',0.95)
 
 
     def create_GUI_obj(self, presenter: Presenter):
         """ This creates the GUI root,  along with the main
-        functions to create the widgets."""
-        self.root = tk.Tk()
-        self.root.geometry('760x548')
-        self.root.configure(background='#5F9EA0')
-        self.root.title('Quick Submit Tool')
-        self.root.attributes('-alpha',0.95)
+        functions to create the widgets.
+        """
 
-        #instance attributes
         self.cc_default_check = BooleanVar #Is this okay/preferred way to store this?
 
         self.createStyle()
@@ -56,7 +58,7 @@ class TkView(tk.Tk):
         self.createMainTabWidgets()
         self.createTemplateSettingsTabWidgets()
         self.createSettingsTabWidgets()
-        #self.root.set_initial_placeholders()
+        #self.set_initial_placeholders()
     
     def createStyle(self):
         self.style = Style()
@@ -112,8 +114,8 @@ class TkView(tk.Tk):
                                             )
         extra_notes_labelframe.pack(fill=X, expand=False, side='top')
 
-        self.extra_notes = Text(extra_notes_labelframe, height=7, width=30, name='raw_extra_notes')
-        self.extra_notes.pack(fill = X, anchor=N, expand=FALSE, side='top')
+        self.extra_notes_text = Text(extra_notes_labelframe, height=7, width=30, name='raw_extra_notes')
+        self.extra_notes_text.pack(fill = X, anchor=N, expand=FALSE, side='top')
         # end of label_frame
 
         # this is a label_frame
@@ -122,9 +124,11 @@ class TkView(tk.Tk):
                                    )
         cc_labelframe.pack(fill=X, expand=True, side='top')
 
-        self.ignore_CC_defaults = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self.cc_default_check, bg='#aedadb', name='cc_def_chcek').pack(pady=5, fill=X, expand=False, side='top')
 
         Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=('helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
+
+        self.ignore_CC_defaults = BooleanVar(name='ignore_CC_defaults')
+        ignore_CC_defaults = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self.cc_default_check, bg='#aedadb', name='cc_def_chcek', onvalue=True, offvalue=False).pack(pady=5, fill=X, expand=False, side='top')
 
         self.userinput_CC1 = Text(cc_labelframe, height=1, width=30)
         self.userinput_CC1.pack(pady=2, ipady=4, anchor=N, fill = X, expand=True, side='top')
@@ -181,7 +185,7 @@ class TkView(tk.Tk):
         self.username = StringVar(master=e_frame_header, name='username')
         self.username_entry = Entry(master=e_frame_header, textvariable=self.username)
         self.username_entry.pack(ipadx=900, pady=5, fill=BOTH, expand=True, side='right', anchor=NW)
-        self.your_name_focus_out = self.username_entry.bind('<FocusOut>', lambda x: self.on_focus_out(self.username))
+        self.your_name_focus_out = self.username_entry.bind('<FocusOut>', self.on_focus_out(self.username))
         # End of Header
         # Create widgets for the Top Frame
         Label(e_frame_top, text = "This drop-down menu allows you to view & edit a specific carrier's, or combo carriers', email message contents.", bg='#5F9EA0', font=('helvetica', 10, 'normal')).pack(fill = X, expand=True)
@@ -198,22 +202,19 @@ class TkView(tk.Tk):
         self.recipient = StringVar(master=e_frame_bottomR, name='recipient')
         self.recipient_entry = Entry(master=e_frame_bottomR, textvariable=self.recipient)
         self.recipient_entry.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.recipient_entry_focus_out = self.recipient_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
-
+        self.recipient_entry_focus_out = self.recipient_entry.bind('<FocusOut>', self.on_focus_out)
         self.greeting = StringVar(master=e_frame_bottomR, name='greeting')
         self.greeting_entry = Entry(e_frame_bottomR)
         self.greeting_entry.pack(padx=4, pady=1, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.greeting_entry_focus_out = self.greeting_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
-        
+        self.greeting_entry_focus_out = self.greeting_entry.bind('<FocusOut>', self.on_focus_out)
         self.body = StringVar(master=e_frame_bottomR, name='body')
         self.body_entry = Text(e_frame_bottomR, width=10, height=5)
         self.body_entry.pack(padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.body_entry_focus_out = self.body_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
-        
+        self.body_entry_focus_out = self.body_entry.bind('<FocusOut>', self.on_focus_out)
         self.salutation = StringVar(master=e_frame_bottomR, name='salutation')
         self.salutation_entry = Entry(e_frame_bottomR, width=27, highlightbackground='green', highlightcolor='red')
         self.salutation_entry.pack(padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.salutation_entry_focus_out = self.salutation_entry.bind('<FocusOut>', lambda x: self.on_focus_out)
+        self.salutation_entry_focus_out = self.salutation_entry.bind('<FocusOut>', self.on_focus_out)
         
         self.btnSaveEmailTemplate = Button(e_frame_bottomR, text = 'Click to SAVE template for this market, & save your name!', bg='#22c26a', command = Presenter.btnSaveEmailTemplate).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
 
@@ -266,7 +267,8 @@ class TkView(tk.Tk):
             )
         self.extra_attachments_path_box.pack(fill=X, expand=True, anchor=N)
         self.extra_attachments_path_box.drop_target_register(DND_FILES)
-        self.extra_attachments_path_box.dnd_bind('<<Drop>>', self.save_path(False))
+        self.extra_attachments_path_box.dnd_bind('<<Drop>>', Presenter.save_path(False))
+        # Create functionality to show the paths of the files in box.
 
     def create_carrier_checkboxes(self, name: str, var_name: str,) -> None:
         Checkbutton(master=frame_right, name=name, text=name, variable=var_name, onvalue='Submit', offvalue='skip', bg='#aedadb', font=('helvetica', 12, 'normal'))
@@ -291,63 +293,74 @@ class TkView(tk.Tk):
         dropdown_menu['menu'].configure(background='#aedadb')
         dropdown_menu.pack(padx=15, ipady=5, fill = X, expand=True) 
 
-    
-    def assign_placeholders(self, payload: dict) -> None:
-        self.
-
-    def get_list_of_duplicate_markets(self) -> list:
-        self.list_of_possible_duplicates = list('Seawave',
-                                            'Prime Time',
-                                            'New Hampshire'
-                                            )
     def on_focus_out(self, item, current_selection):#START & FINISH
         """ NOTE: THIS IS NOT AN IMPORTANT FUNCTION TO IMPLEMENT. This function performs actions on them to increase user UI experience.  NOTE:  This originally was a very lame function that repopulated specific fields if they were modified & subsequently left empty upon leaving focus---WOW...
         """
-        self.username_entry.bind
-
-    def get_combo_checkbttns(self, possible_duplicates: list) -> dict:
-        """ This gets all possible combo markets into a dict
-        and sends to the Presenter.
-        """
-        sw = self.get_checkbox_status(self.seawave_var)
-        pt = self.get_checkbox_status(self.primetime_var)
-        nh = self.get_checkbox_status(self.newhampshire_var)
-
-        combo_checkbttns_dict = {'Seawave':sw, 
-                                 'Prime Time':pt,
-                                 'New Hampshire':nh
-                                 }
-        return combo_checkbttns_dict
+        self.username_entry.bind    
     
     @property
-    def sw_checkbox_value(self):
+    def extra_notes(self) -> str:
+        return self.extra_notes_text.get()
+
+    @extra_notes.deleter
+    def extra_notes(self):
+        del self._extra_notes_text.get()
+
+    @property
+    def userinput_CC1(self) -> str:
+        return self.userinput_cc1.get()
+    
+    @userinput_CC1.deleter
+    def userinput_CC1(self) -> str:
+        del self.userinput_cc1.get()
+
+    @property
+    def userinput_CC2(self) -> str:
+        return self.userinput_cc2.get()
+
+    @userinput_CC2.deleter
+    def userinput_CC2(self) -> str:
+        return self.userinput_cc2.get()
+
+    @property
+    def ignore_default_cc(self) -> bool:
+        return self.ignore_CC_defaults.get()
+
+    @ignore_default_cc.setter
+    def ignore_default_cc(self, ignore_is_True: bool) -> None:
+        self._ignore_CC_defaults = ignore_is_True
+    
+    
+    #These are getters for the checkbuttons
+    @property
+    def sw(self) -> str:
         return self.seawave.get()
     @property
-    def pt_checkbox_value(self):
+    def pt(self) -> str:
         return self.primetime.get()
     @property
-    def nh_checkbox_value(self):
+    def nh(self) -> str:
         return self.newhampshire.get()
     @property
-    def am_checkbox_value(self):
+    def am(self) -> str:
         return self.americanmodern.get()
     @property
-    def km_checkbox_value(self):
+    def km(self) -> str:
         return self.kemah.get()
     @property
-    def cp_checkbox_value(self):
+    def cp(self) -> str:
         return self.concept.get()
     @property
-    def yi_checkbox_value(self):
+    def yi(self) -> str:
         return self.yachtinsure.get()
     @property
-    def ce_checkbox_value(self):
+    def ce(self) -> str:
         return self.century.get()
     @property
-    def in_checkbox_value(self):
+    def In(self) -> str:
         return self.intact.get()
     @property
-    def tv_checkbox_value(self):
+    def tv(self) -> str:
         return self.travelers.get()
     
     @property
@@ -356,18 +369,20 @@ class TkView(tk.Tk):
     @property
     def username(self) -> str:
         return self.username.get()
+    @username.setter
+    def username
     @property
     def recipient(self) -> str:
-        return self.msg_recipient.get()
+        return self.recipient.get()
     @property
     def greeting(self) -> str:
-        return self.msg_greeting.get()
+        return self.greeting.get()
     @property
     def body(self) -> str:
-        return self.msg_body.get()
+        return self.body.get()
     @property
     def salutation(self) -> str:
-        return self.msg_salutation.get()
+        return self.salutation.get()
     
     @property
     def default_CC1(self) -> str:
@@ -378,29 +393,22 @@ class TkView(tk.Tk):
     
     def get_template_page_values(self) -> dict:#NEED TO FINISH
         payload = dict()
-        payload.update({
-        self.selected_template,
-        self.username,
-        self.recipient,
-        self.greeting,
-        self.body,
-        self.salutation})
+        payload.update({self.selected_template,
+                        self.username,
+                        self.recipient,
+                        self.greeting,
+                        self.body,
+                        self.salutation}
+                        )
         return payload
-       
-        
-        self.msg_address_entry_focus_out = msg_address_entry.bind('<FocusOut>', lambda x: on_focus_out(entry.get()))
-        self.msg_greeting_entry_focus_out = msg_greeting_entry.bind('<FocusOut>', lambda x: on_focus_out(entry.get()))
-        self.msg_body_entry_focus_out = msg_body_entry.bind('<FocusOut>', lambda x: on_focus_out(entry.get()
-        ))
-        self.msg_salutation_entry_focus_out = self.msg_salutation_entry.bind('<FocusOut>', lambda x: on_focus_out_entry(self.msg_salutation_entry, 'salutation'))
-
 
     def set_initial_placeholders(self):
         '''
-        Sets the initial view for each field if applicable
+        Sets the initial view for each field if applicable NOTE: Don't loop.
         '''
-        
         pass
+
+    # Make these below FNs loop to accomodate multiple requests at once ;)
     def assign_placeholder(self, item):
         pass
 
@@ -418,31 +426,20 @@ class TkView(tk.Tk):
         item.configure(state='normal')
 
     def disableField(self, item):
-        item.configure(state='disabled')
-    
-# THESE ARE THE REVISED EDITIONS AS OF 02/02:
-# 
-    def save_path(self, event, usage_type: bool):
-        Presenter.save_path(event, usage_type)
-    
-    def save_extra_notes(self, input: str):
-        Presenter.save_extra_notes(input)
-
-    def save_CC(self,input):
-        Presenter.save_CC(input)
-
-    def get_all_carrier_checkboxes(self) -> dict:
+        item.configure(state='disabled') 
+# End of needing loop section :)
+    def get_all_carrier_checkboxes(self) -> dict:#GOOD
         payload_dict = {}
-        payload_dict.update({'sw', self.sw_checkbox_value},
-                            {'pt', self.pt_checkbox_value},
-                            {'nh', self.nh_checkbox_value},
-                            {'am', self.am_checkbox_value},
-                            {'km', self.km_checkbox_value},
-                            {'cp', self.cp_checkbox_value},
-                            {'yi', self.yi_checkbox_value},
-                            {'ce', self.ce_checkbox_value},
-                            {'in', self.in_checkbox_value},
-                            {'in', self.in_checkbox_value},
+        payload_dict.update({'sw', self.sw},
+                            {'pt', self.pt},
+                            {'nh', self.nh},
+                            {'am', self.am},
+                            {'km', self.km},
+                            {'cp', self.cp},
+                            {'yi', self.yi},
+                            {'ce', self.ce},
+                            {'In', self.In},
+                            {'in', self.tv},
                             )
         return payload_dict
 

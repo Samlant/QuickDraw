@@ -1,4 +1,5 @@
 from presenter import Presenter
+from dataclasses import dataclass
 from configupdater import ConfigUpdater
 
 class Model:
@@ -6,32 +7,17 @@ class Model:
     NOTE: any config interactions are routed to the Config class object.
     """
     #NOTE: change this LAST:  These are class vars bc we want to keep them until emails are sent...store in email obj not here.
-    self.quoteform_path = str
-    self.extra_attachments = []
-    self.attachments = []
-    self.extra_notes = str
-    self.subject = str
-    self.cc_addresses = []
 
     # FNs used to SAVE stuff
-    def handle_save_contents(self, section_name: str, save_contents: dict) -> bool: #NEED TO FINISH !!!
-        """ This is a generic function to save all three save buttons' data to the appropriate config section. It also ensures the section exists.
-        """
-        config = self.open_config()
-        self.validate_section()
+    # def handle_save_contents(self, section_name: str, save_contents: dict) -> bool: #NEED TO FINISH !!!
+    #     """ This is a generic function to save all three save buttons' data to the appropriate config section. It also ensures the section exists.
+    #     """
+    #     config = self.open_config()
+    #     self.validate_section()
 
-        for key, value in save_contents:
-            config.
+    #     for key, value in save_contents:
+    #         config.
     
-    
-    def init_email_handler(self, application: str) -> None: #GOOD, relook at end
-        """ Instantiate an email handler to process requests"""
-        self.outlook = win32.Dispatch(application)
-        
-    def create_email_item(self): #Re-EXAMINE and investigate
-        mail_item = email()
-    """ This creates the model,  which secures, validates, stores, and ultimately allocates data into an email object for sending away.
-    """
 
     def set_initial_view_values(self): #NEED TO MOVE TO PRESENTER
         ''' Set the entries and textboxes on the 
@@ -93,8 +79,7 @@ class Model:
         else:
             return False
         
-    def check_if_duplicates_exist(self, input: dict):
-        self.list of possible duplicates
+    def check_if_duplicates_exist(self, possible_duplicates: list, input: dict):#CHECK AND FIX THIS FUNCTION.. THE WHOLE PROCESS TO CHECK FOR DUPLICATES;  REVISE & RESTRUCTURE
         num = self.count_list(input)
         check_bool = self.check_list(num)
         if check_bool:
@@ -122,10 +107,9 @@ class Model:
             print('Not offering four combo markets- check this model function for errors in unexpected input & accomodate for more if needed.')
             return None
 
-
     def count_list(self, input:dict) -> int:
         return input.items().count('Submit')
-    
+
     def add_submits_to_list(self, input: dict) -> list:
         submitting_list = list()
         for carrier, result in input:
@@ -136,12 +120,23 @@ class Model:
             else:
                 print('this model function did not receive input as expected.')
         return submitting_list
-    def get_config_value(self, section_name)
-    def saveCC(self, input):
-         #check if ignore defaults
-         pass
 
-class email:
+    def saveCC(self, input):
+        #check if ignore defaults
+        pass
+
+@dataclass
+class Envelope:
+    """ This will be used to collect all information pertaining to each specific email msg.  It will be used to keep persistent data and be fleible enough to update certain items,  and reducing overall coupling. hopefully..
+    """
+    recipient: str
+    cc: str
+    subject: str
+    body: str
+    attachments: str
+
+
+class EmailHandler:
     """ Creates an email object with necessary attributes."""
     def __init__(self, 
             recipient: str,

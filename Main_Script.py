@@ -8,4 +8,5 @@ def main() -> None:
     presenter = Presenter(model, view)
     presenter.start_program()
 
-main()
+if __name__ == "__main__":
+    main()

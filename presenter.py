@@ -1,5 +1,5 @@
 from __future__ import annotations
-from model import Model
+from model import Model, ConfigWorker, EmailHandler, Envelope
 from typing import Protocol
 import win32com.client as win32
 
@@ -89,9 +89,10 @@ class Presenter:
         self.view.create_GUI_obj(self)
         self.model.set_initial_view_values() #placeholders=work in progress
         self.view.start_main_loop()
-
-        email_handler = 'outlook.application'
-        self.init_email_handler(email_handler)
+        
+        self.model.configWorker = self.model.c
+        self.email_application = 'outlook.application'
+        self.run_email_handler()
 
     def get_dropdown_options(self) -> list:
         return self.model.get_dropdown_options()
@@ -120,9 +121,19 @@ class Presenter:
             pass
 
     def check_if_combo(self):
+        """ This is responsible for checking if there is a duplicate submission."""
         possible_duplicates_list = self.model.list_of_possible_duplicates
         input_dict = self.view.get_combo_checkbttns(possible_duplicates_list)
         self.model.check_if_duplicates_exist(input_dict)
+
+    def get_list_of_duplicate_markets(self) -> list:
+        """This is responsible for maintaining the list of possible duplicate submission markets.
+        """
+        list_of_possible_duplicates = list('Seawave',
+                                            'Prime Time',
+                                            'New Hampshire'
+                                            )
+        return list_of_possible_duplicates
 
     def btnSaveMainSettings(self) -> None:
         save_contents = dict()
@@ -142,7 +153,18 @@ class Presenter:
         pass
 
 
+    def run_email_handler(self) -> None: #GOOD, currently being re-looked at.
+        """ Instantiate an email handler to process requests"""
+        self.outlook = win32.Dispatch(self.application)
+        
+    def create_email_item(self): #Re-EXAMINE and investigate
+        mail_item = email()
+    """ This creates the model,  which secures, validates, stores, and ultimately allocates data into an email object for sending away.
+    """
 
+    def reset_ui(self):
+        """ This resets the view to start a clean, new submission."""
+        self.view.variable_name
 
 
 
