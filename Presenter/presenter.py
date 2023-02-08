@@ -106,6 +106,7 @@ class Presenter:
         """ Gets the current selection of the dropdown menu."""
         return self.view.selected_template()
     
+    
     def save_path(self, raw_path, is_quoteform: bool) -> None:#GOOD
         """ Sends the raw path to model for saving."""
         self.model.save_path(raw_path, usage_type)
@@ -167,4 +168,36 @@ class Presenter:
         self.view.variable_name
 
 
+# PUT ALL FINAL FNs BELOW :)
+# Start
+    def get_template_page_values(self) -> dict:#GOOD
+        payload = dict()
+        payload.update({self.view.selected_template,
+                        self.view.username,
+                        self.view.recipient,
+                        self.view.greeting,
+                        self.view.body,
+                        self.view.salutation}
+                        )
+        return payload
+    
+ def set_initial_placeholders(self):
+        '''
+        Sets the initial view for each field if applicable NOTE: Don't loop.
+        '''
+        pass
 
+def get_all_carrier_checkboxes(self) -> dict:#GOOD
+    payload_dict = {}
+    payload_dict.update({'sw', self.sw},
+                        {'pt', self.pt},
+                        {'nh', self.nh},
+                        {'am', self.am},
+                        {'km', self.km},
+                        {'cp', self.cp},
+                        {'yi', self.yi},
+                        {'ce', self.ce},
+                        {'In', self.In},
+                        {'in', self.tv},
+                        )
+    return payload_dict

@@ -295,8 +295,9 @@ class TkView(tk.Tk):
 
     def on_focus_out(self, item, current_selection):#START & FINISH
         """ NOTE: THIS IS NOT AN IMPORTANT FUNCTION TO IMPLEMENT. This function performs actions on them to increase user UI experience.  NOTE:  This originally was a very lame function that repopulated specific fields if they were modified & subsequently left empty upon leaving focus---WOW...
-        """
-        self.username_entry.bind    
+        Instead,  this will also change text (foreground) color if it's changed."""
+        print(item)
+        #self.item.    
     
     @property
     def extra_notes(self) -> str:
@@ -304,31 +305,28 @@ class TkView(tk.Tk):
 
     @extra_notes.deleter
     def extra_notes(self):
-        del self._extra_notes_text.get()
+        del self.extra_notes_text
 
     @property
     def userinput_CC1(self) -> str:
-        return self.userinput_cc1.get()
-    
+        return self.userinput_CC1.get()
     @userinput_CC1.deleter
     def userinput_CC1(self) -> str:
-        del self.userinput_cc1.get()
+        del self.userinput_CC1.get()
 
     @property
     def userinput_CC2(self) -> str:
-        return self.userinput_cc2.get()
-
+        return self.userinput_CC2.get()
     @userinput_CC2.deleter
     def userinput_CC2(self) -> str:
-        return self.userinput_cc2.get()
+        return self.userinput_CC2.get()
 
     @property
     def ignore_default_cc(self) -> bool:
         return self.ignore_CC_defaults.get()
-
     @ignore_default_cc.setter
     def ignore_default_cc(self, ignore_is_True: bool) -> None:
-        self._ignore_CC_defaults = ignore_is_True
+        self.ignore_CC_defaults = ignore_is_True
     
     
     #These are getters for the checkbuttons
@@ -370,76 +368,75 @@ class TkView(tk.Tk):
     def username(self) -> str:
         return self.username.get()
     @username.setter
-    def username
+    def username(self, new_username: str) -> None:
+        self.username = new_username
+    @username.deleter
+    def username(self) -> None:
+        del self.username
     @property
     def recipient(self) -> str:
         return self.recipient.get()
+    @recipient.setter
+    def recipient(self, new_recipient: str) -> None:
+        self.recipient = new_recipient
+    @recipient.deleter
+    def recipient(self) -> None:
+        del self.recipient
     @property
     def greeting(self) -> str:
         return self.greeting.get()
+    @greeting.setter
+    def greeting(self, new_greeting: str) -> None:
+        self.greeting = new_greeting
+    @greeting.deleter
+    def body(self) -> None:
+        del self.greeting
     @property
     def body(self) -> str:
         return self.body.get()
+    @body.setter
+    def body(self, new_body: str) -> None:
+        self.body = new_body
+    @body.deleter
+    def body(self) -> None:
+        del self.body
     @property
     def salutation(self) -> str:
         return self.salutation.get()
+    @salutation.setter
+    def salutation(self, new_salutation: str) -> None:
+        self.salutation = new_salutation
+    @salutation.deleter
+    def salutation(self) -> None:
+        del self.salutation
     
     @property
     def default_CC1(self) -> str:
         return self.default_CC1.get()
+    @default_CC1.setter
+    def default_CC1(self, new_default_CC: str) -> None:
+        self.default_CC1 = new_default_CC
     @property
     def default_CC2(self) -> str:
         return self.default_CC2.get()
+    @default_CC2.setter
+    def default_CC2(self, new_default_CC: str) -> None:
+        self.default_CC2 = new_default_CC
     
-    def get_template_page_values(self) -> dict:#NEED TO FINISH
-        payload = dict()
-        payload.update({self.selected_template,
-                        self.username,
-                        self.recipient,
-                        self.greeting,
-                        self.body,
-                        self.salutation}
-                        )
-        return payload
-
-    def set_initial_placeholders(self):
-        '''
-        Sets the initial view for each field if applicable NOTE: Don't loop.
-        '''
-        pass
-
+   
     # Make these below FNs loop to accomodate multiple requests at once ;)
-    def assign_placeholder(self, item):
+    def assign_placeholder(self, name_of_widget, placeholder: str):
         pass
-
     def get_placeholder(self, item):
         pass
-        
     def insert_placeholder(self, item, indx, placeholder: str):
-        self.item = item
-        self.item_to_modify.insert(indx, placeholder)
-
+        item.insert(indx, placeholder)
     def delete_placeholder(self, item, indx):
         self.item.delete(indx, 'end')
-
     def enableField(self, item, wrap):
         item.configure(state='normal')
-
     def disableField(self, item):
         item.configure(state='disabled') 
 # End of needing loop section :)
-    def get_all_carrier_checkboxes(self) -> dict:#GOOD
-        payload_dict = {}
-        payload_dict.update({'sw', self.sw},
-                            {'pt', self.pt},
-                            {'nh', self.nh},
-                            {'am', self.am},
-                            {'km', self.km},
-                            {'cp', self.cp},
-                            {'yi', self.yi},
-                            {'ce', self.ce},
-                            {'In', self.In},
-                            {'in', self.tv},
-                            )
-        return payload_dict
+
 
