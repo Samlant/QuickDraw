@@ -1,11 +1,12 @@
-from model import Model
-from view import TkView
-from presenter import Presenter
+from Model.model import Model, ConfigWorker
+from View.view import TkView
+from Presenter.presenter import Presenter
 
 def main() -> None:
     model = Model()
     view = TkView()
-    presenter = Presenter(model, view)
+    configworker = ConfigWorker()
+    presenter = Presenter(model, view, configworker)
     presenter.start_program()
 
 if __name__ == "__main__":

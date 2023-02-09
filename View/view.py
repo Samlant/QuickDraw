@@ -423,7 +423,27 @@ class TkView(tk.Tk):
     def default_CC2(self, new_default_CC: str) -> None:
         self.default_CC2 = new_default_CC
     
+
+    def get_possible_redundancies(self) -> dict:
+        """ This allows us to easily update list of likely redundancies."""
+        possible_redundancies_dict = dict(self.sw,
+                                          self.pt,
+                                          self.nh
+                                          )
+        return possible_redundancies_dict
    
+    def get_remaining_single_carriers(self) -> dict:#GOOD
+        carrier_submissions_dict = {}
+        carrier_submissions_dict.update({'am', self.am},
+                                        {'km', self.km},
+                                        {'cp', self.cp},
+                                        {'yi', self.yi},
+                                        {'ce', self.ce},
+                                        {'In', self.In},
+                                        {'in', self.tv},
+                                        )
+        return carrier_submissions_dict
+    
     # Make these below FNs loop to accomodate multiple requests at once ;)
     def assign_placeholder(self, name_of_widget, placeholder: str):
         pass

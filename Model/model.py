@@ -1,4 +1,4 @@
-from presenter import Presenter
+from ..Presenter.presenter import Presenter
 from dataclasses import dataclass
 from configupdater import ConfigUpdater
 
