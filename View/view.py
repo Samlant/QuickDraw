@@ -34,7 +34,10 @@ class Presenter(Protocol):
 
 class TkView(tk.Tk):
     """ This class uses tkinter to create a view object when instantiated by the main_script.  After __init__,  there's a parent method, create_GUI_obj, responsivle for creating the widgets.  These sub-functions are divided by page/tab. Lastly, there are methods to allow data retrieval and updating.
+    class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating. 
     """
+
+    self.positive_submission = 'submit'
 
 
     def __init__(self) -> None:
@@ -271,7 +274,7 @@ class TkView(tk.Tk):
         # Create functionality to show the paths of the files in box.
 
     def create_carrier_checkboxes(self, name: str, var_name: str,) -> None:
-        Checkbutton(master=frame_right, name=name, text=name, variable=var_name, onvalue='Submit', offvalue='skip', bg='#aedadb', font=('helvetica', 12, 'normal'))
+        Checkbutton(master=frame_right, name=name, text=name, variable=var_name, onvalue=self.positive_submission, offvalue='skip', bg='#aedadb', font=('helvetica', 12, 'normal'))
         name.pack(ipady=3, fill=BOTH, expand=True)
 
 
@@ -299,6 +302,10 @@ class TkView(tk.Tk):
         print(item)
         #self.item.    
     
+    @property
+    def positive_submission_value(self):
+        return self.positive_submission
+
     @property
     def extra_notes(self) -> str:
         return self.extra_notes_text.get()

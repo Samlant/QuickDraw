@@ -1,8 +1,9 @@
-from __future__ import annotations
 import itertools
-from ..Model.model import Model, ConfigWorker, EmailHandler, Envelope
+from __future__ import annotations
 from typing import Protocol
-import win32com.client as win32
+
+from ..Model.model import Model, ConfigWorker
+from ..Model.email_handler import EmailHandler
 
 
 class View(Protocol):
@@ -10,6 +11,9 @@ class View(Protocol):
         ...
 
     def start_main_loop(self) -> None:
+        ...
+
+    def positive_submission_value(self):
         ...
 
     def setInitialView(self) -> None:
@@ -62,15 +66,25 @@ class ConfigWorker(Protocol):
         ...
 
 class Presenter:
-    """ Creates a Presenter object that has the model & view 
+    """ Creates a Presenter object that has the model, config_worker & view 
     as attributes of itself. This is responsible for handling
     all interactions between user input and program logic.
     """
+
+    self.recipient = str
+    self.CC_recipients = str
+    self.subject = str
+    self.greeting = str
+    self.body = str
+    self.salutation = str
+    self.username = str
+
     def __init__(self, model: Model, view: View, configWorker: ConfigWorker) -> None:
-        """ Sets the model & view to itself."""
+        """ Sets the model, config_worker & view to itself."""
         self.model = model
         self.view = view
         self.config_worker = configWorker
+        self.postman = self.email_handler.EmailHandler
 
     def start_program(self) -> None:
         """ Starts the program by creating GUI object,
@@ -78,12 +92,8 @@ class Presenter:
         This also sets the default mail application.
         """
         self.view.create_GUI_obj(self)
-        self.model.set_initial_view_values() #placeholders=work in progress
-        self.view.start_main_loop()
-        
-        self.model.configWorker = self.model.c
-        self.email_application = 'outlook.application'
-        self.run_email_handler()
+        self.model.positive_submission = self.view.positive_submission_value
+        self.view.start_main_loop()        
 
     def get_dropdown_options(self) -> list:
         return self.model.get_dropdown_options()
@@ -91,12 +101,9 @@ class Presenter:
     def update_template_page(self, current_selection) -> None: #Complete if necessary - 02.09.2023
         payload = self.config_worker.get_section(current_selection)
 
-
-
     def get_selected_template(self) -> str:#GOOD
         """ Gets the current selection of the dropdown menu."""
         return self.view.selected_template()
-    
     
     def save_path(self, raw_path, is_quoteform: bool) -> None:#GOOD
         """ Sends the raw path to model for saving."""
@@ -121,56 +128,15 @@ class Presenter:
                              )
         self.model.handle_save_contents('General settings', save_contents)
 
-    def btnSendEmail(self) -> None:
-        """ This starts the collection of data & sending of emails.
-        It firsts gets a list of likely redundant submissions,  runs a redundancy-check,  and if true it creates the appropriate email template.""
-        carrier_checkboxes_dict = dict(self.view.get_possible_redundancies())
-        self.check_for_redundant_markets(carrier_checkboxes_dict)
-        #work through fixing/preparing the redundant markets,  then...
-        carrier_checkboxes_dict.update(self.view.get_remaining_single_carriers)
-        if carrier_checkboxes_dict.values != 'submit':
-            raise ValueError
-        else:
-            for carrier, value in carrier_checkboxes_dict:
-                if value == 'submit':
-                    pass
-                elif
-        #
-
-        #check for redundancies:
-        possbile_redundancies_dict = dict(self.view.get_possible_redundancies())
-
-        if self.check_for_redundant_markets(redundancy_list) == True:
-            self.fix_redundancies(carrier_checkboxes_dict)
-        elif self.check_for_redundant_markets(redundancy_list) == False:
-            pass
-        else:
-            raise ValueError
-
-
-#       mail.CC = self.model.quoteform_path
-#       mail.To = s
-
     def btnSaveEmailTemplate(self):
         pass
-
-
-    def run_email_handler(self) -> None: #GOOD, currently being re-looked at.
-        """ Instantiate an email handler to process requests"""
-        self.outlook = win32.Dispatch(self.application)
-        
-    def create_email_item(self): #Re-EXAMINE and investigate
-        mail_item = email()
-    """ This creates the model,  which secures, validates, stores, and ultimately allocates data into an email object for sending away.
-    """
 
     def reset_ui(self):
         """ This resets the view to start a clean, new submission."""
         self.view.variable_name
 
-
 # PUT ALL FINAL FNs BELOW :)
-# Start
+
     def get_template_page_values(self) -> dict:#GOOD
         payload = dict()
         payload.update({self.view.selected_template,
@@ -190,25 +156,35 @@ class Presenter:
 
 #BEGIN btnSendEmail functions :)
 
-    def check_for_redundant_markets(self) -> bool: #GOOD
-        """ Checks the redundancy list (after its creation in create_carrier_redundancy_list) for redundant submissions."""
-        check_list = list()
-        check_list
-        if check_list.count('submit') > 1:
-            return True
-        elif check_list.count('submit') <= 1:
-            return False
-        else:
-            raise ValueError()
 
-    
-    def fix_redundancies(self, carrier_checkboxes: dict) -> None: #GOOD
-        #SW & PT submit!
-        to_submit_list = list()
-        for carrier, value in self.check_list:
-            if value == 'submit':
-                to_submit_list.append(carrier)
-            elif value == 'pass':
-                pass
-            else:
-                raise ValueError
+    def btnSendEmail(self) -> None:
+        """ This starts the collection of data & sending of emails.
+        
+        Some markets submit to the same email address,  so in order to combine those emails all into a single submission for all those applicable markets,  this function handles that situation first: it gets a dict from the view (hard-coded values) of likely redundant submissions, & then runs a redundancy-check. 
+
+        
+        If True, it deletes the existing values and assigns the correct data to the specific combination of redundant markets. 
+
+        If False,  it proceeds to add the rest of the markets' checkboxes.
+
+        
+        Once the function knows which markets to submit to,  we create a loop that cycles through the desired markets. Each cycle represents an envelope & data for each submission is inputted---and subsequently sent.
+        """
+        carrier_checkboxes_dict = dict(self.view.get_possible_redundancies())
+        carrier_checkboxes_dict = self.model.handle_redundancies(carrier_checkboxes_dict)
+        carrier_checkboxes_dict.update(self.view.get_remaining_single_carriers)
+        
+        self.loop_through_envelopes(carrier_checkboxes_dict)
+
+
+    def loop_through_envelopes(self, dict):
+        for carrier, value in dict:
+        if value == 'submit':
+            carrier_details = self.config_worker.get_section(carrier)
+            carrier_details[]
+            # 
+            # apply key names,
+            # Once we have the necessary data, create the email envelope.   
+                
+        else:
+            pass

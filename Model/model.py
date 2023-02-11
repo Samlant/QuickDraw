@@ -1,12 +1,17 @@
-from ..Presenter.presenter import Presenter
 from dataclasses import dataclass
+
 from configupdater import ConfigUpdater
+
+from ..Presenter.presenter import Presenter
+
 
 class Model:
     """ This is our model which handles validating, transforming, moving and storing data appropriately. 
     NOTE: any config interactions are routed to the Config class object.
     """
     #NOTE: change this LAST:  These are class vars bc we want to keep them until emails are sent...store in email obj not here.
+
+    self.positive_submission = None
 
     # FNs used to SAVE stuff
     # def handle_save_contents(self, section_name: str, save_contents: dict) -> bool: #NEED TO FINISH !!!
@@ -18,6 +23,61 @@ class Model:
     #     for key, value in save_contents:
     #         config.
     
+
+# THIS SECTION HAS GOOD, FINAL CODE UNTIL REVIEW ON LATE SATURDAY...
+
+    def handle_redundancies(self, carrier_checkboxes: dict) -> dict:
+        if self.redundancy_check(carrier_checkboxes):
+            section_name = str(self.fix_redundancies(carrier_checkboxes))
+            new_single_submission = dict(section_name, 'submit') #hardcode value
+            return new_single_submission
+        else:
+            pass
+        # we need to complete the else statement,  to automatically connect to the next step of the process,  which at time of writing isn't figured out yet.
+                                                     
+        
+
+    def 
+
+
+
+
+    def redundancy_check(self, carrier_checkboxes: dict) -> bool: #Recheck
+        """ Checks the redundancy list that the view provides for duplicates."""
+        check_list = list()
+        # make into a list
+        check_list.append(carrier_checkboxes.values()) 
+        if check_list.count('submit') > 1:
+            return True
+        elif check_list.count('submit') <= 1:
+            return False
+        else:
+            raise ValueError()
+
+    
+    def fix_redundancies(self, carrier_checkboxes: dict) -> str: #GOOD
+        """ Receives a dict of name:boolean where it finds the two---or three---key:value pairs & then assigns the correct config section name.  This allows the program to access the proper data for the envelope to be sent.
+        """
+        section_name = str
+        yes = 'submit'
+        if (carrier_checkboxes['Sw'].value == yes) and (carrier_checkboxes['pt'].value == yes) and carrier_checkboxes['nh'].value == yes:
+            section_name = 'Combination: Seawave, Prime Time and New Hampshire'
+            return section_name
+        elif (carrier_checkboxes['sw'].value == yes) and (carrier_checkboxes['pt'].value == yes):
+            section_name = 'Combination: Seawave and Prime Time'
+            return section_name
+        elif (carrier_checkboxes['sw'].value == yes) and (carrier_checkboxes['nh'].value == yes):
+            section_name = 'Combination: Seawave and New Hampshire'
+            return section_name        
+        elif (carrier_checkboxes['pt'].value == yes) and (carrier_checkboxes['nh'].value == yes):
+            section_name = 'Combination: Prime Time and New Hampshire'
+            return section_name
+        else:
+            raise ValueError
+
+
+# END OF GOOD, FINAL CODE..
+
 
     def set_initial_view_values(self): #NEED TO MOVE TO PRESENTER
         ''' Set the entries and textboxes on the 
@@ -125,48 +185,8 @@ class Model:
         #check if ignore defaults
         pass
 
-@dataclass
-class Envelope:
-    """ This will be used to collect all information pertaining to each specific email msg.  It will be used to keep persistent data and be fleible enough to update certain items,  and reducing overall coupling. hopefully..
-    """
-    recipient: str
-    cc: str
-    subject: str
-    body: str
-    attachments: str
 
 
-class EmailHandler:
-    """ Creates an email object with necessary attributes."""
-    def __init__(self, 
-            recipient: str,
-            cc: str,
-            subject: str,
-            body: str,
-            attachment_paths: list,
-            ) -> None:
-        self.email_item = self.outlook.CreateItem(0)
-        self.assign_recipient()
-        self.assign_CC()
-        self.assign_subject()
-        self.assign_body_text()
-        self.assign_attachments()
-
-    def assign_recipient(self):
-        pass
-
-    def assign_CC(self):
-        pass
-
-    def assign_subject(self):
-        pass
-
-    def assign_body_text(self):
-        pass
-    #This function is complete (assignAttachments)
-    def assignAttachments(self):
-        attachment_paths_list = self.model.attachments
-        mail.Attachments.Add(attachment_paths_list)
 
 class ConfigWorker:
     """ This class handles all interactions between the python and config file. It utilizes open_config() as a helper to acces config, discerns the path of flowing information & then performs those queries on the config file.
