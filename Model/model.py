@@ -11,8 +11,11 @@ class Model:
     """
     #NOTE: change this LAST:  These are class vars bc we want to keep them until emails are sent...store in email obj not here.
 
-    self.positive_submission = None
-
+    def __init__(self) -> None:
+        self.positive_submission = None
+        self.quoteform_path = str
+        self.extra_attachments = []
+    
     def handle_redundancies(self, carrier_checkboxes: dict) -> dict:
         if self.redundancy_check(carrier_checkboxes):
             section_name = str(self.fix_redundancies(carrier_checkboxes))
@@ -62,20 +65,27 @@ class Model:
         else:
             print('Raising type error: is_quoted parameter is either empty or wrong type. It needs to be boolean.')
 
-    def get_all_attachments(self) -> list:
-         self.attachments = []
-self.attachments.append(self.quoteform_path)
-         self.attachments.append(self.extra_attachments)
-         return self.attachments
-
     def clean_path(self, path) -> str:
-        """ Checks if brackets exists and removes if so."""
+        """ Cleans up the path str by removing any brackets---if present."""
         if '{' in path.data:
             path = path.data.translate({ord(c): None for c in '{}'})
         else:
-            return None
+            return path
         return path
+
+    def get_all_attachments(self) -> list:
+        attachments = []
+        attachments.append(self.quoteform_path)
+        attachments.append(self.extra_attachments)
+        return attachments
+    
+    def list_to_str(self, input: list) - str:
+        string = str
+        for element in input:
+            string += element
+        return string
         
+            
 class ConfigWorker:
     """ This class handles all interactions between the python and config file. It utilizes open_config() as a helper to acces config, discerns the path of flowing information & then performs those queries on the config file.
     """
