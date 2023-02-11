@@ -100,17 +100,10 @@ class Presenter:
 
     def update_template_page(self, current_selection) -> None: #Complete if necessary - 02.09.2023
         payload = self.config_worker.get_section(current_selection)
-
-    def get_selected_template(self) -> str:#GOOD
-        """ Gets the current selection of the dropdown menu."""
-        return self.view.selected_template()
     
     def save_path(self, raw_path, is_quoteform: bool) -> None:#GOOD
         """ Sends the raw path to model for saving."""
         self.config_worker.save_path(raw_path, is_quoteform)
-
-    def save_extra_notes(self, notes: str) -> None:#GOOD
-        self.model.save_extra_notes(input)
 
     def save_CC(self, cc_addresses) -> None:
         # Redo this function and how we save values.
@@ -119,14 +112,11 @@ class Presenter:
         else:
             pass
 
-    def btnSaveMainSettings(self) -> None:
-        save_contents = dict()
-        def_CC1 = self.view.get_default_CC1()
-        def_CC2 = self.view.get_default_CC2()
-        save_contents.update({'default_CC1', def_CC1},
-                             {'default_CC2', def_CC2}
-                             )
-        self.model.handle_save_contents('General settings', save_contents)
+    def handle_save_settings(self) -> None:
+        cc_dict = dict()
+        cc_dict.update('default_CC1', self.view.default_CC1)
+        cc_dict.update('default_CC2', self.view.default_CC2()
+self.model.handle_save_contents('General settings', cc_dict)
 
     def btnSaveEmailTemplate(self):
         pass
