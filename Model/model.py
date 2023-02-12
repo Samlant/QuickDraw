@@ -24,14 +24,12 @@ class Model:
         else:
             return carrier_checkboxes
         
-    def redundancy_check(self, carrier_checkboxes: dict) -> bool: #Recheck
-        """ Checks the redundancy list that the view provides for duplicates."""
-        check_list = list()
-        # make into a list
-        check_list.append(carrier_checkboxes.values()) 
-        if check_list.count('submit') > 1:
+    def redundancy_check(self, carrier_checkboxes: dict) -> bool:
+        """ Counts the number of items in the dictionary supplied. NOTE: the dict input should already be filtered and be a positive submission."""
+        
+        if len(carrier_checkboxes) > 1:
             return True
-        elif check_list.count('submit') <= 1:
+        elif len(carrier_checkboxes) <= 1:
             return False
         else:
             raise ValueError()
