@@ -85,6 +85,16 @@ class Model:
             string += element
         return string
         
+    def filter_only_positive_submissions(self, input: dict) -> dict:
+        for carrier, value in input:
+            if value == self.positive_submission:
+                pass
+            elif value == 'pass':
+                input.pop(carrier)
+            else:
+                raise ValueError
+        return input
+        
             
 class ConfigWorker:
     """ This class handles all interactions between the python and config file. It utilizes open_config() as a helper to acces config, discerns the path of flowing information & then performs those queries on the config file.
