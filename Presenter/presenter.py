@@ -139,8 +139,7 @@ class Presenter:
     def btnSendEmail(self) -> None:
         """ This starts the collection of data & sending of emails.
         
-        Some markets submit to the same email address,  so in order to combine those emails all into a single submission for all those applicable markets,  this function handles that situation first: it gets a dict from the view (hard-coded values) of likely redundant submissions, & then runs a redundancy-check. 
-
+        Some markets submit to the same email address,  so in order to combine those emails all into a single submission for all those applicable markets,  this function handles that situation first: it gets a dict from the view (hard-coded values) of likely redundant submissions, & then runs a redundancy-check.
         
         If True, it deletes the existing values and assigns the correct data to the specific combination of redundant markets. 
 
@@ -152,10 +151,10 @@ class Presenter:
         carrier_checkboxes_dict = dict(self.view.get_possible_redundancies())
         carrier_checkboxes_dict = self.model.handle_redundancies(carrier_checkboxes_dict)
         carrier_checkboxes_dict.update(self.view.get_remaining_single_carriers)
-        
-        self.loop_through_envelopes(carrier_checkboxes_dict)
+        positive_submissions_dict = self.model.filter_only_positive_submissions(carrier_checkboxes_dict)
+        self.loop_through_envelopes(positive_submissions_dict)
     
-    def loop_through_envelopes(self, carrier_checkboxes: dict):
+    def loop_through_envelopes(self, positive_submissions_dict: dict):
         """ This loops through each submission;  it:
         (1) forms an envelope when a positive_submission is found,
         (2) gets and transforms needed data into each of its final formatted type and form,
@@ -163,38 +162,33 @@ class Presenter:
         (4) sends the envelope to the recipient, inclusive of all data. 
         """
         postman = EmailHandler()
-        positive_submission = self.view.positive_submission_value
         subject = str
         subject = postman.build_subject(self.model.quoteform_path)
         string_of_CC = str
         string_of_CC = NotImplemented
 
-        for carrier_section_name, value in carrier_checkboxes:
-            if value == positive_submission
-                postman.create_envelope()
+        for carrier_section_name, value in positive_submissions_dict:
+            postman.create_envelope()
 
-                carrier_details = dict()
-                carrier_details = self.config_worker.get_section(carrier_section_name)
+            carrier_config_dict = dict()
+            carrier_config_dict = self.config_worker.get_section(carrier_section_name)
 
-                recipient = carrier_details['address'].value
+            recipient = carrier_config_dict.get('address')
                 
-                postman.greeting = carrier_details.get('greeting')
-                postman.body = carrier_details.get('body')
-                postman.extra_notes = self.view.extra_notes
-                postman.salutation = carrier_details.get('salutation')
-                postman.username = self.view.username
-                body_text = postman.build_HTML_body()    
+            postman.greeting = carrier_config_dict.get('greeting')
+            postman.body = carrier_config_dict.get('body')
+            postman.extra_notes = self.view.extra_notes
+            postman.salutation = carrier_config_dict.get('salutation')
+            postman.username = self.view.username
+            body_text = postman.build_HTML_body()    
                 
-                postman.assign_recipient(recipient=recipient)
-                postman.assign_CC(cc_addresses=string_of_CC)
-                postman.assign_subject(subject=subject)
-                postman.assign_body_text(body=body_text)
+            postman.assign_recipient(recipient=recipient)
+            postman.assign_CC(cc_addresses=string_of_CC)
+            postman.assign_subject(subject=subject)
+            postman.assign_body_text(body=body_text)
 
-                for attachment_path in attachment_list:
-                    postman.assign_attachments(attachment_path)
-                    
-            else:
-                pass
+            for attachment_path in attachment_list:
+                postman.assign_attachments(attachment_path)
             
     def prepare_attachments(self) -> None:
         return self.model.get_all_attachments()
