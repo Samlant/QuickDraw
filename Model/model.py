@@ -26,7 +26,6 @@ class Model:
         
     def redundancy_check(self, carrier_checkboxes: dict) -> bool:
         """ Counts the number of items in the dictionary supplied. NOTE: the dict input should already be filtered and be a positive submission."""
-        
         if len(carrier_checkboxes) > 1:
             return True
         elif len(carrier_checkboxes) <= 1:
@@ -38,7 +37,7 @@ class Model:
         """ Receives a dict of name:boolean where it finds the two---or three---key:value pairs & then assigns the correct config section name.  This allows the program to access the proper data for the envelope to be sent.
         """
         section_name = str
-        yes = 'submit'
+        yes = self.positive_submission
         if (carrier_checkboxes['Sw'].value == yes) and (carrier_checkboxes['pt'].value == yes) and carrier_checkboxes['nh'].value == yes:
             section_name = 'Combination: Seawave, Prime Time and New Hampshire'
             return section_name
