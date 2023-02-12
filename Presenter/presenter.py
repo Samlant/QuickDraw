@@ -148,11 +148,14 @@ class Presenter:
         
         Once the function knows which markets to submit to,  we create a loop that cycles through the desired markets. Each cycle represents an envelope & data for each submission is inputted---and subsequently sent.
         """
-        carrier_checkboxes_dict = dict(self.view.get_possible_redundancies())
-        carrier_checkboxes_dict = self.model.handle_redundancies(carrier_checkboxes_dict)
-        carrier_checkboxes_dict.update(self.view.get_remaining_single_carriers)
-        positive_submissions_dict = self.model.filter_only_positive_submissions(carrier_checkboxes_dict)
-        self.loop_through_envelopes(positive_submissions_dict)
+        raw_checkboxes_dict = self.view.get_possible_redundancies()
+        filtered_submits_dict = self.model.filter_only_positive_submissions(raw_checkboxes_dict)
+        finalized_submits_dict = self.model.handle_redundancies(filtered_submits_dict)
+        raw_checkboxes_dict = self.view.get_remaining_single_carriers()
+        filtered_submits_dict = self.model.filter_only_positive_submissions(raw_checkboxes_dict)
+        finalized_submits_dict.update(filtered_submits_dict)
+        
+        self.loop_through_envelopes(finalized_submits_dict)
     
     def loop_through_envelopes(self, positive_submissions_dict: dict):
         """ This loops through each submission;  it:
