@@ -90,5 +90,3 @@ def list_to_str(self, input: list) - str:
     for element in input:
         string += element
     return string
-
-list1 = list["www.google.com", ]

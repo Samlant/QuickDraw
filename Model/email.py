@@ -34,7 +34,7 @@ class EmailHandler:
     def assign_CC(self, cc_addresses: str) -> None:
         self.envelope.CC = cc_addresses
 
-    def assign_subject(self, subject: str) - None:
+    def assign_subject(self, subject: str) -> None:
         self.envelope.Subject = subject
 
     def assign_body_text(self, body: str) -> None:
@@ -44,9 +44,10 @@ class EmailHandler:
         self.envelope.Attachments.Add(attachments)
 
     def send_envelope(self) -> None:
-        try
-            self.envelope.Send()
-        except 
+        try:
+            self.envelope.Display()
+            # self.envelope.Send()
+        except:
             error_msg = f"Failed to send envelope to {self.envelope.To}."
             raise Exception(error_msg)
         else:

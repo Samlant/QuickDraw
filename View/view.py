@@ -37,7 +37,7 @@ class TkView(tk.Tk):
     class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating. 
     """
 
-    self.positive_submission = 'submit'
+    
 
 
     def __init__(self) -> None:
@@ -46,7 +46,7 @@ class TkView(tk.Tk):
         self.configure(background='#5F9EA0')
         self.title('Quick Submit Tool')
         self.attributes('-alpha',0.95)
-
+        self.positive_submission = 'submit'
 
     def create_GUI_obj(self, presenter: Presenter):
         """ This creates the GUI root,  along with the main
@@ -71,7 +71,7 @@ class TkView(tk.Tk):
         self.style.map('TNotebook', background= [('selected', '#5F9EA0')])
 
     def createNotebook(self):
-        self.tabControl = ttk.Notebook(self.root, style=self.style)
+        self.tabControl = ttk.Notebook(self, style='TNotebook')
 
     def createTabs(self):
         self.home = ttk.Frame(self.tabControl)
@@ -92,8 +92,8 @@ class TkView(tk.Tk):
         frame_middle = Frame(self.home, bg='#5F9EA0')
         frame_middle.pack(padx=5, fill = Y, side='left', expand = False, anchor=N)
 
-        frame_right = Frame(self.home, bg='#5F9EA0')
-        frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
+        self.frame_right = Frame(self.home, bg='#5F9EA0')
+        self.frame_right.pack(padx=5, fill = Y, side='left', expand = False, anchor=NW)
 
         # Create widgets inside Frame Header
         Label(frame_header, text='Get Client Information', bg='#5F9EA0', font=('helvetica', 20, 'normal')).pack(fill=X, expand=True, side='left')
@@ -163,7 +163,7 @@ class TkView(tk.Tk):
         self.create_carrier_checkboxes('Intact', self.intact)
         self.travelers = StringVar(name='Travelers', value='skip')
         self.create_carrier_checkboxes('Travelers', self.travelers)
-        Button(frame_right, text='Submit and sent to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'), command=Presenter.btnSendEmail).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
+        Button(self.frame_right, text='Submit and sent to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'), command=Presenter.btnSendEmail).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
         # End of creating the MAIN tab.
 
     def createTemplateSettingsTabWidgets(self):
@@ -274,7 +274,7 @@ class TkView(tk.Tk):
         # Create functionality to show the paths of the files in box.
 
     def create_carrier_checkboxes(self, name: str, var_name: str,) -> None:
-        Checkbutton(master=frame_right, name=name, text=name, variable=var_name, onvalue=self.positive_submission, offvalue='skip', bg='#aedadb', font=('helvetica', 12, 'normal'))
+        Checkbutton(master=self.frame_right, name=name, text=name, variable=var_name, onvalue=self.positive_submission, offvalue='skip', bg='#aedadb', font=('helvetica', 12, 'normal'))
         name.pack(ipady=3, fill=BOTH, expand=True)
 
 
@@ -316,17 +316,17 @@ class TkView(tk.Tk):
 
     @property
     def userinput_CC1(self) -> str:
-        return self.userinput_CC1.get()
+        return self.userinput_CC1.get('1.0', 'end-1c')
     @userinput_CC1.deleter
     def userinput_CC1(self) -> str:
-        del self.userinput_CC1.get()
+        del self.userinput_CC1
 
     @property
     def userinput_CC2(self) -> str:
-        return self.userinput_CC2.get()
+        return self.userinput_CC2.get('1.0', 'end-1c')
     @userinput_CC2.deleter
     def userinput_CC2(self) -> str:
-        return self.userinput_CC2.get()
+        return self.userinput_CC2
 
     @property
     def ignore_default_cc(self) -> bool:

@@ -2,8 +2,7 @@ from dataclasses import dataclass
 
 from configupdater import ConfigUpdater
 
-from ..Presenter.presenter import Presenter
-
+# from Presenter.presenter import Presenter
 
 class Model:
     """ This is our model which handles validating, transforming, moving and storing data appropriately. 
@@ -15,6 +14,17 @@ class Model:
         self.positive_submission = None
         self.quoteform_path = str
         self.extra_attachments = []
+    
+    def filter_only_positive_submissions(self, input: dict) -> dict:
+        for carrier, value in input:
+            if value == self.positive_submission:
+                pass
+            elif value == 'pass':
+                input.pop(carrier)
+            else:
+                raise ValueError
+        
+        return input
     
     def handle_redundancies(self, carrier_checkboxes: dict) -> dict:
         if self.redundancy_check(carrier_checkboxes):
@@ -76,22 +86,23 @@ class Model:
         attachments.append(self.extra_attachments)
         return attachments
     
-    def list_to_str(self, input: list) - str:
-        string = str
-        for element in input:
-            string += element
-        return string
+    def CC_list_to_str(self, input_list: list) -> str:
+        """ Transforms lists into strings. In-use for CC_address assignment."""
+        input_list = '; '.join(str(element) for element in input_list)
+        return input_list
+    
+    def get_default_cc_addresses(self):
+        CC_list = list()
+        if self.check_if_ignore_default_cc_is_on() == False:
+            default_CC1 = ConfigWorker.get_value_from_config(dict('General settings', 'default_CC1'))
+            default_CC2 = ConfigWorker.get_value_from_config(dict('General settings', 'default_CC2'))
+            CC_list.append(default_CC1, default_CC2)
+            return CC_list
+        else:
+            return None
         
-    def filter_only_positive_submissions(self, input: dict) -> dict:
-        for carrier, value in input:
-            if value == self.positive_submission:
-                pass
-            elif value == 'pass':
-                input.pop(carrier)
-            else:
-                raise ValueError
-        return input
-        
+    def check_if_ignore_default_cc_is_on(self) -> bool:
+            return ConfigWorker.get_value_from_config(dict('General settings', 'ignore_default_cc_addresses'))
             
 class ConfigWorker:
     """ This class handles all interactions between the python and config file. It utilizes open_config() as a helper to acces config, discerns the path of flowing information & then performs those queries on the config file.

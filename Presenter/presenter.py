@@ -1,9 +1,9 @@
-import itertools
 from __future__ import annotations
+import itertools
 from typing import Protocol
 
-from ..Model.model import Model, ConfigWorker
-from ..Model.email import EmailHandler
+# from Model.model import Model, ConfigWorker
+# from Model.email import EmailHandler
 
 
 class View(Protocol):
@@ -138,19 +138,18 @@ class Presenter:
 
     def btnSendEmail(self) -> None:
         """ This starts the collection of data & sending of emails.
-        
+
         Some markets submit to the same email address,  so in order to combine those emails all into a single submission for all those applicable markets,  this function handles that situation first: it gets a dict from the view (hard-coded values) of likely redundant submissions, & then runs a redundancy-check.
         
-        If True, it deletes the existing values and assigns the correct data to the specific combination of redundant markets. 
-
+        If True, it deletes the existing values and assigns the correct data to the specific combination of redundant markets.
         If False,  it proceeds to add the rest of the markets' checkboxes.
 
-        
         Once the function knows which markets to submit to,  we create a loop that cycles through the desired markets. Each cycle represents an envelope & data for each submission is inputted---and subsequently sent.
         """
         raw_checkboxes_dict = self.view.get_possible_redundancies()
         filtered_submits_dict = self.model.filter_only_positive_submissions(raw_checkboxes_dict)
         finalized_submits_dict = self.model.handle_redundancies(filtered_submits_dict)
+
         raw_checkboxes_dict = self.view.get_remaining_single_carriers()
         filtered_submits_dict = self.model.filter_only_positive_submissions(raw_checkboxes_dict)
         finalized_submits_dict.update(filtered_submits_dict)
@@ -167,8 +166,8 @@ class Presenter:
         postman = EmailHandler()
         subject = str
         subject = postman.build_subject(self.model.quoteform_path)
-        string_of_CC = str
-        string_of_CC = NotImplemented
+        list_of_CC_addresses = self.handle_getting_CC_addresses()
+        string_of_CC = self.model.CC_list_to_str(list_of_CC_addresses)
 
         for carrier_section_name, value in positive_submissions_dict:
             postman.create_envelope()
@@ -177,24 +176,30 @@ class Presenter:
             carrier_config_dict = self.config_worker.get_section(carrier_section_name)
 
             recipient = carrier_config_dict.get('address')
-                
             postman.greeting = carrier_config_dict.get('greeting')
             postman.body = carrier_config_dict.get('body')
             postman.extra_notes = self.view.extra_notes
             postman.salutation = carrier_config_dict.get('salutation')
             postman.username = self.view.username
             body_text = postman.build_HTML_body()    
-                
+            attachments_list = list(self.model.get_all_attachments())
+
             postman.assign_recipient(recipient=recipient)
             postman.assign_CC(cc_addresses=string_of_CC)
             postman.assign_subject(subject=subject)
             postman.assign_body_text(body=body_text)
-
-            for attachment_path in attachment_list:
+            for attachment_path in attachments_list:
                 postman.assign_attachments(attachment_path)
-            
-    def prepare_attachments(self) -> None:
-        return self.model.get_all_attachments()
-    
-    def assign_from_config_to_envelope(self, carrier_config_section_dict: dict) -> None:
-        greeting = 
+            postman.send_envelope()
+
+    def handle_getting_CC_addresses(self) -> list:
+        CC_list = list
+        CC_list.append(self.view.userinput_CC1,
+                       self.view.userinput_CC2
+                       )
+        if self.model.check_if_ignore_default_cc_is_on() == False:
+            default_CC_addresses = self.model.get_default_cc_addresses()
+            CC_list.append(default_CC_addresses)
+        else:
+            pass
+        return CC_list
