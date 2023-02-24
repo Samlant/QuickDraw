@@ -15,6 +15,10 @@ class Model:
         self.quoteform_path = str
         self.extra_attachments = []
     
+    def get_dropdown_options(self) -> list:
+        options = list('Seawave', 'Prime Time', 'New Hampshire', 'American Modern', 'Kemah Marine', 'Concept', 'Yachtinsure', 'Century', 'Intact', 'Travelers')
+        return options
+
     def filter_only_positive_submissions(self, input: dict) -> dict:
         for carrier, value in input:
             if value == self.positive_submission:
