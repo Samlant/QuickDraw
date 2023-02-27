@@ -3,14 +3,15 @@ import fillpdf
 from fillpdf import fillpdfs
 import string
 
+
 class EmailHandler:
     """ This class is responsible for interfacing with Outlook in creating email envelopes to send.  Once called,  data is gathered from the Presenter and applied to an email envelope,  then once complete,  it is sent out.
     NOTE: This will be looped through for each envelope every button press.
     NOTE: If a PDF value changes,  please update the instance vars.
     """
 
-    def __init__(self) -> None:
-        self.outlook = win32.Dispatch(self.application)
+    def __init__(self, envelope) -> None:
+        self.outlook = win32.Dispatch(envelope)
         self.application = 'outlook.application'
         self.fname_pdf_key = '4669727374204e616d65'
         self.lname_pdf_key = '4c617374204e616d65'
@@ -43,10 +44,14 @@ class EmailHandler:
     def assign_attachments(self, attachments: str) -> None:
         self.envelope.Attachments.Add(attachments)
 
-    def send_envelope(self) -> None:
+    def send_envelope(self, view: bool) -> None:
         try:
-            self.envelope.Display()
-            # self.envelope.Send()
+            if view:
+                self.envelope.Display()
+            elif view == False:
+                self.envelope.Send()
+            else:
+                raise ValueError
         except:
             error_msg = f"Failed to send envelope to {self.envelope.To}."
             raise Exception(error_msg)
@@ -83,7 +88,7 @@ class EmailHandler:
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
     </footer></html>
-    ''' %(self.greeting, self.body, self.extra_notes, self.salutation, self.username)
+    ''' % (self.greeting, self.body, self.extra_notes, self.salutation, self.username)
         return body_text
 
     def build_subject(self, pdf_path) -> str:
@@ -94,24 +99,24 @@ class EmailHandler:
 
     def select_fields_from_pdf(self, pdf_fields_dict: dict) -> dict:
         needed_field_values = {key: pdf_fields_dict[key] for key in pdf_fields_dict.keys()
-        & {self.fname_pdf_key,self.lname_pdf_key, self.year_pdf_key, self.make_pdf_key, self.length_pdf_key}}
+                               & {self.fname_pdf_key, self.lname_pdf_key, self.year_pdf_key, self.make_pdf_key, self.length_pdf_key}}
         return needed_field_values
 
-    def format_subject_values(self, raw_dict = dict) -> None:
+    def format_subject_values(self, raw_dict=dict) -> None:
         """ This first formats each piece of the subject line,  then inserts those formatted values into a dict.
         """
         formatted_values_dict = {}
-        
+
         first_name = raw_dict.get(self.fname_pdf_key)
         last_name = raw_dict.get(self.lname_pdf_key)
         year = raw_dict.get(self.year_pdf_key)
         make = raw_dict.get(self.make_pdf_key)
         length = raw_dict.get(self.length_pdf_key)
-                
+
         first_name = self.capitalize_words(first_name)
         last_name = self.str_to_uppercase(last_name)
         make = self.capitalize_words(make)
-        
+
         formatted_values_dict.update('first_name', first_name)
         formatted_values_dict.update('last_name', last_name)
         formatted_values_dict.update('year', year)
@@ -123,34 +128,8 @@ class EmailHandler:
         subject_line = f"{fv.get('last_name')}, {fv.get('first_name')} | {fv.get('year')} {fv.get('make')} {fv.get('length')} | New Quote Submission"
         return subject_line
 
-
-
-
-
-
     def capitalize_words(self, unformatted_string: str) -> str:
         return string.capwords(unformatted_string, sep=None)
 
     def str_to_uppercase(self, unformatted_string: str) -> str:
         return unformatted_string.upper()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
