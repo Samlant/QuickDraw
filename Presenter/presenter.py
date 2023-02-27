@@ -167,9 +167,13 @@ class Presenter:
         payload = self.config_worker.get_section(selected_template)
         self.insert_placeholders(payload)
 
-    def save_path(self, raw_path, is_quoteform: bool) -> None:  # GOOD
+    def process_quoteform_path(self, raw_path) -> None:  # GOOD
         """ Sends the raw path to model for saving."""
-        self.config_worker.save_path(raw_path, is_quoteform)
+        self.model.save_path(raw_path, is_quoteform=True)
+
+    def process_attachments_path(self, raw_path) -> None:
+        """ Sends the raw path to model for saving."""
+        self.model.save_path(raw_path, is_quoteform=False)
 
     def save_CC(self, cc_addresses) -> None:
         # Redo this function and how we save values.
@@ -295,7 +299,7 @@ class Presenter:
         (3) applies the properly formatted data into each the envelope, and,
         (4) sends the envelope to the recipient, inclusive of all data. 
         """
-        postman = EmailHandler(self)
+        postman = EmailHandler()
         subject = str
         subject = postman.build_subject(self.model.quoteform_path)
         CC_addresses_list = self._handle_getting_CC_addresses()
@@ -326,10 +330,11 @@ class Presenter:
             postman.send_envelope(view)
 
     def _handle_getting_CC_addresses(self) -> list:
-        CC_list = list
-        CC_list.append(self.view.userinput_CC1,
-                       self.view.userinput_CC2
-                       )
+        CC_list = list()
+        userinput_CC1 = self.view.userinput_CC1
+        userinput_CC2 = self.view.userinput_CC2
+        CC_list.append(userinput_CC1)
+        CC_list.append(userinput_CC2)
         if self.view.ignore_default_cc == False:
             if self.config_worker.check_to_skip_default_carboncopies() == False:
                 default_CC_addresses = self.model.get_default_cc_addresses()

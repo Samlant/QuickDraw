@@ -23,7 +23,10 @@ class Presenter(Protocol):
     def set_dropdown_options() -> list:
         ...
 
-    def save_path(self, event, is_quoteform: bool) -> None:  # GOOD
+    def process_attachments_path(self, raw_path) -> None:
+        ...
+
+    def process_quoteform_path(self, raw_path) -> None:
         ...
 
     def update_dropdown(self):
@@ -143,12 +146,12 @@ class TkView(tk.Tk):
         Label(frame_left, text='Dag-N-Drop Quoteform Below', bg='#aedadb',
               font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
 
-        self.create_quoteform_path_box(frame_left)
+        self.create_quoteform_path_box(frame_left, presenter)
 
         Label(frame_left, text='Dag-N-Drop Extra Attachments Below', bg='#aedadb',
               font=('helvetica', 12, 'normal')).pack(fill=BOTH, expand=True)
 
-        self.create_extra_attachments_path_box(frame_left)
+        self.create_extra_attachments_path_box(frame_left, presenter)
 
         # Create widgets inside Frame Middle
         # this is a label_frame
@@ -187,8 +190,8 @@ class TkView(tk.Tk):
         self.userinput_CC2.pack(
             ipady=4, anchor=N, fill=X, expand=True, side='top')
 
-        Button(self.frame_right, text='Display & View Each Envelope!', bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_send_envelopes(view=True)).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
+        Button(frame_middle, text='Display & View Each Envelope!', bg='#22c26a', font=('helvetica', 12, 'normal'),
+               command=presenter.btn_send_envelopes(view=True)).pack(ipady=20, pady=10, anchor=S, fill=Y, expand=False)
         # end of label_frame
 
         # Create checkboxes and StringVars
@@ -232,7 +235,7 @@ class TkView(tk.Tk):
         travelers_checkbox = Checkbutton(master=self.frame_right, name='travelers', text='Travelers', variable=self._travelers,
                                          onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
         travelers_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-        Button(self.frame_right, text='Submit and auto-send to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'),
+        Button(self.frame_right, text='Submit & auto-send to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=presenter.btn_send_envelopes(False)).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
         # End of creating the MAIN tab.
 
@@ -350,7 +353,7 @@ class TkView(tk.Tk):
         Button(master=save_btn_frame, text='Save Settings!', bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=presenter.btn_save_settings).pack(ipady=10, pady=10, padx=10, fill=BOTH, expand=False, anchor=N, side='top')
 
-    def create_quoteform_path_box(self, parent: Frame) -> None:
+    def create_quoteform_path_box(self, parent: Frame, presenter=Presenter) -> None:
         """ Creates the drag-n-drop box for the quoteform."""
         self.quoteform_path_box = Text(
             parent,
@@ -360,10 +363,11 @@ class TkView(tk.Tk):
             name='raw_quoteform_path'
         )
         self.quoteform_path_box.pack(fill=BOTH, anchor=N, expand=True)
-        # self.quoteform_path_box.drop_target_register(DND_FILES)
-        # self.quoteform_path_box.dnd_bind('<<Drop>>', Presenter.save_path(True))
+        self.quoteform_path_box.drop_target_register(DND_FILES)
+        self.quoteform_path_box.dnd_bind(
+            '<<Drop>>', presenter.process_quoteform_path)
 
-    def create_extra_attachments_path_box(self, parent: Frame) -> None:
+    def create_extra_attachments_path_box(self, parent: Frame, presenter=Presenter) -> None:
         """ Creates the drag-n-drop box for any extra attachments."""
         self.extra_attachments_path_box = Text(
             parent,
@@ -373,8 +377,9 @@ class TkView(tk.Tk):
             name='raw_list_of_attachments_paths'
         )
         self.extra_attachments_path_box.pack(fill=X, expand=True, anchor=N)
-        # self.extra_attachments_path_box.drop_target_register(DND_FILES)
-        # self.extra_attachments_path_box.dnd_bind('<<Drop>>', Presenter.save_path(False))
+        self.extra_attachments_path_box.drop_target_register(DND_FILES)
+        self.extra_attachments_path_box.dnd_bind(
+            '<<Drop>>', presenter.process_attachments_path)
         # Create functionality to show the paths of the files in box.
 
     def create_dropdown_variable(self, initial_value: str, name: str, presenter: Presenter) -> None:

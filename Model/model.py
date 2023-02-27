@@ -14,56 +14,57 @@ class Model:
     def __init__(self) -> None:
         self.positive_submission = ''
         self.negative_submission = ''
-        self.quoteform_path = str
+        self.quoteform_path = ''
         self.extra_attachments = []
 
     def get_dropdown_options(self) -> list:
         return ['Seawave', 'Prime Time', 'New Hampshire', 'American Modern', 'Kemah Marine', 'Concept', 'Yachtinsure', 'Century', 'Intact', 'Travelers']
 
-    def filter_only_positive_submissions(self, input: dict) -> dict:
-        for carrier, value in input:
-            if value == self.positive_submission:
+    def filter_only_positive_submissions(self, raw_checkboxes: dict) -> dict:
+        filtered_checkboxes_dict = dict()
+        for x in raw_checkboxes:
+            if raw_checkboxes[x] == self.positive_submission:
+                filtered_checkboxes_dict.update(x, raw_checkboxes[x])
+            elif raw_checkboxes[x] == self.negative_submission:
                 pass
-            elif value == self.negative_submission:
-                input.pop(carrier)
             else:
-                pass
+                raise ValueError
+        return filtered_checkboxes_dict
 
-        return input
-
-    def handle_redundancies(self, carrier_checkboxes: dict) -> dict:
-        if self._redundancy_check(carrier_checkboxes):
-            section_name = str(self._fix_redundancies(carrier_checkboxes))
-            new_single_submission = dict(
-                section_name='submit')  # hardcode value
-            return new_single_submission
+    def handle_redundancies(self, filtered_submits_dict: dict) -> dict:
+        if self._redundancy_check(filtered_submits_dict):
+            section_name_value = str(
+                self._fix_redundancies(filtered_submits_dict))
+            eliminated_redundancies = {
+                'section_name': section_name_value, 'key': self.positive_submission}
+            return eliminated_redundancies
         else:
-            return carrier_checkboxes
+            return filtered_submits_dict
 
-    def _redundancy_check(self, carrier_checkboxes: dict) -> bool:
+    def _redundancy_check(self, filtered_submits_dict: dict) -> bool:
         """ Counts the number of items in the dictionary supplied. NOTE: the dict input should already be filtered and be a positive submission."""
-        if len(carrier_checkboxes) > 1:
+        if len(filtered_submits_dict) > 1:
             return True
-        elif len(carrier_checkboxes) <= 1:
+        elif len(filtered_submits_dict) <= 1:
             return False
         else:
             raise ValueError()
 
-    def _fix_redundancies(self, carrier_checkboxes: dict) -> str:  # GOOD
+    def _fix_redundancies(self, filtered_submits_dict: dict) -> str:  # GOOD
         """ Receives a dict of name:boolean where it finds the two---or three---key:value pairs & then assigns the correct config section name.  This allows the program to access the proper data for the envelope to be sent.
         """
         section_name = str
         yes = self.positive_submission
-        if (carrier_checkboxes['sw'] == yes) and (carrier_checkboxes['pt'] == yes) and (carrier_checkboxes['nh'] == yes):
+        if (filtered_submits_dict['sw'] == yes) and (filtered_submits_dict['pt'] == yes) and (filtered_submits_dict['nh'] == yes):
             section_name = 'Combination: Seawave, Prime Time and New Hampshire'
             return section_name
-        elif (carrier_checkboxes['sw'] == yes) and (carrier_checkboxes['pt'] == yes):
+        elif (filtered_submits_dict['sw'] == yes) and (filtered_submits_dict['pt'] == yes):
             section_name = 'Combination: Seawave and Prime Time'
             return section_name
-        elif (carrier_checkboxes['sw'] == yes) and (carrier_checkboxes['nh'] == yes):
+        elif (filtered_submits_dict['sw'] == yes) and (filtered_submits_dict['nh'] == yes):
             section_name = 'Combination: Seawave and New Hampshire'
             return section_name
-        elif (carrier_checkboxes['pt'] == yes) and (carrier_checkboxes['nh'] == yes):
+        elif (filtered_submits_dict['pt'] == yes) and (filtered_submits_dict['nh'] == yes):
             section_name = 'Combination: Prime Time and New Hampshire'
             return section_name
         else:
@@ -155,5 +156,10 @@ class ConfigWorker:
                 config.update_file()
 
     def check_to_skip_default_carboncopies(self) -> bool:
-        return ConfigWorker.get_value_from_config(dict('General settings', 'ignore_default_cc_addresses'))
+        needed_config_values_dict = dict
+        section_name_value = 'General settings'
+        key = 'ignore_default_cc_addresses'
+        config = {'section_name': section_name_value, 'key': key}
+        result = self.get_value_from_config(config)
+        return result
     # End of CONFIG FILE operations

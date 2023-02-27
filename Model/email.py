@@ -10,9 +10,8 @@ class EmailHandler:
     NOTE: If a PDF value changes,  please update the instance vars.
     """
 
-    def __init__(self, envelope) -> None:
-        self.outlook = win32.Dispatch(envelope)
-        self.application = 'outlook.application'
+    def __init__(self) -> None:
+        self.outlook = win32.Dispatch('Outlook.Application')
         self.fname_pdf_key = '4669727374204e616d65'
         self.lname_pdf_key = '4c617374204e616d65'
         self.year_pdf_key = 'Year'
@@ -91,11 +90,16 @@ class EmailHandler:
     ''' % (self.greeting, self.body, self.extra_notes, self.salutation, self.username)
         return body_text
 
-    def build_subject(self, pdf_path) -> str:
-        pdf_dict = dict(fillpdfs.get_form_fields(pdf_path))
-        needed_values_dict = self.select_fields_from_pdf(pdf_dict)
-        formatted_values_dict = self.assign_subject_values(needed_values_dict)
-        return self.stringify_subject(formatted_values_dict)
+    def build_subject(self, pdf_path: dict) -> str:
+        pdf_dict = dict()
+        if pdf_path != '':
+            pdf_dict = fillpdfs.get_form_fields(pdf_path)
+            selected_values_dict = self.select_fields_from_pdf(pdf_dict)
+            formatted_values_dict = self.stringify_subject(
+                selected_values_dict)
+            return self.assign_subject(formatted_values_dict)
+        else:
+            pass
 
     def select_fields_from_pdf(self, pdf_fields_dict: dict) -> dict:
         needed_field_values = {key: pdf_fields_dict[key] for key in pdf_fields_dict.keys()
