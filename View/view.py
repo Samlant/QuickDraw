@@ -11,7 +11,7 @@ class Presenter(Protocol):
     NOTE: finished functions are at top, revised underneath,  and the outdated are at the bottom with Pass instead of elipses.
     """
 
-    def btn_send_envelopes(self, view: bool) -> None:
+    def btn_send_envelopes(self, autosend: bool) -> None:
         ...
 
     def btn_save_template():
@@ -190,8 +190,8 @@ class TkView(tk.Tk):
         self.userinput_CC2.pack(
             ipady=4, anchor=N, fill=X, expand=True, side='top')
 
-        Button(frame_middle, text='Display & View Each Envelope!', bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_send_envelopes(view=True)).pack(ipady=20, pady=10, anchor=S, fill=Y, expand=False)
+        Button(frame_middle, text='View Each Before Sending!', bg='#22c26a', font=('helvetica', 12, 'normal'),
+               command=presenter.btn_send_envelopes(autosend=True)).pack(ipady=20, pady=10, anchor=S, fill=Y, expand=False)
         # end of label_frame
 
         # Create checkboxes and StringVars
@@ -236,7 +236,7 @@ class TkView(tk.Tk):
                                          onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
         travelers_checkbox.pack(ipady=3, fill=BOTH, expand=True)
         Button(self.frame_right, text='Submit & auto-send to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_send_envelopes(False)).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
+               command=presenter.btn_send_envelopes(autosend=False)).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
         # End of creating the MAIN tab.
 
     def create_customize_tab_widgets(self, presenter: Presenter):
