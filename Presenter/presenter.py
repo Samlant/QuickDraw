@@ -269,7 +269,7 @@ class Presenter:
 # BEGIN btnSendEmail functions :)
 
 
-    def btn_send_envelopes(self, view: bool) -> None:
+    def btn_send_envelopes(self, autosend: bool) -> None:
         """ This starts the collection of data & sending of emails.
 
         Some markets submit to the same email address,  so in order to combine those emails all into a single submission for all those applicable markets,  this function handles that situation first: it gets a dict from the view (hard-coded values) of likely redundant submissions, & then runs a redundancy-check.
@@ -327,7 +327,7 @@ class Presenter:
             postman.assign_body_text(body=body_text)
             for attachment_path in attachments_list:
                 postman.assign_attachments(attachment_path)
-            postman.send_envelope(view)
+            postman.send_envelope(autosend)
 
     def _handle_getting_CC_addresses(self) -> list:
         CC_list = list()
