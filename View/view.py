@@ -176,7 +176,7 @@ class TkView(tk.Tk):
             'helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
 
         self.ignore_CC_defaults = BooleanVar(name='ignore_CC_defaults')
-        ignore_CC_defaults = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self.cc_default_check,
+        ignore_CC_defaults = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self.ignore_CC_defaults,
                                          bg='#aedadb', name='cc_def_chcek', onvalue=True, offvalue=False).pack(pady=5, fill=X, expand=False, side='top')
 
         self.userinput_CC1 = Text(cc_labelframe, height=1, width=30)
