@@ -9,7 +9,7 @@ from Model.email import EmailHandler
 
 
 class View(Protocol):
-    def create_GUI_obj(self, presenter: Presenter) -> None:
+    def create_UI_obj(self, presenter: Presenter) -> None:
         ...
 
     def mainloop(self) -> None:
@@ -111,7 +111,7 @@ class View(Protocol):
         ...
 
     @property
-    def username(self,) -> str:
+    def username(self) -> str:
         ...
 
 
@@ -152,9 +152,8 @@ class Presenter:
         configuring initial values,  then running it
         This also sets the default mail application.
         """
-        self.view.create_GUI_obj(self)
+        self.view.create_UI_obj(self)
         self.set_initial_placeholders()
-        self.model.positive_submission = self.view.positive_submission_value
         self.view.mainloop()
 
     def set_dropdown_options(self) -> list:
@@ -241,6 +240,7 @@ class Presenter:
         '''
         Sets the initial view for each field if applicable NOTE: Don't loop.
         '''
+        del self.view.recipient, self.view.greeting, self.view.body, self.view.salutation, self.view.username, self.view.default_CC1, self.view.default_CC2
         values_to_retrieve_config = dict(
             section_name='General settings',
             key='ignore_default_cc_addresses'
@@ -248,20 +248,22 @@ class Presenter:
         persisted_value_bool = self.config_worker.get_value_from_config(
             values_to_retrieve_config)
         self.view.ignore_default_cc = persisted_value_bool
-        del self.view.recipient, self.view.greeting, self.view.body, self.view.salutation
+        self.view.default_CC1 = self.config_worker.get_value_from_config({section_name:'default_CC1'})
+        self.view.default_CC2 = self.config_worker.get_value_from_config({section_name:'default_CC2'})
+        
         initial_placeholders_dict = self.config_worker.get_section(
             'Default placeholders')
-        self.set_placeholders(initial_placeholders_dict)
+        self._set_customiza_tab_placeholders(initial_placeholders_dict)
 
-    def set_placeholders(self, placeholder_dict: dict) -> None:
-        """ Sets the placeholders when called,  sucha s when the selected template dropdown is changed.
+    def _set_customiza_tab_placeholders(self, placeholder_dict: dict) -> None:
+        """ Sets the placeholders when called for the Customizations tab,  such as when the selected template dropdown is changed.
         """
         self.view.recipient = placeholder_dict['address']
         self.view.greeting = placeholder_dict['greeting']
         self.view.body = placeholder_dict['body']
         self.view.salutation = placeholder_dict['salutation']
 
-    def get_placeholders(self) -> dict:
+    def _get_customiza_tab_placeholders(self) -> dict:
         current_selection = self.view.selected_template
         return self.config_worker.get_section(current_selection)
 
