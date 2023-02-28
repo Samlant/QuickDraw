@@ -14,7 +14,7 @@ class Presenter(Protocol):
     def btn_send_envelopes(self, autosend: bool) -> None:
         ...
 
-    def btn_save_template():
+    def btn_save_template(self) -< None:
         ...
 
     def btn_save_settings(self) -> None:
@@ -33,9 +33,6 @@ class Presenter(Protocol):
         ...
 
     def save_extra_notes(self, notes: str) -> None:  # GOOD
-        ...
-
-    def saveCC():
         ...
 
     def update_template_tab_on_changed_dropdown(self) -> None:
@@ -82,23 +79,24 @@ class TkView(tk.Tk):
             name='Intact', value=self._negative_submission)
         self._travelers = StringVar(
             name='Travelers', value=self._negative_submission)
-        self._recipient = None
-        self._greeting = None
-        self._body = None
-        self._salutation = None
+        self._recipient = StringVar(name='recipient')
+        self._greeting = StringVar(name='greeting')
+        self._salutation = StringVar(name='salutation')
+        self._ignore_CC_defaults = BooleanVar(name='ignore_CC_defaults')
+        self._default_CC1 = StringVar(name='default_CC1')
+        self._default_CC2 = StringVar(name='default_CC2')
+        self._username = StringVar(name='username')
 
-    def create_GUI_obj(self, presenter: Presenter):
+    def create_UI_obj(self, presenter: Presenter):
         """ This creates the GUI root,  along with the main
         functions to create the widgets.
         """
-        self.cc_default_check = BooleanVar  # Is this okay/preferred way to store this?
         self.create_style()
         self.create_notebook()
         self.create_tabs()
         self.create_main_tab_widgets(presenter)
         self.create_customize_tab_widgets(presenter)
         self.create_settings_tab_widgets(presenter)
-        # self.set_initial_placeholders()
 
     def create_style(self):
         self.style = Style(master=self)
@@ -161,7 +159,7 @@ class TkView(tk.Tk):
                                             )
         extra_notes_labelframe.pack(fill=X, expand=False, side='top')
 
-        self.extra_notes_text = Text(
+        self._extra_notes_text = Text(
             extra_notes_labelframe, height=7, width=30, name='raw_extra_notes')
         self.extra_notes_text.pack(fill=X, anchor=N, expand=FALSE, side='top')
         # end of label_frame
@@ -174,20 +172,19 @@ class TkView(tk.Tk):
 
         Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=(
             'helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
-
-        self.ignore_CC_defaults = BooleanVar(name='ignore_CC_defaults')
-        ignore_CC_defaults = Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self.ignore_CC_defaults,
+            
+        Checkbutton(cc_labelframe, text='Check to ignore default CC-addresses.', variable=self._ignore_CC_defaults,
                                          bg='#aedadb', name='cc_def_chcek', onvalue=True, offvalue=False).pack(pady=5, fill=X, expand=False, side='top')
 
-        self.userinput_CC1 = Text(cc_labelframe, height=1, width=30)
-        self.userinput_CC1.pack(pady=2, ipady=4, anchor=N,
+        self._userinput_CC1 = Text(cc_labelframe, height=1, width=30)
+        self._userinput_CC1.pack(pady=2, ipady=4, anchor=N,
                                 fill=X, expand=True, side='top')
 
         Label(cc_labelframe, text='email address to CC:', bg='#aedadb', font=(
             'helvetica', 12, 'normal')).pack(fill=X, expand=True, side='top')
 
-        self.userinput_CC2 = Text(cc_labelframe, height=1, width=30)
-        self.userinput_CC2.pack(
+        self._userinput_CC2 = Text(cc_labelframe, height=1, width=30)
+        self._userinput_CC2.pack(
             ipady=4, anchor=N, fill=X, expand=True, side='top')
 
         Button(frame_middle, text='View Each Before Sending!', bg='#22c26a', font=('helvetica', 12, 'normal'),
@@ -195,46 +192,26 @@ class TkView(tk.Tk):
         # end of label_frame
 
         # Create checkboxes and StringVars
-
-        seawave_checkbox = Checkbutton(master=self.frame_right, name='seawave', text='Seawave', variable=self._seawave,
-                                       onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        seawave_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        primetime_checkbox = Checkbutton(master=self.frame_right, name='prime time', text='Prime Time', variable=self._primetime,
-                                         onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        primetime_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        newhampshire_checkbox = Checkbutton(master=self.frame_right, name='newhampshire', text='New Hampshire', variable=self._newhampshire,
-                                            onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        newhampshire_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        americanmodern_checkbox = Checkbutton(master=self.frame_right, name='americanmodern', text='American Modern', variable=self._americanmodern,
-                                              onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        americanmodern_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        kemah_checkbox = Checkbutton(master=self.frame_right, name='kemah', text='Kemah Marine', variable=self._kemah,
-                                     onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        kemah_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        concept_checkbox = Checkbutton(master=self.frame_right, name='concept', text='Concept', variable=self._concept,
-                                       onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        concept_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        yachtinsure_checkbox = Checkbutton(master=self.frame_right, name='yachtinsure', text='Yacht Insure', variable=self._yachtinsure,
-                                           onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        yachtinsure_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        century_checkbox = Checkbutton(master=self.frame_right, name='century', text='Century', variable=self._century,
-                                       onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        century_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        intact_checkbox = Checkbutton(master=self.frame_right, name='intact', text='Intact', variable=self._intact,
-                                      onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        intact_checkbox.pack(ipady=3, fill=BOTH, expand=True)
-
-        travelers_checkbox = Checkbutton(master=self.frame_right, name='travelers', text='Travelers', variable=self._travelers,
-                                         onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal'))
-        travelers_checkbox.pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(master=self.frame_right, name='seawave', text='Seawave', variable=self._seawave,
+                                       onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(master=self.frame_right, name='prime time', text='Prime Time', variable=self._primetime,
+                                         onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(master=self.frame_right, name='newhampshire', text='New Hampshire', variable=self._newhampshire,
+                                            onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(master=self.frame_right, name='americanmodern', text='American Modern', variable=self._americanmodern,
+                                              onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+		Checkbutton(master=self.frame_right, name='kemah', text='Kemah Marine', variable=self._kemah,
+                                     onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+		Checkbutton(master=self.frame_right, name='concept', text='Concept', variable=self._concept,
+                                       onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+		Checkbutton(master=self.frame_right, name='yachtinsure', text='Yacht Insure', variable=self._yachtinsure,
+                                           onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+		Checkbutton(master=self.frame_right, name='century', text='Century', variable=self._century,
+                                       onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+		Checkbutton(master=self.frame_right, name='intact', text='Intact', variable=self._intact,
+                                      onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
+		Checkbutton(master=self.frame_right, name='travelers', text='Travelers', variable=self._travelers,
+                                         onvalue=self._positive_submission, offvalue=self._negative_submission, bg='#aedadb', font=('helvetica', 12, 'normal')).pack(ipady=3, fill=BOTH, expand=True)
         Button(self.frame_right, text='Submit & auto-send to markets!', bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=presenter.btn_send_envelopes(autosend=False)).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
         # End of creating the MAIN tab.
@@ -282,32 +259,24 @@ class TkView(tk.Tk):
             padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side='top')
         # Create widgets for the Bottom Right Frames
         # TO CREATE THE FUNCTIONS TO REPLACE THE LAMDA functions in bindings.
-        self._recipient = StringVar(master=e_frame_bottomR, name='recipient')
-        self.recipient_entry = Entry(
+        recipient_entry = Entry(
             master=e_frame_bottomR, textvariable=self._recipient)
-        self.recipient_entry.pack(
+        recipient_entry.pack(
             padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.recipient_entry_focus_out = self.recipient_entry.bind(
-            '<FocusOut>', self.on_focus_out)
-        self._greeting = StringVar(master=e_frame_bottomR, name='greeting')
-        self.greeting_entry = Entry(
-            master=e_frame_bottomR, textvariable=self._greeting)
-        self.greeting_entry.pack(
+        recipient_entry.bind('<FocusOut>', self.presenter.on_focus_out)
+        greeting_entry = Entry(master=e_frame_bottomR, textvariable=self._greeting)
+        greeting_entry.pack(
             padx=4, pady=1, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.greeting_entry_focus_out = self.greeting_entry.bind(
-            '<FocusOut>', self.on_focus_out)
+        greeting_entry.bind('<FocusOut>', self.presenter.on_focus_out)
         self._body_text = Text(e_frame_bottomR, width=10, height=5)
         self._body_text.pack(padx=4, pady=15, ipadx=160,
                              ipady=5, fill=BOTH, expand=False, side='top')
-        self.body_entry_focus_out = self._body_text.bind(
-            '<FocusOut>', self.on_focus_out)
-        self._salutation = StringVar(master=e_frame_bottomR, name='salutation')
-        self.salutation_entry = Entry(e_frame_bottomR, textvariable=self._salutation,
+        self._body_text.bind('<FocusOut>', self.presenter.on_focus_out)
+        salutation_entry = Entry(e_frame_bottomR, textvariable=self._salutation,
                                       width=27, highlightbackground='green', highlightcolor='red')
-        self.salutation_entry.pack(
+        salutation_entry.pack(
             padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side='top')
-        self.salutation_entry_focus_out = self.salutation_entry.bind(
-            '<FocusOut>', self.on_focus_out)
+        salutation_entry.bind('<FocusOut>', self.presenter.on_focus_out)
 
         Button(e_frame_bottomR, name='btnSaveTemplate', text='Click to SAVE template for this market, & save your name!', bg='#22c26a',
                command=presenter.btn_save_template).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side='bottom')
@@ -326,29 +295,21 @@ class TkView(tk.Tk):
               font=('helvetica', 14, 'normal')).pack(fill=X, expand=False, side='top')
         Label(master=entry_boxes_frame, text='1st address to set as default cc: ', bg='#aedadb', font=(
             'helvetica', 12, 'normal')).pack(pady=3, ipady=2, padx=1, fill='none', expand=False, side='left', anchor=NW)
-        self._default_CC1 = StringVar(
-            master=entry_boxes_frame, name='default_CC1')
-        self.default_CC1_entry = Entry(
+        default_CC1_entry = Entry(
             entry_boxes_frame, textvariable=self.default_CC1)
-        self.default_CC1_entry.pack(
+        default_CC1_entry.pack(
             pady=3, fill=X, ipadx=10, ipady=4, expand=True, side='left', anchor=N)
         Label(entry_boxes_frame, text='2nd address to set as default cc: ', bg='#aedadb', font=(
             'helvetica', 12, 'normal')).pack(pady=3, ipady=2, padx=1, fill='none', expand=False, side='left', anchor=NW)
-        self._default_CC2 = StringVar(
-            master=entry_boxes_frame, name='default_CC2')
-        self.default_CC2_entry = Entry(
+        default_CC2_entry = Entry(
             entry_boxes_frame, textvariable=self.default_CC2)
-        self.default_CC2_entry.pack(
+        default_CC2_entry.pack(
             pady=3, fill=X, ipadx=10, ipady=4, expand=True, side='left', anchor=N)
-
-        self._username = StringVar(
-            master=self.settings, value='Default', name='username')
-        self.username_entry = Entry(
+        username_entry = Entry(
             master=self.settings, textvariable=self._username)
-        self.username_entry.pack(
+        username_entry.pack(
             ipadx=900, pady=5, fill=BOTH, expand=True, side='right', anchor=NW)
-        self.your_name_focus_out = self.username_entry.bind(
-            '<FocusOut>', self.on_focus_out(self.username))
+        username_entry.bind('<FocusOut>', self.presenter.on_focus_out)
 
         Button(master=save_btn_frame, text='Save Settings!', bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=presenter.btn_save_settings).pack(ipady=10, pady=10, padx=10, fill=BOTH, expand=False, anchor=N, side='top')
@@ -401,12 +362,6 @@ class TkView(tk.Tk):
         dropdown_menu['menu'].configure(background='#aedadb')
         dropdown_menu.pack(padx=15, ipady=5, fill=X, expand=True)
 
-    def on_focus_out(self, item) -> None:  # START & FINISH
-        """ NOTE: THIS IS NOT AN IMPORTANT FUNCTION TO IMPLEMENT. This function performs actions on them to increase user UI experience.  NOTE:  This originally was a very lame function that repopulated specific fields if they were modified & subsequently left empty upon leaving focus---WOW...
-        Instead,  this will also change text (foreground) color if it's changed."""
-        print(item)
-        # self.item.
-
     @property
     def positive_submission_value(self):
         return self._positive_submission
@@ -417,25 +372,25 @@ class TkView(tk.Tk):
 
     @property
     def extra_notes(self) -> str:
-        return self.extra_notes_text.get()
+        return self._extra_notes_text.get('1.0', 'end-1c')
 
     @extra_notes.deleter
     def extra_notes(self):
-        del self.extra_notes_text
+        self._extra_notes_text.delete('1.0')
 
     def userinput_CC1(self) -> str:
-        return self.userinput_CC1.get('1.0', 'end-1c')
+        return self._userinput_CC1.get('1.0', 'end-1c')
 
     def userinput_CC2(self) -> str:
-        return self.userinput_CC2.get('1.0', 'end-1c')
+        return self._userinput_CC2.get('1.0', 'end-1c')
 
     @property
-    def ignore_default_cc(self) -> bool:
-        return self.ignore_CC_defaults.get()
+    def ignore_CC_defaults(self) -> bool:
+        return self._ignore_CC_defaults.get()
 
-    @ignore_default_cc.setter
-    def ignore_default_cc(self, ignore_is_True: bool) -> None:
-        self.ignore_CC_defaults = ignore_is_True
+    @ignore_CC_defaults.setter
+    def ignore_CC_defaults(self, ignore_is_True: bool) -> None:
+        self._ignore_CC_defaults = ignore_is_True
 
     # These are getters for the checkbuttons
 
@@ -509,15 +464,15 @@ class TkView(tk.Tk):
 
     @property
     def body(self) -> str:
-        return self._body.get()
+        return self._body.get('1.0', 'end-1c')
 
     @body.setter
     def body(self, new_body: str) -> None:
-        self._body = new_body
+        self._body.insert('1.0')
 
     @body.deleter
     def body(self) -> None:
-        del self._body
+        self._body.delete('1.0', 'end-1c')
 
     @property
     def salutation(self) -> str:
@@ -573,8 +528,5 @@ class TkView(tk.Tk):
     # def disableField(self, item):
     #     item.configure(state='disabled')
 # End of needing loop section :)
-
-    # def start_program(self) -> None:
-    #     self.create_GUI_obj()
 
 # app = TkView()
