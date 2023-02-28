@@ -127,7 +127,7 @@ class ConfigWorker:
     def get_value_from_config(self, request: dict) -> bool:
         """ This returns the value from config given a section:key dict."""
         config = self.open_config()
-        section_name = request['section_name']
+        section_name = request.keys()
         key = request['key']
         return config.get(section_name, key)
 

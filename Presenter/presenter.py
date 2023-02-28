@@ -206,6 +206,9 @@ class Presenter:
         """ This resets the view to start a clean, new submission."""
         pass
 
+    def on_focus_out(self):
+        pass
+
 # PUT ALL FINAL FNs BELOW :)
     def get_possible_redundancies(self) -> dict:
         """ This allows us to easily update list of likely redundancies."""
@@ -240,17 +243,19 @@ class Presenter:
         '''
         Sets the initial view for each field if applicable NOTE: Don't loop.
         '''
-        del self.view.recipient, self.view.greeting, self.view.body, self.view.salutation, self.view.username, self.view.default_CC1, self.view.default_CC2
-        values_to_retrieve_config = dict(
-            section_name='General settings',
-            key='ignore_default_cc_addresses'
-        )
+        del self.view.recipient, self.view.greeting, self.view.body, self.view.salutation, self.view.username
+        section_name = 'General settings',
+        key = 'ignore_default_cc_addresses'
+        values_to_retrieve_config = {section_name: key}
+
         persisted_value_bool = self.config_worker.get_value_from_config(
             values_to_retrieve_config)
         self.view.ignore_default_cc = persisted_value_bool
-        self.view.default_CC1 = self.config_worker.get_value_from_config({section_name:'default_CC1'})
-        self.view.default_CC2 = self.config_worker.get_value_from_config({section_name:'default_CC2'})
-        
+        self.view.default_CC1 = self.config_worker.get_value_from_config(
+            {section_name: 'default_CC1'})
+        self.view.default_CC2 = self.config_worker.get_value_from_config(
+            {section_name: 'default_CC2'})
+
         initial_placeholders_dict = self.config_worker.get_section(
             'Default placeholders')
         self._set_customiza_tab_placeholders(initial_placeholders_dict)
@@ -269,7 +274,6 @@ class Presenter:
 
 
 # BEGIN btnSendEmail functions :)
-
 
     def btn_send_envelopes(self, autosend: bool) -> None:
         """ This starts the collection of data & sending of emails.
@@ -292,7 +296,7 @@ class Presenter:
             raw_checkboxes_dict)
 
         finalized_submits_dict.update(filtered_submits_dict)
-        self.loop_through_envelopes(finalized_submits_dict, view)
+        self.loop_through_envelopes(finalized_submits_dict, autosend)
 
     def loop_through_envelopes(self, finalized_submits_dict: dict, view: bool):
         """ This loops through each submission;  it:
@@ -337,7 +341,7 @@ class Presenter:
         userinput_CC2 = self.view.userinput_CC2
         CC_list.append(userinput_CC1)
         CC_list.append(userinput_CC2)
-        if self.view.ignore_default_cc == False:
+        if self.view.ignore_CC_defaults == False:
             if self.config_worker.check_to_skip_default_carboncopies() == False:
                 default_CC_addresses = self.model.get_default_cc_addresses()
                 CC_list.append(default_CC_addresses)
