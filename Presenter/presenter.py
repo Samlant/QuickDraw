@@ -3,7 +3,7 @@ import itertools
 from typing import Protocol
 
 from Model.model import Model
-from Model.email import EmailHandler
+from Model.email_handler import EmailHandler
 
 # from Model.email import EmailHandler
 
@@ -161,8 +161,8 @@ class Presenter:
 
     # Complete if necessary - 02.09.2023
     def update_template_tab_on_changed_dropdown(self) -> None:
-        self.clear_placeholders()
         selected_template = self.view.selected_template
+        self.clear_placeholders()
         payload = self.config_worker.get_section(selected_template)
         self.insert_placeholders(payload)
 
@@ -174,12 +174,10 @@ class Presenter:
         """ Sends the raw path to model for saving."""
         self.model.save_path(raw_path, is_quoteform=False)
 
-    def save_CC(self, cc_addresses) -> None:
+    def save_CC_defaults(self, cc_addresses) -> None:
         # Redo this function and how we save values.
-        if self.model.check_cc_settings == False:
-            self.model.save_CC(cc_addresses)
-        else:
-            pass
+        self.model.CC_list_to_str(cc_addresses)
+        self.config_worker.handle_save_contents('General Setings', save_contents)
 
     def btn_save_settings(self) -> None:
         settings_dict = dict(default_CC1=self.view.default_CC1,
@@ -209,7 +207,6 @@ class Presenter:
     def on_focus_out(self):
         pass
 
-# PUT ALL FINAL FNs BELOW :)
     def get_possible_redundancies(self) -> dict:
         """ This allows us to easily update list of likely redundancies."""
         possible_redundancies_dict = dict(sw=self.view.sw,
@@ -219,31 +216,34 @@ class Presenter:
         return possible_redundancies_dict
 
     def get_remaining_single_carriers(self) -> dict:  # GOOD
-        carrier_submissions_dict = dict(am=self.view.am,
-                                        km=self.view.km,
-                                        cp=self.view.cp,
-                                        yi=self.view.yi,
-                                        ce=self.view.ce,
-                                        In=self.view.In,
-                                        tv=self.view.tv
-                                        )
+        carrier_submissions_dict = dict()
+        carrier_submissions_dict = {am=self.view.am,
+                                    km=self.view.km,
+                                    cp=self.view.cp,
+                                    yi=self.view.yi,
+                                    ce=self.view.ce,
+                                    In=self.view.In,
+                                    tv=self.view.tv
+                                    }
         return carrier_submissions_dict
 
-    def get_template_page_values(self) -> dict:  # GOOD
+    def get_template_page_values(self) -> dict:
         payload = dict()
-        payload.update({self.view.selected_template,
-                        self.view.recipient,
-                        self.view.greeting,
-                        self.view.body,
-                        self.view.salutation}
-                       )
+        payload = {selectedtemplate: self.view.selected_template,
+                   recipient:self.view.recipient,
+                   greeting: self.view.greeting,
+                   body: self.view.body,
+                   salutation: self.view.salutation
+                   }
         return payload
 
     def set_initial_placeholders(self) -> None:
         '''
         Sets the initial view for each field if applicable NOTE: Don't loop.
         '''
-        del self.view.recipient, self.view.greeting, self.view.body, self.view.salutation, self.view.username
+        del (self.view.recipient, self.view.greeting, self.view.body,
+             self.view.salutation, self.view.username
+             )
         section_name = 'General settings',
         key = 'ignore_default_cc_addresses'
         values_to_retrieve_config = {section_name: key}
@@ -258,22 +258,19 @@ class Presenter:
 
         initial_placeholders_dict = self.config_worker.get_section(
             'Default placeholders')
-        self._set_customiza_tab_placeholders(initial_placeholders_dict)
+        self._set_customize_tab_placeholders(initial_placeholders_dict)
 
-    def _set_customiza_tab_placeholders(self, placeholder_dict: dict) -> None:
-        """ Sets the placeholders when called for the Customizations tab,  such as when the selected template dropdown is changed.
+    def _set_customize_tab_placeholders(self, placeholder_dict: dict) -> None:
+        """ Sets the placeholders for the Customizations tab,  such as when the selected template dropdown is changed.
         """
         self.view.recipient = placeholder_dict['address']
         self.view.greeting = placeholder_dict['greeting']
         self.view.body = placeholder_dict['body']
         self.view.salutation = placeholder_dict['salutation']
 
-    def _get_customiza_tab_placeholders(self) -> dict:
+    def _get_customize_tab_placeholders(self) -> dict:
         current_selection = self.view.selected_template
         return self.config_worker.get_section(current_selection)
-
-
-# BEGIN btnSendEmail functions :)
 
     def btn_send_envelopes(self, autosend: bool) -> None:
         """ This starts the collection of data & sending of emails.

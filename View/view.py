@@ -20,13 +20,13 @@ class Presenter(Protocol):
     def btn_save_settings(self) -> None:
         ...
 
-    def set_dropdown_options() -> list:
-        ...
-
-    def process_attachments_path(self, raw_path) -> None:
+    def set_dropdown_options(self) -> list:
         ...
 
     def process_quoteform_path(self, raw_path) -> None:
+        ...
+
+    def process_attachments_path(self, raw_path) -> None:
         ...
 
     def update_dropdown(self):
