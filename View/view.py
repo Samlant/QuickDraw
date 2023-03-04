@@ -111,10 +111,10 @@ class TkView(TkinterDnD.Tk):
 
     def create_tabs(self):
         self.home = ttk.Frame(self.tabControl)
-        self.template_settings = ttk.Frame(self.tabControl)
+        self.template_customization = ttk.Frame(self.tabControl)
         self.settings = ttk.Frame(self.tabControl)
         self.tabControl.add(self.home, text='Main - Setup Envelopes')
-        self.tabControl.add(self.template_settings, text='Customize')
+        self.tabControl.add(self.template_customization, text='Customize')
         self.tabControl.add(self.settings, text='Settings')
 
     def create_main_tab_widgets(self, presenter: Presenter):
@@ -252,10 +252,10 @@ class TkView(TkinterDnD.Tk):
         # End of creating the MAIN tab.
 
     def create_customize_tab_widgets(self, presenter: Presenter):
-        Frame(self.template_settings, bg='#5F9EA0',
+        Frame(self.template_customization, bg='#5F9EA0',
               height=17
               ).pack(fill=X, expand=False)
-        e_frame_header = Frame(self.template_settings, bg='#5F9EA0'
+        e_frame_header = Frame(self.template_customization, bg='#5F9EA0'
                                ).pack(padx=5, fill=X, expand=True)
         Label(e_frame_header, text='Customize Your Envelopes Here',
               bg='#5F9EA0', font=('helvetica', 16, 'normal')
@@ -268,7 +268,7 @@ class TkView(TkinterDnD.Tk):
                      expand=True, side='left', anchor=E
                      )
 
-        e_frame_top = Frame(self.template_settings, bg='#5F9EA0')
+        e_frame_top = Frame(self.template_customization, bg='#5F9EA0')
         e_frame_top.pack(fill=BOTH, expand=False)
         Label(e_frame_top, text='''Select a scenario below 
                 to customize its content/template.''',
@@ -281,9 +281,9 @@ class TkView(TkinterDnD.Tk):
         )
         self.create_dropdown(parent=e_frame_top, presenter=presenter)
 
-        e_frame_content = Frame(self.template_settings, bg='#5F9EA0')
+        e_frame_content = Frame(self.template_customization, bg='#5F9EA0')
         e_frame_content.pack(fill=BOTH, expand=False, anchor=N)
-        e_frame_bottomL = Frame(self.template_settings, bg='#5F9EA0')
+        e_frame_bottomL = Frame(self.template_customization, bg='#5F9EA0')
         e_frame_bottomL.pack(fill=X, expand=True, side='left', anchor=N)
         Label(e_frame_bottomL, text='Submission Address:',
               bg='#aedadb', font=('helvetica', 16, 'normal')
@@ -304,7 +304,7 @@ class TkView(TkinterDnD.Tk):
                      expand=True, anchor=E, side='top'
                      )
 
-        e_frame_bottomR = Frame(self.template_settings, bg='#5F9EA0')
+        e_frame_bottomR = Frame(self.template_customization, bg='#5F9EA0')
         e_frame_bottomR.pack(fill=X, expand=True, side='left', anchor=N)
         recipient_entry = Entry(master=e_frame_bottomR,
                                 textvariable=self._recipient)
