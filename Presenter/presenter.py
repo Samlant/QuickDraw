@@ -174,16 +174,15 @@ class Presenter:
         """ Sends the raw path to model for saving."""
         self.model.save_path(raw_path, is_quoteform=False)
 
-    def save_CC_defaults(self, cc_addresses) -> None:
-        # Redo this function and how we save values.
-        self.model.CC_list_to_str(cc_addresses)
-        self.config_worker.handle_save_contents('General Setings', save_contents)
+    def _get_settings_values(self) -> dict:
+        settings_dict = dict()
+        settings_dict['default_CC1'] = self.view.default_CC1
+        settings_dict['default_CC2'] = self.view.default_CC2
+        settings_dict['username'] = self.view.username
+        return settings_dict
 
     def btn_save_settings(self) -> None:
-        settings_dict = dict(default_CC1=self.view.default_CC1,
-                             default_CC2=self.view.default_CC2,
-                             username=self.view.username
-                             )
+        settings_dict = self._get_settings_values()
         self.config_worker.handle_save_contents(
             'General settings', settings_dict)
 
