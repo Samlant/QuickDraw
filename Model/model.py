@@ -92,20 +92,20 @@ class Model:
         attachments.append(self.extra_attachments)
         return attachments
 
-    def CC_list_to_str(self, input_list: list) -> str:
+    def list_of_CC_to_str(self, input_list: list) -> str:
         """ Transforms lists into strings. In-use for CC_address assignment."""
         input_list = '; '.join(str(element) for element in input_list)
         return input_list
 
     def get_default_cc_addresses(self):
-        CC_list = list()
+        list_of_CC = list()
         if self.check_if_ignore_default_cc_is_on() == False:
             default_CC1 = ConfigWorker.get_value_from_config(
                 dict('General settings', 'default_CC1'))
             default_CC2 = ConfigWorker.get_value_from_config(
                 dict('General settings', 'default_CC2'))
-            CC_list.append(default_CC1, default_CC2)
-            return CC_list
+            list_of_CC.append(default_CC1, default_CC2)
+            return list_of_CC
         else:
             return None
 
@@ -154,7 +154,6 @@ class ConfigWorker:
                 config.update_file()
 
     def check_to_skip_default_carboncopies(self) -> bool:
-        needed_config_values_dict = dict
         section_name_value = 'General settings'
         key = 'ignore_default_cc_addresses'
         config = {'section_name': section_name_value, 'key': key}

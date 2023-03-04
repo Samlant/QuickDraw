@@ -304,8 +304,8 @@ class Presenter:
         postman = EmailHandler()
         subject = str
         subject = postman.build_subject(self.model.quoteform_path)
-        CC_addresses_list = self._handle_getting_CC_addresses()
-        formatted_CC_str = self.model.CC_list_to_str(CC_addresses_list)
+        list_of_CC = self._handle_getting_CC_addresses()
+        formatted_CC_str = self.model.list_of_CC_to_str(list_of_CC)
 
         for carrier_section_name, value in finalized_submits_dict:
             postman.create_envelope()
@@ -332,17 +332,17 @@ class Presenter:
             postman.send_envelope(autosend)
 
     def _handle_getting_CC_addresses(self) -> list:
-        CC_list = list()
+        list_of_CC = list()
         userinput_CC1 = self.view.userinput_CC1
         userinput_CC2 = self.view.userinput_CC2
-        CC_list.append(userinput_CC1)
-        CC_list.append(userinput_CC2)
+        list_of_CC.append(userinput_CC1)
+        list_of_CC.append(userinput_CC2)
         if self.view.ignore_CC_defaults == False:
             if self.config_worker.check_to_skip_default_carboncopies() == False:
                 default_CC_addresses = self.model.get_default_cc_addresses()
-                CC_list.append(default_CC_addresses)
+                list_of_CC.append(default_CC_addresses)
             else:
                 pass
         else:
             pass
-        return CC_list
+        return list_of_CC
