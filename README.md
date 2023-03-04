@@ -1,16 +1,26 @@
-# Mass-Quote-Submissions
- 
+# QuickDraw
+
+### A mass-email-sender that sequentially submits quotes to various markets for you easily & efficiently.
+
 ![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
 
+This quick application is a tool that allows you to:
 
-# Quick Quote AKA QQ
+1. Drag a quoteform, along with any attachments, onto the window;
 
-This tool emails a client's submission to multiple markets that the user selects. A user-interface is supplied.
+2. Select which markets to submit for a quote;
+
+3. Sends individual emails to all desired markets---each with their own unique message;
+
+4. Allows you, the user, to customize those email messages to a large degree; 
+
+5. It also has the ability to CC people one-time, by default, and/or both.
 
 
 ## License
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+
 
 ## Authors
 
@@ -18,26 +28,19 @@ This tool emails a client's submission to multiple markets that the user selects
 
 
 ## Features
+:black_small_square: | Feature List 
+ ---|---
+:clinking_glasses: | Sends emails using your Outlook account without needing credentials or any passwords passed to it, yet does not have any admin access granted to it.
+:clinking_glasses: | Every email is unique based on persistent templates saved in a config file.
+:clinking_glasses: | This config file is user-friendly & very readable, enough for anyone to be able to edit it---most times without frustration; give it a looksie.
+:clinking_glasses: | The CarbonCopy (CC) features can accommodate an unlimited number of CC's both in the config file & on the user-interface; just separate them with ";" as you normally would in Outlook.
+:clinking_glasses: | Likewise, you may also attach any number of attachments to accommodate your quote request, such as captain's license,  resume, survey, etc.
+:clinking_glasses: | Incorporates a professionally-legible Novamar-branded signature, inclusive of links to company's website & social media.
+:clinking_glasses: | Gathering details about the submission is performed automatically by extracting data from the QuoteForm PDF.
+:clinking_glasses: | For example, the subject line will contain client's first & last name, details of the vessel, & an identifier that the email is for a quote request.
+:clinking_glasses: | Forgot to include something in the quoteform or want to drop a quick note to underwriting just for this client? You may easily add any last-minute notes that will be included within the body of the email in a logical progression---no matter how you start or end---this should be improved by AI when incorporated...
 
-[X]  Send emails using my work account
 
-[X]  Include specific quote details in header (name, boat)
-
-[X]  Include specific submission details in body (salutation, carrier-specific wording)
-
-[X]  Basic CC functionality
-
-[X]  Have a GUI launcher to select carriers & input necessary details
-
-[X]  Incorporate details in assigned variables that will later be used
-
-[X]  Automate the process by clicking & dragging a quoteform to attach to email
-
-[X]  Allow other attachments to be included within the email.
-
-[X]  Allow customizability with the HTML msg so that others can modify it accordingly for each carrier
-
-[X]  Settings should be capable to be saved across sessions (persistent)
 ## Screenshots
 
 ![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
@@ -45,30 +48,60 @@ This tool emails a client's submission to multiple markets that the user selects
 
 ## FAQ
 
-#### Question 1
+#### No emails are sent when I press either the "send" or "view" buttons, what can I do?
 
-Answer 1
+> Make sure that you have Outlook open & running first before running the program. If that doesn't work, send us an email.
 
-#### Question 2
+#### How can I edit my signature?
 
-Answer 2
+> Currently, there isn't an external method to access the signature, which is why it's created as it is: in order to accommodate most other customizations. In the near future, we should be implementing an easy-to-use method to allow users to change the HTML-portion of the email, which is inclusive of the signature except the salutation & your name.
 
 
 ## Roadmap
+#### Legend:
+Icon | Definition
+---|---
+:mailbox_with_mail:	| Haven't started
+:rowing_man: = | Work in Progress
+:heavy_check_mark: = | Finished
+:muscle: = | Stretch Goal
 
-[-]  Extract and abstract code to improve flexibility and robustness.
 
-[-]  Incorporate classes for better readability.
+:rowing_man: *Always extracting and abstracting code to improve flexibility and robustness in new ways.
 
-[-]  Build a MVC patterned version for easier maintaining.
+:rowing_man: Clean-up modules' layouts and content & compose complete documentation of modules/methods.
 
-[-]  Build methods to validate user input (emails)
+:mailbox_with_mail: Build an email_validation() fn
 
-[-]  Update GUI to PyQT6 when able.
+:mailbox_with_mail: Once published, bundle package into .exe for usability & sharing.
 
-[-]  Establish a workflow to feed data from quote intake ==> submissions to markets
+:mailbox_with_mail: Include the needed quoteform (for the drag-n-drop functionality) in the repo.
 
-[-]  Auto-populate an entry into our excell tracking report
+:mailbox_with_mail: Refine field names in the quoteform.
+
+:mailbox_with_mail: Update GUI to PyQT6 when able.
+
+:muscle: Establish a workflow to feed data from quote intake ==> submissions to markets
+
+:muscle: Auto-populate an entry into our excell tracking report
+
+:heavy_check_mark: Send emails using outlook account
+
+:heavy_check_mark: Include specific quote details in subject line (name, boat)
+
+:heavy_check_mark: Allow users to include any last-minute notes into body of the email message. 
+
+:heavy_check_mark: Incorporate extensible CC functionality.
+
+:heavy_check_mark: Automate the process by clicking & dragging a quoteform to attach to email, rather than manually typing.
+
+:heavy_check_mark: Allow other attachments to be included within the email.
+
+:heavy_check_mark: Allow users to define most aspects of the email content by creating a customizations tab for templates.
+
+:heavy_check_mark: Settings should be capable to be saved across sessions (persistent); create a config file as it's most-suitable.
+
+
 ## Support
 
 For support or if you have any feedback, email sam@novamar.net.
@@ -88,59 +121,3 @@ Please adhere to this project's `code of conduct`.
 Here are some related projects to this one:
 
 [Placeholder_for_other_helpful_script](https://github.com/matiassingers/awesome-readme)
-
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~ Welcome! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~ Program created by Samuel Alexander Lanteigne ~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Program Goals
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-[X]  Send emails using my work account
-[X]  Include specific quote details in header (name, boat)
-[X]  Include specific submission details in body (salutation, carrier-specific wording)
-[X]  Basic CC functionality
-[X]  Have a GUI launcher to select carriers & input necessary details
-[X]  Incorporate details in assigned variables that will later be used
-[X]  Automate the process by clicking & dragging a quoteform to attach to email
-[X]  Allow other attachments to be included within the email.
-[X]  Allow customizability with the HTML msg so that others can modify it accordingly for each carrier
-[X]  Settings should be capable to be saved across sessions (persistent)
-
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Program Steps to success
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-[X]  Send a successful email
-[X]  Include relevant specific data
-[X]  Create a GUI launcher
-[X]  Load functionality into launcher & test it works
-[X]  Create form field entries into launcher
-[X]  Connect launcher fields to HTML email field & test they work
-[X]  Create drag-n-drop functionality to auto-load quote info/details
-[X]  Fix mistakes within HTML msg
-[X]  Create a config file to keep some data persistent
-[X]  Include html msg parts from userinput to be persistent
-[X]  Connect config file to main script
-[-]  Loop through each selection automatically, sending an email to each in quick succession.
-[-]  Once a publishable version is satisfactorily established,  bundle pkg into .exe for usability & sharing. (Pyinstaller or Alt.)
-[X]  Test .exe to ensure it works. (it doesn't loop thru each carrier currently)
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Future Goals to Incorporate/Implement
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-[-]  Extract and abstract code to improve flexibility and robustness.
-[-]  Incorporate classes for better readability.
-[-]  Build a MVC patterned version for easier maintaining.
-[-]  Build methods to validate user input (emails)
-[-]  Update GUI to PyQT6 when able.
-[-]  Establish a workflow to feed data from quote intake ==> submissions to markets
-[-]  Auto-populate an entry into our excell tracking report
-
-
-
-Expected date of publishing:  01/14/2022
