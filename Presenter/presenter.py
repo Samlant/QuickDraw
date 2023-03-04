@@ -294,7 +294,7 @@ class Presenter:
         finalized_submits_dict.update(filtered_submits_dict)
         self.loop_through_envelopes(finalized_submits_dict, autosend)
 
-    def loop_through_envelopes(self, finalized_submits_dict: dict, view: bool):
+    def loop_through_envelopes(self, finalized_submits_dict: dict, autosend: bool):
         """ This loops through each submission;  it:
         (1) forms an envelope when a positive_submission is found,
         (2) gets and transforms needed data into each of its final formatted type and form,
