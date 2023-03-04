@@ -154,7 +154,6 @@ class ConfigWorker:
                 config.update_file()
 
     def check_to_skip_default_carboncopies(self) -> bool:
-        needed_config_values_dict = dict
         section_name_value = 'General settings'
         key = 'ignore_default_cc_addresses'
         config = {'section_name': section_name_value, 'key': key}
