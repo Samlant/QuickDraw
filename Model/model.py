@@ -84,8 +84,6 @@ class Model:
         """ Cleans up the path str by removing any brackets---if present."""
         if '{' in path.data:
             path = path.data.translate({ord(c): None for c in '{}'})
-        else:
-            return path
         return path
 
     def get_all_attachments(self) -> list:
