@@ -187,15 +187,11 @@ class Presenter:
             'General settings', settings_dict)
 
     def btn_save_template(self) -> None:
-        current_selection = self.view.selected_template
-        templates_dict = dict(address=self.view.recipient,
-                              greeting=self.view.greeting,
-                              body=self.view.body,
-                              salutation=self.view.salutation
-                              )
+        template_dict = self.get_template_page_values()
+        section = template_dict.pop('selected_template')
         try:
             self.config_worker.handle_save_contents(
-                current_selection, templates_dict)
+                section, templates_dict)
         except:
             raise Exception
 
@@ -228,7 +224,7 @@ class Presenter:
 
     def get_template_page_values(self) -> dict:
         payload = dict()
-        payload = {selectedtemplate: self.view.selected_template,
+        payload = {selected_template: self.view.selected_template,
                    recipient:self.view.recipient,
                    greeting: self.view.greeting,
                    body: self.view.body,
