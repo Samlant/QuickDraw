@@ -541,7 +541,7 @@ class TkView(TkinterDnD.Tk):
 
     @body.setter
     def body(self, new_body: str) -> None:
-        self._body_text.insert('1.0')
+        self._body_text.insert('1.0', new_body)
 
     @body.deleter
     def body(self) -> None:

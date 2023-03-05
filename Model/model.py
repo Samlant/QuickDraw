@@ -123,11 +123,12 @@ class ConfigWorker:
 
     # GOOD - prior name: get_config_value()
     def get_value_from_config(self, request: dict) -> bool:
-        """ This returns the value from config given a section:key dict."""
+        """ This returns the value from config given a section_name:key dict."""
         config = self.open_config()
-        section_name = request.keys()
+        section_name = request['section_name']
         key = request['key']
-        return config.get(section_name, key)
+        result = config.get(section_name, key)
+        return result
 
     def _validate_section(self, section_name) -> bool:  # GOOD
         """ Validates a given section name to ensure its existence in config."""

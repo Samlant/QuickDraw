@@ -212,45 +212,48 @@ class Presenter:
 
     def get_remaining_single_carriers(self) -> dict:  # GOOD
         carrier_submissions_dict = dict()
-        carrier_submissions_dict = {am=self.view.am,
-                                    km=self.view.km,
-                                    cp=self.view.cp,
-                                    yi=self.view.yi,
-                                    ce=self.view.ce,
-                                    In=self.view.In,
-                                    tv=self.view.tv
+        carrier_submissions_dict = {'am': self.view.am,
+                                    'km': self.view.km,
+                                    'cp': self.view.cp,
+                                    'yi': self.view.yi,
+                                    'ce': self.view.ce,
+                                    'In': self.view.In,
+                                    'tv': self.view.tv
                                     }
         return carrier_submissions_dict
 
     def get_template_page_values(self) -> dict:
         payload = dict()
         payload = {selected_template: self.view.selected_template,
-                   recipient:self.view.recipient,
+                   recipient: self.view.recipient,
                    greeting: self.view.greeting,
                    body: self.view.body,
                    salutation: self.view.salutation
                    }
         return payload
 
+    def clear_customize_template_placeholders(self) -> None:
+        del (self.view.recipient, self.view.greeting, self.view.body,
+             self.view.salutation, self.view.username
+             )
+
     def set_initial_placeholders(self) -> None:
         '''
         Sets the initial view for each field if applicable NOTE: Don't loop.
         '''
-        del (self.view.recipient, self.view.greeting, self.view.body,
-             self.view.salutation, self.view.username
-             )
-        section_name = 'General settings',
-        key = 'ignore_default_cc_addresses'
-        values_to_retrieve_config = {section_name: key}
-
-        persisted_value_bool = self.config_worker.get_value_from_config(
-            values_to_retrieve_config)
-        self.view.ignore_default_cc = persisted_value_bool
+        self.clear_customize_template_placeholders()
+        self.view.ignore_default_cc = self.config_worker.get_value_from_config(
+            {'section_name': 'General settings',
+             'key': 'ignore_default_cc_addresses'
+             })
         self.view.default_CC1 = self.config_worker.get_value_from_config(
-            {section_name: 'default_CC1'})
+            {'section_name': 'General settings',
+             'key': 'default_CC1'
+             })
         self.view.default_CC2 = self.config_worker.get_value_from_config(
-            {section_name: 'default_CC2'})
-
+            {'section_name': 'General settings',
+             'key': 'default_CC2'
+             })
         initial_placeholders_dict = self.config_worker.get_section(
             'Default placeholders')
         self._set_customize_tab_placeholders(initial_placeholders_dict)
