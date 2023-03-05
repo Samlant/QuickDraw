@@ -69,9 +69,9 @@ Icon | Definition
 
 :rowing_man: *Always extracting and abstracting code to improve flexibility and robustness in new ways.
 
-:rowing_man: Clean-up modules' layouts and content & compose complete documentation of modules/methods.
+:rowing_man: Clean-up modules' layouts and content & compose/refine complete documentation of modules/methods.
 
-:mailbox_with_mail: Build an email_validation() fn
+:mailbox_with_mail: Implement validation methods.
 
 :mailbox_with_mail: Once published, bundle package into .exe for usability & sharing.
 
