@@ -357,48 +357,54 @@ class Presenter:
         return self.config_worker.get_section(current_selection)
 
     def btn_send_envelopes(self, autosend: bool) -> None:
-        """ This collects all required data from both the config file and
-        userinput, then 
-        
-
-        Some markets submit to the same email address,  so in order to combine
-        those emails all into a single submission for all those applicable markets,
-        this function handles that situation first: it gets a dict from the view
-        of likely redundant submissions, & then runs the redundancy-check.
+        """This gets and checks which markets to prepare a ubmission to; it first
+        keeps most carriers that we'll submit to,  although there are a few that
+        use the same email address, so this then handles those markets by
+        transforming them into a single submission. This data is then sent to be
+        looped through and emailed away.
 
         Arguments:
-        	autosend = {bool} If True, it deletes the existing values and assigns
-            				   the correct data to the specific combination of
-                              redundant markets.  If False, it proceeds to add the
-                              rest of the markets' checkboxes without modifying
-
-        Once the function knows which markets to submit to,  we create a loop that
-        cycles through the desired markets. Each cycle represents an envelope & data
-        for each submission is inputted---and subsequently sent.
+        	autosend = {bool} If True, no window will be shown and all emails will
+            				  be sequentially sent.  If False, a window will be
+                             shown for each email prior to sending
         """
-        
+        submission_dict = self._handle_single_markets()
+        submission_dict.update(self._handle_redundancies())
+        try:
+        	self.loop_through_envelopes(submission_dict, autosend)
+        except:
+            raise Exception("Error hile looping through envelopes.")
+        else:
+            return True
 
-        raw_checkboxes_dict = self.get_remaining_single_carriers()
-        filtered_submits_dict = self.model.filter_only_positive_submissions(
-            raw_checkboxes_dict)
-
-        finalized_submits_dict.update(filtered_submits_dict)
-        self.loop_through_envelopes(finalized_submits_dict, autosend)
-
-	def _handle_redundancies(self) -> dict:
+	def _handle_single_markets(self) -> dict:
         """Gets possible redundant carriers' checkbox values, filters to only keep
         positive submissions, then combines them into one submission
         
         Returns -- Dict: returns dict of a single, combined carrier submission
         """
         try:
-        	raw_checkboxes_dict = self.get_possible_redundancies()
-        	filtered_submits_dict = self.model.filter_only_positive_submissions(raw_checkboxes_dict)
-            condensed_output = self.model.handle_redundancies(filtered_submits_dict)
+        	raw_dict = self.get_remaining_single_carriers()
+        	processed_dict = self.model.filter_only_positive_submissions(raw_dict)
         except:
+        	raise Exception("Failed getting or filtering the single markets.")
+        else:
+        	return processed_dict
+            
+	def _handle_redundancies(self) -> dict:
+        """Gets possible redundant carriers' checkbox values, filters to only keep
+        positive submissions, then combines them into one submission
+        
+        Returns -- Dict: returns dict of a single, combined carrier submission
+        """
+		try:
+        	raw_dict = self.get_possible_redundancies()
+        	filtered_dict = self.model.filter_only_positive_submissions(raw_dict)
+            processed_dict = self.model.handle_redundancies(filtered_dict)
+		except:
         	raise Exception("Failed handling redundancies.")
         else:
-        	return condensed_output
+        	return processed_dict
         
     def loop_through_envelopes(self, finalized_submits_dict: dict, autosend: bool):
         """ This loops through each submission;  it:
