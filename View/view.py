@@ -185,7 +185,7 @@ class TkView(TkinterDnD.Tk):
                ).pack(ipady=5, pady=3, anchor=S, fill=Y, expand=False)
         Button(frame_middle, text='View Each Before Sending!',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_send_envelopes(autosend=True)
+               command=lambda:presenter.btn_send_envelopes(autosend=True)
                ).pack(ipady=20, pady=10, anchor=S, fill=Y, expand=False)
 
         self.frame_right = Frame(self.home, bg='#5F9EA0')
@@ -255,7 +255,7 @@ class TkView(TkinterDnD.Tk):
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Button(self.frame_right, text='Submit & auto-send to markets!',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_send_envelopes(autosend=False)
+               command=lambda:presenter.btn_send_envelopes(autosend=False)
                ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
         # End of creating the MAIN tab.
 
