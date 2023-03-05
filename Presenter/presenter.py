@@ -136,11 +136,15 @@ class Presenter:
     """
 
     def __init__(self, model: Model, view: View, configWorker: ConfigWorker) -> None:
-        """ Sets the model, config_worker & view to itself, then necessary instance vars.
-        """
-        self.model = model
-        self.view = view
-        self.config_worker = configWorker
+        """Stores the model, config_worker & view to itself."""
+        self._model = model
+        self._view = view
+        self._config_worker = configWorker
+        
+    def assign_attributes(self) -> None:
+        self.model = self._model
+        self.view = self._view
+        self.config_worker = self._configWorker
         self.model.positive_submission = self.view.positive_submission_value
         self.model.negative_submission = self.view.negative_submission_value
         self.CC_recipients = str
@@ -152,13 +156,14 @@ class Presenter:
         configuring initial values,  then running it
         This also sets the default mail application.
         """
-        if self.view.create_UI_obj(self) and
-        self.set_initial_placeholders() and
-        self.view.mainloop():
-        	return True
-        else:
+        try:
+            self.view.create_UI_obj(self) and
+            self.set_initial_placeholders() and
+            self.view.mainloop():
+        except:
             raise Exception("Couldn't create UI object.")
-        	
+        else:
+            return True
 
     def set_dropdown_options(self) -> list:
         return self.model.get_dropdown_options()
@@ -250,10 +255,30 @@ class Presenter:
 
     def reset_ui(self):
         """This resets the view to start a clean, new submission."""
-        pass
+        self.assign_attributes()
+        self.start_program()
 
-    def on_focus_out(self):
-        pass
+    def on_focus_out(self, field_name: str, current_text: str) -> bool:
+        if current_text == '':
+            config_section = self.view.current_template
+            try:
+                if field_name == 'recipient':
+                    self.view.recipient = self.config_worker.get_value_from_config(
+                                            config_section)
+                elif field_name == 'greeting':
+                    self.view.greeting = self.config_worker.get_value_from_config(
+                                            config_section)
+                elif field_name == 'body':
+                    self.view.body = self.config_worker.get_value_from_config(
+                                        config_section)
+                else:
+                    field_name == 'salutation':
+                    self.view.salutation = self.config_worker.get_value_from_config(
+                                            config_section)
+            except:
+                raise Exception("Couldn't get & assign placeholder for customize_tab on focus out")
+            else:
+                return True
 
     def get_possible_redundancies(self) -> dict:
         """This gets the values of the carriers' checkboxes that submit
@@ -344,14 +369,16 @@ class Presenter:
 
     def _set_customize_tab_placeholders(self, placeholder_dict: dict) -> None:
         """Sets the placeholders for the customizations_tab"""
-        if (self.view.recipient = placeholder_dict['address'] and
-        	self.view.greeting = placeholder_dict['greeting'] and
-        	self.view.body = placeholder_dict['body'] and
-        	self.view.salutation = placeholder_dict['salutation']):
-            return True
+        try:
+            self.view.recipient = placeholder_dict['address'] and
+            self.view.greeting = placeholder_dict['greeting'] and
+            self.view.body = placeholder_dict['body'] and
+            self.view.salutation = placeholder_dict['salutation']):
+        except:
+             raise Exception("Couldn't set placeholders for the customize_tab")
         else:
-            raise Exception("Couldn't set placeholders for the customize_tab")
-
+            return True
+            
     def _get_customize_tab_placeholders(self) -> dict:
         current_selection = self.view.selected_template
         return self.config_worker.get_section(current_selection)

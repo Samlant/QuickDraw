@@ -38,11 +38,11 @@ class Presenter(Protocol):
     def update_template_tab_on_changed_dropdown(self) -> None:
         ...
 
-    def insert_placeholders():
-        pass
-
-    def delete_placeholders():
-        pass
+    def on_focus_out(self, field_name: str, current_text: str) -> bool:
+        ...
+        
+    def reset_ui(self) -> None:
+        ...
 
 
 class TkView(TkinterDnD.Tk):
@@ -52,6 +52,9 @@ class TkView(TkinterDnD.Tk):
 
     def __init__(self) -> None:
         super().__init__()
+        self.assign_attributes()
+        
+    def assign_attributes(self) -> None:
         self.geometry('760x548')
         self.configure(background='#5F9EA0')
         self.title('Quick Submit Tool')
@@ -175,6 +178,11 @@ class TkView(TkinterDnD.Tk):
         self._userinput_CC2.pack(ipady=4, anchor=N, fill=X,
                                  expand=True, side='top'
                                  )
+            
+        Button(frame_middle, text='RESET FOR NEW ENTRY',
+               bg='#22c26a', font=('helvetica', 12, 'normal'),
+               command=presenter.btn_reset_UI)
+               ).pack(ipady=5, pady=3, anchor=S, fill=Y, expand=False)
         Button(frame_middle, text='View Each Before Sending!',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=presenter.btn_send_envelopes(autosend=True)
@@ -310,26 +318,26 @@ class TkView(TkinterDnD.Tk):
                                 textvariable=self._recipient)
         recipient_entry.pack(padx=4, pady=15, ipadx=160,
                              ipady=5, fill=BOTH, expand=False, side='top')
-        recipient_entry.bind('<FocusOut>', presenter.on_focus_out)
+        recipient_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('recipient', self.recipient))
         greeting_entry = Entry(master=e_frame_bottomR,
                                textvariable=self._greeting
                                )
         greeting_entry.pack(padx=4, pady=1, ipadx=160, ipady=5,
                             fill=BOTH, expand=False, side='top'
                             )
-        greeting_entry.bind('<FocusOut>', presenter.on_focus_out)
+        greeting_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('greeting', self.greeting))
         self._body_text = Text(e_frame_bottomR, width=10, height=5)
         self._body_text.pack(padx=4, pady=15, ipadx=160,
                              ipady=5, fill=BOTH, expand=False, side='top'
                              )
-        self._body_text.bind('<FocusOut>', presenter.on_focus_out)
+        self._body_text.bind('<FocusOut>', lambda:presenter.on_focus_out('body', self.body))
         salutation_entry = Entry(e_frame_bottomR,
                                  textvariable=self._salutation,
                                  width=27, highlightbackground='green', highlightcolor='red'
                                  )
         salutation_entry.pack(padx=4, ipadx=160, ipady=5, fill=BOTH,
                               expand=False, side='top')
-        salutation_entry.bind('<FocusOut>', presenter.on_focus_out)
+        salutation_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('salutation', self.salutation))
         Button(e_frame_bottomR, name='btnSaveTemplate',
                text='''Click to SAVE template for this market,
                & save your name!''', bg='#22c26a',
