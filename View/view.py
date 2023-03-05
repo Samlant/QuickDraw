@@ -52,6 +52,9 @@ class TkView(TkinterDnD.Tk):
 
     def __init__(self) -> None:
         super().__init__()
+        self.assign_attributes()
+        
+    def assign_attributes(self) -> None:
         self.geometry('760x548')
         self.configure(background='#5F9EA0')
         self.title('Quick Submit Tool')
@@ -175,6 +178,11 @@ class TkView(TkinterDnD.Tk):
         self._userinput_CC2.pack(ipady=4, anchor=N, fill=X,
                                  expand=True, side='top'
                                  )
+            
+        Button(frame_middle, text='RESET FOR NEW ENTRY',
+               bg='#22c26a', font=('helvetica', 12, 'normal'),
+               command=presenter.btn_reset_UI)
+               ).pack(ipady=5, pady=3, anchor=S, fill=Y, expand=False)
         Button(frame_middle, text='View Each Before Sending!',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=presenter.btn_send_envelopes(autosend=True)
