@@ -14,6 +14,9 @@ class Presenter(Protocol):
     def btn_send_envelopes(self, autosend: bool) -> None:
         ...
 
+	def btn_view_template(self) -> None:
+        ...
+        
     def btn_save_template(self) -> None:
         ...
 
@@ -253,7 +256,7 @@ class TkView(TkinterDnD.Tk):
                     offvalue=self._negative_submission, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
-        Button(self.frame_right, text='Submit & auto-send to markets!',
+        Button(self.frame_right, text='Submit & auto-send to markets',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=lambda:presenter.btn_send_envelopes(autosend=False)
                ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
@@ -339,9 +342,14 @@ class TkView(TkinterDnD.Tk):
                               expand=False, side='top')
         salutation_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('salutation', self.salutation))
         Button(e_frame_bottomR, name='btnSaveTemplate',
-               text='''Click to SAVE template for this market,
-               & save your name!''', bg='#22c26a',
+               text='Click to SAVE the template', bg='#22c26a',
                command=presenter.btn_save_template
+               ).pack(padx=4, pady=20, ipady=50, fill=X,
+                      expand=False, anchor=S, side='bottom'
+                      )
+        Button(e_frame_bottomR, name='btnViewTemplate',
+               text='Click to VIEW a sample message', bg='#22c26a',
+               command=presenter.btn_view_template
                ).pack(padx=4, pady=20, ipady=50, fill=X,
                       expand=False, anchor=S, side='bottom'
                       )
@@ -385,7 +393,7 @@ class TkView(TkinterDnD.Tk):
 
         save_btn_frame = Frame(master=self.settings, bg='#5F9EA0')
         save_btn_frame.pack(fill=BOTH, expand=False, side='top')
-        Button(master=save_btn_frame, text='Save Settings!',
+        Button(master=save_btn_frame, text='Save Settings',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
                command=presenter.btn_save_settings
                ).pack(ipady=10, pady=10, padx=10, fill=BOTH,
