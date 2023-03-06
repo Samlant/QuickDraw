@@ -383,6 +383,23 @@ class Presenter:
         current_selection = self.view.selected_template
         return self.config_worker.get_section(current_selection)
 
+	def btn_view_template(self) -> None:
+        selected_template: self.view.selected_template
+        postman = EmailHandler()
+        envelope = postman.create_envelope()
+        postman.greeting = self.view.greeting
+        postman.body = self.view.body
+        postman.extra_notes = self.view.extra_notes
+        postman.salutation = self.view.salutation
+        postman.username = self.config_worker.get_value_from_config(
+        							'General setiings', 'username'
+                                    )
+        body_text = postman.build_HTML_body()
+        envelope.assign_recipient(recipent=self.view.recipient)
+        envelope.assign_subject(subject='Test view of the template for {selected_template}')
+        envelope.assign_body_text(body=body_text)
+        postman.send_envelope(autosend=False)
+
     def btn_send_envelopes(self, autosend: bool) -> None:
         """This gets and checks which markets to prepare a ubmission to; it first
         keeps most carriers that we'll submit to,  although there are a few that
@@ -458,7 +475,7 @@ class Presenter:
             postman.body = carrier_config_dict.get('body')
             postman.extra_notes = self.view.extra_notes
             postman.salutation = carrier_config_dict.get('salutation')
-            postman.username = self.view.username
+            postman.username = self.config_worker.get_value_from_config('General setiings', 'username')
             body_text = postman.build_HTML_body()
             attachments_list = list(self.model.get_all_attachments())
 
