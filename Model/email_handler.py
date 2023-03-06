@@ -3,17 +3,17 @@ import fillpdf
 from fillpdf import fillpdfs
 import string
 
-from typing import String, Dict, Self, List, Boolean
+from typing import Self
 from dataclasses import dataclass
         
         
 class EmailHandler:
     """This class is responsible for interfacing with Outlook in creating
-    email envelopes to send.  Once called,  data is gathered from the Presenter
-    and applied to an email envelope,  then once complete,  it is sent out.
+    email letters to send.  Once called,  data is gathered from the Presenter
+    and applied to an email letter,  then once complete,  it is sent out.
     NOTE: If a PDF value changes,  please update the instance vars.
     """
-    def __init__(self) -> self:
+    def __init__(self) -> Self:
         self.outlook = win32.Dispatch('Outlook.Application')
         self.keys_dict: {'fname': '4669727374204e616d65',
                          'lname': '4c617374204e616d65',
@@ -44,7 +44,7 @@ class EmailHandler:
         try:
             self.letter.Send()
         except:
-            raise Exception("Couldn't send letter, check email_handler)
+            raise Exception("Couldn't send letter, check email_handler")
         else:
             return True
         
@@ -53,7 +53,7 @@ class EmailHandler:
         try:
             self.letter.Display()
         except:
-            raise Exception("Couldn't display envelope, check email_hanletter)
+            raise Exception("Couldn't display letter, check email_hanletter")
         else:
             return True
   
@@ -120,7 +120,7 @@ class EmailHandler:
             dict -- returns a dict of the needed attributes as the key and their values from the pdf quoteform just parsed.
         """
         pdf_dict = {key: pdf_dict[key] for key in pdf_dict.keys()
-                               & {self.keys_dict.values}
+                               & {self.keys_dict.values}}
                                   
                                  #fname_pdf_key, self.lname_pdf_key,
                                   #self.year_pdf_key, self.make_pdf_key, 
@@ -136,21 +136,21 @@ class EmailHandler:
         formatted_values_dict.update('first_name', 
                                      pdf_dict.get(
                                             self.keys_dict['fname'].self.capitalize_words
-                                                  )
+                                                  ))
         formatted_values_dict.update('last_name', 
                                      pdf_dict.get(
                                             self.keys_dict['lname'].self.str_to_uppercase
-                                                  )
+                                                  ))
         formatted_values_dict.update('make', 
                                      pdf_dict.get(
                                             self.keys_dict['make'].self.capitalize_words
-                                                  )
+                                                  ))
         formatted_values_dict.update('year', 
                                      pdf_dict.get(self.keys_dict['year']
-                                     )
+                                     ))
         formatted_values_dict.update('length',
                                      pdf_dict.get(self.keys_dict['length']
-                                     )
+                                     ))
         return formatted_values_dict
 
     def stringify_subject(self, formatted_values: dict) -> str:

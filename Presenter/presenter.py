@@ -140,11 +140,12 @@ class Presenter:
         self._model = model
         self._view = view
         self._config_worker = configWorker
+        self.assign_attributes()
         
     def assign_attributes(self) -> None:
         self.model = self._model
         self.view = self._view
-        self.config_worker = self._configWorker
+        self.config_worker = self._config_worker
         self.model.positive_submission = self.view.positive_submission_value
         self.model.negative_submission = self.view.negative_submission_value
         self.CC_recipients = str
@@ -157,9 +158,9 @@ class Presenter:
         This also sets the default mail application.
         """
         try:
-            self.view.create_UI_obj(self) and
-            self.set_initial_placeholders() and
-            self.view.mainloop():
+            self.view.create_UI_obj(self)
+            self.set_initial_placeholders()
+            self.view.mainloop()
         except:
             raise Exception("Couldn't create UI object.")
         else:
@@ -253,7 +254,7 @@ class Presenter:
         except:
             raise Exception("Couldn't save template_dict to config.")
 
-    def reset_ui(self):
+    def btn_reset_UI(self):
         """This resets the view to start a clean, new submission."""
         self.assign_attributes()
         self.start_program()
@@ -272,7 +273,7 @@ class Presenter:
                     self.view.body = self.config_worker.get_value_from_config(
                                         config_section)
                 else:
-                    field_name == 'salutation':
+                    field_name == 'salutation'
                     self.view.salutation = self.config_worker.get_value_from_config(
                                             config_section)
             except:
@@ -289,13 +290,15 @@ class Presenter:
         	Dict -- returns a dict of carrier checkbox values
         """
         possible_redundancies_dict = dict()
-        if possible_redundancies_dict = {sw: self.view.sw,
-                                     	  pt: self.view.pt,
-                                      	  nh: self.view.nh
-                                      	  }:
-        	return possible_redundancies_dict
-        else:
+        try:
+            possible_redundancies_dict = {'sw': self.view.sw,
+                                     	  'pt': self.view.pt,
+                                      	  'nh': self.view.nh
+                                      	  }
+        except:
             raise Exception("Couldn't get carrier checkboxes saved into a dict.")
+        else:
+            return possible_redundancies_dict
 
     def get_remaining_single_carriers(self) -> dict:
         """This gets the values of the carriers' checkboxes that 
@@ -305,17 +308,19 @@ class Presenter:
         	Dict -- returns a dict of carrier checkbox values
         """
         carrier_submissions_dict = dict()
-        if carrier_submissions_dict = {'am': self.view.am,
-                                   	'km': self.view.km,
+        try:
+            carrier_submissions_dict = {'am': self.view.am,
+                                   	    'km': self.view.km,
                                     	'cp': self.view.cp,
                                     	'yi': self.view.yi,
                                     	'ce': self.view.ce,
                                     	'In': self.view.In,
                                     	'tv': self.view.tv
-                                    	}:
-        	return carrier_submissions_dict
-        else:
+                                    	}
+        except:
             raise Exception("Couldn't get carrier checkboxes saved into a dict.")
+        else:
+            return carrier_submissions_dict
 
     def get_template_page_values(self) -> dict:
         """This gets all userinput from the customize_tab
@@ -326,15 +331,17 @@ class Presenter:
                     assigned accordingly to their config file keys
         """
         customize_dict = dict()
-        if customize_dict = {selected_template: self.view.selected_template,
-                   	       recipient: self.view.recipient,
-                   		   greeting: self.view.greeting,
-                   		   body: self.view.body,
-                   		   salutation: self.view.salutation
-                   		   }:
-        	return customize_dict
-        else:
+        try:
+            customize_dict = {'selected_template': self.view.selected_template,
+                              'recipient': self.view.recipient,
+                              'greeting': self.view.greeting,
+                              'body': self.view.body,
+                              'salutation': self.view.salutation
+                              }
+        except:
             raise Exception("Couldn't get customize_tab input saved into a dict.")
+        else:
+            return customize_dict
 
     def clear_customize_template_placeholders(self) -> None:
         """Clears all inputtable fields on the customize_tab"""
@@ -370,10 +377,10 @@ class Presenter:
     def _set_customize_tab_placeholders(self, placeholder_dict: dict) -> None:
         """Sets the placeholders for the customizations_tab"""
         try:
-            self.view.recipient = placeholder_dict['address'] and
-            self.view.greeting = placeholder_dict['greeting'] and
-            self.view.body = placeholder_dict['body'] and
-            self.view.salutation = placeholder_dict['salutation']):
+            self.view.recipient = placeholder_dict['address']
+            self.view.greeting = placeholder_dict['greeting']
+            self.view.body = placeholder_dict['body']
+            self.view.salutation = placeholder_dict['salutation']
         except:
              raise Exception("Couldn't set placeholders for the customize_tab")
         else:
@@ -383,7 +390,7 @@ class Presenter:
         current_selection = self.view.selected_template
         return self.config_worker.get_section(current_selection)
 
-	def btn_view_template(self) -> None:
+    def btn_view_template(self) -> None:
         selected_template: self.view.selected_template
         postman = EmailHandler()
         envelope = postman.create_envelope()
@@ -415,40 +422,40 @@ class Presenter:
         submission_dict = self._handle_single_markets()
         submission_dict.update(self._handle_redundancies())
         try:
-        	self.loop_through_envelopes(submission_dict, autosend)
+            self.loop_through_envelopes(submission_dict, autosend)
         except:
             raise Exception("Error hile looping through envelopes.")
         else:
             return True
 
-	def _handle_single_markets(self) -> dict:
+    def _handle_single_markets(self) -> dict:
         """Gets possible redundant carriers' checkbox values, filters to only keep
         positive submissions, then combines them into one submission
         
         Returns -- Dict: returns dict of a single, combined carrier submission
         """
         try:
-        	raw_dict = self.get_remaining_single_carriers()
-        	processed_dict = self.model.filter_only_positive_submissions(raw_dict)
+            raw_dict = self.get_remaining_single_carriers()
+            processed_dict = self.model.filter_only_positive_submissions(raw_dict)
         except:
-        	raise Exception("Failed getting or filtering the single markets.")
+            raise Exception("Failed getting or filtering the single markets.")
         else:
-        	return processed_dict
+            return processed_dict
             
-	def _handle_redundancies(self) -> dict:
+    def _handle_redundancies(self) -> dict:
         """Gets possible redundant carriers' checkbox values, filters to only keep
         positive submissions, then combines them into one submission
         
         Returns -- Dict: returns dict of a single, combined carrier submission
         """
-		try:
-        	raw_dict = self.get_possible_redundancies()
-        	filtered_dict = self.model.filter_only_positive_submissions(raw_dict)
+        try:
+            raw_dict = self.get_possible_redundancies()
+            filtered_dict = self.model.filter_only_positive_submissions(raw_dict)
             processed_dict = self.model.handle_redundancies(filtered_dict)
-		except:
-        	raise Exception("Failed handling redundancies.")
+        except:
+            raise Exception("Failed handling redundancies.")
         else:
-        	return processed_dict
+            return processed_dict
         
     def loop_through_envelopes(self, finalized_submits_dict: dict, autosend: bool):
         """ This loops through each submission;  it:
