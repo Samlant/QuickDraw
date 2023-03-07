@@ -6,7 +6,7 @@ import string
 from typing import Self
 from dataclasses import dataclass
         
-        
+
 class EmailHandler:
     """This class is responsible for interfacing with Outlook in creating
     email letters to send.  Once called,  data is gathered from the Presenter

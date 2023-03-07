@@ -42,7 +42,7 @@ class Presenter(Protocol):
     def save_extra_notes(self, notes: str) -> None:  # GOOD
         ...
 
-    def update_template_tab_on_changed_dropdown(self) -> None:
+    def on_change_template(self) -> None:
         ...
 
     def on_focus_out(self, field_name: str, current_text: str) -> bool:
@@ -476,7 +476,7 @@ class TkView(TkinterDnD.Tk):
         
         self.create_dropdown(parent=e_frame_top, presenter=presenter)
         self.data.dropdown_menu_var.trace_add(
-                'write', presenter.update_template_tab_on_changed_dropdown
+                'write', presenter.on_change_template
                 )
 
         e_frame_content = Frame(self.template_customization, bg='#5F9EA0')
@@ -542,42 +542,51 @@ class TkView(TkinterDnD.Tk):
                       )
 
     def create_settings_tab_widgets(self, presenter: Presenter):
-        Label(self.settings, text='Settings Page',
+        title_frame = Frame(master=self.settings, bg='#5F9EA0')
+        title_frame.pack(fill=BOTH, expand=False, side='top')
+        Label(title_frame, text='Settings Page',
               bg='#5F9EA0', font=('helvetica', 20, 'normal')
               ).pack(fill=BOTH, expand=False, side='top')
-
-        entry_boxes_frame = Frame(master=self.settings, bg='#5F9EA0')
-        entry_boxes_frame.pack(fill=BOTH, expand=False, side='top')
-        Label(master=entry_boxes_frame, text='CC-Addresses & Settings',
+        Label(master=title_frame, text='Default CC Addresses',
               bg='#5F9EA0', font=('helvetica', 14, 'normal')
               ).pack(fill=X, expand=False, side='top')
-        Label(master=entry_boxes_frame, text='''1st address to set as
-              default cc: ''', bg='#aedadb', font=('helvetica', 12, 'normal')
+        settings_CC_frame = Frame(master=self.settings, bg='#5F9EA0')
+        settings_CC_frame.pack(fill=X, expand=False, side='top')
+        Label(master=settings_CC_frame, text='''Add first set of addresses to CC: ''', bg='#aedadb', font=('helvetica', 12, 'normal')
               ).pack(pady=3, ipady=2, padx=1, fill='none',
                      expand=False, side='left', anchor=NW)
-        default_CC1_entry = Entry(entry_boxes_frame,
-                                  textvariable=self.default_CC1
-                                  )
-        default_CC1_entry.pack(pady=3, fill=X, ipadx=10, ipady=4,
-                               expand=True, side='left', anchor=N
-                               )
-        Label(entry_boxes_frame, text='2nd address to set as default cc: ',
+        cc1 = Entry(settings_CC_frame, textvariable=self.data._default_CC1)
+        cc1.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, 
+                 side='left', anchor=N
+                 )
+        Label(settings_CC_frame, text='Add second set of addresses to CC: ',
               bg='#aedadb', font=('helvetica', 12, 'normal')
               ).pack(pady=3, ipady=2, padx=1, fill='none',
                      expand=False, side='left', anchor=NW)
-        default_CC2_entry = Entry(entry_boxes_frame,
-                                  textvariable=self.default_CC2
-                                  )
-        default_CC2_entry.pack(pady=3, fill=X, ipadx=10, ipady=4,
-                               expand=True, side='left', anchor=N)
-        username_entry = Entry(master=self.settings,
-                               textvariable=self.data._username
-                               )
-        username_entry.pack(ipadx=900, pady=5, fill=BOTH,
-                            expand=True, side='right', anchor=NW
-                            )
-        username_entry.bind('<FocusOut>', presenter.on_focus_out)
-
+        cc2 = Entry(settings_CC_frame, textvariable=self.data._default_CC2)
+        cc2.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True,
+                 side='left', anchor=N
+                 )
+        settings_username_header_frame = Frame(master=self.settings,
+                                               bg='#5F9EA0'
+                                               )
+        settings_username_header_frame.pack(fill=BOTH, expand=False, side='top')
+        settings_username_frame = Frame(master=self.settings, bg='#5F9EA0')
+        settings_username_frame.pack(fill=BOTH, expand=False, side='top')
+        Label(settings_username_frame, text='Your name',
+              bg='#aedadb', font=('helvetica', 12, 'normal')
+              ).pack(pady=3, ipady=2, padx=1, fill='none',
+                     expand=False, side='left', anchor=NW)
+        username = Entry(master=settings_username_frame, 
+                         textvariable=self.data._username
+                         )
+        username.pack(ipadx=900, pady=5, fill=X, expand=True,
+                      side='right',anchor=NW
+                      )
+        username.bind('<FocusOut>', lambda: presenter.on_focus_out(
+                      field_name='username',
+                      current_text=self.selected_template
+                      ))
         save_btn_frame = Frame(master=self.settings, bg='#5F9EA0')
         save_btn_frame.pack(fill=BOTH, expand=False, side='top')
         Button(master=save_btn_frame, text='Save Settings',

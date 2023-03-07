@@ -170,12 +170,14 @@ class Presenter:
         return self.model.get_dropdown_options()
 
     # Complete if necessary - 02.09.2023
-    def update_template_tab_on_changed_dropdown(self) -> None:
+    def on_change_template(self, *args, **kwargs) -> None:
         """Updates the placeholders on customize_tab when dropdown changes
         
         Returns:
         	Bool -- returns a bool for success & for testing
         """
+        print (*args)
+        print (**kwargs)
         selected_template = self.view.selected_template
         self.clear_customize_template_placeholders()
         payload = self.config_worker.get_section(selected_template)
