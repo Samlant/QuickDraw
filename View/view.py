@@ -280,7 +280,7 @@ class TkView(TkinterDnD.Tk):
     def username(self) -> None:
         del self.data._username
 
-    def assign_attributes(self) -> None:
+    def assign_attributes(self):
         return ViewData()
 
     def create_UI_obj(self, presenter: Presenter):
@@ -309,8 +309,8 @@ class TkView(TkinterDnD.Tk):
         self.home = ttk.Frame(self.tabControl)
         self.template_customization = ttk.Frame(self.tabControl)
         self.settings = ttk.Frame(self.tabControl)
-        self.tabControl.add(self.home, text='Main - Setup Envelopes')
-        self.tabControl.add(self.template_customization, text='Customize')
+        self.tabControl.add(self.home, text='Home - Outbox')
+        self.tabControl.add(self.template_customization, text='Customize Templates')
         self.tabControl.add(self.settings, text='Settings')
 
     def create_main_tab_widgets(self, presenter: Presenter):
@@ -351,8 +351,9 @@ class TkView(TkinterDnD.Tk):
                                       height=7, width=30, name='raw_extra_notes')
         self._extra_notes_text.pack(fill=X, anchor=N, expand=FALSE, side='top')
         labelframe_cc = LabelFrame(frame_middle,
-                                   text='CC-address settings for this submission:', bg='#aedadb', name='labelframe_cc'
-                                   )
+                text='CC-address settings for this submission:', 
+                bg='#aedadb', name='labelframe_cc'
+                )
         labelframe_cc.pack(fill=X, expand=True, side='top')
         Label(labelframe_cc, text='email address to CC:',
               bg='#aedadb', font=('helvetica', 12, 'normal')
@@ -554,7 +555,8 @@ class TkView(TkinterDnD.Tk):
               ).pack(fill=X, expand=False, side='top')
         settings_CC_frame = Frame(master=self.settings, bg='#5F9EA0')
         settings_CC_frame.pack(fill=X, expand=False, side='top')
-        Label(master=settings_CC_frame, text='''Add first set of addresses to CC: ''', bg='#aedadb', font=('helvetica', 12, 'normal')
+        Label(master=settings_CC_frame, text='Add first set of addresses to CC: ',
+              bg='#aedadb', font=('helvetica', 12, 'normal')
               ).pack(pady=3, ipady=2, padx=1, fill='none',
                      expand=False, side='left', anchor=NW)
         cc1 = Entry(settings_CC_frame, textvariable=self.data._default_CC1)
@@ -582,7 +584,7 @@ class TkView(TkinterDnD.Tk):
         username = Entry(master=settings_username_frame, 
                          textvariable=self.data._username
                          )
-        username.pack(ipadx=900, pady=5, fill=X, expand=True,
+        username.pack(ipadx=30, pady=5, fill=X, expand=True,
                       side='right',anchor=NW
                       )
         username.bind('<FocusOut>', lambda: presenter.on_focus_out(
