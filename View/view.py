@@ -136,9 +136,11 @@ class TkView(TkinterDnD.Tk):
     def extra_notes(self):
         self._extra_notes_text.delete('1.0')
 
+    @property
     def userinput_CC1(self) -> str:
         return self._userinput_CC1.get('1.0', 'end-1c')
 
+    @property
     def userinput_CC2(self) -> str:
         return self._userinput_CC2.get('1.0', 'end-1c')
 
