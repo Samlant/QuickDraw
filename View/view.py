@@ -51,48 +51,48 @@ class Presenter(Protocol):
 
 @dataclass
 class ViewData(TkinterDnD.Tk):
-    def __init__(self):
-        self._positive_submission = 'submit'
-        self._negative_submission = 'skip'
+    def __init__(self, positive_value, negative_value):
+        self._yes = positive_value
+        self._no = negative_value
         self.options = list()
         self._seawave = StringVar(
                 name='Seawave', 
-                value=self._negative_submission
+                value=self._no
                 )
         self._primetime = StringVar(
                 name='Prime Time',
-                value=self._negative_submission
+                value=self._no
                 )
         self._newhampshire = StringVar(
                 name='New Hampshire',
-                value=self._negative_submission
+                value=self._no
                 )
         self._americanmodern = StringVar(
                 name='American Modern',
-                value=self._negative_submission
+                value=self._no
                 )
         self._kemah = StringVar(
                 name='Kemah Marine',
-                value=self._negative_submission
+                value=self._no
                 )
         self._concept = StringVar(
                 name='Concept Special Risks',
-                value=self._negative_submission
+                value=self._no
                 )
         self._yachtinsure = StringVar(
                 name='Yachtinsure',
-                value=self._negative_submission
+                value=self._no
                 )
         self._century = StringVar(
-                name='Century', value=self._negative_submission
+                name='Century', value=self._no
                 )
         self._intact = StringVar(
                 name='Intact',
-                value=self._negative_submission
+                value=self._no
                 )
         self._travelers = StringVar(
                 name='Travelers',
-                value=self._negative_submission
+                value=self._no
                 )
         self.dropdown_menu_var = StringVar(
                 value='Select Market(s)',
@@ -112,21 +112,21 @@ class TkView(TkinterDnD.Tk):
     class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating. 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, positive_value, negative_value) -> None:
         super().__init__()
         self.geometry('760x548')
         self.configure(background='#5F9EA0')
         self.title('Quick Submit Tool')
         self.attributes('-alpha', 0.95)
-        self.data = self.assign_attributes()
+        self.data = self.assign_attributes(positive_value, negative_value)
         
     @property
     def positive_submission_value(self):
-        return self.data._positive_submission
+        return self.data._yes
 
     @property
     def negative_submission_value(self):
-        return self.data._negative_submission
+        return self.data._no
 
     @property
     def extra_notes(self) -> str:
@@ -388,63 +388,63 @@ class TkView(TkinterDnD.Tk):
                               )
         Checkbutton(master=self.frame_right, name='seawave',
                     text='Seawave', variable=self.data._seawave,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='prime time',
                     text='Prime Time', variable=self.data._primetime,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='newhampshire',
                     text='New Hampshire', variable=self.data._newhampshire,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='americanmodern',
                     text='American Modern', variable=self.data._americanmodern,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='kemah',
 
                     text='Kemah Marine', variable=self.data._kemah,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='concept',
                     text='Concept', variable=self.data._concept,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='yachtinsure',
                     text='Yacht Insure', variable=self.data._yachtinsure,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='century',
                     text='Century', variable=self.data._century,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='intact',
                     text='Intact', variable=self.data._intact,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='travelers',
                     text='Travelers', variable=self.data._travelers,
-                    onvalue=self.data._positive_submission,
-                    offvalue=self.data._negative_submission, bg='#aedadb',
+                    onvalue=self.data._yes,
+                    offvalue=self.data._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Button(self.frame_right, text='Submit & auto-send to markets',

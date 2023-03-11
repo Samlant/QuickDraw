@@ -3,11 +3,22 @@ from View.view import TkView
 from Presenter.presenter import Presenter
 
 
+POSITIVE_SUBMISSION_VALUE = 'submit'
+NEGATIVE_SUBMISSION_VALUE = 'pass'
+
 def main() -> None:
-    model = Model()
-    view = TkView()
     configworker = ConfigWorker()
-    presenter = Presenter(model, view, configworker)
+    model = Model(
+        positive_value=POSITIVE_SUBMISSION_VALUE, negative_value=NEGATIVE_SUBMISSION_VALUE
+        )
+    view = TkView(
+        positive_value=POSITIVE_SUBMISSION_VALUE, negative_value=NEGATIVE_SUBMISSION_VALUE
+        )
+    presenter = Presenter(
+        model=model, 
+        view=view,
+        configworker=configworker
+        )
     presenter.start_program()
 
 

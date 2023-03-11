@@ -16,15 +16,6 @@ class View(Protocol):
         ...
 
     @property
-    def positive_submission_value(self):
-        ...
-
-    @property
-    def negative_submission_value(self):
-        ...
-    # get userinput for the envelope:
-
-    @property
     def extra_notes(self) -> str:
         ...
 
@@ -135,7 +126,8 @@ class Presenter:
     all interactions between user input and program logic.
     """
 
-    def __init__(self, model: Model, view: View, configWorker: ConfigWorker) -> None:
+    def __init__(self, model: Model, view: View, configWorker: ConfigWorker,
+                 positive_value, negative_value) -> None:
         """Stores the model, config_worker & view to itself."""
         self._model = model
         self._view = view
@@ -146,8 +138,6 @@ class Presenter:
         self.model = self._model
         self.view = self._view
         self.config_worker = self._config_worker
-        self.model.positive_submission = self.view.positive_submission_value
-        self.model.negative_submission = self.view.negative_submission_value
         self.CC_recipients = str
         self.subject = str
         self.username = str

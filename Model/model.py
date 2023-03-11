@@ -11,9 +11,9 @@ class Model:
     """
     # NOTE: change this LAST:  These are class vars bc we want to keep them until emails are sent...store in email obj not here.
 
-    def __init__(self) -> None:
-        self.positive_submission = ''
-        self.negative_submission = ''
+    def __init__(self, positive_value, negative_value) -> None:
+        self.yes = positive_value
+        self.no = negative_value
         self.quoteform_path = ''
         self.extra_attachments = []
 
@@ -23,9 +23,9 @@ class Model:
     def filter_only_positive_submissions(self, raw_checkboxes: dict) -> dict:
         filtered_checkboxes_dict = dict()
         for x in raw_checkboxes:
-            if raw_checkboxes[x] == self.positive_submission:
+            if raw_checkboxes[x] == self.yes:
                 filtered_checkboxes_dict.update(x, raw_checkboxes[x])
-            elif raw_checkboxes[x] == self.negative_submission:
+            elif raw_checkboxes[x] == self.no:
                 pass
             else:
                 raise ValueError
@@ -36,7 +36,7 @@ class Model:
             section_name_value = str(
                 self._fix_redundancies(filtered_submits_dict))
             eliminated_redundancies = {
-                'section_name': section_name_value, 'key': self.positive_submission}
+                'section_name': section_name_value, 'key': self.yes}
             return eliminated_redundancies
         else:
             return filtered_submits_dict
@@ -54,7 +54,7 @@ class Model:
         """ Receives a dict of name:boolean where it finds the two---or three---key:value pairs & then assigns the correct config section name.  This allows the program to access the proper data for the envelope to be sent.
         """
         section_name = str
-        yes = self.positive_submission
+        yes = self.yes
         if (filtered_submits_dict['sw'] == yes) and (filtered_submits_dict['pt'] == yes) and (filtered_submits_dict['nh'] == yes):
             section_name = 'Combination: Seawave, Prime Time and New Hampshire'
             return section_name
