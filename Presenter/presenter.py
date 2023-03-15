@@ -9,6 +9,9 @@ from Model.email_handler import EmailHandler
 
 
 class View(Protocol):
+    def reset_attributes(self, positive_value, negative_value):
+        ...
+        
     def create_UI_obj(self, presenter: Presenter) -> None:
         ...
 
@@ -23,14 +26,15 @@ class View(Protocol):
     def selected_template(self) -> str:
         ...
 
+    @property
     def userinput_CC1(self) -> str:
         ...
-
+    @property
     def userinput_CC2(self) -> str:
         ...
 
     @property
-    def ignore_default_cc(self) -> bool:
+    def use_CC_defaults(self) -> bool:
         ...
 
     @property
@@ -72,17 +76,23 @@ class View(Protocol):
     @property
     def tv(self) -> str:
         ...
-    # get template/settings fields to save in config:
-
     def get_template_page_values(self) -> dict:
         ...
 
     @property
-    def recipient(self, recipient: str) -> str:
+    def recipient(self) -> str:
+        ...
+
+    @recipient.setter
+    def recipient (self, new_recipient: str) -> None:
         ...
 
     @property
-    def greeting(self, greeting: str) -> str:
+    def greeting(self) -> str:
+        ...
+
+    @greeting.setter
+    def greeting(self, new_greeting: str) -> None:
         ...
 
     @property
@@ -116,7 +126,7 @@ class ConfigWorker(Protocol):
     def handle_save_contents(self, section_name: str, save_contents: dict) -> bool:
         ...
 
-    def check_to_skip_default_carboncopies(self) -> bool:
+    def check_if_using_default_carboncopies(self) -> bool:
         ...
 
 
@@ -126,21 +136,13 @@ class Presenter:
     all interactions between user input and program logic.
     """
 
-    def __init__(self, model: Model, view: View, configWorker: ConfigWorker,
-                 positive_value, negative_value) -> None:
+    def __init__(self, model: Model, view: View,
+                 config_worker: ConfigWorker
+                 ) -> None:
         """Stores the model, config_worker & view to itself."""
-        self._model = model
-        self._view = view
-        self._config_worker = configWorker
-        self.assign_attributes()
-        
-    def assign_attributes(self) -> None:
-        self.model = self._model
-        self.view = self._view
-        self.config_worker = self._config_worker
-        self.CC_recipients = str
-        self.subject = str
-        self.username = str
+        self.model = model
+        self.view = view
+        self.config_worker = config_worker
 
     def start_program(self) -> None:
         """Starts the program by creating GUI object,
@@ -159,6 +161,9 @@ class Presenter:
     def set_dropdown_options(self) -> list:
         return self.model.get_dropdown_options()
 
+    def btn_clear_attachments(self) -> None:
+        self.model.extra_attachments = ''
+
     # Complete if necessary - 02.09.2023
     def on_change_template(self, *args, **kwargs) -> None:
         """Updates the placeholders on customize_tab when dropdown changes
@@ -166,15 +171,19 @@ class Presenter:
         Returns:
         	Bool -- returns a bool for success & for testing
         """
-        print (*args)
+        print ('these are args:')
+        print(*args)
+        print ('these are kwargs:')
         print (**kwargs)
         selected_template = self.view.selected_template
+        print(f'this is the current template: {selected_template}')
         self.clear_customize_template_placeholders()
         payload = self.config_worker.get_section(selected_template)
-        if self.insert_placeholders(payload):
-            return True
-        else:
-            raise Exception("Could't update customize_tab upon changing.")
+        print(payload)
+        self._set_customize_tab_placeholders(payload)
+        #     return True
+        # else:
+        #     raise Exception("Could't update customize_tab upon changing.")
 
     def process_quoteform_path(self, raw_path) -> None:  # GOOD
         """Sends the raw path to model for proccessing & saving.
@@ -246,14 +255,10 @@ class Presenter:
         except:
             raise Exception("Couldn't save template_dict to config.")
 
-    def btn_reset_UI(self):
-        """This resets the view to start a clean, new submission."""
-        self.assign_attributes()
-        self.start_program()
 
     def on_focus_out(self, field_name: str, current_text: str) -> bool:
         if current_text == '':
-            config_section = self.view.current_template
+            config_section = self.view.selected_template
             try:
                 if field_name == 'recipient':
                     self.view.recipient = self.config_worker.get_value_from_config(
@@ -337,22 +342,28 @@ class Presenter:
 
     def clear_customize_template_placeholders(self) -> None:
         """Clears all inputtable fields on the customize_tab"""
-        del (self.view.recipient, self.view.greeting, self.view.body,
-             self.view.salutation, self.view.username
-             )
+        del self.view.recipient
+        del self.view.greeting
+        del self.view.body
+        del self.view.salutation
             
     def clear_settings_placeholders(self) -> None:
         """Clears all inputtable fields on the settings_tab"""
-        del (self.view.default_CC1, self.view.default_CC2)
+        del self.view.default_CC1
+        del self.view.default_CC2
+        del self.view.username
 
     def set_initial_placeholders(self) -> None:
         '''Sets the initial view for each input field, if applicable'''
         self.clear_customize_template_placeholders()
         self.clear_settings_placeholders()
-        self.view.ignore_default_cc = self.config_worker.get_value_from_config(
+        self.view.use_CC_defaults = self.config_worker.get_value_from_config(
             								{'section_name': 'General settings',
-             								 'key': 'ignore_default_cc_addresses'
+             								 'key': 'use_default_CC_addresses'
              								 })
+        self.view.username = self.config_worker.get_value_from_config(
+            {'section_name': 'General settings', 'key': 'username'}
+        )
         self.view.default_CC1 = self.config_worker.get_value_from_config(
             							{'section_name': 'General settings',
              							 'key': 'default_CC1'
@@ -369,10 +380,10 @@ class Presenter:
     def _set_customize_tab_placeholders(self, placeholder_dict: dict) -> None:
         """Sets the placeholders for the customizations_tab"""
         try:
-            self.view.recipient = placeholder_dict['address']
-            self.view.greeting = placeholder_dict['greeting']
-            self.view.body = placeholder_dict['body']
-            self.view.salutation = placeholder_dict['salutation']
+            self.view.recipient = placeholder_dict.pop('address')
+            self.view.greeting = placeholder_dict.pop('greeting')
+            self.view.body = placeholder_dict.pop('body')
+            self.view.salutation = placeholder_dict.pop('salutation')
         except:
              raise Exception("Couldn't set placeholders for the customize_tab")
         else:
@@ -383,9 +394,10 @@ class Presenter:
         return self.config_worker.get_section(current_selection)
 
     def btn_view_template(self) -> None:
-        selected_template: self.view.selected_template
+        selected_template = self.view.selected_template
         postman = EmailHandler()
-        envelope = postman.create_envelope()
+        letter = postman.create_letter()
+        subject = f"Test view of the template for {selected_template}"
         postman.greeting = self.view.greeting
         postman.body = self.view.body
         postman.extra_notes = self.view.extra_notes
@@ -393,11 +405,16 @@ class Presenter:
         postman.username = self.config_worker.get_value_from_config(
         							'General setiings', 'username'
                                     )
-        body_text = postman.build_HTML_body()
-        envelope.assign_recipient(recipent=self.view.recipient)
-        envelope.assign_subject(subject='Test view of the template for {selected_template}')
-        envelope.assign_body_text(body=body_text)
-        postman.send_envelope(autosend=False)
+        body_text = postman.build_HTML_body(
+            greeting=self.view.greeting,
+            body = self.view.body,
+            extra_notes = self.view.extra_notes,
+            salutation = self.view.salutation
+            )
+        letter.To = self.view.recipient
+        letter.Subject = subject
+        letter.HTMLBody = body_text
+        postman.send_letter(autosend=False)
 
     def btn_send_envelopes(self, autosend: bool) -> None:
         """This gets and checks which markets to prepare a ubmission to; it first
@@ -407,18 +424,20 @@ class Presenter:
         looped through and emailed away.
 
         Arguments:
-        	autosend = {bool} If True, no window will be shown and all emails will
-            				  be sequentially sent.  If False, a window will be
-                             shown for each email prior to sending
+        	autosend = {bool} 
+                NOTE: If True, no window will be shown and all emails
+                will be sequentially sent. If False, a window will be shown for
+                each email prior to sending.
         """
         submission_dict = self._handle_single_markets()
-        submission_dict.update(self._handle_redundancies())
-        try:
-            self.loop_through_envelopes(submission_dict, autosend)
-        except:
-            raise Exception("Error hile looping through envelopes.")
-        else:
-            return True
+        fixed_redundancies_dict = self._handle_redundancies()
+        submission_dict.update(fixed_redundancies_dict)
+        #try:
+        self.loop_through_envelopes(submission_dict, autosend)
+        #except:
+        #    raise Exception("Error while looping through envelopes.")
+        #else:
+        #    return True
 
     def _handle_single_markets(self) -> dict:
         """Gets possible redundant carriers' checkbox values, filters to only keep
@@ -463,28 +482,32 @@ class Presenter:
         formatted_CC_str = self.model.list_of_CC_to_str(list_of_CC)
 
         for carrier_section_name, value in finalized_submits_dict:
-            postman.create_envelope()
+            letter = postman.create_letter()
 
             carrier_config_dict = dict()
             carrier_config_dict = self.config_worker.get_section(
                 carrier_section_name)
 
-            recipient = carrier_config_dict.get('address')
-            postman.greeting = carrier_config_dict.get('greeting')
-            postman.body = carrier_config_dict.get('body')
-            postman.extra_notes = self.view.extra_notes
-            postman.salutation = carrier_config_dict.get('salutation')
-            postman.username = self.config_worker.get_value_from_config('General setiings', 'username')
-            body_text = postman.build_HTML_body()
-            attachments_list = list(self.model.get_all_attachments())
+            letter.To = carrier_config_dict.pop('address')
+            letter.CC = formatted_CC_str
+            letter.Subject = subject
 
-            postman.assign_recipient(recipient=recipient)
-            postman.assign_CC(cc_addresses=formatted_CC_str)
-            postman.assign_subject(subject=subject)
-            postman.assign_body_text(body=body_text)
+            extra_notes = self.view.extra_notes
+            body_text = self.model.build_HTML_body(
+                carrier_config_dict, extra_notes
+                )
+            letter.HTMLBody = body_text
+
+            attachments_list = list(self.model.get_all_attachments())
             for attachment_path in attachments_list:
-                postman.assign_attachments(attachment_path)
-            postman.send_envelope(autosend)
+                letter.Attachments.Add(attachment_path)
+            if autosend:
+                letter.Send()
+            elif autosend == False:
+                letter.Display()
+            else:
+                raise ValueError
+            #postman.send_letter(autosend)
 
     def _handle_getting_CC_addresses(self) -> list:
         """Gets userinput of all CC addresses and adds the to a list. It then
@@ -499,8 +522,10 @@ class Presenter:
         userinput_CC2 = self.view.userinput_CC2
         list_of_CC.append(userinput_CC1)
         list_of_CC.append(userinput_CC2)
-        if self.view.ignore_CC_defaults == False:
-            if self.config_worker.check_to_skip_default_carboncopies() == False:
+        print(self.view.use_CC_defaults)
+        print(self.view.extra_notes)
+        if self.view.use_CC_defaults == True:
+            if self.config_worker.check_if_using_default_carboncopies() == True:
                 default_CC_addresses = self.model.get_default_cc_addresses()
                 list_of_CC.append(default_CC_addresses)
             else:

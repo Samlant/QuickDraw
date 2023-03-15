@@ -18,7 +18,7 @@ class Presenter(Protocol):
     def btn_view_template(self) -> None:
         ...
 
-    def btn_reset_UI(self) -> None:
+    def btn_clear_attachments(self) -> None:
         ...
 
     def btn_save_template(self) -> None:
@@ -42,19 +42,33 @@ class Presenter(Protocol):
     def save_extra_notes(self, notes: str) -> None:  # GOOD
         ...
 
-    def on_change_template(self) -> None:
+    def on_change_template(self, *args, **kwargs) -> None:
         ...
 
     def on_focus_out(self, field_name: str, current_text: str) -> bool:
         ...
 
 
-@dataclass
-class ViewData(TkinterDnD.Tk):
-    def __init__(self, positive_value, negative_value):
+
+class TkView(TkinterDnD.Tk):
+    """ This class uses tkinter to create a view object when instantiated by the main_script.  After __init__,  there's a parent method, create_GUI_obj, responsivle for creating the widgets.  These sub-functions are divided by page/tab. Lastly, there are methods to allow data retrieval and updating.
+    class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating. 
+    """
+
+    # def __new__(cls):
+    #     return object.__new__(cls)
+
+
+    def __init__(self, positive_value, negative_value) -> None:
+        super().__init__()
+        self.geometry('760x548')
+        self.configure(background='#5F9EA0')
+        self.title('Quick Submit Tool')
+        self.attributes('-alpha', 0.95)
+        self._username = StringVar(name='username')
+        self._use_CC_defaults = BooleanVar(name='ignore_CC_defaults')
         self._yes = positive_value
         self._no = negative_value
-        self.options = list()
         self._seawave = StringVar(
                 name='Seawave', 
                 value=self._no
@@ -84,7 +98,8 @@ class ViewData(TkinterDnD.Tk):
                 value=self._no
                 )
         self._century = StringVar(
-                name='Century', value=self._no
+                name='Century',
+                value=self._no
                 )
         self._intact = StringVar(
                 name='Intact',
@@ -95,38 +110,14 @@ class ViewData(TkinterDnD.Tk):
                 value=self._no
                 )
         self.dropdown_menu_var = StringVar(
-                value='Select Market(s)',
-                name='Current Selection'
+                value='Select Market(s)'
+                #name='Current Selection'
                 )
         self._recipient = StringVar(name='recipient')
         self._greeting = StringVar(name='greeting')
         self._salutation = StringVar(name='salutation')
-        self._ignore_CC_defaults = BooleanVar(name='ignore_CC_defaults')
         self._default_CC1 = StringVar(name='default_CC1')
         self._default_CC2 = StringVar(name='default_CC2')
-        self._username = StringVar(name='username')
-
-
-class TkView(TkinterDnD.Tk):
-    """ This class uses tkinter to create a view object when instantiated by the main_script.  After __init__,  there's a parent method, create_GUI_obj, responsivle for creating the widgets.  These sub-functions are divided by page/tab. Lastly, there are methods to allow data retrieval and updating.
-    class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating. 
-    """
-
-    def __init__(self, positive_value, negative_value) -> None:
-        super().__init__()
-        self.geometry('760x548')
-        self.configure(background='#5F9EA0')
-        self.title('Quick Submit Tool')
-        self.attributes('-alpha', 0.95)
-        self.data = self.assign_attributes(positive_value, negative_value)
-        
-    @property
-    def positive_submission_value(self):
-        return self.data._yes
-
-    @property
-    def negative_submission_value(self):
-        return self.data._no
 
     @property
     def extra_notes(self) -> str:
@@ -145,80 +136,84 @@ class TkView(TkinterDnD.Tk):
         return self._userinput_CC2.get('1.0', 'end-1c')
 
     @property
-    def ignore_CC_defaults(self) -> bool:
-        return self.data._ignore_CC_defaults.get()
+    def use_CC_defaults(self) -> bool:
+        return self._use_CC_defaults.get()
 
-    @ignore_CC_defaults.setter
-    def ignore_CC_defaults(self, ignore_is_True: bool) -> None:
-        self.data._ignore_CC_defaults = ignore_is_True
+    @use_CC_defaults.setter
+    def use_CC_defaults(self, usage: bool) -> None:
+        self._use_CC_defaults = usage
 
     @property
     def sw(self) -> str:
-        return self.data._seawave.get()
+        return self._seawave.get()
 
     @property
     def pt(self) -> str:
-        return self.data._primetime.get()
+        return self._primetime.get()
 
     @property
     def nh(self) -> str:
-        return self.data._newhampshire.get()
+        return self._newhampshire.get()
 
     @property
     def am(self) -> str:
-        return self.data._americanmodern.get()
+        return self._americanmodern.get()
 
     @property
     def km(self) -> str:
-        return self.data._kemah.get()
+        return self._kemah.get()
 
     @property
     def cp(self) -> str:
-        return self.data._concept.get()
+        return self._concept.get()
 
     @property
     def yi(self) -> str:
-        return self.data._yachtinsure.get()
+        return self._yachtinsure.get()
 
     @property
     def ce(self) -> str:
-        return self.data._century.get()
+        return self._century.get()
 
     @property
     def In(self) -> str:
-        return self.data._intact.get()
+        return self._intact.get()
 
     @property
     def tv(self) -> str:
-        return self.data._travelers.get()
+        return self._travelers.get()
 
     @property
     def selected_template(self) -> str:
-        return self.data.dropdown_menu_var.get()
+        return self.dropdown_menu_var.get()
 
     @property
     def recipient(self) -> str:
-        return self.data._recipient.get()
+        print('executing_recipient')
+        return self._recipient.get()
 
     @recipient.setter
     def recipient(self, new_recipient: str) -> None:
-        self.data._recipient = new_recipient
+        print(new_recipient)
+        self._recipient = new_recipient
 
     @recipient.deleter
     def recipient(self) -> None:
-        del self.data._recipient
+        del self._recipient
 
     @property
     def greeting(self) -> str:
-        return self.data._greeting.get()
+        print('executing')
+        return self._greeting.get()
 
     @greeting.setter
     def greeting(self, new_greeting: str) -> None:
-        self.data._greeting = new_greeting
+        print(new_greeting)
+        self._greeting.set(new_greeting)
 
     @greeting.deleter
     def greeting(self) -> None:
-        del self.data._greeting
+        del self._greeting
 
     @property
     def body(self) -> str:
@@ -234,54 +229,51 @@ class TkView(TkinterDnD.Tk):
 
     @property
     def salutation(self) -> str:
-        return self.data._salutation.get()
+        return self._salutation.get()
 
     @salutation.setter
     def salutation(self, new_salutation: str) -> None:
-        self.data._salutation = new_salutation
+        self._salutation = new_salutation
 
     @salutation.deleter
     def salutation(self) -> None:
-        del self.data._salutation
+        del self._salutation
 
     @property
     def default_CC1(self) -> str:
-        return self.data._default_CC1.get()
+        return self._default_CC1.get()
 
     @default_CC1.setter
     def default_CC1(self, new_default_CC: str) -> None:
-        self.data._default_CC1 = new_default_CC
+        self._default_CC1 = new_default_CC
 
     @default_CC1.deleter
     def default_CC1(self) -> None:
-        del self.data._default_CC1
+        del self._default_CC1
 
     @property
     def default_CC2(self) -> str:
-        return self.data._default_CC2.get()
+        return self._default_CC2.get()
 
     @default_CC2.setter
     def default_CC2(self, new_default_CC: str) -> None:
-        self.data._default_CC2 = new_default_CC
+        self._default_CC2 = new_default_CC
 
     @default_CC2.deleter
     def default_CC2(self) -> None:
-        del self.data._default_CC2
+        del self._default_CC2
 
     @property
     def username(self) -> str:
-        return self.data._username.get()
+        return self._username.get()
 
     @username.setter
     def username(self, new_username: str):
-        self.data._username = new_username
+        self._username = new_username
 
     @username.deleter
     def username(self) -> None:
-        del self.data._username
-
-    def assign_attributes(self):
-        return ViewData()
+        del self._username
 
     def create_UI_obj(self, presenter: Presenter):
         """ This creates the GUI root,  along with the main
@@ -333,12 +325,16 @@ class TkView(TkinterDnD.Tk):
         frame_left.pack(padx=5, fill=Y, side='left', expand=False, anchor=NE)
         Label(frame_left, text='Dag-N-Drop Quoteform Below',
               bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(fill=BOTH, expand=True)
+              ).pack(ipady=5, fill=BOTH, expand=True)
         self.create_quoteform_path_box(frame_left, presenter)
         Label(frame_left, text='Dag-N-Drop Extra Attachments Below',
               bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(fill=BOTH, expand=True)
+              ).pack(ipady=5, fill=BOTH, expand=True)
         self.create_extra_attachments_path_box(frame_left, presenter)
+        Button(frame_left, text='Clear attachments',
+               bg='#e50000', font=('helvetica', 12, 'normal'),
+               command=lambda:presenter.btn_clear_attachments
+               ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
 
         frame_middle = Frame(self.home, bg='#5F9EA0')
         frame_middle.pack(padx=5, fill=Y, side='left', expand=False, anchor=N)
@@ -358,9 +354,9 @@ class TkView(TkinterDnD.Tk):
         Label(labelframe_cc, text='email address to CC:',
               bg='#aedadb', font=('helvetica', 12, 'normal')
               ).pack(fill=X, expand=True, side='top')
-        Checkbutton(labelframe_cc, text='Check to ignore default CC-addresses',
-                    variable=self.data._ignore_CC_defaults, bg='#aedadb',
-                    name='cc_def_chcek', onvalue=True, offvalue=False
+        Checkbutton(labelframe_cc, text='Include default CC addresses',
+                    variable=self._use_CC_defaults, bg='#aedadb',
+                    name='cc_def_check', onvalue=True, offvalue=False
                     ).pack(pady=5, fill=X, expand=False, side='top')
         self._userinput_CC1 = Text(labelframe_cc, height=1, width=30)
         self._userinput_CC1.pack(pady=2, ipady=4, anchor=N,
@@ -372,84 +368,79 @@ class TkView(TkinterDnD.Tk):
         self._userinput_CC2.pack(ipady=4, anchor=N, fill=X,
                                  expand=True, side='top'
                                  )
-            
-        Button(frame_middle, text='RESET FOR NEW ENTRY',
-               bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_reset_UI
-               ).pack(ipady=5, pady=3, anchor=S, fill=Y, expand=False)
         Button(frame_middle, text='View Each Before Sending!',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=lambda:presenter.btn_send_envelopes(autosend=True)
-               ).pack(ipady=20, pady=10, anchor=S, fill=Y, expand=False)
+               command=lambda:presenter.btn_send_envelopes(autosend=False)
+               ).pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
 
         self.frame_right = Frame(self.home, bg='#5F9EA0')
-        self.frame_right.pack(padx=5, fill=Y, side='left',
-                              expand=False, anchor=NW
+        self.frame_right.pack(padx=5, fill=BOTH, side='left',
+                              expand=True, anchor=NW
                               )
         Checkbutton(master=self.frame_right, name='seawave',
-                    text='Seawave', variable=self.data._seawave,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Seawave', variable=self._seawave,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='prime time',
-                    text='Prime Time', variable=self.data._primetime,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Prime Time', variable=self._primetime,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='newhampshire',
-                    text='New Hampshire', variable=self.data._newhampshire,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='New Hampshire', variable=self._newhampshire,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='americanmodern',
-                    text='American Modern', variable=self.data._americanmodern,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='American Modern', variable=self._americanmodern,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='kemah',
 
-                    text='Kemah Marine', variable=self.data._kemah,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Kemah Marine', variable=self._kemah,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='concept',
-                    text='Concept', variable=self.data._concept,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Concept', variable=self._concept,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='yachtinsure',
-                    text='Yacht Insure', variable=self.data._yachtinsure,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Yacht Insure', variable=self._yachtinsure,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='century',
-                    text='Century', variable=self.data._century,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Century', variable=self._century,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='intact',
-                    text='Intact', variable=self.data._intact,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Intact', variable=self._intact,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
         Checkbutton(master=self.frame_right, name='travelers',
-                    text='Travelers', variable=self.data._travelers,
-                    onvalue=self.data._yes,
-                    offvalue=self.data._no, bg='#aedadb',
+                    text='Travelers', variable=self._travelers,
+                    onvalue=self._yes,
+                    offvalue=self._no, bg='#aedadb',
                     font=('helvetica', 12, 'normal')
                     ).pack(ipady=3, fill=BOTH, expand=True)
-        Button(self.frame_right, text='Submit & auto-send to markets',
+        Button(self.frame_right, text='Submit & auto-send all',
                bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=lambda:presenter.btn_send_envelopes(autosend=False)
+               command=lambda:presenter.btn_send_envelopes(autosend=True)
                ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
         # End of creating the MAIN tab.
 
@@ -478,7 +469,7 @@ class TkView(TkinterDnD.Tk):
               ).pack(fill=X, expand=True)
         
         self.create_dropdown(parent=e_frame_top, presenter=presenter)
-        self.data.dropdown_menu_var.trace_add(
+        self.dropdown_menu_var.trace_add(
                 'write', presenter.on_change_template
                 )
 
@@ -508,13 +499,11 @@ class TkView(TkinterDnD.Tk):
         e_frame_bottomR = Frame(self.template_customization, bg='#5F9EA0')
         e_frame_bottomR.pack(fill=X, expand=True, side='left', anchor=N)
         recipient_entry = Entry(master=e_frame_bottomR,
-                                textvariable=self.data._recipient)
+                                textvariable=self._recipient)
         recipient_entry.pack(padx=4, pady=15, ipadx=160,
                              ipady=5, fill=BOTH, expand=False, side='top')
         recipient_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('recipient', self.recipient))
-        greeting_entry = Entry(master=e_frame_bottomR,
-                               textvariable=self.data._greeting
-                               )
+        greeting_entry = Entry(master=e_frame_bottomR, textvariable= self._greeting)
         greeting_entry.pack(padx=4, pady=1, ipadx=160, ipady=5,
                             fill=BOTH, expand=False, side='top'
                             )
@@ -525,7 +514,7 @@ class TkView(TkinterDnD.Tk):
                              )
         self._body_text.bind('<FocusOut>', lambda:presenter.on_focus_out('body', self.body))
         salutation_entry = Entry(e_frame_bottomR,
-                                 textvariable=self.data._salutation,
+                                 textvariable=self._salutation,
                                  width=27, highlightbackground='green', highlightcolor='red'
                                  )
         salutation_entry.pack(padx=4, ipadx=160, ipady=5, fill=BOTH,
@@ -559,7 +548,7 @@ class TkView(TkinterDnD.Tk):
               bg='#aedadb', font=('helvetica', 12, 'normal')
               ).pack(pady=3, ipady=2, padx=1, fill='none',
                      expand=False, side='left', anchor=NW)
-        cc1 = Entry(settings_CC_frame, textvariable=self.data._default_CC1)
+        cc1 = Entry(settings_CC_frame, textvariable=self._default_CC1)
         cc1.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, 
                  side='left', anchor=N
                  )
@@ -567,7 +556,7 @@ class TkView(TkinterDnD.Tk):
               bg='#aedadb', font=('helvetica', 12, 'normal')
               ).pack(pady=3, ipady=2, padx=1, fill='none',
                      expand=False, side='left', anchor=NW)
-        cc2 = Entry(settings_CC_frame, textvariable=self.data._default_CC2)
+        cc2 = Entry(settings_CC_frame, textvariable=self._default_CC2)
         cc2.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True,
                  side='left', anchor=N
                  )
@@ -582,7 +571,7 @@ class TkView(TkinterDnD.Tk):
               ).pack(pady=3, ipady=2, padx=1, fill='none',
                      expand=False, side='left', anchor=NW)
         username = Entry(master=settings_username_frame, 
-                         textvariable=self.data._username
+                         textvariable =self._username
                          )
         username.pack(ipadx=30, pady=5, fill=X, expand=True,
                       side='right',anchor=NW
@@ -604,7 +593,7 @@ class TkView(TkinterDnD.Tk):
         """ Creates the drag-n-drop box for the quoteform."""
         self.quoteform_path_box = Text(
             parent,
-            height=7,
+            height=8,
             width=27,
             background='#59f3e3',
             name='raw_quoteform_path'
@@ -613,13 +602,13 @@ class TkView(TkinterDnD.Tk):
         self.quoteform_path_box.dnd_bind('<<Drop>>',
                                          presenter.process_quoteform_path
                                          )
-        self.quoteform_path_box.pack(fill=BOTH, anchor=N, expand=True)
+        self.quoteform_path_box.pack(fill=X, anchor=N, expand=True)
 
     def create_extra_attachments_path_box(self, parent: Frame, presenter=Presenter) -> None:
         """ Creates the drag-n-drop box for any extra attachments."""
         self.extra_attachments_path_box = Text(
             parent,
-            height=9,
+            height=8,
             width=27,
             background='#59f3e3',
             name='raw_attachments_paths_list'
@@ -635,8 +624,7 @@ class TkView(TkinterDnD.Tk):
         """ Creates the OptionMenu widget separately for less coupling."""
         options = list()
         options = presenter.set_dropdown_options()
-        print(options)
-        dropdown_menu = OptionMenu(parent, self.data.dropdown_menu_var, *options)
+        dropdown_menu = OptionMenu(parent, self.dropdown_menu_var, *options)
         dropdown_menu.configure(background='#aedadb',
                                 foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0'
                                 )

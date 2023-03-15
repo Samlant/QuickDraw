@@ -17,7 +17,7 @@ def main() -> None:
     presenter = Presenter(
         model=model, 
         view=view,
-        configworker=configworker
+        config_worker=configworker
         )
     presenter.start_program()
 

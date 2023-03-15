@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-from configupdater import ConfigUpdater
-
-# from Presenter.presenter import Presenter
+from configupdater import ConfigUpdater, Section
 
 
 class Model:
@@ -18,25 +16,27 @@ class Model:
         self.extra_attachments = []
 
     def get_dropdown_options(self) -> list:
-        return ['Seawave', 'Prime Time', 'New Hampshire', 'American Modern', 'Kemah Marine', 'Concept', 'Yachtinsure', 'Century', 'Intact', 'Travelers']
+        return ['Seawave', 'Prime Time', 'New Hampshire', 'American Modern', 'Kemah Marine', 'Concept Special Risks', 'Yachtinsure', 'Century', 'Intact', 'Travelers']
 
     def filter_only_positive_submissions(self, raw_checkboxes: dict) -> dict:
-        filtered_checkboxes_dict = dict()
+        checkboxes_dict = raw_checkboxes.copy()
         for x in raw_checkboxes:
-            if raw_checkboxes[x] == self.yes:
-                filtered_checkboxes_dict.update(x, raw_checkboxes[x])
-            elif raw_checkboxes[x] == self.no:
+            if raw_checkboxes[x] == self.no:
+                checkboxes_dict.pop(x)
+            elif raw_checkboxes[x] == self.yes:
                 pass
             else:
                 raise ValueError
-        return filtered_checkboxes_dict
+        return checkboxes_dict
 
     def handle_redundancies(self, filtered_submits_dict: dict) -> dict:
         if self._redundancy_check(filtered_submits_dict):
             section_name_value = str(
                 self._fix_redundancies(filtered_submits_dict))
             eliminated_redundancies = {
-                'section_name': section_name_value, 'key': self.yes}
+                'section_name': section_name_value,
+                'key': self.yes
+                }
             return eliminated_redundancies
         else:
             return filtered_submits_dict
@@ -70,17 +70,24 @@ class Model:
         else:
             pass
 
-    def save_path(self, raw_path, is_quoteform: bool):  # GOOD
-        path = self._clean_path(raw_path)
-        if is_quoteform == True:
-            self.quoteform_path = path
-        elif is_quoteform == False:
-            self.extra_attachments.append(path)
+    def save_path(self, raw_path, is_quoteform: bool) -> bool:
+        try:
+            path = self._clean_path(raw_path)
+        except:
+            error = f'cannot clean the path of the file; input was: "{raw_path}"'
+            raise Exception(error)
         else:
-            print(
-                'Raising type error: is_quoted parameter is either empty or wrong type. It needs to be boolean.')
+            if is_quoteform == True:
+                self.quoteform_path = path
+                return True
+            elif is_quoteform == False:
+                self.extra_attachments.append(path)
+                return True
+            else:
+                raise Exception('Type of param:is_quoteform is wrong or empty.')
 
-    def _clean_path(self, path) -> str:
+
+    def _filter_out_brackets(self, path) -> str:
         """ Cleans up the path str by removing any brackets---if present."""
         if '{' in path.data:
             path = path.data.translate({ord(c): None for c in '{}'})
@@ -143,7 +150,8 @@ class ConfigWorker:
     def get_section(self, section_name) -> dict:  # GOOD
         """ This returns the section keys:values in a dict"""
         config = self.open_config()
-        return config.get_section(section_name, 'Error section')
+        section = config.get_section(section_name).to_dict()
+        return section
 
     def handle_save_contents(self, section_name: str, save_contents: dict) -> bool:
         """ This is a generic function to save both Save buttons' data to the appropriate config section. It also ensures the section exists.
@@ -154,10 +162,14 @@ class ConfigWorker:
                 config.update(section_name, key, value)
                 config.update_file()
 
-    def check_to_skip_default_carboncopies(self) -> bool:
+    def check_if_using_default_carboncopies(self) -> bool:
         section_name_value = 'General settings'
         key = 'ignore_default_cc_addresses'
         config = {'section_name': section_name_value, 'key': key}
-        result = self.get_value_from_config(config)
-        return result
+        try:
+            result = self.get_value_from_config(config)
+        except:
+            raise KeyError("Couldn't access config with values")
+        else:
+            return result
     # End of CONFIG FILE operations
