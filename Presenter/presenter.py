@@ -7,6 +7,30 @@ from Model.email_handler import EmailHandler
 
 # from Model.email import EmailHandler
 
+@dataclass
+class ViewIO(Protocol):
+    extra_notes: str
+    selected_template:str
+    userinput_CC1: str
+    userinput_CC2: str
+    use_CC_defaults: bool
+    sw: str
+    pt: str
+    nh: str
+    am: str
+    km: str
+    cp: str
+    yi: str
+    ce: str
+    In: str
+    tv: str
+    recipient: str
+    greeting: str
+    body: str
+    salutation: str
+    default_CC1: str
+    default_CC2: str
+    username: str
 
 class View(Protocol):
     extra_notes: str

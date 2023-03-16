@@ -48,27 +48,50 @@ class Presenter(Protocol):
     def on_focus_out(self, field_name: str, current_text: str) -> bool:
         ...
 
-
+@dataclass
+class ViewIO(tk.Tk):
+        extra_notes: str
+        selected_template:str
+        userinput_CC1: str
+        userinput_CC2: str
+        use_CC_defaults: bool
+        sw: str
+        pt: str
+        nh: str
+        am: str
+        km: str
+        cp: str
+        yi: str
+        ce: str
+        In: str
+        tv: str
+        recipient: str
+        greeting: str
+        body: str
+        salutation: str
+        default_CC1: str
+        default_CC2: str
+        username: str
 
 class TkView(TkinterDnD.Tk):
     """ This class uses tkinter to create a view object when instantiated by the main_script.  After __init__,  there's a parent method, create_GUI_obj, responsivle for creating the widgets.  These sub-functions are divided by page/tab. Lastly, there are methods to allow data retrieval and updating.
     class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating. 
     """
-
-    # def __new__(cls):
-    #     return object.__new__(cls)
+    def __new__(cls, positive_value, negative_value):
+        return object.__new__(cls)
 
 
     def __init__(self, positive_value, negative_value) -> None:
         super().__init__()
-        self.geometry('760x548')
-        self.configure(background='#5F9EA0')
-        self.title('Quick Submit Tool')
-        self.attributes('-alpha', 0.95)
-        self._username = StringVar(name='username')
+        self._username = tk.StringVar(name='username')
         self._use_CC_defaults = BooleanVar(name='ignore_CC_defaults')
         self._yes = positive_value
         self._no = negative_value
+        self._recipient = StringVar(name='recipient')
+        self._greeting = tk.StringVar(name='greeting')
+        self._salutation = StringVar(name='salutation')
+        self._default_CC1 = StringVar(name='default_CC1')
+        self._default_CC2 = StringVar(name='default_CC2')
         self._seawave = StringVar(
                 name='Seawave', 
                 value=self._no
@@ -113,11 +136,6 @@ class TkView(TkinterDnD.Tk):
                 value='Select Market(s)'
                 #name='Current Selection'
                 )
-        self._recipient = StringVar(name='recipient')
-        self._greeting = StringVar(name='greeting')
-        self._salutation = StringVar(name='salutation')
-        self._default_CC1 = StringVar(name='default_CC1')
-        self._default_CC2 = StringVar(name='default_CC2')
 
     @property
     def extra_notes(self) -> str:
@@ -204,12 +222,12 @@ class TkView(TkinterDnD.Tk):
     @property
     def greeting(self) -> str:
         print('executing')
-        return self._greeting.get()
+        return self.greeting_entry.get()
 
     @greeting.setter
     def greeting(self, new_greeting: str) -> None:
         print(new_greeting)
-        self._greeting.set(new_greeting)
+        self.greeting_entry.set(new_greeting)
 
     @greeting.deleter
     def greeting(self) -> None:
@@ -503,11 +521,11 @@ class TkView(TkinterDnD.Tk):
         recipient_entry.pack(padx=4, pady=15, ipadx=160,
                              ipady=5, fill=BOTH, expand=False, side='top')
         recipient_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('recipient', self.recipient))
-        greeting_entry = Entry(master=e_frame_bottomR, textvariable= self._greeting)
-        greeting_entry.pack(padx=4, pady=1, ipadx=160, ipady=5,
+        self.greeting_entry = Entry(master=e_frame_bottomR, textvariable= self._greeting)
+        self.greeting_entry.pack(padx=4, pady=1, ipadx=160, ipady=5,
                             fill=BOTH, expand=False, side='top'
                             )
-        greeting_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('greeting', self.greeting))
+        self.greeting_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('greeting', self.greeting))
         self._body_text = Text(e_frame_bottomR, width=10, height=5)
         self._body_text.pack(padx=4, pady=15, ipadx=160,
                              ipady=5, fill=BOTH, expand=False, side='top'
