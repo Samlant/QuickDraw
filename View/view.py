@@ -576,10 +576,6 @@ class TkView(TkinterDnD.Tk):
         username.pack(ipadx=30, pady=5, fill=X, expand=True,
                       side='right',anchor=NW
                       )
-        username.bind('<FocusOut>', lambda: presenter.on_focus_out(
-                      field_name='username',
-                      current_text=self.selected_template
-                      ))
         save_btn_frame = Frame(master=self.settings, bg='#5F9EA0')
         save_btn_frame.pack(fill=BOTH, expand=False, side='top')
         Button(master=save_btn_frame, text='Save Settings',
