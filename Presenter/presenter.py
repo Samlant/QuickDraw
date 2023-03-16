@@ -18,101 +18,30 @@ class View(Protocol):
     def mainloop(self) -> None:
         ...
 
-    @property
-    def extra_notes(self) -> str:
-        ...
-
-    @property
-    def selected_template(self) -> str:
-        ...
-
-    @property
-    def userinput_CC1(self) -> str:
-        ...
-    @property
-    def userinput_CC2(self) -> str:
-        ...
-
-    @property
-    def use_CC_defaults(self) -> bool:
-        ...
-
-    @property
-    def sw(self) -> str:
-        ...
-
-    @property
-    def pt(self) -> str:
-        ...
-
-    @property
-    def nh(self) -> str:
-        ...
-
-    @property
-    def am(self) -> str:
-        ...
-
-    @property
-    def km(self) -> str:
-        ...
-
-    @property
-    def cp(self) -> str:
-        ...
-
-    @property
-    def yi(self) -> str:
-        ...
-
-    @property
-    def ce(self) -> str:
-        ...
-
-    @property
-    def In(self) -> str:
-        ...
-
-    @property
-    def tv(self) -> str:
-        ...
+    extra_notes: str
+    selected_template:str
+    userinput_CC1: str
+    userinput_CC2: str
+    use_CC_defaults: bool
+    sw: str
+    pt: str
+    nh: str
+    am: str
+    km: str
+    cp: str
+    yi: str
+    ce: str
+    In: str
+    tv: str
+    recipient: str
+    greeting: str
+    body: str
+    salutation: str
+    default_CC1: str
+    default_CC2: str:
+    username: str
+    
     def get_template_page_values(self) -> dict:
-        ...
-
-    @property
-    def recipient(self) -> str:
-        ...
-
-    @recipient.setter
-    def recipient (self, new_recipient: str) -> None:
-        ...
-
-    @property
-    def greeting(self) -> str:
-        ...
-
-    @greeting.setter
-    def greeting(self, new_greeting: str) -> None:
-        ...
-
-    @property
-    def body(self, body: str) -> str:
-        ...
-
-    @property
-    def salutation(self, salutation: str) -> str:
-        ...
-
-    @property
-    def default_CC1(self, default_CC1: str) -> str:
-        ...
-
-    @property
-    def default_CC2(self, default_cc2: str) -> str:
-        ...
-
-    @property
-    def username(self) -> str:
         ...
 
 
