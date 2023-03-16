@@ -9,15 +9,6 @@ from Model.email_handler import EmailHandler
 
 
 class View(Protocol):
-    def reset_attributes(self, positive_value, negative_value):
-        ...
-        
-    def create_UI_obj(self, presenter: Presenter) -> None:
-        ...
-
-    def mainloop(self) -> None:
-        ...
-
     extra_notes: str
     selected_template:str
     userinput_CC1: str
@@ -41,6 +32,15 @@ class View(Protocol):
     default_CC2: str:
     username: str
     
+    def reset_attributes(self, positive_value, negative_value):
+        ...
+        
+    def create_UI_obj(self, presenter: Presenter) -> None:
+        ...
+
+    def mainloop(self) -> None:
+        ...
+
     def get_template_page_values(self) -> dict:
         ...
 
