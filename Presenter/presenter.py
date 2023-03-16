@@ -29,7 +29,7 @@ class View(Protocol):
     body: str
     salutation: str
     default_CC1: str
-    default_CC2: str:
+    default_CC2: str
     username: str
     
     def reset_attributes(self, positive_value, negative_value):
