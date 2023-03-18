@@ -7,54 +7,109 @@ from Model.email_handler import EmailHandler
 
 # from Model.email import EmailHandler
 
-@dataclass
-class ViewIO(Protocol):
-    extra_notes: str
-    selected_template:str
-    userinput_CC1: str
-    userinput_CC2: str
-    use_CC_defaults: bool
-    sw: str
-    pt: str
-    nh: str
-    am: str
-    km: str
-    cp: str
-    yi: str
-    ce: str
-    In: str
-    tv: str
-    recipient: str
-    greeting: str
-    body: str
-    salutation: str
-    default_CC1: str
-    default_CC2: str
-    username: str
-
 class View(Protocol):
-    extra_notes: str
-    selected_template:str
-    userinput_CC1: str
-    userinput_CC2: str
-    use_CC_defaults: bool
-    sw: str
-    pt: str
-    nh: str
-    am: str
-    km: str
-    cp: str
-    yi: str
-    ce: str
-    In: str
-    tv: str
-    recipient: str
-    greeting: str
-    body: str
-    salutation: str
-    default_CC1: str
-    default_CC2: str
-    username: str
+
+    @property
+    def extra_notes(self) -> str:
+        ...
+
+    @property
+    def use_CC_defaults(self) -> bool:
+        ...
+
+    @property
+    def sw(self) -> str:
+        ...
+
+    @property
+    def pt(self) -> str:
+        ...
+
+    @property
+    def nh(self) -> str:
+        ...
+
+    @property
+    def am(self) -> str:
+        ...
+
+    @property
+    def km(self) -> str:
+        ...
+
+    @property
+    def cp(self) -> str:
+        ...
+
+    @property
+    def yi(self) -> str:
+        ...
+
+    @property
+    def ce(self) -> str:
+        ...
+
+    @property
+    def In(self) -> str:
+        ...
+
+    @property
+    def tv(self) -> str:
+        ...
+
+    @property
+    def selected_template(self) -> str:
+        ...
+
+    @property
+    def recipient(self, recipient: str) -> str:
+        ...
+
+    @property
+    def greeting(self, greeting: str) -> str:
+        ...
+
+    @property
+    def body(self, body: str) -> str:
+        ...
+
+    @property
+    def salutation(self, salutation: str) -> str:
+        ...
+
+    @property
+    def default_CC1(self, default_CC1: str) -> str:
+        ...
+
+    @property
+    def default_CC2(self, default_cc2: str) -> str:
+        ...
+
+    @property
+    def username(self) -> str:
+        ...
+    # extra_notes: str
+    # selected_template:str
+    # userinput_CC1: str
+    # userinput_CC2: str
+    # use_CC_defaults: bool
+    # sw: str
+    # pt: str
+    # nh: str
+    # am: str
+    # km: str
+    # cp: str
+    # yi: str
+    # ce: str
+    # In: str
+    # tv: str
+    # recipient: str
+    # greeting: str
+    # body: str
+    # salutation: str
+    # default_CC1: str
+    # default_CC2: str
+    # username: str
     
     def reset_attributes(self, positive_value, negative_value):
         ...
@@ -129,8 +184,7 @@ class Presenter:
         print ('these are kwargs:')
         print (**kwargs)
         selected_template = self.view.selected_template
-        print(f'this is the current template: {selected_template}')
-        self.clear_customize_template_placeholders()
+        #self.clear_customize_template_placeholders()
         payload = self.config_worker.get_section(selected_template)
         print(payload)
         self._set_customize_tab_placeholders(payload)
@@ -293,27 +347,28 @@ class Presenter:
         else:
             return customize_dict
 
-    def clear_customize_template_placeholders(self) -> None:
-        """Clears all inputtable fields on the customize_tab"""
-        del self.view.recipient
-        del self.view.greeting
-        del self.view.body
-        del self.view.salutation
+    # def clear_customize_template_placeholders(self) -> None:
+    #     """Clears all inputtable fields on the customize_tab"""
+    #     del self.view.recipient
+    #     del self.view.greeting
+    #     del self.view.body
+    #     del self.view.salutation
             
-    def clear_settings_placeholders(self) -> None:
-        """Clears all inputtable fields on the settings_tab"""
-        del self.view.default_CC1
-        del self.view.default_CC2
-        del self.view.username
+    # def clear_settings_placeholders(self) -> None:
+    #     """Clears all inputtable fields on the settings_tab"""
+    #     del self.view.default_CC1
+    #     del self.view.default_CC2
+    #     del self.view.username
 
     def set_initial_placeholders(self) -> None:
         '''Sets the initial view for each input field, if applicable'''
-        self.clear_customize_template_placeholders()
-        self.clear_settings_placeholders()
-        self.view.use_CC_defaults = self.config_worker.get_value_from_config(
+        # self.clear_customize_template_placeholders()
+        # self.clear_settings_placeholders()
+        value1 = self.config_worker.get_value_from_config(
             								{'section_name': 'General settings',
              								 'key': 'use_default_CC_addresses'
-             								 })
+             								 }).value
+        self.view.use_CC_defaults = value1
         self.view.username = self.config_worker.get_value_from_config(
             {'section_name': 'General settings', 'key': 'username'}
         )
@@ -335,6 +390,7 @@ class Presenter:
         try:
             self.view.recipient = placeholder_dict.pop('address')
             self.view.greeting = placeholder_dict.pop('greeting')
+            del self.view.body
             self.view.body = placeholder_dict.pop('body')
             self.view.salutation = placeholder_dict.pop('salutation')
         except:
