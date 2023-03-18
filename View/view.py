@@ -60,31 +60,11 @@ class TkView(TkinterDnD.Tk):
         self.configure(background="#5F9EA0")
         self.title("Quick Submit Tool")
         self.attributes("-alpha", 0.95)
-        self._username = tk.StringVar(name="username", value="")
-        self._use_CC_defaults = BooleanVar(name="use_CC_defaults")
         self._yes = positive_value
         self._no = negative_value
-        self._recipient = StringVar(name="recipient", value="")
-        self._greeting = tk.StringVar(name="greeting", value="")
-        self._salutation = StringVar(name="salutation", value="")
-        self._default_CC1 = StringVar(name="default_CC1", value="")
-        self._default_CC2 = StringVar(name="default_CC2", value="")
-        self._seawave = StringVar(name="Seawave", value=self._no)
-        self._primetime = StringVar(name="Prime Time", value=self._no)
-        self._newhampshire = StringVar(name="New Hampshire", value=self._no)
-        self._americanmodern = StringVar(
-            name="American Modern", value=self._no)
-        self._kemah = StringVar(name="Kemah Marine", value=self._no)
-        self._concept = StringVar(name="Concept Special Risks", value=self._no)
-        self._yachtinsure = StringVar(name="Yachtinsure", value=self._no)
-        self._century = StringVar(name="Century", value=self._no)
-        self._intact = StringVar(name="Intact", value=self._no)
-        self._travelers = StringVar(name="Travelers", value=self._no)
-        self.dropdown_menu_var = StringVar(
-            value="Select Market(s)"
-            # name='Current Selection'
-        )
-
+        self.assign_private_string_bool_vars()
+    
+    # main_tab: getters/setters
     @property
     def extra_notes(self) -> str:
         return self._extra_notes_text.get("1.0", "end-1c")
@@ -149,6 +129,7 @@ class TkView(TkinterDnD.Tk):
     def tv(self) -> str:
         return self._travelers.get()
 
+    # customize_tab: getters/setters
     @property
     def selected_template(self) -> str:
         return self.dropdown_menu_var.get()
@@ -202,6 +183,7 @@ class TkView(TkinterDnD.Tk):
     def salutation(self) -> None:
         self._salutation.set("")
 
+    # settings_tab: getters/setters
     @property
     def default_CC1(self) -> str:
         return self._default_CC1.get()
@@ -238,10 +220,36 @@ class TkView(TkinterDnD.Tk):
     def username(self) -> None:
         self._username.set("")
 
-    # def assign_attributes(self, positive_value, negative_value) -> None:
-    #     """Assigns tkinter-specific attributes so that the getters/
-    #     setters work and other modules do not need to need tkinter."""
-
+    def assign_private_string_bool_vars(self) -> None:
+        """Assigns tkinter-specific attributes so that the getters /
+        setters work and other modules do not need to need tkinter.
+        """
+        # main_tab vars
+        self._use_CC_defaults = BooleanVar(name="use_CC_defaults")
+        self._seawave = StringVar(name="Seawave", value=self._no)
+        self._primetime = StringVar(name="Prime Time", value=self._no)
+        self._newhampshire = StringVar(name="New Hampshire", value=self._no)
+        self._americanmodern = StringVar(
+            name="American Modern", value=self._no)
+        self._kemah = StringVar(name="Kemah Marine", value=self._no)
+        self._concept = StringVar(name="Concept Special Risks", value=self._no)
+        self._yachtinsure = StringVar(name="Yachtinsure", value=self._no)
+        self._century = StringVar(name="Century", value=self._no)
+        self._intact = StringVar(name="Intact", value=self._no)
+        self._travelers = StringVar(name="Travelers", value=self._no)
+        # customize_tab vars
+        self.dropdown_menu_var = StringVar(
+            value="Select Market(s)"
+            # name='Current Selection'
+        )
+        self._recipient = StringVar(name="recipient", value="")
+        self._greeting = tk.StringVar(name="greeting", value="")
+        self._salutation = StringVar(name="salutation", value="")
+        # settings_tab vars
+        self._username = tk.StringVar(name="username", value="")
+        self._default_CC1 = StringVar(name="default_CC1", value="")
+        self._default_CC2 = StringVar(name="default_CC2", value="")
+        
     def create_UI_obj(self, presenter: Presenter):
         """This creates the GUI root,  along with the main
         functions to create the widgets.
@@ -709,3 +717,4 @@ class TkView(TkinterDnD.Tk):
         )
         dropdown_menu["menu"].configure(background="#aedadb")
         dropdown_menu.pack(padx=15, ipady=5, fill=X, expand=True)
+        
