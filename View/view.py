@@ -15,10 +15,13 @@ class Presenter(Protocol):
     def btn_send_envelopes(self, autosend: bool) -> None:
         ...
 
-    def btn_view_template(self) -> None:
+    def btn_clear_attachments(self) -> None:
         ...
 
-    def btn_clear_attachments(self) -> None:
+    def btn_reset_template(self) -> None:
+        ...
+
+    def btn_view_template(self) -> None:
         ...
 
     def btn_save_template(self) -> None:
@@ -63,7 +66,7 @@ class TkView(TkinterDnD.Tk):
         self._yes = positive_value
         self._no = negative_value
         self.assign_private_string_bool_vars()
-    
+
     # main_tab: getters/setters
     @property
     def extra_notes(self) -> str:
@@ -132,7 +135,7 @@ class TkView(TkinterDnD.Tk):
     # customize_tab: getters/setters
     @property
     def selected_template(self) -> str:
-        return self.dropdown_menu_var.get()
+        return self._dropdown_menu_var.get()
 
     @property
     def recipient(self) -> str:
@@ -229,8 +232,7 @@ class TkView(TkinterDnD.Tk):
         self._seawave = StringVar(name="Seawave", value=self._no)
         self._primetime = StringVar(name="Prime Time", value=self._no)
         self._newhampshire = StringVar(name="New Hampshire", value=self._no)
-        self._americanmodern = StringVar(
-            name="American Modern", value=self._no)
+        self._americanmodern = StringVar(name="American Modern", value=self._no)
         self._kemah = StringVar(name="Kemah Marine", value=self._no)
         self._concept = StringVar(name="Concept Special Risks", value=self._no)
         self._yachtinsure = StringVar(name="Yachtinsure", value=self._no)
@@ -238,7 +240,7 @@ class TkView(TkinterDnD.Tk):
         self._intact = StringVar(name="Intact", value=self._no)
         self._travelers = StringVar(name="Travelers", value=self._no)
         # customize_tab vars
-        self.dropdown_menu_var = StringVar(
+        self._dropdown_menu_var = StringVar(
             value="Select Market(s)"
             # name='Current Selection'
         )
@@ -249,7 +251,7 @@ class TkView(TkinterDnD.Tk):
         self._username = tk.StringVar(name="username", value="")
         self._default_CC1 = StringVar(name="default_CC1", value="")
         self._default_CC2 = StringVar(name="default_CC2", value="")
-        
+
     def create_UI_obj(self, presenter: Presenter):
         """This creates the GUI root,  along with the main
         functions to create the widgets.
@@ -277,8 +279,7 @@ class TkView(TkinterDnD.Tk):
         self.template_customization = ttk.Frame(self.tabControl)
         self.settings = ttk.Frame(self.tabControl)
         self.tabControl.add(self.home, text="Home - Outbox")
-        self.tabControl.add(self.template_customization,
-                            text="Customize Templates")
+        self.tabControl.add(self.template_customization, text="Customize Templates")
         self.tabControl.add(self.settings, text="Settings")
 
     def create_main_tab_widgets(self, presenter: Presenter):
@@ -304,8 +305,7 @@ class TkView(TkinterDnD.Tk):
         ).pack(fill=X, expand=True, side="left")
 
         frame_left = Frame(self.home, bg="#5F9EA0")
-        frame_left.pack(padx=5, fill=Y, side="left",
-                        expand=False, anchor=NE)
+        frame_left.pack(padx=5, fill=Y, side="left", expand=False, anchor=NE)
         Label(
             frame_left,
             text="Dag-N-Drop Quoteform Below",
@@ -374,8 +374,7 @@ class TkView(TkinterDnD.Tk):
             font=("helvetica", 12, "normal"),
         ).pack(fill=X, expand=True, side="top")
         self._userinput_CC2 = Text(labelframe_cc, height=1, width=30)
-        self._userinput_CC2.pack(
-            ipady=4, anchor=N, fill=X, expand=True, side="top")
+        self._userinput_CC2.pack(ipady=4, anchor=N, fill=X, expand=True, side="top")
         Button(
             frame_middle,
             text="View Each Before Sending!",
@@ -385,8 +384,7 @@ class TkView(TkinterDnD.Tk):
         ).pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
 
         self.frame_right = Frame(self.home, bg="#5F9EA0")
-        self.frame_right.pack(
-            padx=5, fill=BOTH, side="left", expand=True, anchor=NW)
+        self.frame_right.pack(padx=5, fill=BOTH, side="left", expand=True, anchor=NW)
         Checkbutton(
             master=self.frame_right,
             name="seawave",
@@ -496,114 +494,255 @@ class TkView(TkinterDnD.Tk):
         ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
 
     def create_customize_tab_widgets(self, presenter: Presenter):
-        title_frame = Frame(self.template_customization, bg="#5F9EA0", height=17).pack(
-            fill=X, expand=False
+        title_frame = Frame(
+            self.template_customization,
+            bg="#5F9EA0",
+            height=5,
         )
+        title_frame.pack(pady=20, fill=X, expand=False)
         Label(
             title_frame,
             text="Customize Your Envelopes Here",
-            bg="#5F9EA0",
-            font=("helvetica", 16, "normal"),
-        ).pack(fill=X, expand=True, side="top")
-        Label(
-            title_frame,
-            text="Customize the contents/template for each carrier,  or combination of carriers.",
             bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(padx=4, pady=5, fill=BOTH, expand=True, side="left", anchor=E)
-
-        template_select_frame = Frame(self.template_customization, bg="#5F9EA0").pack(
-            padx=5, fill=BOTH, expand=True
+            font=("helvetica", 20, "normal"),
+        ).pack(
+            fill=X,
+            expand=True,
+            side="top",
+            anchor=N,
+            padx=140,
         )
         Label(
-            template_select_frame,
-            text="""Select a scenario below 
-                to customize its content/template.""",
+            title_frame,
+            text="Customize the email template for each carrier,  or a  combination of carriers if they use the same address.",
             bg="#5F9EA0",
-            font=("helvetica", 10, "normal"),
-        ).pack(fill=X, expand=True)
-        self.create_dropdown(parent=template_select_frame, presenter=presenter)
-        self.dropdown_menu_var.trace_add("write", presenter.on_change_template)
+            font=("helvetica", 12, "normal"),
+        ).pack(
+            padx=4,
+            pady=5,
+            fill=X,
+            expand=True,
+            side="top",
+            anchor=N,
+        )
 
-        address_frame = Frame(self.template_customization, bg="#5F9EA0")
-        address_frame.pack(fill=BOTH, expand=False, anchor=N)
+        template_select_frame = Frame(self.template_customization, bg="#5F9EA0")
+        template_select_frame.pack(padx=15, pady=10, fill=BOTH, expand=True)
+        self.create_dropdown(parent=template_select_frame, presenter=presenter)
+        self._dropdown_menu_var.trace_add("write", presenter.on_change_template)
+
+        content_frame = Frame(self.template_customization, bg="#aedadb")
+        content_frame.pack(fill=BOTH, expand=True, anchor=N, side="top", padx=5, pady=5)
+        # address_frame = Frame(content_frame, bg="#5F9EA0")
+        # address_frame.pack(
+        #     padx=15,
+        #     pady=10,
+        #     fill=X,
+        #     expand=True,
+        #     anchor=N,
+        #     side="top",
+        # )
         Label(
-            address_frame,
+            content_frame,
             text="Submission Address:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
-        ).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side="top")
-        Entry(master=address_frame, textvariable=self._recipient).pack(
-            padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side="top"
-        ).bind("<FocusOut>", lambda: presenter.on_focus_out("recipient",
-                                                            self.recipient)
-               )
-        greeting_frame = Frame(self.template_customization, bg="#5F9EA0")
-        greeting_frame.pack(fill=BOTH, expand=False, anchor=N)
+        ).grid(column=0, row=0)
+        # ).pack(fill=BOTH, expand=False, anchor=W, side="left")
+
+        self.add_entry = Entry(
+            master=content_frame,
+            name="recipient",
+            textvariable=self._recipient,
+            width=89,
+            validate="focusout",
+            validatecommand=presenter.on_focus_out,
+        )
+        self.add_entry.grid(
+            column=1,
+            row=0,
+            sticky=W,
+            ipady=5,
+            pady=5,
+        )
+        # self.add_entry.pack(
+        #     padx=2,
+        #     fill=BOTH,
+        #     expand=True,
+        #     anchor=W,
+        #     side="left",
+        # )
+        self.add_entry.bind("<FocusOut>", presenter.on_focus_out)
+
+        # greeting_frame = Frame(content_frame, bg="#5F9EA0")
+        # greeting_frame.pack(
+        #     padx=15,
+        #     pady=10,
+        #     fill=X,
+        #     expand=True,
+        #     anchor=W,
+        #     side="top",
+        # )
         Label(
-            greeting_frame,
+            content_frame,
             text="Greeting:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
-        ).pack(padx=2, fill=BOTH, expand=True, anchor=E, side="top")
-        Entry(master=greeting_frame, textvariable=self._greeting).pack(
-            padx=4, pady=1, ipadx=160, ipady=5, fill=BOTH, expand=False, side="top"
-        ).bind("<FocusOut>", lambda: presenter.on_focus_out("greeting", self.greeting))
-        body_frame = Frame(self.template_customization, bg="#5F9EA0")
-        body_frame.pack(fill=BOTH, expand=False, anchor=N)
+        ).grid(column=0, row=1)
+        # ).pack(fill=NONE, expand=True, anchor=E, side="left")
+
+        self.greet_entry = Entry(
+            master=content_frame,
+            name="greeting",
+            textvariable=self._greeting,
+            width=89,
+        )
+        self.greet_entry.grid(
+            column=1,
+            row=1,
+            sticky=W,
+            pady=5,
+            ipady=5,
+        )
+        # )
+        # self.greet_entry.pack(
+        #     # padx=4,
+        #     # pady=1,
+        #     # ipadx=160,
+        #     # ipady=5,
+        #     fill=BOTH,
+        #     expand=False,
+        #     side="left",
+        # )
+        self.greet_entry.bind("<FocusOut>", presenter.on_focus_out)
+
+        # body_frame = Frame(content_frame, bg="#5F9EA0")
+        # body_frame.pack(
+        #     padx=15,
+        #     pady=10,
+        #     fill=X,
+        #     expand=True,
+        #     anchor=N,
+        #     side="top",
+        # )
         Label(
-            body_frame,
+            content_frame,
             text="Body of the email:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
-        ).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side="top")
-        salutation_frame = Frame(self.template_customization, bg="#5F9EA0")
-        salutation_frame.pack(fill=BOTH, expand=False, anchor=N)
+        ).grid(column=0, row=2)
+        # ).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side="left")
+
+        self._body_text = Text(
+            content_frame,
+            name="body",
+            width=67,
+            height=5,
+            wrap=WORD,
+        )
+        # self._body_text.pack(
+        #     ipadx=40,
+        #     ipady=10,
+        #     fill=NONE,
+        #     expand=False,
+        #     side="left",
+        # )
+        self._body_text.grid(
+            column=1,
+            row=2,
+            sticky=W,
+            pady=5,
+        )
+        self._body_text.bind("<FocusOut>", presenter.on_focus_out)
+
+        # salutation_frame = Frame(content_frame, bg="#5F9EA0")
+        # salutation_frame.pack(
+        #     padx=5,
+        #     pady=10,
+        #     fill=X,
+        #     expand=True,
+        #     anchor=N,
+        #     side="top",
+        # )
         Label(
-            salutation_frame,
+            content_frame,
             text="Salutation:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
-        ).pack(padx=2, pady=63, fill=BOTH, expand=True, anchor=E, side="top")
+        ).grid(column=0, row=3)
+        # ).pack(padx=2, pady=5, fill=BOTH, expand=False, anchor=N, side="left")
 
-        buttons_frame = Frame(self.template_customization, bg="#5F9EA0")
-        buttons_frame.pack(fill=BOTH, expand=True, anchor=N)
-
-        self._body_text = Text(e_frame_bottomR, width=10, height=5)
-        self._body_text.pack(
-            padx=4, pady=15, ipadx=160, ipady=5, fill=BOTH, expand=False, side="top"
-        )
-        self._body_text.bind(
-            "<FocusOut>", lambda: presenter.on_focus_out("body", self.body)
-        )
-        salutation_entry = Entry(
-            e_frame_bottomR,
+        self.sal_entry = Entry(
+            content_frame,
+            name="salutation",
             textvariable=self._salutation,
-            width=27,
+            width=89,
             highlightbackground="green",
             highlightcolor="red",
         )
-        salutation_entry.pack(
-            padx=4, ipadx=160, ipady=5, fill=BOTH, expand=False, side="top"
-        )
-        salutation_entry.bind(
-            "<FocusOut>", lambda: presenter.on_focus_out(
-                "salutation", self.salutation)
+        self.sal_entry.grid(column=1, row=3, sticky=W, pady=5, ipady=5)
+        # self.sal_entry.pack(
+        #     padx=4,
+        #     ipadx=160,
+        #     ipady=5,
+        #     fill=BOTH,
+        #     expand=False,
+        #     side="left",
+        # )
+        self.sal_entry.bind("<FocusOut>", presenter.on_focus_out)
+
+        buttons_frame = Frame(self.template_customization, bg="#5F9EA0")
+        buttons_frame.pack(fill=X, expand=True, anchor=N)
+        Button(
+            buttons_frame,
+            name="btnResetTemplate",
+            text="RESET to last saved",
+            bg="#ff0032",
+            font=("helvetica", 16, "normal"),
+            command=presenter.btn_reset_template,
+        ).pack(
+            padx=10,
+            pady=10,
+            ipady=30,
+            fill=X,
+            expand=False,
+            anchor=N,
+            side="left",
         )
         Button(
-            e_frame_bottomR,
-            name="btnSaveTemplate",
-            text="Click to SAVE the template",
-            bg="#22c26a",
-            command=presenter.btn_save_template,
-        ).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side="bottom")
-        Button(
-            e_frame_bottomR,
+            buttons_frame,
             name="btnViewTemplate",
-            text="Click to VIEW a sample message",
-            bg="#22c26a",
+            text="View Current Example",
+            bg="#00feff",
+            font=("helvetica", 16, "normal"),
+            width=20,
             command=presenter.btn_view_template,
-        ).pack(padx=4, pady=20, ipady=50, fill=X, expand=False, anchor=S, side="bottom")
+        ).pack(
+            padx=4,
+            pady=10,
+            ipady=30,
+            fill=X,
+            expand=False,
+            anchor=N,
+            side="left",
+        )
+        Button(
+            buttons_frame,
+            name="btnSaveTemplate",
+            text="Save",
+            bg="#22c26a",
+            font=("helvetica", 16, "normal"),
+            width=20,
+            command=presenter.btn_save_template,
+        ).pack(
+            padx=10,
+            pady=10,
+            ipady=30,
+            fill=X,
+            expand=False,
+            anchor=N,
+            side="left",
+        )
 
     def create_settings_tab_widgets(self, presenter: Presenter):
         title_frame = Frame(master=self.settings, bg="#5F9EA0")
@@ -631,8 +770,7 @@ class TkView(TkinterDnD.Tk):
             pady=3, ipady=2, padx=1, fill="none", expand=False, side="left", anchor=NW
         )
         cc1 = Entry(settings_CC_frame, textvariable=self._default_CC1)
-        cc1.pack(pady=3, fill=X, ipadx=10, ipady=4,
-                 expand=True, side="left", anchor=N)
+        cc1.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="left", anchor=N)
         Label(
             settings_CC_frame,
             text="Add second set of addresses to CC: ",
@@ -642,12 +780,9 @@ class TkView(TkinterDnD.Tk):
             pady=3, ipady=2, padx=1, fill="none", expand=False, side="left", anchor=NW
         )
         cc2 = Entry(settings_CC_frame, textvariable=self._default_CC2)
-        cc2.pack(pady=3, fill=X, ipadx=10, ipady=4,
-                 expand=True, side="left", anchor=N)
-        settings_username_header_frame = Frame(
-            master=self.settings, bg="#5F9EA0")
-        settings_username_header_frame.pack(
-            fill=BOTH, expand=False, side="top")
+        cc2.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="left", anchor=N)
+        settings_username_header_frame = Frame(master=self.settings, bg="#5F9EA0")
+        settings_username_header_frame.pack(fill=BOTH, expand=False, side="top")
         settings_username_frame = Frame(master=self.settings, bg="#5F9EA0")
         settings_username_frame.pack(fill=BOTH, expand=False, side="top")
         Label(
@@ -682,8 +817,7 @@ class TkView(TkinterDnD.Tk):
             parent, height=8, width=27, background="#59f3e3", name="raw_quoteform_path"
         )
         self.quoteform_path_box.drop_target_register(DND_FILES)
-        self.quoteform_path_box.dnd_bind(
-            "<<Drop>>", presenter.process_quoteform_path)
+        self.quoteform_path_box.dnd_bind("<<Drop>>", presenter.process_quoteform_path)
         self.quoteform_path_box.pack(fill=X, anchor=N, expand=True)
 
     def create_extra_attachments_path_box(
@@ -708,13 +842,16 @@ class TkView(TkinterDnD.Tk):
         """Creates the OptionMenu widget separately for less coupling."""
         options = list()
         options = presenter.set_dropdown_options()
-        dropdown_menu = OptionMenu(parent, self.dropdown_menu_var, *options)
+        dropdown_menu = OptionMenu(parent, self._dropdown_menu_var, *options)
         dropdown_menu.configure(
             background="#aedadb",
             foreground="black",
             highlightbackground="#5F9EA0",
             activebackground="#5F9EA0",
+            font=("helvetica", 12, "normal"),
         )
         dropdown_menu["menu"].configure(background="#aedadb")
         dropdown_menu.pack(padx=15, ipady=5, fill=X, expand=True)
-        
+
+    def get_active_focus(self) -> dict:
+        return self.focus_get()
