@@ -138,17 +138,17 @@ class TkView(TkinterDnD.Tk):
         return self._dropdown_menu_var.get()
 
     @property
-    def recipient(self) -> str:
-        return self._recipient.get()
+    def address(self) -> str:
+        return self._address.get()
 
-    @recipient.setter
-    def recipient(self, new_recipient: str) -> None:
-        print(new_recipient)
-        self._recipient.set(new_recipient)
+    @address.setter
+    def address(self, new_address: str) -> None:
+        print(new_address)
+        self._address.set(new_address)
 
-    @recipient.deleter
-    def recipient(self) -> None:
-        self._recipient.set("")
+    @address.deleter
+    def address(self) -> None:
+        self._address.set("")
 
     @property
     def greeting(self) -> str:
@@ -244,7 +244,7 @@ class TkView(TkinterDnD.Tk):
             value="Select Market(s)"
             # name='Current Selection'
         )
-        self._recipient = StringVar(name="recipient", value="")
+        self._address = StringVar(name="address", value="")
         self._greeting = tk.StringVar(name="greeting", value="")
         self._salutation = StringVar(name="salutation", value="")
         # settings_tab vars
@@ -533,27 +533,18 @@ class TkView(TkinterDnD.Tk):
 
         content_frame = Frame(self.template_customization, bg="#aedadb")
         content_frame.pack(fill=BOTH, expand=True, anchor=N, side="top", padx=5, pady=5)
-        # address_frame = Frame(content_frame, bg="#5F9EA0")
-        # address_frame.pack(
-        #     padx=15,
-        #     pady=10,
-        #     fill=X,
-        #     expand=True,
-        #     anchor=N,
-        #     side="top",
-        # )
+
         Label(
             content_frame,
             text="Submission Address:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
         ).grid(column=0, row=0)
-        # ).pack(fill=BOTH, expand=False, anchor=W, side="left")
 
         self.add_entry = Entry(
             master=content_frame,
-            name="recipient",
-            textvariable=self._recipient,
+            name="address",
+            textvariable=self._address,
             width=89,
             validate="focusout",
             validatecommand=presenter.on_focus_out,
@@ -565,31 +556,15 @@ class TkView(TkinterDnD.Tk):
             ipady=5,
             pady=5,
         )
-        # self.add_entry.pack(
-        #     padx=2,
-        #     fill=BOTH,
-        #     expand=True,
-        #     anchor=W,
-        #     side="left",
-        # )
+
         self.add_entry.bind("<FocusOut>", presenter.on_focus_out)
 
-        # greeting_frame = Frame(content_frame, bg="#5F9EA0")
-        # greeting_frame.pack(
-        #     padx=15,
-        #     pady=10,
-        #     fill=X,
-        #     expand=True,
-        #     anchor=W,
-        #     side="top",
-        # )
         Label(
             content_frame,
             text="Greeting:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
         ).grid(column=0, row=1)
-        # ).pack(fill=NONE, expand=True, anchor=E, side="left")
 
         self.greet_entry = Entry(
             master=content_frame,
@@ -604,34 +579,14 @@ class TkView(TkinterDnD.Tk):
             pady=5,
             ipady=5,
         )
-        # )
-        # self.greet_entry.pack(
-        #     # padx=4,
-        #     # pady=1,
-        #     # ipadx=160,
-        #     # ipady=5,
-        #     fill=BOTH,
-        #     expand=False,
-        #     side="left",
-        # )
         self.greet_entry.bind("<FocusOut>", presenter.on_focus_out)
 
-        # body_frame = Frame(content_frame, bg="#5F9EA0")
-        # body_frame.pack(
-        #     padx=15,
-        #     pady=10,
-        #     fill=X,
-        #     expand=True,
-        #     anchor=N,
-        #     side="top",
-        # )
         Label(
             content_frame,
             text="Body of the email:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
         ).grid(column=0, row=2)
-        # ).pack(padx=2, pady=15, fill=BOTH, expand=True, anchor=E, side="left")
 
         self._body_text = Text(
             content_frame,
@@ -640,13 +595,6 @@ class TkView(TkinterDnD.Tk):
             height=5,
             wrap=WORD,
         )
-        # self._body_text.pack(
-        #     ipadx=40,
-        #     ipady=10,
-        #     fill=NONE,
-        #     expand=False,
-        #     side="left",
-        # )
         self._body_text.grid(
             column=1,
             row=2,
@@ -655,22 +603,12 @@ class TkView(TkinterDnD.Tk):
         )
         self._body_text.bind("<FocusOut>", presenter.on_focus_out)
 
-        # salutation_frame = Frame(content_frame, bg="#5F9EA0")
-        # salutation_frame.pack(
-        #     padx=5,
-        #     pady=10,
-        #     fill=X,
-        #     expand=True,
-        #     anchor=N,
-        #     side="top",
-        # )
         Label(
             content_frame,
             text="Salutation:",
             bg="#aedadb",
             font=("helvetica", 16, "normal"),
         ).grid(column=0, row=3)
-        # ).pack(padx=2, pady=5, fill=BOTH, expand=False, anchor=N, side="left")
 
         self.sal_entry = Entry(
             content_frame,
@@ -681,14 +619,6 @@ class TkView(TkinterDnD.Tk):
             highlightcolor="red",
         )
         self.sal_entry.grid(column=1, row=3, sticky=W, pady=5, ipady=5)
-        # self.sal_entry.pack(
-        #     padx=4,
-        #     ipadx=160,
-        #     ipady=5,
-        #     fill=BOTH,
-        #     expand=False,
-        #     side="left",
-        # )
         self.sal_entry.bind("<FocusOut>", presenter.on_focus_out)
 
         buttons_frame = Frame(self.template_customization, bg="#5F9EA0")
@@ -745,42 +675,95 @@ class TkView(TkinterDnD.Tk):
         )
 
     def create_settings_tab_widgets(self, presenter: Presenter):
-        title_frame = Frame(master=self.settings, bg="#5F9EA0")
-        title_frame.pack(fill=BOTH, expand=False, side="top")
-        Label(
-            title_frame,
-            text="Settings Page",
+        content_boder = Frame(self.settings, padx=20, pady=20, bg="#cbff65")
+        content_boder.pack(
+            fill=BOTH,
+            expand=True,
+        )
+
+        title_frame = Frame(
+            content_boder,
             bg="#5F9EA0",
-            font=("helvetica", 20, "normal"),
-        ).pack(fill=BOTH, expand=False, side="top")
-        Label(
-            master=title_frame,
-            text="Default CC Addresses",
+            height=10,
+        )
+        title_frame.pack(fill=X, expand=False, side="top")
+
+        main_settings_frame = Frame(
+            content_boder,
             bg="#5F9EA0",
-            font=("helvetica", 14, "normal"),
-        ).pack(fill=X, expand=False, side="top")
+        )
+        main_settings_frame.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
+        )
+
+        # default_CC_lf = LabelFrame(
+        #     main_settings_frame,
+        #     text="Define default addresses that you often CC;  you can create two groups of addresses for convenience",
+        #     bg="#aedadb",
+        #     font=("helvetica", 8, "normal"),
+        # )
+        # default_CC_lf.pack(fill=X, expand=False, side="top")
+
+        # Label(master=default_CC_lf,
+        #     text="First group of addresses:",
+        #     bg="#aedadb",
+        #     font=("helvetica", 12, "normal"),
+        # ).pack(
+        #     pady=3, ipady=2, padx=1, fill="none", expand=False, side="top", anchor=N
+        # )
+        # cc1 = Entry(default_CC_lf, textvariable=self._default_CC1)
+        # cc1.pack(pady=3, fill=X, ipadx=10, ipady=4 expand=True, side="top", anchor=N)
+        # Label(
+        #     default_CC_lf,
+        #     text="Second group of addresses:",
+        #     bg="#aedadb",
+        #     font=("helvetica", 12, "normal"),
+        # ).pack(
+        #     pady=3, ipady=2, padx=1, fill="none", expand=False, side="top", anchor=NW
+        # )
+        # cc2 = Entry(default_CC_lf, textvariable=self._default_CC2)
+        # cc2.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="top", anchor=N)
+
+        future_settings_frame = Frame(
+            content_boder,
+            bg="#ff00fe",
+        )
+        future_settings_frame.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
+        )
+
+        # Label(
+        #     title_frame,
+        #     text='Settings Page',
+        #     bg="#aedadb",
+        #     font=("helvetica", 20, "normal"),
+        # ).pack(
+        #     fill=BOTH,
+        #     expand=True,
+        #     padx=140,
+        # )
+
+        # title_frame = Frame(master=self.settings, bg="#5F9EA0")
+        # title_frame.pack(fill=BOTH, expand=False, side="top")
+        # Label(
+        #     title_frame,
+        #     text="Settings Page",
+        #     bg="#5F9EA0",
+        #     font=("helvetica", 20, "normal"),
+        # ).pack(fill=BOTH, expand=False, side="top")
+        # Label(
+        #     master=title_frame,
+        #     text="Default CC Addresses",
+        #     bg="#5F9EA0",
+        #     font=("helvetica", 14, "normal"),
+        # ).pack(fill=X, expand=False, side="top")
         settings_CC_frame = Frame(master=self.settings, bg="#5F9EA0")
         settings_CC_frame.pack(fill=X, expand=False, side="top")
         Label(
-            master=settings_CC_frame,
-            text="Add first set of addresses to CC: ",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(
-            pady=3, ipady=2, padx=1, fill="none", expand=False, side="left", anchor=NW
-        )
-        cc1 = Entry(settings_CC_frame, textvariable=self._default_CC1)
-        cc1.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="left", anchor=N)
-        Label(
-            settings_CC_frame,
-            text="Add second set of addresses to CC: ",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(
-            pady=3, ipady=2, padx=1, fill="none", expand=False, side="left", anchor=NW
-        )
-        cc2 = Entry(settings_CC_frame, textvariable=self._default_CC2)
-        cc2.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="left", anchor=N)
         settings_username_header_frame = Frame(master=self.settings, bg="#5F9EA0")
         settings_username_header_frame.pack(fill=BOTH, expand=False, side="top")
         settings_username_frame = Frame(master=self.settings, bg="#5F9EA0")
@@ -836,7 +819,6 @@ class TkView(TkinterDnD.Tk):
         self.extra_attachments_path_box.dnd_bind(
             "<<Drop>>", presenter.process_attachments_path
         )
-        # Create functionality to show the paths of the files in box.
 
     def create_dropdown(self, parent, presenter: Presenter) -> None:
         """Creates the OptionMenu widget separately for less coupling."""

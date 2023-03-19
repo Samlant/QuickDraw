@@ -153,7 +153,7 @@ class ConfigWorker:
         config = self.open_config()
         section_name = request["section_name"]
         key = request["key"]
-        result = config.get(section_name, key)
+        result = config.get(section_name, key).value
         return result
 
     def _validate_section(self, section_name) -> bool:  # GOOD

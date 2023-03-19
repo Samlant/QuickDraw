@@ -62,7 +62,7 @@ class View(Protocol):
         ...
 
     @property
-    def recipient(self, recipient: str) -> str:
+    def address(self, address: str) -> str:
         ...
 
     @property
@@ -104,7 +104,7 @@ class View(Protocol):
     # ce: str
     # In: str
     # tv: str
-    # recipient: str
+    # address: str
     # greeting: str
     # body: str
     # salutation: str
@@ -263,32 +263,24 @@ class Presenter:
             raise Exception("Couldn't save template_dict to config.")
 
     def on_focus_out(self, event) -> bool:
-        field_id = {
-                    "section_name": self.view.selected_template,
-                    "key": event.winfo_name(),
-                    }
+        carrier = self.view.selected_template
+        if carrier == "Select Market(s)":
+            return True
+        widget_name = event.widget.winfo_name()
+        placeholder = self.config_worker.get_value_from_config(
+            {
+                "section_name": carrier,
+                "key": widget_name,
+            }
+        )
         try:
-            if field_id['key'] == "recipient" and self.view.recipient == "":
-                self.view.recipient = self.config_worker.get_value_from_config(field_id)
-            elif field_id['key'] == "greeting" and self.view.greeting == "":
-                
-                self.view.greeting = self.config_worker.get_value_from_config(
-                    field_id
-                )
-            elif field_id['key'] == "body" and self.view.body == "":
-               
-                self.view.body = self.config_worker.get_value_from_config(
-                    field_id
-                )
-            elif field_id['key'] == "salutation" and self.view.salutation == "":
-                self.view.salutation = self.config_worker.get_value_from_config(
-                    field_id
-                )
-            else:
-                pass
+            self.view.__setattr__(
+                widget_name,
+                placeholder,
+            )
         except:
             raise Exception(
-                "Couldn't get & assign placeholder for customize_tab on focus out"
+                "Couldn't get & assign placeholder for customize_tab on focus out event"
             )
         else:
             return True
@@ -306,7 +298,7 @@ class Presenter:
             possible_redundancies_dict = {
                 "sw": self.view.sw,
                 "pt": self.view.pt,
-                "nh": .view.nh,
+                "nh": self.view.nh,
             }
         except:
             raise Exception("Couldn't get carrier checkboxes saved into a dict.")
@@ -348,7 +340,7 @@ class Presenter:
         try:
             customize_dict = {
                 "selected_template": self.view.selected_template,
-                "recipient": self.view.recipient,
+                "address": self.view.address,
                 "greeting": self.view.greeting,
                 "body": self.view.body,
                 "salutation": self.view.salutation,
@@ -360,28 +352,26 @@ class Presenter:
 
     def set_initial_placeholders(self) -> None:
         """Sets the initial view for each input field, if applicable"""
-        value1 = self.config_worker.get_value_from_config(
-            {"section_name": "General settings", "key": "use_default_CC_addresses"}
-        ).value
-        self.view.use_CC_defaults = value1
-        self.view.username = self.config_worker.get_value_from_config(
-            {"section_name": "General settings", "key": "username"}
-        )
-        self.view.default_CC1 = self.config_worker.get_value_from_config(
-            {"section_name": "General settings", "key": "default_CC1"}
-        )
-        self.view.default_CC2 = self.config_worker.get_value_from_config(
-            {"section_name": "General settings", "key": "default_CC2"}
-        )
+        field_keys = [
+            "username",
+            "use_default_CC_addresses",
+            "default_CC1",
+            "default_CC2",
+        ]
+        for key in field_keys:
+            new_value = self.config_worker.get_value_from_config(
+                {"section_name": "General settings", "key": key}
+            )
+            self.view.__setattr__(key, new_value)
         initial_placeholders_dict = self.config_worker.get_section(
-            "Default placeholders"
+            "Initial placeholders"
         )
         self._set_customize_tab_placeholders(initial_placeholders_dict)
 
     def _set_customize_tab_placeholders(self, placeholder_dict: dict) -> None:
         """Sets the placeholders for the customizations_tab"""
         try:
-            self.view.recipient = placeholder_dict.pop("address")
+            self.view.address = placeholder_dict.pop("address")
             self.view.greeting = placeholder_dict.pop("greeting")
             del self.view.body
             self.view.body = placeholder_dict.pop("body")
@@ -416,7 +406,7 @@ class Presenter:
             extra_notes=self.view.extra_notes,
             salutation=self.view.salutation,
         )
-        letter.To = self.view.recipient
+        letter.To = self.view.address
         letter.Subject = subject
         letter.HTMLBody = body_text
         postman.send_letter(autosend=False)
