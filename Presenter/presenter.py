@@ -212,9 +212,6 @@ class Presenter:
         selected_template = self.view.selected_template
         placeholders_dict = self.config_worker.get_section(selected_template)
         self._set_customize_tab_placeholders(placeholders_dict)
-        #     return True
-        # else:
-        #     raise Exception("Could't update customize_tab upon changing.")
 
     def btn_reset_template(self) -> bool:
         """Replaces template page with the last-saved placeholders"""
@@ -265,41 +262,27 @@ class Presenter:
         except:
             raise Exception("Couldn't save template_dict to config.")
 
-    # def on_focus_out(self, field_name: str, current_text: str) -> bool:
     def on_focus_out(self, event) -> bool:
-        active_widget = self.view.focus_get()
+        field_id = {
+                    "section_name": self.view.selected_template,
+                    "key": event.winfo_name(),
+                    }
         try:
-            if active_widget == "recipient" and self.view.recipient == "":
-                needed_values_dict = {
-                    "section_name": self.view.selected_template,
-                    "key": "recipient",
-                }
-                self.view.recipient = self.config_worker.get_value_from_config(
-                    needed_values_dict
-                )
-            elif active_widget == "greeting" and self.view.greeting == "":
-                needed_values_dict = {
-                    "section_name": self.view.selected_template,
-                    "key": "greeting",
-                }
+            if field_id['key'] == "recipient" and self.view.recipient == "":
+                self.view.recipient = self.config_worker.get_value_from_config(field_id)
+            elif field_id['key'] == "greeting" and self.view.greeting == "":
+                
                 self.view.greeting = self.config_worker.get_value_from_config(
-                    needed_values_dict
+                    field_id
                 )
-            elif active_widget == "body" and self.view.body == "":
-                needed_values_dict = {
-                    "section_name": self.view.selected_template,
-                    "key": "body",
-                }
+            elif field_id['key'] == "body" and self.view.body == "":
+               
                 self.view.body = self.config_worker.get_value_from_config(
-                    needed_values_dict
+                    field_id
                 )
-            elif active_widget == "salutation" and self.view.salutation == "":
-                needed_values_dict = {
-                    "section_name": self.view.selected_template,
-                    "key": "salutation",
-                }
+            elif field_id['key'] == "salutation" and self.view.salutation == "":
                 self.view.salutation = self.config_worker.get_value_from_config(
-                    needed_values_dict
+                    field_id
                 )
             else:
                 pass
@@ -323,7 +306,7 @@ class Presenter:
             possible_redundancies_dict = {
                 "sw": self.view.sw,
                 "pt": self.view.pt,
-                "nh": self.view.nh,
+                "nh": .view.nh,
             }
         except:
             raise Exception("Couldn't get carrier checkboxes saved into a dict.")
@@ -375,23 +358,8 @@ class Presenter:
         else:
             return customize_dict
 
-    # def clear_customize_template_placeholders(self) -> None:
-    #     """Clears all inputtable fields on the customize_tab"""
-    #     del self.view.recipient
-    #     del self.view.greeting
-    #     del self.view.body
-    #     del self.view.salutation
-
-    # def clear_settings_placeholders(self) -> None:
-    #     """Clears all inputtable fields on the settings_tab"""
-    #     del self.view.default_CC1
-    #     del self.view.default_CC2
-    #     del self.view.username
-
     def set_initial_placeholders(self) -> None:
         """Sets the initial view for each input field, if applicable"""
-        # self.clear_customize_template_placeholders()
-        # self.clear_settings_placeholders()
         value1 = self.config_worker.get_value_from_config(
             {"section_name": "General settings", "key": "use_default_CC_addresses"}
         ).value
