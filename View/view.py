@@ -30,6 +30,9 @@ class Presenter(Protocol):
     def btn_save_settings(self) -> None:
         ...
 
+    def btn_revert_settings(self) -> None:
+        ...
+
     def set_dropdown_options(self) -> list:
         ...
 
@@ -680,13 +683,22 @@ class TkView(TkinterDnD.Tk):
             fill=BOTH,
             expand=True,
         )
-
         title_frame = Frame(
             content_boder,
             bg="#5F9EA0",
             height=10,
         )
         title_frame.pack(fill=X, expand=False, side="top")
+        Label(
+            title_frame,
+            text="Settings Page",
+            bg="#aedadb",
+            font=("helvetica", 20, "normal"),
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            padx=140,
+        )
 
         main_settings_frame = Frame(
             content_boder,
@@ -697,35 +709,72 @@ class TkView(TkinterDnD.Tk):
             expand=True,
             side="top",
         )
+        default_CC_lf = LabelFrame(
+            main_settings_frame,
+            text="Define default addresses that you often CC;  you can create two groups of addresses for convenience",
+            bg="#aedadb",
+            font=("helvetica", 8, "normal"),
+        )
+        default_CC_lf.pack(
+            fill=X,
+            expand=False,
+            pady=5,
+            padx=5,
+            side="top",
+        )
 
-        # default_CC_lf = LabelFrame(
-        #     main_settings_frame,
-        #     text="Define default addresses that you often CC;  you can create two groups of addresses for convenience",
-        #     bg="#aedadb",
-        #     font=("helvetica", 8, "normal"),
-        # )
-        # default_CC_lf.pack(fill=X, expand=False, side="top")
-
-        # Label(master=default_CC_lf,
-        #     text="First group of addresses:",
-        #     bg="#aedadb",
-        #     font=("helvetica", 12, "normal"),
-        # ).pack(
-        #     pady=3, ipady=2, padx=1, fill="none", expand=False, side="top", anchor=N
-        # )
-        # cc1 = Entry(default_CC_lf, textvariable=self._default_CC1)
-        # cc1.pack(pady=3, fill=X, ipadx=10, ipady=4 expand=True, side="top", anchor=N)
-        # Label(
-        #     default_CC_lf,
-        #     text="Second group of addresses:",
-        #     bg="#aedadb",
-        #     font=("helvetica", 12, "normal"),
-        # ).pack(
-        #     pady=3, ipady=2, padx=1, fill="none", expand=False, side="top", anchor=NW
-        # )
-        # cc2 = Entry(default_CC_lf, textvariable=self._default_CC2)
-        # cc2.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="top", anchor=N)
-
+        Label(
+            master=default_CC_lf,
+            text="First group of addresses:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(pady=3, ipady=2, padx=1, fill="none", expand=False, side="top", anchor=N)
+        cc1 = Entry(default_CC_lf, textvariable=self._default_CC1)
+        cc1.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="top", anchor=N)
+        Label(
+            default_CC_lf,
+            text="Second group of addresses:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(
+            pady=3,
+            ipady=2,
+            padx=1,
+            fill="none",
+            expand=False,
+            side="top",
+            anchor=NW,
+        )
+        cc2 = Entry(default_CC_lf, textvariable=self._default_CC2)
+        cc2.pack(
+            pady=3,
+            fill=X,
+            ipadx=10,
+            ipady=4,
+            expand=True,
+            side="top",
+            anchor=N,
+        )
+        Label(
+            main_settings_frame,
+            text="Your name (for the signature):",
+            bg="#00ff99",
+            font=("helvetica", 12, "normal"),
+        ).pack(
+            fill="none",
+            expand=False,
+            side="left",
+        )
+        username_entry = Entry(
+            master=main_settings_frame,
+            textvariable=self._username,
+        )
+        username_entry.pack(
+            fill=X,
+            expand=True,
+            side="left",
+            anchor=W,
+        )
         future_settings_frame = Frame(
             content_boder,
             bg="#ff00fe",
@@ -735,63 +784,36 @@ class TkView(TkinterDnD.Tk):
             expand=True,
             side="top",
         )
-
-        # Label(
-        #     title_frame,
-        #     text='Settings Page',
-        #     bg="#aedadb",
-        #     font=("helvetica", 20, "normal"),
-        # ).pack(
-        #     fill=BOTH,
-        #     expand=True,
-        #     padx=140,
-        # )
-
-        # title_frame = Frame(master=self.settings, bg="#5F9EA0")
-        # title_frame.pack(fill=BOTH, expand=False, side="top")
-        # Label(
-        #     title_frame,
-        #     text="Settings Page",
-        #     bg="#5F9EA0",
-        #     font=("helvetica", 20, "normal"),
-        # ).pack(fill=BOTH, expand=False, side="top")
-        # Label(
-        #     master=title_frame,
-        #     text="Default CC Addresses",
-        #     bg="#5F9EA0",
-        #     font=("helvetica", 14, "normal"),
-        # ).pack(fill=X, expand=False, side="top")
-        settings_CC_frame = Frame(master=self.settings, bg="#5F9EA0")
-        settings_CC_frame.pack(fill=X, expand=False, side="top")
-        Label(
-        settings_username_header_frame = Frame(master=self.settings, bg="#5F9EA0")
-        settings_username_header_frame.pack(fill=BOTH, expand=False, side="top")
-        settings_username_frame = Frame(master=self.settings, bg="#5F9EA0")
-        settings_username_frame.pack(fill=BOTH, expand=False, side="top")
-        Label(
-            settings_username_frame,
-            text="Your name",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(
-            pady=3, ipady=2, padx=1, fill="none", expand=False, side="left", anchor=NW
+        buttons_frame = Frame(
+            content_boder,
+            bg="#ff9900",
         )
-        username_entry = Entry(
-            master=settings_username_frame, textvariable=self._username
+        buttons_frame.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
         )
-        username_entry.pack(
-            ipadx=30, pady=5, fill=X, expand=True, side="right", anchor=NW
-        )
-        save_btn_frame = Frame(master=self.settings, bg="#5F9EA0")
-        save_btn_frame.pack(fill=BOTH, expand=False, side="top")
         Button(
-            master=save_btn_frame,
+            master=buttons_frame,
             text="Save Settings",
             bg="#22c26a",
             font=("helvetica", 12, "normal"),
             command=presenter.btn_save_settings,
         ).pack(
-            ipady=10, pady=10, padx=10, fill=BOTH, expand=False, anchor=N, side="top"
+            fill=BOTH,
+            expand=False,
+            side="left",
+        )
+        Button(
+            master=buttons_frame,
+            text="Revert Back",
+            bg="#22c26a",
+            font=("helvetica", 12, "normal"),
+            command=presenter.btn_revert_settings,
+        ).pack(
+            fill=BOTH,
+            expand=False,
+            side="left",
         )
 
     def create_quoteform_path_box(self, parent: Frame, presenter=Presenter) -> None:
