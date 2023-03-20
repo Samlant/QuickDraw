@@ -78,11 +78,11 @@ class View(Protocol):
         ...
 
     @property
-    def default_CC1(self, default_CC1: str) -> str:
+    def default_cc1(self, default_cc1: str) -> str:
         ...
 
     @property
-    def default_CC2(self, default_cc2: str) -> str:
+    def default_cc2(self, default_cc2: str) -> str:
         ...
 
     @property
@@ -108,8 +108,8 @@ class View(Protocol):
     # greeting: str
     # body: str
     # salutation: str
-    # default_CC1: str
-    # default_CC2: str
+    # default_cc1: str
+    # default_cc2: str
     # username: str
 
     def reset_attributes(self, positive_value, negative_value):
@@ -228,8 +228,8 @@ class Presenter:
         """
         settings_dict = dict()
         settings_dict = {
-            "default_CC1": self.view.default_CC1,
-            "default_CC2": self.view.default_CC2,
+            "default_cc1": self.view.default_cc1,
+            "default_cc2": self.view.default_cc2,
             "username": self.view.username,
         }
         return settings_dict
@@ -246,8 +246,12 @@ class Presenter:
         settings_dict = self._get_settings_values()
         self.config_worker.handle_save_contents("General settings", settings_dict)
 
-    def btn_revert_settings(self, event):
-        pass
+    def btn_revert_settings(self):
+        section = self.config_worker.get_section("General settings")
+        self._set_settings_tab_placeholders(section)
+
+        # for option, key in section.items():
+        #     self.view.__setattr__(option, key)
 
     def btn_save_template(self) -> None:
         """Calls a private getter method & saves output as a dict,
@@ -357,9 +361,9 @@ class Presenter:
         """Sets the initial view for each input field, if applicable"""
         field_keys = [
             "username",
-            "use_default_CC_addresses",
-            "default_CC1",
-            "default_CC2",
+            "use_default_cc_addresses",
+            "default_cc1",
+            "default_cc2",
         ]
         for key in field_keys:
             new_value = self.config_worker.get_value_from_config(
@@ -387,6 +391,17 @@ class Presenter:
     def _get_customize_tab_placeholders(self) -> dict:
         current_selection = self.view.selected_template
         return self.config_worker.get_section(current_selection)
+
+    def _set_settings_tab_placeholders(self, placeholder_dict: dict) -> None:
+        """Sets the placeholders for the settings tab"""
+        try:
+            self.view.default_cc1 = placeholder_dict.pop("default_cc1")
+            self.view.default_cc2 = placeholder_dict.pop("default_cc2")
+            self.view.username = placeholder_dict.pop("username")
+        except:
+            raise Exception("Couldn't set placeholders for the settings_tab")
+        else:
+            return True
 
     def btn_view_template(self) -> None:
         selected_template = self.view.selected_template
@@ -521,8 +536,8 @@ class Presenter:
         print(self.view.extra_notes)
         if self.view.use_CC_defaults == True:
             if self.config_worker.check_if_using_default_carboncopies() == True:
-                default_CC_addresses = self.model.get_default_cc_addresses()
-                list_of_CC.append(default_CC_addresses)
+                default_cc_addresses = self.model.get_default_cc_addresses()
+                list_of_CC.append(default_cc_addresses)
             else:
                 pass
         else:

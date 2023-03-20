@@ -30,7 +30,7 @@ class Presenter(Protocol):
     def btn_save_settings(self) -> None:
         ...
 
-    def btn_revert_settings(self) -> None:
+    def btn_revert_settings(event) -> None:
         ...
 
     def set_dropdown_options(self) -> list:
@@ -191,28 +191,28 @@ class TkView(TkinterDnD.Tk):
 
     # settings_tab: getters/setters
     @property
-    def default_CC1(self) -> str:
-        return self._default_CC1.get()
+    def default_cc1(self) -> str:
+        return self._default_cc1.get()
 
-    @default_CC1.setter
-    def default_CC1(self, new_default_CC: str) -> None:
-        self._default_CC1.set(new_default_CC)
+    @default_cc1.setter
+    def default_cc1(self, new_default_cc: str) -> None:
+        self._default_cc1.set(new_default_cc)
 
-    @default_CC1.deleter
-    def default_CC1(self) -> None:
-        self._default_CC1.set("")
+    @default_cc1.deleter
+    def default_cc1(self) -> None:
+        self._default_cc1.set("")
 
     @property
-    def default_CC2(self) -> str:
-        return self._default_CC2.get()
+    def default_cc2(self) -> str:
+        return self._default_cc2.get()
 
-    @default_CC2.setter
-    def default_CC2(self, new_default_CC: str) -> None:
-        self._default_CC2.set(new_default_CC)
+    @default_cc2.setter
+    def default_cc2(self, new_default_cc: str) -> None:
+        self._default_cc2.set(new_default_cc)
 
-    @default_CC2.deleter
-    def default_CC2(self) -> None:
-        self._default_CC2.set("")
+    @default_cc2.deleter
+    def default_cc2(self) -> None:
+        self._default_cc2.set("")
 
     @property
     def username(self) -> str:
@@ -248,12 +248,12 @@ class TkView(TkinterDnD.Tk):
             # name='Current Selection'
         )
         self._address = StringVar(name="address", value="")
-        self._greeting = tk.StringVar(name="greeting", value="")
+        self._greeting = StringVar(name="greeting", value="")
         self._salutation = StringVar(name="salutation", value="")
         # settings_tab vars
-        self._username = tk.StringVar(name="username", value="")
-        self._default_CC1 = StringVar(name="default_CC1", value="")
-        self._default_CC2 = StringVar(name="default_CC2", value="")
+        self._username = StringVar(name="username", value="")
+        self._default_cc1 = StringVar(name="default_cc1", value="")
+        self._default_cc2 = StringVar(name="default_cc2", value="")
 
     def create_UI_obj(self, presenter: Presenter):
         """This creates the GUI root,  along with the main
@@ -678,7 +678,12 @@ class TkView(TkinterDnD.Tk):
         )
 
     def create_settings_tab_widgets(self, presenter: Presenter):
-        content_boder = Frame(self.settings, padx=20, pady=20, bg="#cbff65")
+        content_boder = Frame(
+            self.settings,
+            padx=20,
+            pady=20,
+            bg="#5F9EA0",
+        )
         content_boder.pack(
             fill=BOTH,
             expand=True,
@@ -709,61 +714,70 @@ class TkView(TkinterDnD.Tk):
             expand=True,
             side="top",
         )
-        default_CC_lf = LabelFrame(
+        default_cc_lf = LabelFrame(
             main_settings_frame,
-            text="Define default addresses that you often CC;  you can create two groups of addresses for convenience",
+            text="Define default addresses that you often CC: simply separate by semicolon! Note: you can create two differnet groups",
             bg="#aedadb",
             font=("helvetica", 8, "normal"),
         )
-        default_CC_lf.pack(
+        default_cc_lf.pack(
             fill=X,
             expand=False,
-            pady=5,
-            padx=5,
+            pady=10,
             side="top",
         )
 
         Label(
-            master=default_CC_lf,
+            master=default_cc_lf,
             text="First group of addresses:",
             bg="#aedadb",
             font=("helvetica", 12, "normal"),
-        ).pack(pady=3, ipady=2, padx=1, fill="none", expand=False, side="top", anchor=N)
-        cc1 = Entry(default_CC_lf, textvariable=self._default_CC1)
-        cc1.pack(pady=3, fill=X, ipadx=10, ipady=4, expand=True, side="top", anchor=N)
+        ).grid(
+            column=0,
+            row=0,
+        )
+        cc1 = Entry(
+            default_cc_lf,
+            textvariable=self._default_cc1,
+            name="default_cc1",
+        )
+        cc1.grid(
+            column=1,
+            row=0,
+            sticky=EW,
+            ipadx=260,
+        )
         Label(
-            default_CC_lf,
+            default_cc_lf,
             text="Second group of addresses:",
             bg="#aedadb",
             font=("helvetica", 12, "normal"),
-        ).pack(
-            pady=3,
-            ipady=2,
-            padx=1,
-            fill="none",
-            expand=False,
-            side="top",
-            anchor=NW,
+        ).grid(
+            column=0,
+            row=1,
         )
-        cc2 = Entry(default_CC_lf, textvariable=self._default_CC2)
-        cc2.pack(
-            pady=3,
-            fill=X,
-            ipadx=10,
-            ipady=4,
-            expand=True,
-            side="top",
-            anchor=N,
+        cc2 = Entry(
+            default_cc_lf,
+            textvariable=self._default_cc2,
+            name="default_cc2",
+        )
+        cc2.grid(
+            column=1,
+            row=1,
+            rowspan=4,
+            sticky=EW,
+            ipadx=260,
         )
         Label(
             main_settings_frame,
             text="Your name (for the signature):",
-            bg="#00ff99",
+            bg="#aedadb",
             font=("helvetica", 12, "normal"),
         ).pack(
-            fill="none",
+            fill=None,
             expand=False,
             side="left",
+            anchor=N,
         )
         username_entry = Entry(
             master=main_settings_frame,
@@ -773,11 +787,12 @@ class TkView(TkinterDnD.Tk):
             fill=X,
             expand=True,
             side="left",
-            anchor=W,
+            anchor=N,
+            ipady=4,
         )
         future_settings_frame = Frame(
             content_boder,
-            bg="#ff00fe",
+            bg="#5F9EA0",
         )
         future_settings_frame.pack(
             fill=BOTH,
@@ -786,12 +801,34 @@ class TkView(TkinterDnD.Tk):
         )
         buttons_frame = Frame(
             content_boder,
-            bg="#ff9900",
+            bg="#5F9EA0",
         )
         buttons_frame.pack(
             fill=BOTH,
             expand=True,
             side="top",
+        )
+        left_btn_spacer = Frame(
+            buttons_frame,
+            bg="#5F9EA0",
+        )
+        left_btn_spacer.pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+        )
+        Button(
+            master=buttons_frame,
+            text="Revert Back",
+            bg="#ff0032",
+            font=("helvetica", 12, "normal"),
+            command=presenter.btn_revert_settings,
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+            padx=10,
+            pady=10,
         )
         Button(
             master=buttons_frame,
@@ -801,18 +838,18 @@ class TkView(TkinterDnD.Tk):
             command=presenter.btn_save_settings,
         ).pack(
             fill=BOTH,
-            expand=False,
+            expand=True,
             side="left",
+            padx=10,
+            pady=10,
         )
-        Button(
-            master=buttons_frame,
-            text="Revert Back",
-            bg="#22c26a",
-            font=("helvetica", 12, "normal"),
-            command=presenter.btn_revert_settings,
-        ).pack(
+        right_btn_spacer = Frame(
+            buttons_frame,
+            bg="#5F9EA0",
+        )
+        right_btn_spacer.pack(
             fill=BOTH,
-            expand=False,
+            expand=True,
             side="left",
         )
 

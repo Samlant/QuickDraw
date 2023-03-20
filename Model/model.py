@@ -126,13 +126,13 @@ class Model:
     def get_default_cc_addresses(self):
         list_of_CC = list()
         if self.check_if_ignore_default_cc_is_on() == False:
-            default_CC1 = ConfigWorker.get_value_from_config(
-                dict("General settings", "default_CC1")
+            default_cc1 = ConfigWorker.get_value_from_config(
+                dict("General settings", "default_cc1")
             )
-            default_CC2 = ConfigWorker.get_value_from_config(
-                dict("General settings", "default_CC2")
+            default_cc2 = ConfigWorker.get_value_from_config(
+                dict("General settings", "default_cc2")
             )
-            list_of_CC.append(default_CC1, default_CC2)
+            list_of_CC.append(default_cc1, default_cc2)
             return list_of_CC
         else:
             return None
@@ -177,8 +177,12 @@ class ConfigWorker:
         """This is a generic function to save both Save buttons' data to the appropriate config section. It also ensures the section exists."""
         config = self.open_config()
         if self._validate_section(section_name):
-            for key, value in save_contents:
-                config.update(section_name, key, value)
+            for option, value in save_contents.items():
+                config.update(
+                    section_name,
+                    option,
+                    value,
+                )
                 config.update_file()
 
     def check_if_using_default_carboncopies(self) -> bool:
