@@ -246,6 +246,9 @@ class Presenter:
         settings_dict = self._get_settings_values()
         self.config_worker.handle_save_contents("General settings", settings_dict)
 
+    def btn_revert_settings(self, event):
+        pass
+
     def btn_save_template(self) -> None:
         """Calls a private getter method & saves output as a dict,
         along with the section_name as it appears in config file
