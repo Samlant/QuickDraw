@@ -813,7 +813,7 @@ class TkView(TkinterDnD.Tk):
 
         future_settings_frame = Frame(
             content_boder,
-            bg="#",
+            bg="#5F9EA0",
         )
         future_settings_frame.pack(
             fill=BOTH,

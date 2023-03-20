@@ -92,7 +92,7 @@ class Model:
 
     def save_path(self, raw_path, is_quoteform: bool) -> bool:
         try:
-            path = self._clean_path(raw_path)
+            path = self._filter_out_brackets(raw_path)
         except:
             error = f'cannot clean the path of the file; input was: "{raw_path}"'
             raise Exception(error)
