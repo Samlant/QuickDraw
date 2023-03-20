@@ -178,12 +178,14 @@ class ConfigWorker:
         config = self.open_config()
         if self._validate_section(section_name):
             for option, value in save_contents.items():
-                config.update(
-                    section_name,
-                    option,
-                    value,
-                )
+                try:
+                    config[section_name][option] = value
+                except:
+                    raise Exception("Couldn't assign save_contents dict to config file")
+            try:
                 config.update_file()
+            except:
+                raise Exception("Couldn't save file")
 
     def check_if_using_default_carboncopies(self) -> bool:
         section_name_value = "General settings"

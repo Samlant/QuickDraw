@@ -215,7 +215,7 @@ class Presenter:
 
     def btn_reset_template(self) -> bool:
         """Replaces template page with the last-saved placeholders"""
-        placeholders_dict = self._get_customize_tab_placeholders
+        placeholders_dict = self._get_customize_tab_placeholders()
         self._set_customize_tab_placeholders(placeholders_dict)
 
     def _get_settings_values(self) -> dict:

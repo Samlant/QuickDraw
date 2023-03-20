@@ -702,7 +702,7 @@ class TkView(TkinterDnD.Tk):
         ).pack(
             fill=BOTH,
             expand=True,
-            padx=140,
+            padx=200,
         )
 
         main_settings_frame = Frame(
@@ -735,6 +735,7 @@ class TkView(TkinterDnD.Tk):
         ).grid(
             column=0,
             row=0,
+            pady=6,
         )
         cc1 = Entry(
             default_cc_lf,
@@ -745,7 +746,9 @@ class TkView(TkinterDnD.Tk):
             column=1,
             row=0,
             sticky=EW,
-            ipadx=260,
+            ipadx=200,
+            ipady=3,
+            pady=6,
         )
         Label(
             default_cc_lf,
@@ -755,6 +758,7 @@ class TkView(TkinterDnD.Tk):
         ).grid(
             column=0,
             row=1,
+            pady=6,
         )
         cc2 = Entry(
             default_cc_lf,
@@ -766,7 +770,9 @@ class TkView(TkinterDnD.Tk):
             row=1,
             rowspan=4,
             sticky=EW,
-            ipadx=260,
+            ipadx=200,
+            ipady=3,
+            pady=6,
         )
         Label(
             main_settings_frame,
@@ -788,11 +794,26 @@ class TkView(TkinterDnD.Tk):
             expand=True,
             side="left",
             anchor=N,
-            ipady=4,
+            ipady=3,
         )
+        signature_lf = LabelFrame(
+            main_settings_frame,
+            text="Define default addresses that you often CC: simply separate by semicolon! Note: you can create two differnet groups",
+            bg="#aedadb",
+            font=("helvetica", 8, "normal"),
+        )
+        signature_lf.pack(
+            fill=X,
+            expand=False,
+            pady=10,
+            side="top",
+        )
+        sig_choice_frame = Frame(signature_lf, bg="#5F9EA0")
+        sig_choice_frame.pack(fill=X, expand=True, side="top")
+
         future_settings_frame = Frame(
             content_boder,
-            bg="#5F9EA0",
+            bg="#",
         )
         future_settings_frame.pack(
             fill=BOTH,
