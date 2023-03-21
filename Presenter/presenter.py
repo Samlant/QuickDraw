@@ -132,7 +132,7 @@ class View(Protocol):
 
 
 class ConfigWorker(Protocol):
-    def get_value_from_config(self, request: dict) -> bool:
+    def get_value_from_config(self, request: dict) -> any:
         ...
 
     def get_section(self, section_name) -> dict:
@@ -271,25 +271,42 @@ class Presenter:
 
     def on_focus_out(self, event) -> bool:
         carrier = self.view.selected_template
+        widget_name = event.widget.winfo_name()
+        widget_type = event.widget.widgetName
+
         if carrier == "Select Market(s)":
             return True
-        widget_name = event.widget.winfo_name()
-        placeholder = self.config_worker.get_value_from_config(
-            {
-                "section_name": carrier,
-                "key": widget_name,
-            }
-        )
+        else:
+            # separate text from entry
+            # handle getting text from Textbox and determine if empty
+            # if empty,  join together with entry and set attribute to placeholder
+
+            if widget_type == "text" and self.check_text_from_textbox(self, event):
+                self.assign_placeholder_on_focus_out(self, carrier, widget_name)
+            elif widget_type == "entry":
+                self.asssign_placeholder_on_focus_out(self, carrier, widget_name)
+            else:
+                pass
+
+    def assign_placeholder_on_focus_out(self, carrier, widget_name) -> bool:
         try:
+            placeholder = self.config_worker.get_value_from_config(
+                {
+                    "section_name": carrier,
+                    "key": widget_name,
+                }
+            )
             self.view.__setattr__(
                 widget_name,
                 placeholder,
             )
         except:
-            raise Exception(
-                "Couldn't get & assign placeholder for customize_tab on focus out event"
-            )
+            raise Exception("Couldn't get & assign widget values")
         else:
+            return True
+
+    def check_text_from_textbox(self, event):
+        if event.widget.get("end-1c") == "":
             return True
 
     def get_possible_redundancies(self) -> dict:
