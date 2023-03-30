@@ -66,24 +66,27 @@ class Model:
         section_name = str
         yes = self.yes
         if (
-            (filtered_submits_dict["sw"] == yes)
-            and (filtered_submits_dict["pt"] == yes)
-            and (filtered_submits_dict["nh"] == yes)
+            # if self.check_if_all_three(filtered_submits_dict):
+            #   section_name = "Combination: Seawave, Prime Time and New Hampshire"
+            # return section_name
+            (filtered_submits_dict["Seawave"] == yes)
+            and (filtered_submits_dict["Prime Time"] == yes)
+            and (filtered_submits_dict["New Hampshire"] == yes)
         ):
             section_name = "Combination: Seawave, Prime Time and New Hampshire"
             return section_name
-        elif (filtered_submits_dict["sw"] == yes) and (
-            filtered_submits_dict["pt"] == yes
+        elif (filtered_submits_dict["Seawave"] == yes) and (
+            filtered_submits_dict["Prime Time"] == yes
         ):
             section_name = "Combination: Seawave and Prime Time"
             return section_name
-        elif (filtered_submits_dict["sw"] == yes) and (
-            filtered_submits_dict["nh"] == yes
+        elif (filtered_submits_dict["Seawave"] == yes) and (
+            filtered_submits_dict["New Hampshire"] == yes
         ):
             section_name = "Combination: Seawave and New Hampshire"
             return section_name
-        elif (filtered_submits_dict["pt"] == yes) and (
-            filtered_submits_dict["nh"] == yes
+        elif (filtered_submits_dict["Prime Time"] == yes) and (
+            filtered_submits_dict["New Hampshire"] == yes
         ):
             section_name = "Combination: Prime Time and New Hampshire"
             return section_name
@@ -115,7 +118,8 @@ class Model:
     def get_all_attachments(self) -> list:
         attachments = []
         attachments.append(self.quoteform_path)
-        attachments.append(self.extra_attachments)
+        if len(self.extra_attachments) >= 1:
+            attachments.append(self.extra_attachments)
         return attachments
 
     def list_of_CC_to_str(self, input_list: list) -> str:
@@ -170,7 +174,8 @@ class ConfigWorker:
     def get_section(self, section_name) -> dict:  # GOOD
         """This returns the section keys:values in a dict"""
         config = self.open_config()
-        section = config.get_section(section_name).to_dict()
+        section = config.get_section(section_name)
+        section = section.to_dict()
         return section
 
     def handle_save_contents(self, section_name: str, save_contents: dict) -> bool:

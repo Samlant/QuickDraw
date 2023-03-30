@@ -281,10 +281,10 @@ class Presenter:
             # handle getting text from Textbox and determine if empty
             # if empty,  join together with entry and set attribute to placeholder
 
-            if widget_type == "text" and self.check_text_from_textbox(self, event):
-                self.assign_placeholder_on_focus_out(self, carrier, widget_name)
+            if widget_type == "text" and self.check_text_from_textbox(event):
+                self.assign_placeholder_on_focus_out(carrier, widget_name)
             elif widget_type == "entry":
-                self.asssign_placeholder_on_focus_out(self, carrier, widget_name)
+                self.assign_placeholder_on_focus_out(carrier, widget_name)
             else:
                 pass
 
@@ -320,9 +320,9 @@ class Presenter:
         possible_redundancies_dict = dict()
         try:
             possible_redundancies_dict = {
-                "sw": self.view.sw,
-                "pt": self.view.pt,
-                "nh": self.view.nh,
+                "Seawave": self.view.sw,
+                "Prime Time": self.view.pt,
+                "New hampshire": self.view.nh,
             }
         except:
             raise Exception("Couldn't get carrier checkboxes saved into a dict.")
@@ -339,13 +339,13 @@ class Presenter:
         carrier_submissions_dict = dict()
         try:
             carrier_submissions_dict = {
-                "am": self.view.am,
-                "km": self.view.km,
-                "cp": self.view.cp,
-                "yi": self.view.yi,
-                "ce": self.view.ce,
-                "In": self.view.In,
-                "tv": self.view.tv,
+                "American Modern": self.view.am,
+                "Kemah Marine": self.view.km,
+                "Concept Special Risks": self.view.cp,
+                "Yachtinsure": self.view.yi,
+                "Century": self.view.ce,
+                "Intact": self.view.In,
+                "Travelers": self.view.tv,
             }
         except:
             raise Exception("Couldn't get carrier checkboxes saved into a dict.")
@@ -511,7 +511,7 @@ class Presenter:
         list_of_CC = self._handle_getting_CC_addresses()
         formatted_CC_str = self.model.list_of_CC_to_str(list_of_CC)
 
-        for carrier_section_name, value in finalized_submits_dict:
+        for carrier_section_name in finalized_submits_dict:
             letter = postman.create_letter()
 
             carrier_config_dict = dict()
@@ -522,10 +522,15 @@ class Presenter:
             letter.Subject = subject
 
             extra_notes = self.view.extra_notes
-            body_text = self.model.build_HTML_body(carrier_config_dict, extra_notes)
+            username = self.config_worker.get_value_from_config(
+                {"section_name": "General settings", "key": "username"}
+            )
+            body_text = postman.build__HTML_Body(
+                carrier_config_dict, extra_notes, username
+            )
             letter.HTMLBody = body_text
 
-            attachments_list = list(self.model.get_all_attachments())
+            attachments_list = self.model.get_all_attachments()
             for attachment_path in attachments_list:
                 letter.Attachments.Add(attachment_path)
             if autosend:
