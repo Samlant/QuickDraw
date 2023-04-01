@@ -4,23 +4,33 @@ from tkinter.ttk import Notebook, Style
 from tkinter import *
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from typing import Any, Callable, Protocol
+from dataclasses import dataclass
 
 
 class Presenter(Protocol):
-    """ This enables us to call funtions from the Presenter
+    """This enables us to call funtions from the Presenter
     class, either to send/retrieve data.
     """
 
     def btn_send_envelopes(self, autosend: bool) -> None:
         ...
 
-	def btn_view_template(self) -> None:
+    def btn_clear_attachments(self) -> None:
         ...
-        
+
+    def btn_reset_template(self) -> None:
+        ...
+
+    def btn_view_template(self) -> None:
+        ...
+
     def btn_save_template(self) -> None:
         ...
 
     def btn_save_settings(self) -> None:
+        ...
+
+    def btn_revert_settings(event) -> None:
         ...
 
     def set_dropdown_options(self) -> list:
@@ -38,450 +48,52 @@ class Presenter(Protocol):
     def save_extra_notes(self, notes: str) -> None:  # GOOD
         ...
 
-    def update_template_tab_on_changed_dropdown(self) -> None:
+    def on_change_template(self, *args, **kwargs) -> None:
         ...
 
     def on_focus_out(self, field_name: str, current_text: str) -> bool:
         ...
-        
-    def reset_ui(self) -> None:
-        ...
 
 
 class TkView(TkinterDnD.Tk):
-    """ This class uses tkinter to create a view object when instantiated by the main_script.  After __init__,  there's a parent method, create_GUI_obj, responsivle for creating the widgets.  These sub-functions are divided by page/tab. Lastly, there are methods to allow data retrieval and updating.
-    class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating. 
+    """This class uses tkinter to create a view object when instantiated by the main_script.  After __init__,  there's a parent method, create_GUI_obj, responsivle for creating the widgets.  These sub-functions are divided by page/tab. Lastly, there are methods to allow data retrieval and updating.
+    class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, positive_value, negative_value) -> None:
         super().__init__()
-        self.assign_attributes()
-        
-    def assign_attributes(self) -> None:
-        self.geometry('760x548')
-        self.configure(background='#5F9EA0')
-        self.title('Quick Submit Tool')
-        self.attributes('-alpha', 0.95)
-        self._positive_submission = 'submit'
-        self._negative_submission = 'skip'
-        self.options = list()
-        self._seawave = StringVar(
-            name='Seawave', value=self._negative_submission)
-        self._primetime = StringVar(
-            name='Prime Time', value=self._negative_submission)
-        self._newhampshire = StringVar(
-            name='New Hampshire', value=self._negative_submission)
-        self._americanmodern = StringVar(
-            name='American Modern', value=self._negative_submission)
-        self._kemah = StringVar(name='Kemah Marine',
-                                value=self._negative_submission)
-        self._concept = StringVar(
-            name='Concept Special Risks', value=self._negative_submission)
-        self._yachtinsure = StringVar(
-            name='Yachtinsure', value=self._negative_submission)
-        self._century = StringVar(
-            name='Century', value=self._negative_submission)
-        self._intact = StringVar(
-            name='Intact', value=self._negative_submission)
-        self._travelers = StringVar(
-            name='Travelers', value=self._negative_submission)
-        self._recipient = StringVar(name='recipient')
-        self._greeting = StringVar(name='greeting')
-        self._salutation = StringVar(name='salutation')
-        self._ignore_CC_defaults = BooleanVar(name='ignore_CC_defaults')
-        self._default_CC1 = StringVar(name='default_CC1')
-        self._default_CC2 = StringVar(name='default_CC2')
-        self._username = StringVar(name='username')
+        self.geometry("760x548")
+        self.configure(background="#5F9EA0")
+        self.title("Quick Submit Tool")
+        self.attributes("-alpha", 0.95)
+        self._yes = positive_value
+        self._no = negative_value
+        self.assign_private_string_bool_vars()
 
-    def create_UI_obj(self, presenter: Presenter):
-        """ This creates the GUI root,  along with the main
-        functions to create the widgets.
-        """
-        self.create_style()
-        self.create_notebook()
-        self.create_tabs()
-        self.create_main_tab_widgets(presenter)
-        self.create_customize_tab_widgets(presenter)
-        self.create_settings_tab_widgets(presenter)
-
-    def create_style(self):
-        self.style = Style(master=self)
-        self.style.theme_use('default')
-        self.style.configure('TNotebook', background='#5F9EA0')
-        self.style.configure('TFrame', background='#5F9EA0')
-        self.style.map('TNotebook', background=[('selected', '#5F9EA0')])
-
-    def create_notebook(self):
-        self.tabControl = ttk.Notebook(master=self)
-        self.tabControl.pack(pady=0, expand=True)
-
-    def create_tabs(self):
-        self.home = ttk.Frame(self.tabControl)
-        self.template_customization = ttk.Frame(self.tabControl)
-        self.settings = ttk.Frame(self.tabControl)
-        self.tabControl.add(self.home, text='Main - Setup Envelopes')
-        self.tabControl.add(self.template_customization, text='Customize')
-        self.tabControl.add(self.settings, text='Settings')
-
-    def create_main_tab_widgets(self, presenter: Presenter):
-        frame_header = Frame(self.home, bg='#5F9EA0', pady=17)
-        frame_header.pack(padx=5, fill=X, expand=False)
-        Label(frame_header,
-              text='Get Client Information',
-              bg='#5F9EA0', font=('helvetica', 20, 'normal')
-              ).pack(fill=X, expand=True, side='left')
-        Label(frame_header,
-              text='Extra Notes & CC',
-              bg='#5F9EA0', font=('helvetica', 20, 'normal')
-              ).pack(fill=X, expand=True, side='left')
-        Label(frame_header,
-              text='Choose Markets:',
-              bg='#5F9EA0', font=('helvetica', 20, 'normal')
-              ).pack(fill=X, expand=True, side='left')
-
-        frame_left = Frame(self.home, bg='#5F9EA0')
-        frame_left.pack(padx=5, fill=Y, side='left', expand=False, anchor=NE)
-        Label(frame_left, text='Dag-N-Drop Quoteform Below',
-              bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(fill=BOTH, expand=True)
-        self.create_quoteform_path_box(frame_left, presenter)
-        Label(frame_left, text='Dag-N-Drop Extra Attachments Below',
-              bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(fill=BOTH, expand=True)
-        self.create_extra_attachments_path_box(frame_left, presenter)
-
-        frame_middle = Frame(self.home, bg='#5F9EA0')
-        frame_middle.pack(padx=5, fill=Y, side='left', expand=False, anchor=N)
-        labelframe_main1 = LabelFrame(frame_middle,
-                                      text='To end with a message, enter it below:', bg='#aedadb',
-                                      font=('helvetica', 8, 'normal')
-                                      )
-        labelframe_main1.pack(fill=X, expand=False, side='top')
-        self._extra_notes_text = Text(labelframe_main1,
-                                      height=7, width=30, name='raw_extra_notes')
-        self._extra_notes_text.pack(fill=X, anchor=N, expand=FALSE, side='top')
-        labelframe_cc = LabelFrame(frame_middle,
-                                   text='CC-address settings for this submission:', bg='#aedadb', name='labelframe_cc'
-                                   )
-        labelframe_cc.pack(fill=X, expand=True, side='top')
-        Label(labelframe_cc, text='email address to CC:',
-              bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(fill=X, expand=True, side='top')
-        Checkbutton(labelframe_cc, text='Check to ignore default CC-addresses',
-                    variable=self._ignore_CC_defaults, bg='#aedadb',
-                    name='cc_def_chcek', onvalue=True, offvalue=False
-                    ).pack(pady=5, fill=X, expand=False, side='top')
-        self._userinput_CC1 = Text(labelframe_cc, height=1, width=30)
-        self._userinput_CC1.pack(pady=2, ipady=4, anchor=N,
-                                 fill=X, expand=True, side='top')
-        Label(labelframe_cc, text='email address to CC:',
-              bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(fill=X, expand=True, side='top')
-        self._userinput_CC2 = Text(labelframe_cc, height=1, width=30)
-        self._userinput_CC2.pack(ipady=4, anchor=N, fill=X,
-                                 expand=True, side='top'
-                                 )
-            
-        Button(frame_middle, text='RESET FOR NEW ENTRY',
-               bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_reset_UI)
-               ).pack(ipady=5, pady=3, anchor=S, fill=Y, expand=False)
-        Button(frame_middle, text='View Each Before Sending!',
-               bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=lambda:presenter.btn_send_envelopes(autosend=True)
-               ).pack(ipady=20, pady=10, anchor=S, fill=Y, expand=False)
-
-        self.frame_right = Frame(self.home, bg='#5F9EA0')
-        self.frame_right.pack(padx=5, fill=Y, side='left',
-                              expand=False, anchor=NW
-                              )
-        Checkbutton(master=self.frame_right, name='seawave',
-                    text='Seawave', variable=self._seawave,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='prime time',
-                    text='Prime Time', variable=self._primetime,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='newhampshire',
-                    text='New Hampshire', variable=self._newhampshire,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='americanmodern',
-                    text='American Modern', variable=self._americanmodern,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='kemah',
-
-                    text='Kemah Marine', variable=self._kemah,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='concept',
-                    text='Concept', variable=self._concept,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='yachtinsure',
-                    text='Yacht Insure', variable=self._yachtinsure,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='century',
-                    text='Century', variable=self._century,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='intact',
-                    text='Intact', variable=self._intact,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(master=self.frame_right, name='travelers',
-                    text='Travelers', variable=self._travelers,
-                    onvalue=self._positive_submission,
-                    offvalue=self._negative_submission, bg='#aedadb',
-                    font=('helvetica', 12, 'normal')
-                    ).pack(ipady=3, fill=BOTH, expand=True)
-        Button(self.frame_right, text='Submit & auto-send to markets',
-               bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=lambda:presenter.btn_send_envelopes(autosend=False)
-               ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
-        # End of creating the MAIN tab.
-
-    def create_customize_tab_widgets(self, presenter: Presenter):
-        Frame(self.template_customization, bg='#5F9EA0',
-              height=17
-              ).pack(fill=X, expand=False)
-        e_frame_header = Frame(self.template_customization, bg='#5F9EA0'
-                               ).pack(padx=5, fill=X, expand=True)
-        Label(e_frame_header, text='Customize Your Envelopes Here',
-              bg='#5F9EA0', font=('helvetica', 16, 'normal')
-              ).pack(fill=X, expand=True, side='top')
-        Label(e_frame_header,
-              text='''Customize the contents/template for each 
-                carrier,  or combination of carriers.''',
-              bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(padx=4, pady=5, fill=BOTH,
-                     expand=True, side='left', anchor=E
-                     )
-
-        e_frame_top = Frame(self.template_customization, bg='#5F9EA0')
-        e_frame_top.pack(fill=BOTH, expand=False)
-        Label(e_frame_top, text='''Select a scenario below 
-                to customize its content/template.''',
-              bg='#5F9EA0', font=('helvetica', 10, 'normal')
-              ).pack(fill=X, expand=True)
-        self.create_dropdown_variable(
-            initial_value='Select Market(s)',
-            name='Current Selection',
-            presenter=presenter
-        )
-        self.create_dropdown(parent=e_frame_top, presenter=presenter)
-
-        e_frame_content = Frame(self.template_customization, bg='#5F9EA0')
-        e_frame_content.pack(fill=BOTH, expand=False, anchor=N)
-        e_frame_bottomL = Frame(self.template_customization, bg='#5F9EA0')
-        e_frame_bottomL.pack(fill=X, expand=True, side='left', anchor=N)
-        Label(e_frame_bottomL, text='Submission Address:',
-              bg='#aedadb', font=('helvetica', 16, 'normal')
-              ).pack(padx=2, pady=15, fill=BOTH,
-                     expand=True, anchor=E, side='top'
-                     )
-        Label(e_frame_bottomL, text='Greeting:', bg='#aedadb',
-              font=('helvetica', 16, 'normal')
-              ).pack(padx=2, fill=BOTH, expand=True, anchor=E, side='top')
-        Label(e_frame_bottomL, text='Body of the email:', bg='#aedadb',
-              font=('helvetica', 16, 'normal')
-              ).pack(padx=2, pady=15, fill=BOTH,
-                     expand=True, anchor=E, side='top'
-                     )
-        Label(e_frame_bottomL, text='Salutation:', bg='#aedadb',
-              font=('helvetica', 16, 'normal')
-              ).pack(padx=2, pady=63, fill=BOTH,
-                     expand=True, anchor=E, side='top'
-                     )
-
-        e_frame_bottomR = Frame(self.template_customization, bg='#5F9EA0')
-        e_frame_bottomR.pack(fill=X, expand=True, side='left', anchor=N)
-        recipient_entry = Entry(master=e_frame_bottomR,
-                                textvariable=self._recipient)
-        recipient_entry.pack(padx=4, pady=15, ipadx=160,
-                             ipady=5, fill=BOTH, expand=False, side='top')
-        recipient_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('recipient', self.recipient))
-        greeting_entry = Entry(master=e_frame_bottomR,
-                               textvariable=self._greeting
-                               )
-        greeting_entry.pack(padx=4, pady=1, ipadx=160, ipady=5,
-                            fill=BOTH, expand=False, side='top'
-                            )
-        greeting_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('greeting', self.greeting))
-        self._body_text = Text(e_frame_bottomR, width=10, height=5)
-        self._body_text.pack(padx=4, pady=15, ipadx=160,
-                             ipady=5, fill=BOTH, expand=False, side='top'
-                             )
-        self._body_text.bind('<FocusOut>', lambda:presenter.on_focus_out('body', self.body))
-        salutation_entry = Entry(e_frame_bottomR,
-                                 textvariable=self._salutation,
-                                 width=27, highlightbackground='green', highlightcolor='red'
-                                 )
-        salutation_entry.pack(padx=4, ipadx=160, ipady=5, fill=BOTH,
-                              expand=False, side='top')
-        salutation_entry.bind('<FocusOut>', lambda:presenter.on_focus_out('salutation', self.salutation))
-        Button(e_frame_bottomR, name='btnSaveTemplate',
-               text='Click to SAVE the template', bg='#22c26a',
-               command=presenter.btn_save_template
-               ).pack(padx=4, pady=20, ipady=50, fill=X,
-                      expand=False, anchor=S, side='bottom'
-                      )
-        Button(e_frame_bottomR, name='btnViewTemplate',
-               text='Click to VIEW a sample message', bg='#22c26a',
-               command=presenter.btn_view_template
-               ).pack(padx=4, pady=20, ipady=50, fill=X,
-                      expand=False, anchor=S, side='bottom'
-                      )
-
-    def create_settings_tab_widgets(self, presenter: Presenter):
-        Label(self.settings, text='Settings Page',
-              bg='#5F9EA0', font=('helvetica', 20, 'normal')
-              ).pack(fill=BOTH, expand=False, side='top')
-
-        entry_boxes_frame = Frame(master=self.settings, bg='#5F9EA0')
-        entry_boxes_frame.pack(fill=BOTH, expand=False, side='top')
-        Label(master=entry_boxes_frame, text='CC-Addresses & Settings',
-              bg='#5F9EA0', font=('helvetica', 14, 'normal')
-              ).pack(fill=X, expand=False, side='top')
-        Label(master=entry_boxes_frame, text='''1st address to set as
-              default cc: ''', bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(pady=3, ipady=2, padx=1, fill='none',
-                     expand=False, side='left', anchor=NW)
-        default_CC1_entry = Entry(entry_boxes_frame,
-                                  textvariable=self.default_CC1
-                                  )
-        default_CC1_entry.pack(pady=3, fill=X, ipadx=10, ipady=4,
-                               expand=True, side='left', anchor=N
-                               )
-        Label(entry_boxes_frame, text='2nd address to set as default cc: ',
-              bg='#aedadb', font=('helvetica', 12, 'normal')
-              ).pack(pady=3, ipady=2, padx=1, fill='none',
-                     expand=False, side='left', anchor=NW)
-        default_CC2_entry = Entry(entry_boxes_frame,
-                                  textvariable=self.default_CC2
-                                  )
-        default_CC2_entry.pack(pady=3, fill=X, ipadx=10, ipady=4,
-                               expand=True, side='left', anchor=N)
-        username_entry = Entry(master=self.settings,
-                               textvariable=self._username
-                               )
-        username_entry.pack(ipadx=900, pady=5, fill=BOTH,
-                            expand=True, side='right', anchor=NW
-                            )
-        username_entry.bind('<FocusOut>', presenter.on_focus_out)
-
-        save_btn_frame = Frame(master=self.settings, bg='#5F9EA0')
-        save_btn_frame.pack(fill=BOTH, expand=False, side='top')
-        Button(master=save_btn_frame, text='Save Settings',
-               bg='#22c26a', font=('helvetica', 12, 'normal'),
-               command=presenter.btn_save_settings
-               ).pack(ipady=10, pady=10, padx=10, fill=BOTH,
-                      expand=False, anchor=N, side='top'
-                      )
-
-    def create_quoteform_path_box(self, parent: Frame, presenter=Presenter) -> None:
-        """ Creates the drag-n-drop box for the quoteform."""
-        self.quoteform_path_box = Text(
-            parent,
-            height=7,
-            width=27,
-            background='#59f3e3',
-            name='raw_quoteform_path'
-        )
-        self.quoteform_path_box.drop_target_register(DND_FILES)
-        self.quoteform_path_box.dnd_bind('<<Drop>>',
-                                         presenter.process_quoteform_path
-                                         )
-        self.quoteform_path_box.pack(fill=BOTH, anchor=N, expand=True)
-
-    def create_extra_attachments_path_box(self, parent: Frame, presenter=Presenter) -> None:
-        """ Creates the drag-n-drop box for any extra attachments."""
-        self.extra_attachments_path_box = Text(
-            parent,
-            height=9,
-            width=27,
-            background='#59f3e3',
-            name='raw_attachments_paths_list'
-        )
-        self.extra_attachments_path_box.pack(fill=X, expand=True, anchor=N)
-        self.extra_attachments_path_box.drop_target_register(DND_FILES)
-        self.extra_attachments_path_box.dnd_bind('<<Drop>>',
-                                                 presenter.process_attachments_path
-                                                 )
-        # Create functionality to show the paths of the files in box.
-
-    def create_dropdown_variable(self, initial_value: str, name: str, presenter: Presenter) -> None:
-        """ Creates the variable used to identify the current selection and assigns/updates a different variable with current choice.
-        """
-        self.dropdown_menu_var = StringVar(value=initial_value, name=name)
-        self.dropdown_menu_var.trace_add('write',
-                                         presenter.update_template_tab_on_changed_dropdown
-                                         )
-
-    def create_dropdown(self, parent, presenter: Presenter) -> None:
-        """ Creates the OptionMenu widget separately for less coupling."""
-        options = list()
-        options = presenter.set_dropdown_options()
-        print(options)
-        dropdown_menu = OptionMenu(parent, self.dropdown_menu_var, *options)
-        dropdown_menu.configure(background='#aedadb',
-                                foreground='black', highlightbackground='#5F9EA0', activebackground='#5F9EA0'
-                                )
-        dropdown_menu['menu'].configure(background='#aedadb')
-        dropdown_menu.pack(padx=15, ipady=5, fill=X, expand=True)
-
-    @property
-    def positive_submission_value(self):
-        return self._positive_submission
-
-    @property
-    def negative_submission_value(self):
-        return self._negative_submission
-
+    # main_tab: getters/setters
     @property
     def extra_notes(self) -> str:
-        return self._extra_notes_text.get('1.0', 'end-1c')
+        return self._extra_notes_text.get("1.0", "end-1c")
 
     @extra_notes.deleter
     def extra_notes(self):
-        self._extra_notes_text.delete('1.0')
-
-    def userinput_CC1(self) -> str:
-        return self._userinput_CC1.get('1.0', 'end-1c')
-
-    def userinput_CC2(self) -> str:
-        return self._userinput_CC2.get('1.0', 'end-1c')
+        self._extra_notes_text.delete("1.0")
 
     @property
-    def ignore_CC_defaults(self) -> bool:
-        return self._ignore_CC_defaults.get()
+    def userinput_CC1(self) -> str:
+        return self._userinput_CC1.get("1.0", "end-1c")
 
-    @ignore_CC_defaults.setter
-    def ignore_CC_defaults(self, ignore_is_True: bool) -> None:
-        self._ignore_CC_defaults = ignore_is_True
+    @property
+    def userinput_CC2(self) -> str:
+        return self._userinput_CC2.get("1.0", "end-1c")
 
-    # These are getters for the checkbuttons
+    @property
+    def use_CC_defaults(self) -> bool:
+        return self._use_CC_defaults.get()
+
+    @use_CC_defaults.setter
+    def use_CC_defaults(self, usage: bool) -> None:
+        self._use_CC_defaults.set(usage)
 
     @property
     def sw(self) -> str:
@@ -523,21 +135,23 @@ class TkView(TkinterDnD.Tk):
     def tv(self) -> str:
         return self._travelers.get()
 
+    # customize_tab: getters/setters
     @property
     def selected_template(self) -> str:
-        return self.dropdown_menu_var.get()
+        return self._dropdown_menu_var.get()
 
     @property
-    def recipient(self) -> str:
-        return self._recipient.get()
+    def address(self) -> str:
+        return self._address.get()
 
-    @recipient.setter
-    def recipient(self, new_recipient: str) -> None:
-        self._recipient = new_recipient
+    @address.setter
+    def address(self, new_address: str) -> None:
+        print(new_address)
+        self._address.set(new_address)
 
-    @recipient.deleter
-    def recipient(self) -> None:
-        del self._recipient
+    @address.deleter
+    def address(self) -> None:
+        self._address.set("")
 
     @property
     def greeting(self) -> str:
@@ -545,23 +159,23 @@ class TkView(TkinterDnD.Tk):
 
     @greeting.setter
     def greeting(self, new_greeting: str) -> None:
-        self._greeting = new_greeting
+        self._greeting.set(new_greeting)
 
     @greeting.deleter
     def greeting(self) -> None:
-        del self._greeting
+        self._greeting.set("")
 
     @property
     def body(self) -> str:
-        return self._body_text.get('1.0', 'end-1c')
+        return self._body_text.get("1.0", "end-1c")
 
     @body.setter
     def body(self, new_body: str) -> None:
-        self._body_text.insert('1.0', new_body)
+        self._body_text.insert("1.0", new_body)
 
     @body.deleter
     def body(self) -> None:
-        self._body_text.delete('1.0', 'end-1c')
+        self._body_text.delete("1.0", "end-1c")
 
     @property
     def salutation(self) -> str:
@@ -569,27 +183,36 @@ class TkView(TkinterDnD.Tk):
 
     @salutation.setter
     def salutation(self, new_salutation: str) -> None:
-        self._salutation = new_salutation
+        self._salutation.set(new_salutation)
 
     @salutation.deleter
     def salutation(self) -> None:
-        del self._salutation
+        self._salutation.set("")
+
+    # settings_tab: getters/setters
+    @property
+    def default_cc1(self) -> str:
+        return self._default_cc1.get()
+
+    @default_cc1.setter
+    def default_cc1(self, new_default_cc: str) -> None:
+        self._default_cc1.set(new_default_cc)
+
+    @default_cc1.deleter
+    def default_cc1(self) -> None:
+        self._default_cc1.set("")
 
     @property
-    def default_CC1(self) -> str:
-        return self._default_CC1.get()
+    def default_cc2(self) -> str:
+        return self._default_cc2.get()
 
-    @default_CC1.setter
-    def default_CC1(self, new_default_CC: str) -> None:
-        self._default_CC1 = new_default_CC
+    @default_cc2.setter
+    def default_cc2(self, new_default_cc: str) -> None:
+        self._default_cc2.set(new_default_cc)
 
-    @property
-    def default_CC2(self) -> str:
-        return self._default_CC2.get()
-
-    @default_CC2.setter
-    def default_CC2(self, new_default_CC: str) -> None:
-        self._default_CC2 = new_default_CC
+    @default_cc2.deleter
+    def default_cc2(self) -> None:
+        self._default_cc2.set("")
 
     @property
     def username(self) -> str:
@@ -597,25 +220,700 @@ class TkView(TkinterDnD.Tk):
 
     @username.setter
     def username(self, new_username: str):
-        self._username = new_username
+        self._username.set(new_username)
 
     @username.deleter
     def username(self) -> None:
-        del self._username
+        self._username.set("")
 
-    # Make these below FNs loop to accomodate multiple requests at once ;)
-    # def assign_placeholder(self, name_of_widget, placeholder: str):
-    #     pass
-    # def get_placeholder(self, item):
-    #     pass
-    # def insert_placeholder(self, item, indx, placeholder: str):
-    #     item.insert(indx, placeholder)
-    # def delete_placeholder(self, item, indx):
-    #     self.item.delete(indx, 'end')
-    # def enableField(self, item, wrap):
-    #     item.configure(state='normal')
-    # def disableField(self, item):
-    #     item.configure(state='disabled')
-# End of needing loop section :)
+    def assign_private_string_bool_vars(self) -> None:
+        """Assigns tkinter-specific attributes so that the getters /
+        setters work and other modules do not need to need tkinter.
+        """
+        # main_tab vars
+        self._use_CC_defaults = BooleanVar(name="use_CC_defaults")
+        self._seawave = StringVar(name="Seawave", value=self._no)
+        self._primetime = StringVar(name="Prime Time", value=self._no)
+        self._newhampshire = StringVar(name="New Hampshire", value=self._no)
+        self._americanmodern = StringVar(name="American Modern", value=self._no)
+        self._kemah = StringVar(name="Kemah Marine", value=self._no)
+        self._concept = StringVar(name="Concept Special Risks", value=self._no)
+        self._yachtinsure = StringVar(name="Yachtinsure", value=self._no)
+        self._century = StringVar(name="Century", value=self._no)
+        self._intact = StringVar(name="Intact", value=self._no)
+        self._travelers = StringVar(name="Travelers", value=self._no)
+        # customize_tab vars
+        self._dropdown_menu_var = StringVar(
+            value="Select Market(s)"
+            # name='Current Selection'
+        )
+        self._address = StringVar(name="address", value="")
+        self._greeting = StringVar(name="greeting", value="")
+        self._salutation = StringVar(name="salutation", value="")
+        # settings_tab vars
+        self._username = StringVar(name="username", value="")
+        self._default_cc1 = StringVar(name="default_cc1", value="")
+        self._default_cc2 = StringVar(name="default_cc2", value="")
 
-# app = TkView()
+    def create_UI_obj(self, presenter: Presenter):
+        """This creates the GUI root,  along with the main
+        functions to create the widgets.
+        """
+        self.create_style()
+        self.create_notebook()
+        self.create_tabs()
+        self.create_main_tab_widgets(presenter)
+        self.create_customize_tab_widgets(presenter)
+        self.create_settings_tab_widgets(presenter)
+
+    def create_style(self):
+        self.style = Style(master=self)
+        self.style.theme_use("default")
+        self.style.configure("TNotebook", background="#5F9EA0")
+        self.style.configure("TFrame", background="#5F9EA0")
+        self.style.map("TNotebook", background=[("selected", "#5F9EA0")])
+
+    def create_notebook(self):
+        self.tabControl = ttk.Notebook(master=self)
+        self.tabControl.pack(pady=0, expand=True)
+
+    def create_tabs(self):
+        self.home = ttk.Frame(self.tabControl)
+        self.template_customization = ttk.Frame(self.tabControl)
+        self.settings = ttk.Frame(self.tabControl)
+        self.tabControl.add(self.home, text="Home - Outbox")
+        self.tabControl.add(self.template_customization, text="Customize Templates")
+        self.tabControl.add(self.settings, text="Settings")
+
+    def create_main_tab_widgets(self, presenter: Presenter):
+        frame_header = Frame(self.home, bg="#5F9EA0", pady=17)
+        frame_header.pack(padx=5, fill=X, expand=False)
+        Label(
+            frame_header,
+            text="Get Client Information",
+            bg="#5F9EA0",
+            font=("helvetica", 20, "normal"),
+        ).pack(fill=X, expand=True, side="left")
+        Label(
+            frame_header,
+            text="Extra Notes & CC",
+            bg="#5F9EA0",
+            font=("helvetica", 20, "normal"),
+        ).pack(fill=X, expand=True, side="left")
+        Label(
+            frame_header,
+            text="Choose Markets:",
+            bg="#5F9EA0",
+            font=("helvetica", 20, "normal"),
+        ).pack(fill=X, expand=True, side="left")
+
+        frame_left = Frame(self.home, bg="#5F9EA0")
+        frame_left.pack(padx=5, fill=Y, side="left", expand=False, anchor=NE)
+        Label(
+            frame_left,
+            text="Dag-N-Drop Quoteform Below",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=5, fill=BOTH, expand=True)
+        self.create_quoteform_path_box(frame_left, presenter)
+        Label(
+            frame_left,
+            text="Dag-N-Drop Extra Attachments Below",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=5, fill=BOTH, expand=True)
+        self.create_extra_attachments_path_box(frame_left, presenter)
+        Button(
+            frame_left,
+            text="Clear attachments",
+            bg="#e50000",
+            font=("helvetica", 12, "normal"),
+            command=lambda: presenter.btn_clear_attachments,
+        ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
+
+        frame_middle = Frame(self.home, bg="#5F9EA0")
+        frame_middle.pack(padx=5, fill=Y, side="left", expand=False, anchor=N)
+        labelframe_main1 = LabelFrame(
+            frame_middle,
+            text="To end with a message, enter it below:",
+            bg="#aedadb",
+            font=("helvetica", 8, "normal"),
+        )
+        labelframe_main1.pack(fill=X, expand=False, side="top")
+        self._extra_notes_text = Text(
+            labelframe_main1, height=7, width=30, name="raw_extra_notes"
+        )
+        self._extra_notes_text.pack(fill=X, anchor=N, expand=FALSE, side="top")
+        labelframe_cc = LabelFrame(
+            frame_middle,
+            text="CC-address settings for this submission:",
+            bg="#aedadb",
+            name="labelframe_cc",
+        )
+        labelframe_cc.pack(fill=X, expand=True, side="top")
+        Label(
+            labelframe_cc,
+            text="email address to CC:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(fill=X, expand=True, side="top")
+        Checkbutton(
+            labelframe_cc,
+            text="Include default CC addresses",
+            variable=self._use_CC_defaults,
+            bg="#aedadb",
+            name="cc_def_check",
+            onvalue=True,
+            offvalue=False,
+        ).pack(pady=5, fill=X, expand=False, side="top")
+        self._userinput_CC1 = Text(labelframe_cc, height=1, width=30)
+        self._userinput_CC1.pack(
+            pady=2, ipady=4, anchor=N, fill=X, expand=True, side="top"
+        )
+        Label(
+            labelframe_cc,
+            text="email address to CC:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(fill=X, expand=True, side="top")
+        self._userinput_CC2 = Text(labelframe_cc, height=1, width=30)
+        self._userinput_CC2.pack(ipady=4, anchor=N, fill=X, expand=True, side="top")
+        Button(
+            frame_middle,
+            text="View Each Before Sending!",
+            bg="#22c26a",
+            font=("helvetica", 12, "normal"),
+            command=lambda: presenter.btn_send_envelopes(autosend=False),
+        ).pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
+
+        self.frame_right = Frame(self.home, bg="#5F9EA0")
+        self.frame_right.pack(padx=5, fill=BOTH, side="left", expand=True, anchor=NW)
+        Checkbutton(
+            master=self.frame_right,
+            name="seawave",
+            text="Seawave",
+            variable=self._seawave,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="prime time",
+            text="Prime Time",
+            variable=self._primetime,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="newhampshire",
+            text="New Hampshire",
+            variable=self._newhampshire,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="americanmodern",
+            text="American Modern",
+            variable=self._americanmodern,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="kemah",
+            text="Kemah Marine",
+            variable=self._kemah,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="concept",
+            text="Concept",
+            variable=self._concept,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="yachtinsure",
+            text="Yacht Insure",
+            variable=self._yachtinsure,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="century",
+            text="Century",
+            variable=self._century,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="intact",
+            text="Intact",
+            variable=self._intact,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Checkbutton(
+            master=self.frame_right,
+            name="travelers",
+            text="Travelers",
+            variable=self._travelers,
+            onvalue=self._yes,
+            offvalue=self._no,
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(ipady=3, fill=BOTH, expand=True)
+        Button(
+            self.frame_right,
+            text="Submit & auto-send all",
+            bg="#22c26a",
+            font=("helvetica", 12, "normal"),
+            command=lambda: presenter.btn_send_envelopes(autosend=True),
+        ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
+
+    def create_customize_tab_widgets(self, presenter: Presenter):
+        title_frame = Frame(
+            self.template_customization,
+            bg="#5F9EA0",
+            height=5,
+        )
+        title_frame.pack(pady=20, fill=X, expand=False)
+        Label(
+            title_frame,
+            text="Customize Your Envelopes Here",
+            bg="#aedadb",
+            font=("helvetica", 20, "normal"),
+        ).pack(
+            fill=X,
+            expand=True,
+            side="top",
+            anchor=N,
+            padx=140,
+        )
+        Label(
+            title_frame,
+            text="Customize the email template for each carrier,  or a  combination of carriers if they use the same address.",
+            bg="#5F9EA0",
+            font=("helvetica", 12, "normal"),
+        ).pack(
+            padx=4,
+            pady=5,
+            fill=X,
+            expand=True,
+            side="top",
+            anchor=N,
+        )
+
+        template_select_frame = Frame(self.template_customization, bg="#5F9EA0")
+        template_select_frame.pack(padx=15, pady=10, fill=BOTH, expand=True)
+        self.create_dropdown(parent=template_select_frame, presenter=presenter)
+        self._dropdown_menu_var.trace_add("write", presenter.on_change_template)
+
+        content_frame = Frame(self.template_customization, bg="#aedadb")
+        content_frame.pack(fill=BOTH, expand=True, anchor=N, side="top", padx=5, pady=5)
+
+        Label(
+            content_frame,
+            text="Submission Address:",
+            bg="#aedadb",
+            font=("helvetica", 16, "normal"),
+        ).grid(column=0, row=0)
+
+        self.add_entry = Entry(
+            master=content_frame,
+            name="address",
+            textvariable=self._address,
+            width=89,
+            validate="focusout",
+            validatecommand=presenter.on_focus_out,
+        )
+        self.add_entry.grid(
+            column=1,
+            row=0,
+            sticky=W,
+            ipady=5,
+            pady=5,
+        )
+
+        self.add_entry.bind("<FocusOut>", presenter.on_focus_out)
+
+        Label(
+            content_frame,
+            text="Greeting:",
+            bg="#aedadb",
+            font=("helvetica", 16, "normal"),
+        ).grid(column=0, row=1)
+
+        self.greet_entry = Entry(
+            master=content_frame,
+            name="greeting",
+            textvariable=self._greeting,
+            width=89,
+        )
+        self.greet_entry.grid(
+            column=1,
+            row=1,
+            sticky=W,
+            pady=5,
+            ipady=5,
+        )
+        self.greet_entry.bind("<FocusOut>", presenter.on_focus_out)
+
+        Label(
+            content_frame,
+            text="Body of the email:",
+            bg="#aedadb",
+            font=("helvetica", 16, "normal"),
+        ).grid(column=0, row=2)
+
+        self._body_text = Text(
+            content_frame,
+            name="body",
+            width=67,
+            height=5,
+            wrap=WORD,
+        )
+        self._body_text.grid(
+            column=1,
+            row=2,
+            sticky=W,
+            pady=5,
+        )
+        self._body_text.bind("<FocusOut>", presenter.on_focus_out)
+
+        Label(
+            content_frame,
+            text="Salutation:",
+            bg="#aedadb",
+            font=("helvetica", 16, "normal"),
+        ).grid(column=0, row=3)
+
+        self.sal_entry = Entry(
+            content_frame,
+            name="salutation",
+            textvariable=self._salutation,
+            width=89,
+            highlightbackground="green",
+            highlightcolor="red",
+        )
+        self.sal_entry.grid(column=1, row=3, sticky=W, pady=5, ipady=5)
+        self.sal_entry.bind("<FocusOut>", presenter.on_focus_out)
+
+        buttons_frame = Frame(self.template_customization, bg="#5F9EA0")
+        buttons_frame.pack(fill=X, expand=True, anchor=N)
+        Button(
+            buttons_frame,
+            name="btnResetTemplate",
+            text="RESET to last saved",
+            bg="#ff0032",
+            font=("helvetica", 16, "normal"),
+            command=presenter.btn_reset_template,
+        ).pack(
+            padx=10,
+            pady=10,
+            ipady=30,
+            fill=X,
+            expand=False,
+            anchor=N,
+            side="left",
+        )
+        Button(
+            buttons_frame,
+            name="btnViewTemplate",
+            text="View Current Example",
+            bg="#00feff",
+            font=("helvetica", 16, "normal"),
+            width=20,
+            command=presenter.btn_view_template,
+        ).pack(
+            padx=4,
+            pady=10,
+            ipady=30,
+            fill=X,
+            expand=False,
+            anchor=N,
+            side="left",
+        )
+        Button(
+            buttons_frame,
+            name="btnSaveTemplate",
+            text="Save",
+            bg="#22c26a",
+            font=("helvetica", 16, "normal"),
+            width=20,
+            command=presenter.btn_save_template,
+        ).pack(
+            padx=10,
+            pady=10,
+            ipady=30,
+            fill=X,
+            expand=False,
+            anchor=N,
+            side="left",
+        )
+
+    def create_settings_tab_widgets(self, presenter: Presenter):
+        content_boder = Frame(
+            self.settings,
+            padx=20,
+            pady=20,
+            bg="#5F9EA0",
+        )
+        content_boder.pack(
+            fill=BOTH,
+            expand=True,
+        )
+        title_frame = Frame(
+            content_boder,
+            bg="#5F9EA0",
+            height=10,
+        )
+        title_frame.pack(fill=X, expand=False, side="top")
+        Label(
+            title_frame,
+            text="Settings Page",
+            bg="#aedadb",
+            font=("helvetica", 20, "normal"),
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            padx=200,
+        )
+
+        main_settings_frame = Frame(
+            content_boder,
+            bg="#5F9EA0",
+        )
+        main_settings_frame.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
+        )
+        default_cc_lf = LabelFrame(
+            main_settings_frame,
+            text="Define default addresses that you often CC: simply separate by semicolon! Note: you can create two differnet groups",
+            bg="#aedadb",
+            font=("helvetica", 8, "normal"),
+        )
+        default_cc_lf.pack(
+            fill=X,
+            expand=False,
+            pady=10,
+            side="top",
+        )
+
+        Label(
+            master=default_cc_lf,
+            text="First group of addresses:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).grid(
+            column=0,
+            row=0,
+            pady=6,
+        )
+        cc1 = Entry(
+            default_cc_lf,
+            textvariable=self._default_cc1,
+            name="default_cc1",
+        )
+        cc1.grid(
+            column=1,
+            row=0,
+            sticky=EW,
+            ipadx=200,
+            ipady=3,
+            pady=6,
+        )
+        Label(
+            default_cc_lf,
+            text="Second group of addresses:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).grid(
+            column=0,
+            row=1,
+            pady=6,
+        )
+        cc2 = Entry(
+            default_cc_lf,
+            textvariable=self._default_cc2,
+            name="default_cc2",
+        )
+        cc2.grid(
+            column=1,
+            row=1,
+            rowspan=4,
+            sticky=EW,
+            ipadx=200,
+            ipady=3,
+            pady=6,
+        )
+        Label(
+            main_settings_frame,
+            text="Your name (for the signature):",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(
+            fill=None,
+            expand=False,
+            side="left",
+            anchor=N,
+        )
+        username_entry = Entry(
+            master=main_settings_frame,
+            textvariable=self._username,
+        )
+        username_entry.pack(
+            fill=X,
+            expand=True,
+            side="left",
+            anchor=N,
+            ipady=3,
+        )
+        signature_lf = LabelFrame(
+            main_settings_frame,
+            text="this is the signature labelframe",
+            bg="#aedadb",
+            font=("helvetica", 8, "normal"),
+        )
+        signature_lf.pack(
+            fill=X,
+            expand=False,
+            pady=10,
+            side="top",
+        )
+        sig_choice_frame = Frame(signature_lf, bg="#5F9EA0")
+        sig_choice_frame.pack(fill=X, expand=True, side="top")
+
+        future_settings_frame = Frame(
+            content_boder,
+            bg="#5F9EA0",
+        )
+        future_settings_frame.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
+        )
+        buttons_frame = Frame(
+            content_boder,
+            bg="#5F9EA0",
+        )
+        buttons_frame.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
+        )
+        left_btn_spacer = Frame(
+            buttons_frame,
+            bg="#5F9EA0",
+        )
+        left_btn_spacer.pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+        )
+        Button(
+            master=buttons_frame,
+            text="Revert Back",
+            bg="#ff0032",
+            font=("helvetica", 12, "normal"),
+            command=presenter.btn_revert_settings,
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+            padx=10,
+            pady=10,
+        )
+        Button(
+            master=buttons_frame,
+            text="Save Settings",
+            bg="#22c26a",
+            font=("helvetica", 12, "normal"),
+            command=presenter.btn_save_settings,
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+            padx=10,
+            pady=10,
+        )
+        right_btn_spacer = Frame(
+            buttons_frame,
+            bg="#5F9EA0",
+        )
+        right_btn_spacer.pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+        )
+
+    def create_quoteform_path_box(self, parent: Frame, presenter=Presenter) -> None:
+        """Creates the drag-n-drop box for the quoteform."""
+        self.quoteform_path_box = Text(
+            parent, height=8, width=27, background="#59f3e3", name="raw_quoteform_path"
+        )
+        self.quoteform_path_box.drop_target_register(DND_FILES)
+        self.quoteform_path_box.dnd_bind("<<Drop>>", presenter.process_quoteform_path)
+        self.quoteform_path_box.pack(fill=X, anchor=N, expand=True)
+
+    def create_extra_attachments_path_box(
+        self, parent: Frame, presenter=Presenter
+    ) -> None:
+        """Creates the drag-n-drop box for any extra attachments."""
+        self.extra_attachments_path_box = Text(
+            parent,
+            height=8,
+            width=27,
+            background="#59f3e3",
+            name="raw_attachments_paths_list",
+        )
+        self.extra_attachments_path_box.pack(fill=X, expand=True, anchor=N)
+        self.extra_attachments_path_box.drop_target_register(DND_FILES)
+        self.extra_attachments_path_box.dnd_bind(
+            "<<Drop>>", presenter.process_attachments_path
+        )
+
+    def create_dropdown(self, parent, presenter: Presenter) -> None:
+        """Creates the OptionMenu widget separately for less coupling."""
+        options = list()
+        options = presenter.set_dropdown_options()
+        dropdown_menu = OptionMenu(parent, self._dropdown_menu_var, *options)
+        dropdown_menu.configure(
+            background="#aedadb",
+            foreground="black",
+            highlightbackground="#5F9EA0",
+            activebackground="#5F9EA0",
+            font=("helvetica", 12, "normal"),
+        )
+        dropdown_menu["menu"].configure(background="#aedadb")
+        dropdown_menu.pack(padx=15, ipady=5, fill=X, expand=True)
+
+    def get_active_focus(self) -> dict:
+        return self.focus_get()
