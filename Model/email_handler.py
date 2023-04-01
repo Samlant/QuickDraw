@@ -23,11 +23,6 @@ class EmailHandler:
             "make": "4d616b6520616e64204d6f64656c",
             "length": "Length",
         }
-        self.greeting = str
-        self.body = str
-        self.extra_notes = str
-        self.salutation = str
-        self.username = str
 
     def create_letter(self) -> None:
         """This creates the letter,  which absorbs all final data to be sent to the desired recipient."""
@@ -162,11 +157,6 @@ class EmailHandler:
         pdf_dict = {
             key: pdf_dict[key] for key in pdf_dict.keys() & self.keys_dict.values()
         }
-
-        # fname_pdf_key, self.lname_pdf_key,
-        # self.year_pdf_key, self.make_pdf_key,
-        # self.length_pdf_key
-        # }}
         return pdf_dict
 
     def format_subject_values(self, pdf_dict=dict) -> None:
