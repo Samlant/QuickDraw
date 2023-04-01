@@ -1,11 +1,9 @@
 from __future__ import annotations
-import itertools
 from typing import Protocol
 
-from Model.model import Model
-from Model.email_handler import EmailHandler
-
-# from Model.email import EmailHandler
+from model import Model
+from model_email import EmailHandler
+from model_config import ConfigWorker
 
 
 class View(Protocol):
