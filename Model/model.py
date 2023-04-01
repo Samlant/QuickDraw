@@ -1,6 +1,4 @@
-from dataclasses import dataclass
-
-from configupdater import ConfigUpdater, Section
+from configupdater import ConfigUpdater
 
 
 class Model:
@@ -28,9 +26,13 @@ class Model:
             "Century",
             "Intact",
             "Travelers",
+            "Combination: Seawave + Prime Time + New Hampshire",
+            "Combination: Prime Time + New Hampshire",
+            "Combination: Seawave + New Hampshire",
+            "Combination: Seawave + Prime Time",
         ]
 
-    def filter_only_positive_submissions(self, raw_checkboxes: dict) -> dict:
+    def filter_only_positive_submissions(self, raw_checkboxes: dict) -> list:
         checkboxes_dict = raw_checkboxes.copy()
         for x in raw_checkboxes:
             if raw_checkboxes[x] == self.no:
@@ -39,59 +41,42 @@ class Model:
                 pass
             else:
                 raise ValueError
-        return checkboxes_dict
+        checkboxes_list = []
+        for x in checkboxes_dict.keys():
+            checkboxes_list.append(x)
+        return checkboxes_list
 
-    def handle_redundancies(self, filtered_submits_dict: dict) -> dict:
-        if self._redundancy_check(filtered_submits_dict):
-            section_name_value = str(self._fix_redundancies(filtered_submits_dict))
-            eliminated_redundancies = {
-                "section_name": section_name_value,
-                "key": self.yes,
-            }
-            return eliminated_redundancies
+    def handle_redundancies(self, filtered_submits: list) -> str:
+        """Checks if multiple redundant markets are present,  then combines them & returns the appropriate config section name"""
+        if self._redundancy_check(filtered_submits):
+            section_name = str(self._fix_redundancies(filtered_submits))
+            return section_name
         else:
-            return filtered_submits_dict
+            if len(filtered_submits) == 0:
+                pass
+            else:
+                return filtered_submits[0]
 
-    def _redundancy_check(self, filtered_submits_dict: dict) -> bool:
+    def _redundancy_check(self, filtered_submits: list) -> bool:
         """Counts the number of items in the dictionary supplied. NOTE: the dict input should already be filtered and be a positive submission."""
-        if len(filtered_submits_dict) > 1:
+        if len(filtered_submits) > 1:
             return True
-        elif len(filtered_submits_dict) <= 1:
+        elif len(filtered_submits) <= 1:
             return False
         else:
             raise ValueError()
 
-    def _fix_redundancies(self, filtered_submits_dict: dict) -> str:  # GOOD
-        """Receives a dict of name:boolean where it finds the two---or three---key:value pairs & then assigns the correct config section name.  This allows the program to access the proper data for the envelope to be sent."""
-        section_name = str
-        yes = self.yes
-        if (
-            # if self.check_if_all_three(filtered_submits_dict):
-            #   section_name = "Combination: Seawave, Prime Time and New Hampshire"
-            # return section_name
-            (filtered_submits_dict["Seawave"] == yes)
-            and (filtered_submits_dict["Prime Time"] == yes)
-            and (filtered_submits_dict["New Hampshire"] == yes)
-        ):
-            section_name = "Combination: Seawave, Prime Time and New Hampshire"
-            return section_name
-        elif (filtered_submits_dict["Seawave"] == yes) and (
-            filtered_submits_dict["Prime Time"] == yes
-        ):
-            section_name = "Combination: Seawave and Prime Time"
-            return section_name
-        elif (filtered_submits_dict["Seawave"] == yes) and (
-            filtered_submits_dict["New Hampshire"] == yes
-        ):
-            section_name = "Combination: Seawave and New Hampshire"
-            return section_name
-        elif (filtered_submits_dict["Prime Time"] == yes) and (
-            filtered_submits_dict["New Hampshire"] == yes
-        ):
-            section_name = "Combination: Prime Time and New Hampshire"
-            return section_name
-        else:
-            pass
+    def _fix_redundancies(self, positive_redundants: list) -> str:  # GOOD
+        """Receives a dict of the name of the carrier as a key,  and the
+        positive submission value as the"""
+        redundancies = positive_redundants
+        section_name = self._assign_redundant_section(redundancies)
+        return section_name
+
+    def _assign_redundant_section(self, redundancies: list[str]):
+        string = " + ".join(redundancies)
+        section_name = f"Combination: {string}"
+        return section_name
 
     def save_path(self, raw_path, is_quoteform: bool) -> bool:
         try:

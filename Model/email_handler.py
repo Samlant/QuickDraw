@@ -83,10 +83,10 @@ class EmailHandler:
             "margin:0in;font-size=14px;font-family:Calibri,sans-serif;color:#1F3864;"
         )
         signature = """
-        <img src='https://i.postimg.cc/Mp00s0vJ/mysig.png'>
-        <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>NOVAMAR INSURANCE GROUP</p>
-        <img src='https://i.postimg.cc/dVzMBYkx/novamarlogo.png'>
-        <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Main:(800)-823-2798</p>
+    <img src='https://i.postimg.cc/Mp00s0vJ/mysig.png'>
+    <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>NOVAMAR INSURANCE GROUP</p>
+    <img src='https://i.postimg.cc/dVzMBYkx/novamarlogo.png'>
+    <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Main:(800)-823-2798</p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Office :(941)-444-5099</p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Fax:(941)-328-3598</p><br>
     <p style='margin:0in;color:#0563C1;text-decoration:underline;text-underline:single;font-size:12px;font-family:Georgia Pro,serif;'>1549 Ringling Blvd., Suite 101</p>
@@ -108,11 +108,11 @@ class EmailHandler:
     </head>
     <body>
     <p style=%s>%s</p>
-    <p style=%s>%s %s</p><br>
+    <p style=%s>%s %s</p>
     </body>
     <footer>
     <p style=%s>%s</p>
-    <p style=%s>%s</p><br>
+    <p style=%s>%s</p>
     %s
     </footer></html>
     """ % (

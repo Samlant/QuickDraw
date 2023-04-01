@@ -329,7 +329,7 @@ class Presenter:
         else:
             return possible_redundancies_dict
 
-    def get_remaining_single_carriers(self) -> dict:
+    def get_single_carriers(self) -> dict:
         """This gets the values of the carriers' checkboxes that
         all submit to different, unique email addresses.
 
@@ -447,11 +447,10 @@ class Presenter:
         postman.send_letter(autosend=False)
 
     def btn_send_envelopes(self, autosend: bool) -> None:
-        """This gets and checks which markets to prepare a ubmission to; it first
+        """This gets and checks which markets to prepare a submission to; it first
         keeps most carriers that we'll submit to,  although there are a few that
         use the same email address, so this then handles those markets by
-        transforming them into a single submission. This data is then sent to be
-        looped through and emailed away.
+        transforming them into a single submission string. This string is combined with the list of other markets to submit to, and then is sent to be looped through and emailed away individually.
 
         Arguments:
                 autosend = {bool}
@@ -459,31 +458,34 @@ class Presenter:
                 will be sequentially sent. If False, a window will be shown for
                 each email prior to sending.
         """
-        submission_dict = self._handle_single_markets()
-        fixed_redundancies_dict = self._handle_redundancies()
-        submission_dict.update(fixed_redundancies_dict)
-        # try:
-        self.loop_through_envelopes(submission_dict, autosend)
-        # except:
-        #    raise Exception("Error while looping through envelopes.")
-        # else:
-        #    return True
+        submission_list = self._handle_single_markets()
+        redundant_result = self._handle_redundancies()
+        if redundant_result != None:
+            submission_list.append(redundant_result)
+        else:
+            pass
+        try:
+            self.loop_through_envelopes(submission_list, autosend)
+        except:
+            raise Exception("Error while looping through envelopes.")
+        else:
+            return True
 
-    def _handle_single_markets(self) -> dict:
+    def _handle_single_markets(self) -> list:  # GGOOOOOOODD
         """Gets possible redundant carriers' checkbox values, filters to only keep
         positive submissions, then combines them into one submission
 
         Returns -- Dict: returns dict of a single, combined carrier submission
         """
         try:
-            raw_dict = self.get_remaining_single_carriers()
-            processed_dict = self.model.filter_only_positive_submissions(raw_dict)
+            raw_dict = self.get_single_carriers()
+            processed_list = self.model.filter_only_positive_submissions(raw_dict)
         except:
             raise Exception("Failed getting or filtering the single markets.")
         else:
-            return processed_dict
+            return processed_list
 
-    def _handle_redundancies(self) -> dict:
+    def _handle_redundancies(self) -> str:
         """Gets possible redundant carriers' checkbox values, filters to only keep
         positive submissions, then combines them into one submission
 
@@ -491,14 +493,14 @@ class Presenter:
         """
         try:
             raw_dict = self.get_possible_redundancies()
-            filtered_dict = self.model.filter_only_positive_submissions(raw_dict)
-            processed_dict = self.model.handle_redundancies(filtered_dict)
+            filtered_list = self.model.filter_only_positive_submissions(raw_dict)
+            processed_str = self.model.handle_redundancies(filtered_list)
         except:
             raise Exception("Failed handling redundancies.")
         else:
-            return processed_dict
+            return processed_str
 
-    def loop_through_envelopes(self, finalized_submits_dict: dict, autosend: bool):
+    def loop_through_envelopes(self, carriers: list, autosend: bool):
         """This loops through each submission;  it:
         (1) forms an envelope when a positive_submission is found,
         (2) gets and transforms needed data into each of its final formatted type and form,
@@ -511,11 +513,11 @@ class Presenter:
         list_of_CC = self._handle_getting_CC_addresses()
         formatted_CC_str = self.model.list_of_CC_to_str(list_of_CC)
 
-        for carrier_section_name in finalized_submits_dict:
+        for carrier in carriers:
             letter = postman.create_letter()
 
             carrier_config_dict = dict()
-            carrier_config_dict = self.config_worker.get_section(carrier_section_name)
+            carrier_config_dict = self.config_worker.get_section(carrier)
 
             letter.To = carrier_config_dict.pop("address")
             letter.CC = formatted_CC_str

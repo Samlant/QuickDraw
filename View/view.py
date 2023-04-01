@@ -798,7 +798,7 @@ class TkView(TkinterDnD.Tk):
         )
         signature_lf = LabelFrame(
             main_settings_frame,
-            text="Define default addresses that you often CC: simply separate by semicolon! Note: you can create two differnet groups",
+            text="this is the signature labelframe",
             bg="#aedadb",
             font=("helvetica", 8, "normal"),
         )
