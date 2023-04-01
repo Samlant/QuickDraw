@@ -3,8 +3,7 @@ from tkinter import ttk
 from tkinter.ttk import Notebook, Style
 from tkinter import *
 from tkinterdnd2 import DND_FILES, TkinterDnD
-from typing import Any, Callable, Protocol
-from dataclasses import dataclass
+from typing import Any, Protocol
 
 
 class Presenter(Protocol):
@@ -146,7 +145,6 @@ class TkView(TkinterDnD.Tk):
 
     @address.setter
     def address(self, new_address: str) -> None:
-        print(new_address)
         self._address.set(new_address)
 
     @address.deleter

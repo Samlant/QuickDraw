@@ -3,9 +3,6 @@ import fillpdf
 from fillpdf import fillpdfs
 import string
 
-from typing import Self
-from dataclasses import dataclass
-
 
 class EmailHandler:
     """This class is responsible for interfacing with Outlook in creating

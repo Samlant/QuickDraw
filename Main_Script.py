@@ -1,6 +1,7 @@
-from Model.model import Model, ConfigWorker
-from View.view import TkView
-from Presenter.presenter import Presenter
+from model import Model
+from model_config import ConfigWorker
+from view import TkView
+from presenter import Presenter
 
 
 POSITIVE_SUBMISSION_VALUE = "submit"
