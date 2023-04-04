@@ -275,10 +275,6 @@ class Presenter:
         if carrier == "Select Market(s)":
             return True
         else:
-            # separate text from entry
-            # handle getting text from Textbox and determine if empty
-            # if empty,  join together with entry and set attribute to placeholder
-
             if widget_type == "text" and self.check_text_from_textbox(event):
                 self.assign_placeholder_on_focus_out(carrier, widget_name)
             elif widget_type == "entry":
@@ -469,7 +465,7 @@ class Presenter:
         else:
             return True
 
-    def _handle_single_markets(self) -> list:  # GGOOOOOOODD
+    def _handle_single_markets(self) -> list:
         """Gets possible redundant carriers' checkbox values, filters to only keep
         positive submissions, then combines them into one submission
 

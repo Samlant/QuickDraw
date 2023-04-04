@@ -25,9 +25,6 @@ class EmailHandler:
         """This creates the letter,  which absorbs all final data to be sent to the desired recipient."""
         return self.outlook.CreateItem(0)
 
-    # we can directly access = [To, CC, Subject, HTMLBody, Attachment]
-    # Build html body first, then base off the necessary vars*)
-
     def send_letter(self, view: bool) -> None:
         """Wrapper for sending the message for unit-testing"""
         try:
@@ -159,7 +156,6 @@ class EmailHandler:
     def format_subject_values(self, pdf_dict=dict) -> None:
         """This first formats each piece of the subject line,  then inserts those formatted values into a dict."""
         formatted_values_dict = {}
-
         formatted_values_dict.update(
             "first_name", pdf_dict.get(self.keys_dict["fname"].self.capitalize_words)
         )
@@ -176,7 +172,7 @@ class EmailHandler:
     def stringify_subject(self, formatted_values: dict) -> str:
         fv = formatted_values
         subject_line = f"""New Quote Submission | {fv[self.keys_dict['lname']]}, {fv[self.keys_dict['fname']]} | {fv[self.keys_dict['year']]} {fv[self.keys_dict['make']]} {fv[self.keys_dict['length']]}
-                        """
+        """
         return subject_line
 
     def capitalize_words(self, unformatted_string: str) -> str:

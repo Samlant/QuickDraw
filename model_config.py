@@ -10,7 +10,6 @@ class ConfigWorker:
         open_read_update.read("configurations.ini")
         return open_read_update
 
-    # GOOD - prior name: get_config_value()
     def get_value_from_config(self, request: dict) -> any:
         """This returns the value from config given a section_name:key dict."""
         config = self.open_config()
