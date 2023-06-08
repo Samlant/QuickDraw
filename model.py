@@ -4,6 +4,7 @@ import fillpdf
 from fillpdf import fillpdfs
 import string
 
+
 class Model:
     """This is our model which handles validating, transforming, moving and storing data appropriately.
     NOTE: any config interactions are routed to the Config class object.
@@ -147,17 +148,27 @@ class EmailHandler:
             "make": "4d616b6520616e64204d6f64656c",
             "length": "Length",
         }
-    
+
     def create_letter(self) -> None:
         """This creates the letter,  which absorbs all final data to be sent to the desired recipient."""
         self.letter = self.outlook.CreateItem(0)
 
-    def assign_content_to_letter(self, subject, formatted_CC_str, extra_notes, username, carrier_config_dict, attachments_list):
+    def assign_content_to_letter(
+        self,
+        subject,
+        formatted_CC_str,
+        extra_notes,
+        username,
+        carrier_config_dict,
+        attachments_list,
+    ):
         "Assigns all content to the letter prior to sending"
         self.letter.Subject = subject
         self.letter.CC = formatted_CC_str
         self.letter.To = carrier_config_dict.pop("address")
-        self.letter.HTMLBody = self.build__HTML_Body(carrier_config_dict, extra_notes, username)
+        self.letter.HTMLBody = self.build__HTML_Body(
+            carrier_config_dict, extra_notes, username
+        )
 
         for attachment_path in attachments_list:
             self.letter.Attachments.Add(attachment_path)
@@ -195,12 +206,18 @@ class EmailHandler:
             extra_notes=extra_notes,
             salutation=salutation,
             username=username,
-            signature_image=signature_image
+            signature_image=signature_image,
         )
         return body_text
 
     def _organize_HTML_body(
-        self, greeting: str, body: str, extra_notes: str, salutation: str, username: str, signature_image: str,
+        self,
+        greeting: str,
+        body: str,
+        extra_notes: str,
+        salutation: str,
+        username: str,
+        signature_image: str,
     ) -> str:
         greeting_style = "font-size=14px;color:#1F3864;"
         body_style = "font-size=14px;color:#1F3864;"
@@ -225,7 +242,7 @@ class EmailHandler:
     <p style='margin:0in;'><a href='https://www.facebook.com/NovamarInsurance' target='_blank'><img width=24 height=24 src='https://cdn1.iconfinder.com/data/icons/social-media-2285/512/Colored_Facebook3_svg-512.png'></a>  <a href='https://www.instagram.com/novamar_insurance/' target='_blank'><img width=24 height=24 src='https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-512.png' style='display:block'></a>  <a href='https://twitter.com/NovamarIns' target='_blank'><img width=24 height=24 src='https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Twitter3_colored_svg-512.png' style='display:block'></a>  <a href='https://www.linkedin.com/company/novamar-insurance-group-inc' target='_blank'><img width=24 height=24 src='https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Linkedin_unofficial_colored_svg-512.png' style='display:block'></a></p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
-    """% (
+    """ % (
             signature_image,
         )
         body_text = r"""
@@ -312,7 +329,7 @@ class EmailHandler:
 
     def stringify_subject(self, formatted_values: dict) -> str:
         fv = formatted_values
-        subject_line = f"""New Quote Submission | {fv[self.keys_dict['lname']]}, {fv[self.keys_dict['fname']]} | {fv[self.keys_dict['year']]} {fv[self.keys_dict['make']]} {fv[self.keys_dict['length']]}
+        subject_line = f"""New Quote Submission from Novamar | {fv[self.keys_dict['lname']]}, {fv[self.keys_dict['fname']]} | {fv[self.keys_dict['year']]} {fv[self.keys_dict['make']]} {fv[self.keys_dict['length']]}'
         """
         return subject_line
 
@@ -325,9 +342,10 @@ class EmailHandler:
 
 class ConfigWorker:
     """This class handles all interactions between the python and config file. It utilizes open_config() as a helper to acces config, discerns the path of flowing information & then performs those queries on the config file."""
+
     def __init__(self, file_path: str) -> None:
         self.file_path = file_path
-        
+
     def open_config(self) -> None:  # GOOD
         """This is a helper to read config when called using ConfigUpdater,  an improvement on configParser."""
         open_read_update = ConfigUpdater()
