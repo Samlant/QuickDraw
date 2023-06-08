@@ -1,9 +1,10 @@
-from __future__ import annotations
+# from datetime import time
+# from __future__ import annotations
 from typing import Protocol
 
-from model import Model
-from model_email import EmailHandler
-from model_config import ConfigWorker
+from model import Model, EmailHandler, ConfigWorker
+# from model_email import EmailHandler
+# from model_config import ConfigWorker
 
 
 class View(Protocol):
@@ -12,7 +13,7 @@ class View(Protocol):
         ...
 
     @property
-    def use_CC_defaults(self) -> bool:
+    def use_default_cc_addresses(self) -> bool:
         ...
 
     @property
@@ -113,7 +114,7 @@ class View(Protocol):
     def reset_attributes(self, positive_value, negative_value):
         ...
 
-    def create_UI_obj(self, presenter: Presenter) -> None:
+    def create_UI_obj(self, presenter) -> None:
         ...
 
     def mainloop(self) -> None:
@@ -129,18 +130,18 @@ class View(Protocol):
         ...
 
 
-class ConfigWorker(Protocol):
-    def get_value_from_config(self, request: dict) -> any:
-        ...
+# class ConfigWorker(Protocol):
+#     def get_value_from_config(self, request: dict) -> any:
+#         ...
 
-    def get_section(self, section_name) -> dict:
-        ...
+#     def get_section(self, section_name) -> dict:
+#         ...
 
-    def handle_save_contents(self, section_name: str, save_contents: dict) -> bool:
-        ...
+#     def handle_save_contents(self, section_name: str, save_contents: dict) -> bool:
+#         ...
 
-    def check_if_using_default_carboncopies(self) -> bool:
-        ...
+#     def check_if_using_default_carboncopies(self) -> bool:
+#         ...
 
 
 class Presenter:
@@ -149,31 +150,29 @@ class Presenter:
     all interactions between user input and program logic.
     """
 
-    def __init__(self, model: Model, view: View, config_worker: ConfigWorker) -> None:
+    def __init__(self, model: Model, config_worker: ConfigWorker, email_handler: EmailHandler, view: View) -> None:
         """Stores the model, config_worker & view to itself."""
         self.model = model
         self.view = view
         self.config_worker = config_worker
+        self.email_handler = email_handler
+        self.send_or_view = ""
 
     def start_program(self) -> None:
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
         This also sets the default mail application.
         """
-        try:
-            self.view.create_UI_obj(self)
-            self.set_initial_placeholders()
-            self.view.mainloop()
-        except:
-            raise Exception("Couldn't create UI object.")
-        else:
-            return True
+        self.view.create_UI_obj(self)
+        self.set_initial_placeholders()
+        self.view.mainloop()
 
     def set_dropdown_options(self) -> list:
         return self.model.get_dropdown_options()
 
     def btn_clear_attachments(self) -> None:
-        self.model.extra_attachments = ""
+        self.model.extra_attachments = []
+        self.model.quoteform_path = ""
 
     def process_quoteform_path(self, raw_path) -> None:  # GOOD
         """Sends the raw path to model for proccessing & saving.
@@ -277,7 +276,7 @@ class Presenter:
         else:
             if widget_type == "text" and self.check_text_from_textbox(event):
                 self.assign_placeholder_on_focus_out(carrier, widget_name)
-            elif widget_type == "entry":
+            elif widget_type == "entry" and self.check_text_from_entrybox(event):
                 self.assign_placeholder_on_focus_out(carrier, widget_name)
             else:
                 pass
@@ -301,6 +300,10 @@ class Presenter:
 
     def check_text_from_textbox(self, event):
         if event.widget.get("end-1c") == "":
+            return True
+        
+    def check_text_from_entrybox(self, event):
+        if event.widget.get("end") == 0:
             return True
 
     def get_possible_redundancies(self) -> dict:
@@ -415,21 +418,23 @@ class Presenter:
             return True
 
     def btn_view_template(self) -> None:
+        # why can't we use the same as sending and just pass an argument to end up using the Display method in model_email.py?
+        # self.send_or_view = "view"
+        
         selected_template = self.view.selected_template
-        postman = EmailHandler()
-        letter = postman.create_letter()
+        letter = self.email_handler.create_letter()
         subject = f"Test view of the template for {selected_template}"
-        postman.greeting = self.view.greeting
-        postman.body = self.view.body
-        postman.extra_notes = self.view.extra_notes
-        postman.salutation = self.view.salutation
-        postman.username = self.config_worker.get_value_from_config(
+        self.email_handler.greeting = self.view.greeting
+        self.email_handler.body = self.view.body
+        self.email_handler.extra_notes = self.view.extra_notes
+        self.email_handler.salutation = self.view.salutation
+        self.email_handler.username = self.config_worker.get_value_from_config(
             {
                 "section_name": "General settings",
                 "key": "username",
             }
         )
-        body_text = postman.build_HTML_body(
+        body_text = self.email_handler.build_HTML_body(
             greeting=self.view.greeting,
             body=self.view.body,
             extra_notes=self.view.extra_notes,
@@ -438,15 +443,20 @@ class Presenter:
         letter.To = self.view.address
         letter.Subject = subject
         letter.HTMLBody = body_text
-        postman.send_letter(autosend=False)
+        self.email_handler.send_letter(autosend=False)
 
-    def btn_send_envelopes(self, autosend: bool) -> None:
+    def btn_send_envelopes(self) -> None:
+        self.send_or_view = "send"
+        active_markets = list(self.gather_active_markets())
+        self.loop_through_envelopes(active_markets)
+
+    def gather_active_markets(self) -> None:
         """This gets and checks which markets to prepare a submission to; it first
         keeps most carriers that we'll submit to,  although there are a few that
         use the same email address, so this then handles those markets by
         transforming them into a single submission string. This string is combined with the list of other markets to submit to, and then is sent to be looped through and emailed away individually.
 
-        Arguments:
+        Arguments (outdated):
                 autosend = {bool}
                 NOTE: If True, no window will be shown and all emails
                 will be sequentially sent. If False, a window will be shown for
@@ -458,12 +468,7 @@ class Presenter:
             submission_list.append(redundant_result)
         else:
             pass
-        try:
-            self.loop_through_envelopes(submission_list, autosend)
-        except:
-            raise Exception("Error while looping through envelopes.")
-        else:
-            return True
+        return submission_list
 
     def _handle_single_markets(self) -> list:
         """Gets possible redundant carriers' checkbox values, filters to only keep
@@ -494,48 +499,52 @@ class Presenter:
         else:
             return processed_str
 
-    def loop_through_envelopes(self, carriers: list, autosend: bool):
+    def loop_through_envelopes(self, carriers: list):
         """This loops through each submission;  it:
         (1) forms an envelope when a positive_submission is found,
         (2) gets and transforms needed data into each of its final formatted type and form,
         (3) applies the properly formatted data into each the envelope, and,
         (4) sends the envelope to the recipient, inclusive of all data.
         """
-        postman = EmailHandler()
         subject = str
-        subject = postman.build_subject(self.model.quoteform_path)
+        subject = self.email_handler.build_subject(self.model.quoteform_path)
         list_of_CC = self._handle_getting_CC_addresses()
         formatted_CC_str = self.model.list_of_CC_to_str(list_of_CC)
-
-        for carrier in carriers:
-            letter = postman.create_letter()
-
-            carrier_config_dict = dict()
-            carrier_config_dict = self.config_worker.get_section(carrier)
-
-            letter.To = carrier_config_dict.pop("address")
-            letter.CC = formatted_CC_str
-            letter.Subject = subject
-
-            extra_notes = self.view.extra_notes
-            username = self.config_worker.get_value_from_config(
+        extra_notes = self.view.extra_notes
+        username = self.config_worker.get_value_from_config(
                 {"section_name": "General settings", "key": "username"}
             )
-            body_text = postman.build__HTML_Body(
-                carrier_config_dict, extra_notes, username
-            )
-            letter.HTMLBody = body_text
+        attachments_list = self.model.get_all_attachments()
 
-            attachments_list = self.model.get_all_attachments()
-            for attachment_path in attachments_list:
-                letter.Attachments.Add(attachment_path)
-            if autosend:
-                letter.Send()
-            elif autosend == False:
-                letter.Display()
-            else:
-                raise ValueError
-            # postman.send_letter(autosend)
+        for carrier in carriers:
+            # self.email_handler.letter = self.email_handler.create_letter()
+            # 5
+            self.email_handler.create_letter()
+            carrier_config_dict = dict()
+            carrier_config_dict = self.config_worker.get_section(carrier)
+            
+            signature_image_key = self.config_worker.get_value_from_config({'section_name': 'General settings', 'key': 'signature_image'})
+            carrier_config_dict['signature_image'] = signature_image_key
+
+            self.email_handler.assign_content_to_letter(subject, formatted_CC_str, extra_notes, username, carrier_config_dict, attachments_list)
+            
+            #letter = self.email_handler.create_letter()
+
+
+            # letter.To = carrier_config_dict.pop("address")
+            # letter.CC = formatted_CC_str
+            # letter.Subject = subject
+
+            # body_text = self.email_handler.build__HTML_Body(
+            #     carrier_config_dict, extra_notes, username
+            # )
+            # letter.HTMLBody = body_text
+
+            # for attachment_path in attachments_list:
+            #     letter.Attachments.Add(attachment_path)
+            self.email_handler.send_letter()
+            #time.wait(5000)
+            #i = input("Press an key to send the next envelope.")
 
     def _handle_getting_CC_addresses(self) -> list:
         """Gets userinput of all CC addresses and adds the to a list. It then
@@ -550,9 +559,9 @@ class Presenter:
         userinput_CC2 = self.view.userinput_CC2
         list_of_CC.append(userinput_CC1)
         list_of_CC.append(userinput_CC2)
-        print(self.view.use_CC_defaults)
+        print(self.view.use_default_cc_addresses)
         print(self.view.extra_notes)
-        if self.view.use_CC_defaults == True:
+        if self.view.use_default_cc_addresses == True:
             if self.config_worker.check_if_using_default_carboncopies() == True:
                 default_cc_addresses = self.model.get_default_cc_addresses()
                 list_of_CC.append(default_cc_addresses)

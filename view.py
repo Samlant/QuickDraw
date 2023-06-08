@@ -6,6 +6,7 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 from typing import Any, Protocol
 
 
+
 class Presenter(Protocol):
     """This enables us to call funtions from the Presenter
     class, either to send/retrieve data.
@@ -59,12 +60,14 @@ class TkView(TkinterDnD.Tk):
     class attr positive_submission is for setting the value for a submission to be processed and sent. This is the one spot it needs updating.
     """
 
-    def __init__(self, positive_value, negative_value) -> None:
+    def __init__(self, positive_value, negative_value, icon_src: str) -> None:
         super().__init__()
         self.geometry("760x548")
         self.configure(background="#5F9EA0")
-        self.title("Quick Submit Tool")
+        self.title("QuickDraw")
         self.attributes("-alpha", 0.95)
+        icon = PhotoImage(file=icon_src)
+        self.iconphoto(False, icon)
         self._yes = positive_value
         self._no = negative_value
         self.assign_private_string_bool_vars()
@@ -87,11 +90,11 @@ class TkView(TkinterDnD.Tk):
         return self._userinput_CC2.get("1.0", "end-1c")
 
     @property
-    def use_CC_defaults(self) -> bool:
+    def use_default_cc_addresses(self) -> bool:
         return self._use_CC_defaults.get()
 
-    @use_CC_defaults.setter
-    def use_CC_defaults(self, usage: bool) -> None:
+    @use_default_cc_addresses.setter
+    def use_default_cc_addresses(self, usage: bool) -> None:
         self._use_CC_defaults.set(usage)
 
     @property
@@ -224,6 +227,15 @@ class TkView(TkinterDnD.Tk):
     def username(self) -> None:
         self._username.set("")
 
+    # def resource_path(self, relative_path):
+    #     """ Get absolute path to resource, works for dev and for PyInstaller """
+    #     try:
+    #         # PyInstaller creates a temp folder and stores path in _MEIPASS
+    #         base_path = sys._MEIPASS
+    #     except Exception:
+    #         base_path = os.path.abspath(".")
+    #     return os.path.join(base_path, relative_path)
+
     def assign_private_string_bool_vars(self) -> None:
         """Assigns tkinter-specific attributes so that the getters /
         setters work and other modules do not need to need tkinter.
@@ -326,7 +338,7 @@ class TkView(TkinterDnD.Tk):
             text="Clear attachments",
             bg="#e50000",
             font=("helvetica", 12, "normal"),
-            command=lambda: presenter.btn_clear_attachments,
+            command=presenter.btn_clear_attachments,
         ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
 
         frame_middle = Frame(self.home, bg="#5F9EA0")
@@ -491,7 +503,7 @@ class TkView(TkinterDnD.Tk):
             text="Submit & auto-send all",
             bg="#22c26a",
             font=("helvetica", 12, "normal"),
-            command=lambda: presenter.btn_send_envelopes(autosend=True),
+            command=presenter.btn_send_envelopes,
         ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
 
     def create_customize_tab_widgets(self, presenter: Presenter):
