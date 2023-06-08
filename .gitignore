@@ -165,3 +165,4 @@ cython_debug/
 .vs/Mass-Quote-Submissions/v17/.wsuo
 .vs/slnx.sqlite
 .vs/ProjectSettings.json
+./resource_usage.png
