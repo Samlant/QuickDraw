@@ -50,11 +50,11 @@ This quick application is a tool that allows you to:
 
 #### No emails are sent when I press either the "send" or "view" buttons, what can I do?
 
-> Make sure that you have Outlook open & running first before running the program. If that doesn't work, send us an email.
+> Make sure that you have Outlook open & running first before running the program. If that doesn't work, send us an email.  Note that we require Outlook to be running so that no passwords are collected for this to work---privacy first!
 
-#### How can I edit my signature?
+#### How can I edit my signature, or the subject line?
 
-> Currently, there isn't an external method to access the signature, which is why it's created as it is: in order to accommodate most other customizations. In the near future, we should be implementing an easy-to-use method to allow users to change the HTML-portion of the email, which is inclusive of the signature except the salutation & your name.
+> Currently, there are only options to edit your salutation, name, and picture of your signature(if desired);  there isn't an method to access other attributes of the signature (or subject line)---such as HTML styling, the business address, disclosures or locations.  While the program covers most of the essentials,  in the near future as the program matures,  we will be implementing more customizations to you as the user.  If any special requests need to be made,  contact us below under Support and we'll try to accommodate your request. 
 
 
 ## Roadmap
@@ -69,21 +69,25 @@ Icon | Definition
 
 :rowing_man: *Always extracting and abstracting code to improve flexibility and robustness in new ways.
 
+:rowing_man: Establish a workflow to feed data from quote intake ==> submissions to markets
+
+:rowing_man: Auto-populate an entry into our excell tracking report
+
 :rowing_man: Clean-up modules' layouts and content & compose/refine complete documentation of modules/methods.
 
 :mailbox_with_mail: Implement validation methods.
 
-:mailbox_with_mail: Once published, bundle package into .exe for usability & sharing.
+:mailbox_with_mail: Create an installer to install the program into user's AppData\Local folder.
 
 :mailbox_with_mail: Include the needed quoteform (for the drag-n-drop functionality) in the repo.
 
 :mailbox_with_mail: Refine field names in the quoteform.
 
-:mailbox_with_mail: Update GUI to PyQT6 when able.
+:muscle: Allow customization of additional elements,  like the subject line & HTML styling.
 
-:muscle: Establish a workflow to feed data from quote intake ==> submissions to markets
+:muscle: Update GUI to PyQT6 when able.
 
-:muscle: Auto-populate an entry into our excell tracking report
+:muscle: Combine with my other suite of office productivity tools
 
 :heavy_check_mark: Send emails using outlook account
 
@@ -104,7 +108,7 @@ Icon | Definition
 
 ## Support
 
-For support or if you have any feedback, email sam@novamar.net.
+For support or if you have any feedback, email either sam@wildernessexplorers.us or nat@wildernessexplorers.us
 
 
 ## Contributing
