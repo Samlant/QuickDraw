@@ -9,6 +9,7 @@ import sys
 POSITIVE_SUBMISSION_VALUE = "submit"
 NEGATIVE_SUBMISSION_VALUE = "pass"
 
+
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -16,24 +17,33 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
+
 config_file_path = resource_path("configurations.ini")
 view_icon_file_path = resource_path("quickdraw.png")
 
-def main() -> None:
+
+def main(pdf_data=dict) -> None:
     configworker = ConfigWorker(file_path=config_file_path)
     emailhandler = EmailHandler()
     model = Model(
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
+        pdf_path=pdf_data,
     )
     view = TkView(
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
         icon_src=view_icon_file_path,
     )
-    presenter = Presenter(model=model, config_worker=configworker, email_handler=emailhandler, view=view)
+    presenter = Presenter(
+        model=model, config_worker=configworker, email_handler=emailhandler, view=view
+    )
     presenter.start_program()
 
 
 if __name__ == "__main__":
-    main()
+    pdf_data = {}
+    main(pdf_data)
+else:
+    pdf_data = input()
+    main(pdf_data)

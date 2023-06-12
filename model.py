@@ -12,11 +12,13 @@ class Model:
 
     # NOTE: change this LAST:  These are class vars bc we want to keep them until emails are sent...store in email obj not here.
 
-    def __init__(self, positive_value, negative_value) -> None:
+    def __init__(self, positive_value, negative_value, pdf_path: dict) -> None:
         self.yes = positive_value
         self.no = negative_value
         self.quoteform_path = ""
         self.extra_attachments = []
+        if not pdf_path == {}:
+            self.save_path(pdf_path, True)
 
     def get_dropdown_options(self) -> list:
         return [
