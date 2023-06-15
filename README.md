@@ -2,7 +2,7 @@
 
 ### A mass-email-sender that sequentially submits quotes to various markets for you easily & efficiently.
 
-![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
+![Logo](https://i.postimg.cc/CK3Gbr4Z/6-DB2-F6-EE-F692-4-EDD-A987-9-FBE2999355-A.png)
 
 This quick application is a tool that allows you to:
 
