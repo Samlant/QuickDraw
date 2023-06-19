@@ -13,11 +13,11 @@ TEST = False
 
 ICON_NAME = "icon.ico"
 CONFIG_NAME = "configurations.ini"
+app_dir = os.path.expandvars(r'%LOCALAPPDATA%\Work Tools')
 
 if TEST == True:
     ICON_NAME = os.path.join("resources", ICON_NAME)
-    home_dir = os.path.expanduser("~")
-    CONFIG_PATH = os.path.join(home_dir, "work-tools", CONFIG_NAME)
+    CONFIG_PATH = os.path.join(app_dir, CONFIG_NAME)
 
 if getattr(sys, "frozen", False):
     application_path = sys._MEIPASS
@@ -25,7 +25,7 @@ else:
     application_path = os.path.dirname(os.path.abspath(__file__))
 
 ICON = os.path.join(application_path, ICON_NAME)
-CONFIG = os.path.join(home_dir, "work-tools", CONFIG_NAME)
+CONFIG = os.path.join(app_dir, CONFIG_NAME)
 
 
 def main(pdf_data=dict) -> None:
