@@ -84,13 +84,7 @@ class Model:
         section_name = f"Combination: {string}"
         return section_name
 
-    def save_path(self, raw_path, is_quoteform: bool) -> None:
-        try:
-            path = self._filter_out_brackets(raw_path)
-        except:
-            error = f'cannot clean the path of the file; input was: "{raw_path}"'
-            raise Exception(error)
-
+    def save_path(self, path, is_quoteform: bool) -> None:
         if is_quoteform == True:
             self.quoteform_path = path
         elif is_quoteform == False:
@@ -98,7 +92,7 @@ class Model:
         else:
             raise Exception("Type of param:is_quoteform is wrong or empty.")
 
-    def _filter_out_brackets(self, path) -> str:
+    def filter_out_brackets(self, path) -> str:
         """Cleans up the path str by removing any brackets---if present."""
         if "{" in path.data:
             path = path.data.translate({ord(c): None for c in "{}"})
@@ -122,10 +116,10 @@ class Model:
     def get_default_cc_addresses(self):
         list_of_CC = list()
         if self.check_if_ignore_default_cc_is_on() == False:
-            default_cc1 = ConfigWorker.get_value_from_config(
+            default_cc1 = ConfigWorker.get_value(
                 dict("General settings", "default_cc1")
             )
-            default_cc2 = ConfigWorker.get_value_from_config(
+            default_cc2 = ConfigWorker.get_value(
                 dict("General settings", "default_cc2")
             )
             list_of_CC.append(default_cc1, default_cc2)
@@ -144,11 +138,10 @@ class EmailHandler:
     def __init__(self):
         self.outlook = win32.Dispatch("Outlook.Application")
         self.keys_dict = {
-            "fname": "4669727374204e616d65",
-            "lname": "4c617374204e616d65",
-            "year": "Year",
-            "make": "4d616b6520616e64204d6f64656c",
-            "length": "Length",
+            "fname": "fname",
+            "lname": "lname",
+            "year": "vessel_year",
+            "make": "vessel_make_model",
         }
 
     def create_letter(self) -> None:
@@ -326,12 +319,11 @@ class EmailHandler:
             "make", pdf_dict.get(self.keys_dict["make"].self.capitalize_words)
         )
         formatted_values_dict.update("year", pdf_dict.get(self.keys_dict["year"]))
-        formatted_values_dict.update("length", pdf_dict.get(self.keys_dict["length"]))
         return formatted_values_dict
 
     def stringify_subject(self, formatted_values: dict) -> str:
         fv = formatted_values
-        subject_line = f"""New Quote Submission from Novamar | {fv[self.keys_dict['lname']]}, {fv[self.keys_dict['fname']]} | {fv[self.keys_dict['year']]} {fv[self.keys_dict['make']]} {fv[self.keys_dict['length']]}'
+        subject_line = f"""New Quote Submission from Novamar | {fv[self.keys_dict['lname']]}, {fv[self.keys_dict['fname']]} | {fv[self.keys_dict['year']]} {fv[self.keys_dict['make']]}'
         """
         return subject_line
 
@@ -354,7 +346,7 @@ class ConfigWorker:
         open_read_update.read(self.file_path)
         return open_read_update
 
-    def get_value_from_config(self, request: dict) -> any:
+    def get_value(self, request: dict) -> any:
         """This returns the value from config given a section_name:key dict."""
         config = self.open_config()
         section_name = request["section_name"]
@@ -399,7 +391,7 @@ class ConfigWorker:
         key = "use_default_cc_addresses"
         config = {"section_name": section_name_value, "key": key}
         try:
-            result = self.get_value_from_config(config)
+            result = self.get_value(config)
         except:
             raise KeyError("Couldn't access config with values")
         else:

@@ -1,10 +1,9 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from tkinter.ttk import Notebook, Style
 from tkinter import *
 from tkinterdnd2 import DND_FILES, TkinterDnD
 from typing import Any, Protocol
-
 
 
 class Presenter(Protocol):
@@ -64,10 +63,10 @@ class TkView(TkinterDnD.Tk):
         super().__init__()
         self.geometry("760x548")
         self.configure(background="#5F9EA0")
+        self.attributes("-topmost", True)
         self.title("QuickDraw")
         self.attributes("-alpha", 0.95)
-        icon = PhotoImage(file=icon_src)
-        self.iconphoto(False, icon)
+        self.iconbitmap(icon_src)
         self._yes = positive_value
         self._no = negative_value
         self.assign_private_string_bool_vars()
@@ -136,6 +135,30 @@ class TkView(TkinterDnD.Tk):
     @property
     def tv(self) -> str:
         return self._travelers.get()
+
+    @property
+    def quoteform(self):
+        return self.quoteform_path_box.get("1.0", "end-1c")
+
+    @quoteform.setter
+    def quoteform(self, new_attachment: str):
+        self.quoteform_path_box.insert("1.0", new_attachment)
+
+    @quoteform.deleter
+    def quoteform(self):
+        self.quoteform_path_box.delete("1.0", END)
+
+    @property
+    def extra_attachments(self):
+        return self.extra_attachments_path_box.get("1.0", "end-1c")
+
+    @extra_attachments.setter
+    def extra_attachments(self, new_attachment: str):
+        self.extra_attachments_path_box.insert("1.0", new_attachment + "\n")
+
+    @extra_attachments.deleter
+    def extra_attachments(self):
+        self.extra_attachments_path_box.delete("1.0", END)
 
     # customize_tab: getters/setters
     @property
@@ -226,6 +249,18 @@ class TkView(TkinterDnD.Tk):
     @username.deleter
     def username(self) -> None:
         self._username.set("")
+
+    @property
+    def sig_image_file(self) -> str:
+        return self.sig_image_path_box.get("1.0", "end-1c")
+
+    @sig_image_file.setter
+    def sig_image_file(self, new_image_file: str):
+        self.sig_image_path_box.insert("1.0", new_image_file)
+
+    @sig_image_file.deleter
+    def sig_image_file(self):
+        self.sig_image_file.delete("1.0", END)
 
     # def resource_path(self, relative_path):
     #     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -351,8 +386,12 @@ class TkView(TkinterDnD.Tk):
         )
         labelframe_main1.pack(fill=X, expand=False, side="top")
         self._extra_notes_text = Text(
-            labelframe_main1, height=7, width=30, name="raw_extra_notes"
+            labelframe_main1,
+            height=7,
+            width=30,
+            name="raw_extra_notes",
         )
+        self._extra_notes_text.focus_set()
         self._extra_notes_text.pack(fill=X, anchor=N, expand=FALSE, side="top")
         labelframe_cc = LabelFrame(
             frame_middle,
@@ -554,7 +593,7 @@ class TkView(TkinterDnD.Tk):
             font=("helvetica", 16, "normal"),
         ).grid(column=0, row=0)
 
-        self.add_entry = Entry(
+        self.address_entry = Entry(
             master=content_frame,
             name="address",
             textvariable=self._address,
@@ -562,7 +601,7 @@ class TkView(TkinterDnD.Tk):
             validate="focusout",
             validatecommand=presenter.on_focus_out,
         )
-        self.add_entry.grid(
+        self.address_entry.grid(
             column=1,
             row=0,
             sticky=W,
@@ -570,7 +609,7 @@ class TkView(TkinterDnD.Tk):
             pady=5,
         )
 
-        self.add_entry.bind("<FocusOut>", presenter.on_focus_out)
+        self.address_entry.bind("<FocusOut>", presenter.on_focus_out)
 
         Label(
             content_frame,
@@ -714,7 +753,8 @@ class TkView(TkinterDnD.Tk):
             expand=True,
             padx=200,
         )
-
+        # END OF TITLE
+        # BEGIN CC SETTINGS
         main_settings_frame = Frame(
             content_boder,
             bg="#5F9EA0",
@@ -726,9 +766,9 @@ class TkView(TkinterDnD.Tk):
         )
         default_cc_lf = LabelFrame(
             main_settings_frame,
-            text="Define default addresses that you often CC: simply separate by semicolon! Note: you can create two differnet groups",
+            text='Add emails that you want to CC quote submissions on---separate using a ";" (semicolon)',
             bg="#aedadb",
-            font=("helvetica", 8, "normal"),
+            font=("helvetica", 12, "normal"),
         )
         default_cc_lf.pack(
             fill=X,
@@ -736,10 +776,9 @@ class TkView(TkinterDnD.Tk):
             pady=10,
             side="top",
         )
-
         Label(
             master=default_cc_lf,
-            text="First group of addresses:",
+            text="CC Group 1:",
             bg="#aedadb",
             font=("helvetica", 12, "normal"),
         ).grid(
@@ -751,6 +790,7 @@ class TkView(TkinterDnD.Tk):
             default_cc_lf,
             textvariable=self._default_cc1,
             name="default_cc1",
+            font=1,
         )
         cc1.grid(
             column=1,
@@ -762,7 +802,7 @@ class TkView(TkinterDnD.Tk):
         )
         Label(
             default_cc_lf,
-            text="Second group of addresses:",
+            text="CC Group 2:",
             bg="#aedadb",
             font=("helvetica", 12, "normal"),
         ).grid(
@@ -774,6 +814,7 @@ class TkView(TkinterDnD.Tk):
             default_cc_lf,
             textvariable=self._default_cc2,
             name="default_cc2",
+            font=1,
         )
         cc2.grid(
             column=1,
@@ -784,31 +825,11 @@ class TkView(TkinterDnD.Tk):
             ipady=3,
             pady=6,
         )
-        Label(
-            main_settings_frame,
-            text="Your name (for the signature):",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(
-            fill=None,
-            expand=False,
-            side="left",
-            anchor=N,
-        )
-        username_entry = Entry(
-            master=main_settings_frame,
-            textvariable=self._username,
-        )
-        username_entry.pack(
-            fill=X,
-            expand=True,
-            side="left",
-            anchor=N,
-            ipady=3,
-        )
+        # END OF CC SETTINGS
+        # BEGIN SIGNATURE SETTINGS
         signature_lf = LabelFrame(
             main_settings_frame,
-            text="this is the signature labelframe",
+            text="Settings for your Signature",
             bg="#aedadb",
             font=("helvetica", 8, "normal"),
         )
@@ -818,8 +839,60 @@ class TkView(TkinterDnD.Tk):
             pady=10,
             side="top",
         )
-        sig_choice_frame = Frame(signature_lf, bg="#5F9EA0")
-        sig_choice_frame.pack(fill=X, expand=True, side="top")
+        sig_frame = Frame(signature_lf, bg="#aedadb")
+        sig_frame.pack(fill=X, expand=True, side="top")
+        Label(
+            sig_frame,
+            text="Your name:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).grid(row=0, column=0, padx=(0, 5))
+        username_entry = Entry(
+            master=sig_frame,
+            textvariable=self._username,
+            font=1,
+        )
+        username_entry.grid(
+            row=0,
+            column=1,
+            columnspan=2,
+            padx=(0, 7),
+            ipadx=30,
+            ipady=3,
+        )
+        Label(
+            sig_frame,
+            text="Signature image:",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).grid(row=0, column=4, padx=(5, 5))
+        self.sig_image_path_box = Text(
+            sig_frame,
+            background="#59f3e3",
+            name="sig_image_path_file",
+            height=4,
+        )
+        self.sig_image_path_box.grid(
+            row=0,
+            column=5,
+            columnspan=2,
+            rowspan=2,
+            pady=(0, 1),
+        )
+        self.sig_image_path_box.drop_target_register(DND_FILES)
+        self.sig_image_path_box.dnd_bind("<<Drop>>", presenter.process_attachments_path)
+        self.sig_image_btn = Button(
+            sig_frame,
+            command=self._browse_sig_image,
+            text="Browse",
+        )
+        self.sig_image_btn.grid(
+            row=1,
+            column=4,
+            ipadx=35,
+            ipady=8,
+            pady=(2, 1),
+        )
 
         future_settings_frame = Frame(
             content_boder,
@@ -927,3 +1000,7 @@ class TkView(TkinterDnD.Tk):
 
     def get_active_focus(self) -> dict:
         return self.focus_get()
+
+    def _browse_sig_image(self):
+        dir_name = filedialog.askdirectory()
+        self.sig_image_file = dir_name

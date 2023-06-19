@@ -9,21 +9,27 @@ import sys
 POSITIVE_SUBMISSION_VALUE = "submit"
 NEGATIVE_SUBMISSION_VALUE = "pass"
 
+TEST = False
 
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
+ICON_NAME = "icon.ico"
+CONFIG_NAME = "configurations.ini"
 
+if TEST == True:
+    ICON_NAME = os.path.join("resources", ICON_NAME)
+    home_dir = os.path.expanduser("~")
+    CONFIG_PATH = os.path.join(home_dir, "work-tools", CONFIG_NAME)
 
-config_file_path = resource_path("configurations.ini")
-view_icon_file_path = resource_path("quickdraw.png")
+if getattr(sys, "frozen", False):
+    application_path = sys._MEIPASS
+else:
+    application_path = os.path.dirname(os.path.abspath(__file__))
+
+ICON = os.path.join(application_path, ICON_NAME)
+CONFIG = os.path.join(home_dir, "work-tools", CONFIG_NAME)
 
 
 def main(pdf_data=dict) -> None:
-    configworker = ConfigWorker(file_path=config_file_path)
+    configworker = ConfigWorker(file_path=CONFIG)
     emailhandler = EmailHandler()
     model = Model(
         positive_value=POSITIVE_SUBMISSION_VALUE,
@@ -33,7 +39,7 @@ def main(pdf_data=dict) -> None:
     view = TkView(
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
-        icon_src=view_icon_file_path,
+        icon_src=ICON,
     )
     presenter = Presenter(
         model=model, config_worker=configworker, email_handler=emailhandler, view=view
