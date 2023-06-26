@@ -103,18 +103,11 @@ This quick application is a tool that allows you to:
 
 ## Support
 
-For support or if you have any feedback, email either sam@wildernessexplorers.us or nat@wildernessexplorers.us
+For support or if you have any feedback, send us an email at sam@novamar.net
 
-## Contributing
-
-Contributions are always welcome!
-
-See `contributing.md` for ways to get started.
-
-Please adhere to this project's `code of conduct`.
 
 ## Related
 
 Here are some related projects to this one:
 
-[Placeholder_for_other_helpful_script](https://github.com/matiassingers/awesome-readme)
+[Tool to help expedite client intake](https://github.com/Samlant/IntakeTool)
