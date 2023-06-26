@@ -110,4 +110,4 @@ For support or if you have any feedback, send us an email at sam@novamar.net
 
 Here are some related projects to this one:
 
-[Tool to help expedite client intake](https://github.com/Samlant/IntakeTool)
+[IntakeTool:  A tool to help expedite the client intake process](https://github.com/Samlant/IntakeTool)
