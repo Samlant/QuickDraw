@@ -94,8 +94,8 @@ class Model:
 
     def filter_out_brackets(self, path) -> str:
         """Cleans up the path str by removing any brackets---if present."""
-        if "{" in path.data:
-            path = path.data.translate({ord(c): None for c in "{}"})
+        if "{" in path:
+            path = path.translate({ord(c): None for c in "{}"})
         return path
 
     def get_all_attachments(self) -> list:

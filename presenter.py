@@ -196,7 +196,7 @@ class Presenter:
         del self.view.quoteform
         del self.view.extra_attachments
 
-    def process_quoteform_path(self, raw_path) -> None:  # GOOD
+    def process_quoteform_path(self, drag_n_drop_event) -> None:  # GOOD
         """Sends the raw path to model for proccessing & saving.
 
         Arguments:
@@ -206,12 +206,13 @@ class Presenter:
             Tuple -- returns the path & a boolean for distinguishing
                           it apart from other attachments.
         """
+        raw_path = drag_n_drop_event.data
         path = self.model.filter_out_brackets(raw_path)
         del self.view.quoteform
         self.view.quoteform = os.path.basename(path)
-        return self.model.save_path(raw_path, is_quoteform=True)
+        return self.model.save_path(path, is_quoteform=True)
 
-    def process_attachments_path(self, raw_path) -> None:
+    def process_attachments_path(self, drag_n_drop_event) -> None:
         """Sends the raw path of all extra attachments (not the
                 quoteform) to model for proccessing & saving.
 
@@ -222,6 +223,7 @@ class Presenter:
             Tuple -- returns the path & a boolean for distinguishing
                           it apart from the client's quoteform.
         """
+        raw_path = drag_n_drop_event.data
         path = self.model.filter_out_brackets(raw_path)
         self.view.extra_attachments = os.path.basename(path)
         return self.model.save_path(path, is_quoteform=False)

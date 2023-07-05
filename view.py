@@ -35,10 +35,10 @@ class Presenter(Protocol):
     def set_dropdown_options(self) -> list:
         ...
 
-    def process_quoteform_path(self, raw_path) -> None:
+    def process_quoteform_path(self, drag_n_drop_event) -> None:
         ...
 
-    def process_attachments_path(self, raw_path) -> None:
+    def process_attachments_path(self, drag_n_drop_event) -> None:
         ...
 
     def update_dropdown(self):
