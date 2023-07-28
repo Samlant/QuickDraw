@@ -115,7 +115,7 @@ class Model:
 
     def get_default_cc_addresses(self):
         list_of_CC = list()
-        if self.check_if_ignore_default_cc_is_on() == False:
+        if self.check_if_using_default_carboncopies() == False:
             default_cc1 = ConfigWorker.get_value(
                 dict("General settings", "default_cc1")
             )
@@ -387,6 +387,7 @@ class ConfigWorker:
                 raise Exception("Couldn't save file")
 
     def check_if_using_default_carboncopies(self) -> bool:
+        """Checks if the user's setting is set to use default CC addresses or not"""
         section_name_value = "General settings"
         key = "use_default_cc_addresses"
         config = {"section_name": section_name_value, "key": key}
