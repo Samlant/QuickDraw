@@ -598,8 +598,8 @@ class TkView(TkinterDnD.Tk):
             name="address",
             textvariable=self._address,
             width=89,
-            validate="focusout",
-            validatecommand=presenter.on_focus_out,
+            # validate="focusout",
+            # validatecommand=presenter.on_focus_out,
         )
         self.address_entry.grid(
             column=1,
