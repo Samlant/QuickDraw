@@ -45,6 +45,8 @@ RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
 ICON_PATH = RESOURCE_PATH / "icon.ico"
 CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
 MS_GRAPH_STATE_PATH = RESOURCE_PATH /  "ms_graph_state.jsonc"
+POSITIVE_SUBMISSION_VALUE = "yes"
+NEGATIVE_SUBMISSION_VALUE = "no"
 
 def initialize_modules() -> Presenter:
     "Creates and passes all models and views to the Presenter and returns the Presenter as an object."
@@ -86,12 +88,6 @@ def initialize_modules() -> Presenter:
         dialog_allocate_markets=dialog_allocate_markets,
     )
     return presenter
-
-
-# Assign values to constants
-POSITIVE_SUBMISSION_VALUE = "yes"
-NEGATIVE_SUBMISSION_VALUE = "no"
-
 
 def main():
     presenter = initialize_modules()
