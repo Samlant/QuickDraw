@@ -24,9 +24,6 @@ from presenter.presenter import Presenter
 # RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
 
 # TODO CREATE PATHS WITHIN FUNCTION AND RETURN THEM... CLEAN NAMESPACE
-# default file names ---double-check if necessary or able to save/grab from config file
-CONFIG_NAME = "configurations.ini"
-ICON_NAME = "icon.ico"
 # Debugging & development purposes
 TEST = False
 
@@ -50,8 +47,8 @@ else:
     )
 QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
 RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
-ICON_PATH = RESOURCE_PATH / ICON_PATH
-CONFIG_PATH = RESOURCE_PATH / CONFIG_NAME
+ICON_PATH = RESOURCE_PATH / "icon.ico"
+CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
 MS_GRAPH_STATE_PATH = RESOURCE_PATH /  "ms_graph_state.jsonc"
 
 def initialize_modules() -> Presenter:
