@@ -108,7 +108,7 @@ NEGATIVE_SUBMISSION_VALUE = "no"
 def main():
     presenter = initialize_modules()
     presenter.dir_watch.assign_presenter(presenter)
-    tray_icon = TrayIcon(ICON_PATH)
+    tray_icon = TrayIcon(icon_src=ICON_PATH)
     tray_icon.assign_presenter(presenter=presenter)
     thread1 = tray_icon.create_icon()
     thread1.start()
