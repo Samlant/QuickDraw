@@ -41,22 +41,18 @@ production_dir = Path.home() / "AppData" / "Local" / "Work-Tools"
 
 # Assign appropriate resource file names (config & icon)
 if TEST:
-    ICON_PATH = Path.joinpath(app_dir) / "resources" / ICON_NAME
-    CONFIG_PATH = Path.joinpath(app_dir) / "resources" / CONFIG_NAME
-    MS_GRAPH_STATE_PATH = Path.joinpath(app_dir) / "resources" / "ms_graph_state.jsonc"
+    RESOURCE_PATH = Path.joinpath(app_dir) / "resources"
     PATH_TO_WATCH = Path(app_dir) / "tests"
-    QUOTES_DIR = Path.joinpath(PATH_TO_WATCH) / "QUOTES New"
-    RENEWALS_DIR = Path.joinpath(PATH_TO_WATCH) / "QUOTES Renewal"
 else:
-    ICON_PATH = Path.joinpath(production_dir) / ICON_NAME
-    CONFIG_PATH = Path.joinpath(production_dir) / CONFIG_NAME
-    MS_GRAPH_STATE_PATH = Path.joinpath(production_dir) / "ms_graph_state.jsonc"
+    RESOURCE_PATH = Path.joinpath(production_dir) / "resources"
     PATH_TO_WATCH = (
         Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
     )
-    QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
-    RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
-
+QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
+RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
+ICON_PATH = RESOURCE_PATH / ICON_PATH
+CONFIG_PATH = RESOURCE_PATH / CONFIG_NAME
+MS_GRAPH_STATE_PATH = RESOURCE_PATH /  "ms_graph_state.jsonc"
 
 def initialize_modules() -> Presenter:
     "Creates and passes all models and views to the Presenter and returns the Presenter as an object."
