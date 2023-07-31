@@ -49,7 +49,7 @@ Name: startmenu; Description: "Create a Start Menu folder";
 Name: desktopicon; Description: "Create a &desktop icon";
 
 [Icons]
-Name: "{group}\Work-Tools\{#MyAppExeName}"; Filename: "{app}\QuickDraw.exe"
+Name: "{group}\Work-Tools\{#MyAppExeName}"; Filename: "{app}\QuickDraw.exe"; IconFilename: "{#MyAppIcoName}"
 Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppIcoName}"; Tasks: desktopicon
 Name: "{group}\Work-Tools\{cm:ProgramOnTheWeb, {#MyAppName}}"; Filename: "{#MyAppURL}"; Tasks: startmenu
 Name: "{group}\Work-Tools\{cm:UninstallProgram, {#MyAppName}}"; Filename: "{uninstallexe}"; Tasks: startmenu
