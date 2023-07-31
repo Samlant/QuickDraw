@@ -1,4 +1,0 @@
-ConfigUpdater==3.1.1
-fillpdf==0.7.2
-pywin32==306;platform_system == "Windows"
-tkinterdnd2==0.3.0
