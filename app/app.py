@@ -18,11 +18,6 @@ from view.sys_tray_icon import TrayIcon
 from presenter.presenter import Presenter
 
 
-# Necessary folder paths
-# PATH_TO_WATCH = Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
-# QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
-# RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
-
 # TODO CREATE PATHS WITHIN FUNCTION AND RETURN THEM... CLEAN NAMESPACE
 # Debugging & development purposes
 TEST = False
