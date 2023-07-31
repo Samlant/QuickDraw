@@ -9,6 +9,7 @@ class MSGraphClient:
     def __init__(self, ms_graph_state_path: str):
         self.scopes = [
             "Files.ReadWrite.All",
+            "Mail.ReadWrite",
         ]
         self.json_data = None
         self.graph_client = None
@@ -30,11 +31,12 @@ class MSGraphClient:
     #     Path(__file__).parent.resolve() / "configs" / "ms_graph_state.jsonc"
     # )
 
-    def run_program(self, connection_data: dict, json_payload: dict):
-        self.json_data = self.assign_json_payload(json_payload=json_payload)
+    def run_excel_program(self, connection_data: dict, json_payload: dict):
+        self.json_data = json_payload
         self._set_connection_data(connection_data=connection_data)
         self._init_graph_client()
         self._init_workbooks_service()
+        # self._init_mail_service()
         self.session_id = self._create_workbook()
 
     def _set_connection_data(self, connection_data: dict):
@@ -63,9 +65,13 @@ class MSGraphClient:
         self.graph_client.login()
         pprint("logged into graph client.")
 
+###############################################
+################ EXCEL SERVICES ###############
+###############################################
     def _init_workbooks_service(self):
         self.workbooks_service = self.graph_client.workbooks()
-
+    
+    
     def _create_workbook(self):
         pprint("creating workbook session.")
         session_response = self.workbooks_service.create_session(
@@ -75,44 +81,6 @@ class MSGraphClient:
         pprint("created workbook session.")
         pprint(session_response["id"])
         return session_response["id"]
-
-    def assign_json_payload(self, json_payload: dict = None):
-        # json_payload = json_payload
-        json_payload = {
-            "index": 1,
-            "values": [
-                [
-                    "",
-                    "",
-                    "JN",
-                    "TEST Name",
-                    "7/22",
-                    "",
-                    "",
-                    "2020",
-                    "Hurricane 23",
-                    "AM, AI, PG",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "submit to markets",
-                    "TEST QUALITY BOATS",
-                ]
-            ],
-        }
-        pprint(json_payload)
-        return json_payload
 
     def add_row(self) -> None:
         "Creates the reques to add an excel row"
@@ -133,3 +101,28 @@ class MSGraphClient:
             item_id=self.quote_tracker_id,
         )
         print("Closed workbooks.")
+
+###############################################
+################ MAIL SERVICES ################
+###############################################
+    def _init_mail_service(self):
+        self.mail_service = self.graph_client.mail()
+
+    def create_message_draft(self, json: dict[str, any]):
+        new_message_draft = self.mail_service.create_my_message(
+            message={
+                "subject": json["subject"],
+                "importance": "Normal", # Low was default
+                "body": {"contentType": "HTML", "content": json["HTML_content"]},
+                "toRecipients": json["recipients"],
+                })
+        pprint(new_message_draft)
+        return new_message_draft
+
+    def get_message_id(self, message_draft):
+        new_message_id = message_draft["id"]
+        return new_message_id
+    
+    def send_message(self, message_id):
+        # Consider accessing this below call directly from Presenter...
+        self.mail_service.send_my_message(message_id=message_id)

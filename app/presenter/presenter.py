@@ -392,7 +392,15 @@ class Presenter:
         self.dir_watch.begin_watch()
 
     def trigger_new_file(self, file: Path):
-        # start dialog_new_file
+        self._process_document(file=file)
+        print(f"the current client is: {self.current_submission.__repr__}")
+        self.dialog_new_file.initialize(
+            presenter=self,
+            submission_info=self.current_submission,
+        )
+        self.dialog_new_file.root.mainloop()
+    
+    def _process_document(self, file:Path):
         values_dict = self.pdf.process_doc(file)
         self.current_submission = ClientInfo(
             fname=values_dict["fname"],
@@ -403,21 +411,19 @@ class Presenter:
             status=values_dict["status"],
             original_file_path=values_dict["original_file_path"],
         )
-        print(f"the current client is: {self.current_submission.__repr__}")
-        self.dialog_new_file.initialize(
-            presenter=self,
-            submission_info=self.current_submission,
-        )
-        self.dialog_new_file.root.mainloop()
+        return True
 
     def choice(self, choice: str):
         path = self.dir_handler.create_folder(self.current_submission)
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
+            self._send_api_call()
         elif choice == "track_submit":
             self.start_submission_program()
             print("Submission emailed to markets.")
+    
+    def _send_api_call(self)
         self.create_and_send_data_to_api()
         self.api_client.add_row()
         self.api_client.close_workbook_session()
@@ -425,7 +431,7 @@ class Presenter:
     def create_and_send_data_to_api(self):
         json = self.api_model.create_json_payload(self.current_submission)
         data = self.api_model.get_connection_data(self.config_worker)
-        self.api_client.run_program(
+        self.api_client.run_excel_program(
             connection_data=data,
             json_payload=json,
         )
@@ -533,6 +539,7 @@ class Presenter:
 
     def btn_send_envelopes(self) -> None:
         self.send_or_view = "send"
+        self._process_document(self.base_model.quoteform_path)
         self.current_submission.markets = self.gather_active_markets()
         self.loop_through_envelopes()
 
@@ -553,7 +560,7 @@ class Presenter:
         """
         submission_list = self._handle_single_markets()
         redundant_result = self._handle_redundancies()
-        if redundant_result != None:
+        if redundant_result is not None:
             submission_list.append(redundant_result)
         else:
             pass
@@ -579,14 +586,10 @@ class Presenter:
 
         Returns -- Dict: returns dict of a single, combined carrier submission
         """
-        try:
-            raw_dict: dict(str, any) = self._get_possible_redundancies()
-            filtered_list = self.base_model.filter_only_positive_submissions(raw_dict)
-            processed_str = self.base_model.handle_redundancies(filtered_list)
-        except:
-            raise Exception("Failed handling redundancies.")
-        else:
-            return processed_str
+        raw_dict: dict[str, any] = self._get_possible_redundancies()
+        filtered_list = self.base_model.filter_only_positive_submissions(raw_dict)
+        processed_str = self.base_model.handle_redundancies(filtered_list)
+        return processed_str
 
     def get_single_carriers(self) -> dict:
         """This gets the values of the carriers' checkboxes that
@@ -619,7 +622,7 @@ class Presenter:
         Returns:
                 Dict -- returns a dict of carrier checkbox values
         """
-        possible_redundancies_dict = dict(str, str | int | bool | list)
+        possible_redundancies_dict: dict(str, str | int | bool | list)
         try:
             possible_redundancies_dict = {
                 "Seawave": self.submission.sw,
@@ -638,6 +641,7 @@ class Presenter:
         (3) applies the properly formatted data into each the envelope, and,
         (4) sends the envelope to the recipient, inclusive of all data.
         """
+        print("looping through envelopes")
         subject = str(
             self.email_handler.stringify_subject(
                 self.current_submission,
@@ -655,7 +659,7 @@ class Presenter:
 
         for carrier in self.current_submission.markets:
             self.email_handler.create_letter()
-            carrier_config_dict: dict[str, any] = self.config_worker.get_section(
+            carrier_section = self.config_worker.get_section(
                 carrier
             )
 
@@ -665,16 +669,17 @@ class Presenter:
                     "key": "signature_image",
                 }
             )
-            carrier_config_dict["signature_image"] = signature_image_key
             self.email_handler.assign_content_to_letter(
                 subject,
                 formatted_cc_str,
                 extra_notes,
                 username,
-                carrier_config_dict,
+                carrier_section,
+                signature_image_key,
                 attachments_list,
             )
             self.email_handler.send_letter()
+        self._send_api_call()
             # time.wait(5000)
             # i = input("Press an key to send the next envelope.")
         # EXIT THE TKINTER WINDOW

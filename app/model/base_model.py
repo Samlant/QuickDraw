@@ -47,11 +47,11 @@ class BaseModel:
         ]
 
     def filter_only_positive_submissions(self, raw_checkboxes: dict) -> list:
-        checkboxes_dict = raw_checkboxes.copy()
-        return list(filter(self._is_positive, checkboxes_dict))
-
-    def _is_positive(self, market) -> bool:
-        return market == self.yes
+        market_list: list[str] = []
+        for market, value in raw_checkboxes.items():
+            if value == self.yes:
+                market_list.append(market)
+        return market_list
 
     def handle_redundancies(self, filtered_submits: list) -> str:
         """Checks if multiple redundant markets are present,  then combines them & returns the appropriate config section name"""

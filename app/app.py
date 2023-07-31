@@ -31,18 +31,23 @@ else:
 # production environment
 production_dir = Path.home() / "AppData" / "Local" / "Work-Tools"
 
-# Assign appropriate resource file names (config & icon)
+# Assign appropriate resource file names
 if TEST:
-    RESOURCE_PATH = Path.joinpath(app_dir) / "resources"
-    PATH_TO_WATCH = Path(app_dir) / "tests"
+    RESOURCE_PATH = Path(app_dir) / "resources"
+    PATH_TO_WATCH = Path(app_dir).parent / "tests"
+    APP_ICON = RESOURCE_PATH / "app.ico"
+    TRAY_ICON = RESOURCE_PATH / "sys_tray.ico"
 else:
-    RESOURCE_PATH = Path.joinpath(production_dir) / "resources"
+    RESOURCE_PATH = Path(production_dir) / "resources"
     PATH_TO_WATCH = (
         Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
     )
+    FROZEN_RESOURCE_PATH = Path(app_dir) / "resources"
+    APP_ICON = FROZEN_RESOURCE_PATH / "app.ico"
+    print(str(FROZEN_RESOURCE_PATH))
+    TRAY_ICON = FROZEN_RESOURCE_PATH / "sys_tray.ico"
 QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
 RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
-ICON_PATH = RESOURCE_PATH / "icon.ico"
 CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
 MS_GRAPH_STATE_PATH = RESOURCE_PATH /  "ms_graph_state.jsonc"
 POSITIVE_SUBMISSION_VALUE = "yes"
@@ -69,10 +74,10 @@ def initialize_modules() -> Presenter:
     submission = Submission(
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
-        icon_src=ICON_PATH,
+        icon_src=APP_ICON,
     )
-    dialog_new_file = DialogNewFile(icon_src=ICON_PATH)
-    dialog_allocate_markets = DialogAllocateMarkets(icon_src=ICON_PATH)
+    dialog_new_file = DialogNewFile(icon_src=str(APP_ICON))
+    dialog_allocate_markets = DialogAllocateMarkets(icon_src=APP_ICON)
     # Presenter
     presenter = Presenter(
         api_client=api_client,
@@ -92,9 +97,9 @@ def initialize_modules() -> Presenter:
 def main():
     presenter = initialize_modules()
     presenter.dir_watch.assign_presenter(presenter)
-    tray_icon = TrayIcon(icon_src=ICON_PATH)
+    tray_icon = TrayIcon()
     tray_icon.assign_presenter(presenter=presenter)
-    thread1 = tray_icon.create_icon()
+    thread1 = tray_icon.create_icon(src_icon=TRAY_ICON)
     thread1.start()
     thread2 = threading.Thread(daemon=True, target=presenter.start_program)
     thread2.start()
@@ -119,7 +124,7 @@ if __name__ == "__main__":
 # view = TkView(
 #     positive_value=POSITIVE_SUBMISSION_VALUE,
 #     negative_value=NEGATIVE_SUBMISSION_VALUE,
-#     icon_src=ICON_PATH,
+#     icon_src=APP_ICON,
 # )
 
 # class Model:

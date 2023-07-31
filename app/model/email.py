@@ -12,11 +12,11 @@ class EmailHandler:
 
     def __init__(self) -> None:
         self.outlook = win32.Dispatch("Outlook.Application")
-        self.letter = self.outlook.CreateItem(0)
+        self.letter = None
 
     def create_letter(self) -> None:
         """This creates the letter,  which absorbs all final data to be sent to the desired recipient."""
-        self.letter.Subject = str
+        self.letter = self.outlook.CreateItem(0)
 
     def assign_content_to_letter(
         self,
@@ -24,15 +24,17 @@ class EmailHandler:
         formatted_cc_str: str,
         extra_notes: str,
         username: str,
-        carrier_config_dict: dict,
+        carrier_section,
+        image_signature: str,
         attachments_list: list,
     ):
         "Assigns all content to the letter prior to sending"
-        self.letter.Subject = subject
-        self.letter.CC = formatted_cc_str
-        self.letter.To = carrier_config_dict.pop("address")
+        self.letter.Subject: str = subject
+        self.letter.CC: str = formatted_cc_str
+        self.letter.To = carrier_section.get("address").value
         self.letter.HTMLBody = self.build__HTML_Body(
-            carrier_config_dict,
+            carrier_section,
+            image_signature,
             extra_notes,
             username,
         )
@@ -41,12 +43,8 @@ class EmailHandler:
 
     def send_letter(self) -> None:
         """Wrapper for sending the message for unit-testing"""
-        try:
-            self.letter.Send()
-        except:
-            raise Exception("Couldn't send letter, check email_handler")
-        else:
-            return True
+        self.letter.Send()
+
 
     def view_letter(self) -> bool:
         """Wrapper for displaying the message for unit-testing"""
@@ -58,14 +56,14 @@ class EmailHandler:
             return True
 
     def build__HTML_Body(
-        self, carrier_config_dict: dict, extra_notes: str, username: str
+        self, carrier_section, image_signature: str, extra_notes: str, username: str
     ) -> str:
-        greeting = carrier_config_dict.pop("greeting")
-        body = carrier_config_dict.pop("body")
+        greeting = carrier_section.get("greeting").value
+        body = carrier_section.get("body").value
         extra_notes = extra_notes
-        salutation = carrier_config_dict.pop("salutation")
+        salutation = carrier_section.get("salutation").value
         username = username
-        signature_image = carrier_config_dict.pop("signature_image")
+        signature_image = image_signature
         body_text = self._organize_HTML_body(
             greeting=greeting,
             body=body,
@@ -142,8 +140,8 @@ class EmailHandler:
         )
         return body_text
 
-    def stringify_subject(self, fname, lname, vessel_year, vessel) -> str:
-        subject_line = f"New Quote Submission from Novamar | {lname}, {fname} | {vessel_year} {vessel}"
+    def stringify_subject(self, current_submission) -> str:
+        subject_line = f"New Quote Submission from Novamar | {current_submission.lname}, {current_submission.fname} | {current_submission.vessel_year} {current_submission.vessel}"
         return subject_line
 
     def capitalize_words(self, unformatted_string: str) -> str:

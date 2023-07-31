@@ -22,12 +22,9 @@ class Presenter(Protocol):
 
 
 class TrayIcon:
-    def __init__(self, icon_src):
+    def __init__(self):
         self.active = True
         self.presenter = None
-        self.icon: Icon = None
-        if icon_src:
-            self.icon: Icon = icon_src
 
     def assign_presenter(self, presenter: Presenter):
         self.presenter = presenter
@@ -51,12 +48,12 @@ class TrayIcon:
             self.presenter.submission.root.quit()
             # print(self.presenter.submission.state())
 
-    def create_icon(self):
+    def create_icon(self, src_icon):
         thread = threading.Thread(
             daemon=True,
             target=lambda: Icon(
                 "test",
-                self.create_image("black", "white"),
+                Image.open(src_icon),
                 menu=Menu(
                     MenuItem("Run QuickDraw", self._on_clicked),
                     MenuItem("Settings", self._on_clicked),
@@ -67,11 +64,17 @@ class TrayIcon:
         )
         return thread
 
-    def create_image(self, color1, color2, width=64, height=64):
-        if not self.icon:
-            image = Image.new("RGB", (width, height), color1)
-            dc = ImageDraw.Draw(image)
+    # def use_image(self):
+    #     if self.icon:
+    #         Image.open(self.icon)
+    #     else:
+    #         self.create_image("black", "white")
 
-            dc.rectangle((width // 2, 0, width, height // 2), fill=color2)
-            dc.rectangle((0, height // 2, width // 2, height), fill=color2)
-            return image
+    # def create_image(self, color1, color2, width=64, height=64):
+    #     if not self.icon:
+    #         image = Image.new("RGB", (width, height), color1)
+    #         dc = ImageDraw.Draw(image)
+
+    #         dc.rectangle((width // 2, 0, width, height // 2), fill=color2)
+    #         dc.rectangle((0, height // 2, width // 2, height), fill=color2)
+    #         return image
