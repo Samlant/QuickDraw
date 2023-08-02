@@ -14,6 +14,7 @@ class MSGraphClient:
         self.json_data = None
         self.graph_client = None
         self.workbooks_service = None
+        self.mail_service = None
         self.client_id = None
         self.tenant_id = None
         self.client_secret = None
@@ -65,13 +66,12 @@ class MSGraphClient:
         self.graph_client.login()
         pprint("logged into graph client.")
 
-###############################################
-################ EXCEL SERVICES ###############
-###############################################
+    ###############################################
+    ################ EXCEL SERVICES ###############
+    ###############################################
     def _init_workbooks_service(self):
         self.workbooks_service = self.graph_client.workbooks()
-    
-    
+
     def _create_workbook(self):
         pprint("creating workbook session.")
         session_response = self.workbooks_service.create_session(
@@ -102,27 +102,25 @@ class MSGraphClient:
         )
         print("Closed workbooks.")
 
-###############################################
-################ MAIL SERVICES ################
-###############################################
+    ###############################################
+    ################ MAIL SERVICES ################
+    ###############################################
     def _init_mail_service(self):
         self.mail_service = self.graph_client.mail()
 
     def create_message_draft(self, json: dict[str, any]):
+        """Create message and return the message object & id in a tuple"""
         new_message_draft = self.mail_service.create_my_message(
             message={
                 "subject": json["subject"],
-                "importance": "Normal", # Low was default
+                "importance": "Normal",  # Low was default
                 "body": {"contentType": "HTML", "content": json["HTML_content"]},
                 "toRecipients": json["recipients"],
-                })
+            }
+        )
         pprint(new_message_draft)
-        return new_message_draft
+        return new_message_draft, new_message_draft["id"]
 
-    def get_message_id(self, message_draft):
-        new_message_id = message_draft["id"]
-        return new_message_id
-    
     def send_message(self, message_id):
         # Consider accessing this below call directly from Presenter...
         self.mail_service.send_my_message(message_id=message_id)

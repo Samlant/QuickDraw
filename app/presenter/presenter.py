@@ -399,8 +399,8 @@ class Presenter:
             submission_info=self.current_submission,
         )
         self.dialog_new_file.root.mainloop()
-    
-    def _process_document(self, file:Path):
+
+    def _process_document(self, file: Path):
         values_dict = self.pdf.process_doc(file)
         self.current_submission = ClientInfo(
             fname=values_dict["fname"],
@@ -422,8 +422,8 @@ class Presenter:
         elif choice == "track_submit":
             self.start_submission_program()
             print("Submission emailed to markets.")
-    
-    def _send_api_call(self)
+
+    def _send_api_call(self):
         self.create_and_send_data_to_api()
         self.api_client.add_row()
         self.api_client.close_workbook_session()
@@ -659,9 +659,7 @@ class Presenter:
 
         for carrier in self.current_submission.markets:
             self.email_handler.create_letter()
-            carrier_section = self.config_worker.get_section(
-                carrier
-            )
+            carrier_section = self.config_worker.get_section(carrier)
 
             signature_image_key = self.config_worker.get_value(
                 {
@@ -680,8 +678,8 @@ class Presenter:
             )
             self.email_handler.send_letter()
         self._send_api_call()
-            # time.wait(5000)
-            # i = input("Press an key to send the next envelope.")
+        # time.wait(5000)
+        # i = input("Press an key to send the next envelope.")
         # EXIT THE TKINTER WINDOW
 
         self.submission.root.quit()

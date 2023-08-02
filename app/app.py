@@ -20,7 +20,7 @@ from presenter.presenter import Presenter
 
 # TODO CREATE PATHS WITHIN FUNCTION AND RETURN THEM... CLEAN NAMESPACE
 # Debugging & development purposes
-TEST = False
+TEST = True
 
 # Check if frozen or not, then assign path to config & icon
 if getattr(sys, "frozen", False):
@@ -49,9 +49,10 @@ else:
 QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
 RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
 CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
-MS_GRAPH_STATE_PATH = RESOURCE_PATH /  "ms_graph_state.jsonc"
+MS_GRAPH_STATE_PATH = RESOURCE_PATH / "ms_graph_state.jsonc"
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
+
 
 def initialize_modules() -> Presenter:
     "Creates and passes all models and views to the Presenter and returns the Presenter as an object."
@@ -93,6 +94,7 @@ def initialize_modules() -> Presenter:
         dialog_allocate_markets=dialog_allocate_markets,
     )
     return presenter
+
 
 def main():
     presenter = initialize_modules()
