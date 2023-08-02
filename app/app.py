@@ -98,13 +98,19 @@ def initialize_modules() -> Presenter:
 
 def main():
     presenter = initialize_modules()
+    presenter.setup_api()
     presenter.dir_watch.assign_presenter(presenter)
     tray_icon = TrayIcon()
     tray_icon.assign_presenter(presenter=presenter)
     thread1 = tray_icon.create_icon(src_icon=TRAY_ICON)
     thread1.start()
-    thread2 = threading.Thread(daemon=True, target=presenter.start_program)
+    thread2 = threading.Thread(
+        daemon=False,
+        target=presenter.set_connection_data,
+    )
     thread2.start()
+    thread3 = threading.Thread(daemon=True, target=presenter.start_program)
+    thread3.start()
     while tray_icon.active is True:
         if presenter.run_flag:
             presenter.start_submission_program()

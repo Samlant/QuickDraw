@@ -10,48 +10,54 @@ class MSGraphClient:
         self.scopes = [
             "Files.ReadWrite.All",
             "Mail.ReadWrite",
+            "User.Read",
         ]
-        self.json_data = None
+        self.json_data: dict[any, any] = None
         self.graph_client = None
         self.workbooks_service = None
         self.mail_service = None
-        self.client_id = None
-        self.tenant_id = None
-        self.client_secret = None
-        self.redirect_uri = None
-        self.group_id = None
-        self.quote_tracker_id = None
-        self.quote_worksheet_id = None
-        self.quote_table_id = None
-        self.service_tracker_id = None
+        self.user_service = None
+        self.client_id: str = None
+        self.tenant_id: str = None
+        self.client_secret: str = None
+        self.redirect_uri: str = None
+        self.user_id: str = None
+        self.group_id: str = None
+        self.quote_tracker_id: str = None
+        self.quote_worksheet_id: str = None
+        self.quote_table_id: str = None
+        self.service_tracker_id: str = None
         self.credentials = ms_graph_state_path
         self.session_id = None
 
-    # CONFIG_FILE = Path(__file__).parent.resolve() / "configs" / "config.ini"
-    # CREDENTIALS_FILE = (
-    #     Path(__file__).parent.resolve() / "configs" / "ms_graph_state.jsonc"
-    # )
-
-    def run_excel_program(self, connection_data: dict, json_payload: dict):
-        self.json_data = json_payload
-        self._set_connection_data(connection_data=connection_data)
+    def setup_api(self, connection_data):
+        self._set_connection_data(connection_data)
         self._init_graph_client()
+        pprint("set graph_session successfully.")
+        print("starting workbooks service")
         self._init_workbooks_service()
-        # self._init_mail_service()
-        self.session_id = self._create_workbook()
+        print("starting mail service")
+        self._init_mail_service()
+        print("starting users service")
+        self._init_user_service()
 
-    def _set_connection_data(self, connection_data: dict):
+    def _set_connection_data(self, connection_data):
         pprint(connection_data)
-        self.client_id = connection_data["client_id"]
-        self.tenant_id = connection_data["tenant_id"]
-        self.client_secret = connection_data["client_secret"]
-        self.redirect_uri = connection_data["redirect_uri"]
-        self.group_id = connection_data["group_id"]
-        self.quote_tracker_id = connection_data["quote_tracker_id"]
-        self.quote_worksheet_id = connection_data["quote_worksheet_id"]
-        self.quote_table_id = connection_data["quote_table_id"]
-        self.service_tracker_id = connection_data["service_tracker_id"]
-        pprint("set connection data successfully")
+        self.client_id = connection_data.get("client_id").value
+        self.tenant_id = connection_data.get("tenant_id").value
+        self.client_secret = connection_data.get("client_secret").value
+        self.redirect_uri = connection_data.get("redirect_uri").value
+        # self.user_id = connection_data.get("user_id").value
+        self.group_id = connection_data.get("group_id").value
+        self.quote_tracker_id = connection_data.get("quote_tracker_id").value
+        self.quote_worksheet_id = connection_data.get("quote_worksheet_id").value
+        self.quote_table_id = connection_data.get("quote_table_id").value
+        self.service_tracker_id = connection_data.get("service_tracker_id").value
+        pprint("set connection data successfully.")
+
+    def run_excel_program(self, json_payload: dict[any, any]):
+        self.json_data = json_payload
+        self.session_id = self._create_workbook()
 
     def _init_graph_client(self):
         self.graph_client = MicrosoftGraphClient(
@@ -121,6 +127,17 @@ class MSGraphClient:
         pprint(new_message_draft)
         return new_message_draft, new_message_draft["id"]
 
-    def send_message(self, message_id):
+    def send_message(self, message):
         # Consider accessing this below call directly from Presenter...
-        self.mail_service.send_my_message(message_id=message_id)
+        self.mail_service.send_my_mail(message=message)
+
+    ###############################################
+    ################ USER SERVICES ################
+    ###############################################
+
+    def _init_user_service(self):
+        self.user_service = self.graph_client.users()
+
+    def get_user_id(self):
+        self.user_id = self.user_service.get_user_id()
+        return self.user_id

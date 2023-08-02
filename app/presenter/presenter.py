@@ -4,7 +4,7 @@ from typing import Protocol
 
 
 class API(Protocol):
-    def create_json_payload(self, data) -> dict[str, any]:
+    def create_excel_json(self, data) -> dict[str, any]:
         ...
 
 
@@ -388,6 +388,27 @@ class Presenter:
         self.send_or_view: str = None
         self.run_flag: bool = False
 
+    def setup_api(self):
+        graph_values = self.config_worker.get_section("graph_api")
+        self.api_client.setup_api(connection_data=graph_values)
+        if self.config_worker.has_value("graph_api", "user_id"):
+            str_count = len(
+                self.config_worker.get_value(
+                    {
+                        "section_name": "graph_api",
+                        "key": "user_id",
+                    }
+                )
+            )
+            if str_count < 10:
+                user_id = self.api_client.get_user_id()["id"]
+                self.config_worker.handle_save_contents(
+                    "graph_api",
+                    save_contents={
+                        "user_id": user_id,
+                    },
+                )
+
     def start_program(self):
         self.dir_watch.begin_watch()
 
@@ -418,21 +439,20 @@ class Presenter:
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
-            self._send_api_call()
+            self._send_excel_api_call()
         elif choice == "track_submit":
             self.start_submission_program()
             print("Submission emailed to markets.")
 
-    def _send_api_call(self):
+    def _send_excel_api_call(self):
         self.create_and_send_data_to_api()
         self.api_client.add_row()
         self.api_client.close_workbook_session()
 
     def create_and_send_data_to_api(self):
-        json = self.api_model.create_json_payload(self.current_submission)
-        data = self.api_model.get_connection_data(self.config_worker)
+        json = self.api_model.create_excel_json(self.current_submission)
         self.api_client.run_excel_program(
-            connection_data=data,
+            connection_data=self.data,
             json_payload=json,
         )
 
@@ -642,42 +662,40 @@ class Presenter:
         (4) sends the envelope to the recipient, inclusive of all data.
         """
         print("looping through envelopes")
-        subject = str(
-            self.email_handler.stringify_subject(
-                self.current_submission,
-            )
+        self.email_handler.subject = str(
+            self.email_handler.stringify_subject(self.current_submission)
         )
+
         list_of_cc = list(self._handle_getting_CC_addresses())
-        formatted_cc_str = self.base_model.list_of_cc_to_str(list_of_cc)
-        extra_notes = self.submission.extra_notes
-        username = str(
+        self.email_handler.cc = self.base_model.list_of_cc_to_str(list_of_cc)
+        self.email_handler.extra_notes = self.submission.extra_notes
+        self.email_handler.username = str(
             self.config_worker.get_value(
                 {"section_name": "General settings", "key": "username"}
             )
         )
-        attachments_list = self.base_model.get_all_attachments()
+        attachments = self.base_model.get_all_attachments()
+        self.email_handler.attachments_list = self.api_model.create_attachments_json(
+            attachment_paths=attachments
+        )
 
+        self.email_handler.img_sig_url = self.config_worker.get_value(
+            {
+                "section_name": "General settings",
+                "key": "signature_image",
+            }
+        )
         for carrier in self.current_submission.markets:
             self.email_handler.create_letter()
             carrier_section = self.config_worker.get_section(carrier)
+            self.email_handler.to = carrier_section.get("address").value
+            self.email_handler.body = self.email_handler.build_HTML_body(
+                carrier_section
+            )
 
-            signature_image_key = self.config_worker.get_value(
-                {
-                    "section_name": "General settings",
-                    "key": "signature_image",
-                }
-            )
-            self.email_handler.assign_content_to_letter(
-                subject,
-                formatted_cc_str,
-                extra_notes,
-                username,
-                carrier_section,
-                signature_image_key,
-                attachments_list,
-            )
-            self.email_handler.send_letter()
-        self._send_api_call()
+            json = self.api_model.create_email_json(data=self.email_handler)
+            self.api_client.send_message(message=json)
+        self._send_excel_api_call()
         # time.wait(5000)
         # i = input("Press an key to send the next envelope.")
         # EXIT THE TKINTER WINDOW

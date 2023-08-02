@@ -38,6 +38,28 @@ class Users:
             app.
         """
 
-        content = self.graph_session.make_request(method="get", endpoint=self.endpoint)
+        content = self.graph_session.make_request(
+            method="get",
+            endpoint=self.endpoint,
+        )
+
+        return content
+
+    def get_user_id(self):
+        """Retrieve the user's user_id.
+
+        ### Returns
+        ----
+        dict :
+            If successful, this method returns a 200 OK response code
+            and collection of user objects in the response body. If a
+            large user collection is returned, you can use paging in your
+            app.
+        """
+
+        content = self.graph_session.make_request(
+            method="get",
+            endpoint="/me?$select=id",
+        )
 
         return content

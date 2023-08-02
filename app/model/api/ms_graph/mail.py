@@ -825,9 +825,7 @@ class Mail:
 
         return content
 
-    def send_my_mail(
-        self, message_id: str, message: dict, save_to_send_items: bool = True
-    ) -> dict:
+    def send_my_mail(self, message: dict, save_to_send_items: bool = True) -> dict:
         """Send the message specified in the request body for the default user.
 
         ### Overview:
@@ -837,9 +835,6 @@ class Mail:
 
         ### Parameters
         ----
-        message_id : dict
-            The message ID for which you want to send.
-
         save_to_send_items : bool (optional)
             Indicates whether to save the message in Sent Items. Specify
             it only if the parameter is false; default is true.

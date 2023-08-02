@@ -1,8 +1,10 @@
 import string
+from dataclasses import dataclass
 
 import win32com.client as win32
 
 
+@dataclass
 class EmailHandler:
     """This class is responsible for interfacing with Outlook in creating
     email letters to send.  Once called,  data is gathered from the Presenter
@@ -10,41 +12,25 @@ class EmailHandler:
     NOTE: If a PDF value changes, update the instance vars.
     """
 
-    def __init__(self) -> None:
-        self.outlook = win32.Dispatch("Outlook.Application")
-        self.letter = None
+    subject: str = None
+    cc: str = None
+    to: str = None
+    body: str = None
+    extra_notes: str = None
+    username: str = None
+    img_sig_url: str = None
+    attachments_list: list = None
 
     def create_letter(self) -> None:
         """This creates the letter,  which absorbs all final data to be sent to the desired recipient."""
-        self.letter = self.outlook.CreateItem(0)
+        pass
 
-    def assign_content_to_letter(
-        self,
-        subject: str,
-        formatted_cc_str: str,
-        extra_notes: str,
-        username: str,
-        carrier_section,
-        image_signature: str,
-        attachments_list: list,
-    ):
-        "Assigns all content to the letter prior to sending"
-        self.letter.Subject: str = subject
-        self.letter.CC: str = formatted_cc_str
-        self.letter.To = carrier_section.get("address").value
-        self.letter.HTMLBody = self.build__HTML_Body(
-            carrier_section,
-            image_signature,
-            extra_notes,
-            username,
-        )
-        for attachment_path in attachments_list:
-            self.letter.Attachments.Add(attachment_path)
+        def add_attachments(self):
+            
 
     def send_letter(self) -> None:
         """Wrapper for sending the message for unit-testing"""
         self.letter.Send()
-
 
     def view_letter(self) -> bool:
         """Wrapper for displaying the message for unit-testing"""
@@ -55,22 +41,17 @@ class EmailHandler:
         else:
             return True
 
-    def build__HTML_Body(
-        self, carrier_section, image_signature: str, extra_notes: str, username: str
+    def build_HTML_body(
+        self,
+        carrier_section,
     ) -> str:
         greeting = carrier_section.get("greeting").value
         body = carrier_section.get("body").value
-        extra_notes = extra_notes
         salutation = carrier_section.get("salutation").value
-        username = username
-        signature_image = image_signature
         body_text = self._organize_HTML_body(
             greeting=greeting,
             body=body,
-            extra_notes=extra_notes,
             salutation=salutation,
-            username=username,
-            signature_image=signature_image,
         )
         return body_text
 
@@ -78,10 +59,7 @@ class EmailHandler:
         self,
         greeting: str,
         body: str,
-        extra_notes: str,
         salutation: str,
-        username: str,
-        signature_image: str,
     ) -> str:
         greeting_style = "font-size=14px;color:#1F3864;"
         body_style = "font-size=14px;color:#1F3864;"
@@ -107,7 +85,7 @@ class EmailHandler:
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
     <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
     """ % (
-            signature_image,
+            self.img_sig_url,
         )
         body_text = r"""
     <html><head>
@@ -131,11 +109,11 @@ class EmailHandler:
             greeting,
             body_style,
             body,
-            extra_notes,
+            self.extra_notes,
             salutation_style,
             salutation,
             username_style,
-            username,
+            self.username,
             signature,
         )
         return body_text

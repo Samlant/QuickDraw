@@ -21,6 +21,12 @@ class ConfigWorker:
         result = config.get(section_name, key).value
         return result
 
+    def has_value(self, section_name: str, option_name: str) -> any:
+        """Checks whether the give section name:option name exists."""
+        config = self._open_config()
+        result = config.get(section_name, option_name).value
+        return result
+
     def _validate_section(self, section_name) -> bool:  # GOOD
         """Validates a given section name to ensure its existence in config."""
         config = self._open_config()
@@ -32,7 +38,7 @@ class ConfigWorker:
             )
             return False
 
-    def get_section(self, section_name) -> dict:  # GOOD
+    def get_section(self, section_name):  # GOOD
         """This returns the section keys:values in a dict"""
         config = self._open_config()
         section = config.get_section(section_name)
