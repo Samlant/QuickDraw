@@ -111,6 +111,7 @@ class API:
         for path in attachment_paths:
             name = Path(path).name
             content = base64.b64encode(open(str(path), "rb").read())
+            content = content.decode()
             file = {
                 "@odata.type": "#microsoft.graph.fileAttachment",
                 "name": name,
@@ -131,14 +132,11 @@ class API:
         elif suffix == ".zip":
             return "application/zip"
         elif suffix in [".png", ".gif", ".jpeg", ".bmp", ".png", ".tiff"]:
-            return suffix[1:]
-        else
+            return f"image/{suffix[1:]}"
+        else:
             print(f"Unsupported file format detected. File: {path}")
             print("Not specifying a ContentType because of this...")
             return None
-        
-        
-        
 
     def create_email_json(
         self, data: EmailHandler
@@ -147,7 +145,16 @@ class API:
             "subject": data.subject,
             "importance": "normal",
             "body": {"contentType": "HTML", "content": data.body},
-            "ccRecipients": [{"emailAddress": {"address": data.cc}}],
             "toRecipients": [{"emailAddress": {"address": data.to}}],
             "attachments": data.attachments_list,
         }
+        cc_addresses = self._create_address_list(data.cc)
+        json["ccRecipients"] = [{"emailAddress": {"address": cc_addresses}}]
+        return json
+
+    def _create_address_list(self, input: list[str]) -> list[dict[str, dict[str, str]]]:
+        output: list[dict[str, dict[str, str]]] = []
+        for address in input:
+            x: dict[str, dict[str, str]] = {"emailAddress": {"address": address}}
+            output.append(x)
+        return output

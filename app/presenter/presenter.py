@@ -666,8 +666,8 @@ class Presenter:
             self.email_handler.stringify_subject(self.current_submission)
         )
 
-        list_of_cc = list(self._handle_getting_CC_addresses())
-        self.email_handler.cc = self.base_model.list_of_cc_to_str(list_of_cc)
+        unformatted_cc = list(self._handle_getting_CC_addresses())
+        self.email_handler.cc = self.base_model.format_cc_for_api(unformatted_cc)
         self.email_handler.extra_notes = self.submission.extra_notes
         self.email_handler.username = str(
             self.config_worker.get_value(
@@ -688,7 +688,8 @@ class Presenter:
         for carrier in self.current_submission.markets:
             self.email_handler.create_letter()
             carrier_section = self.config_worker.get_section(carrier)
-            self.email_handler.to = carrier_section.get("address").value
+            unformatted_to = carrier_section.get("address").value
+            self.email_handler.to = self.base_model.format_cc_for_api(unformatted_to)
             self.email_handler.body = self.email_handler.build_HTML_body(
                 carrier_section
             )

@@ -10,6 +10,7 @@ class MSGraphClient:
         self.scopes = [
             "Files.ReadWrite.All",
             "Mail.ReadWrite",
+            "Mail.Send",
             "User.Read",
         ]
         self.json_data: dict[any, any] = None

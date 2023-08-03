@@ -25,8 +25,8 @@ class EmailHandler:
         """This creates the letter,  which absorbs all final data to be sent to the desired recipient."""
         pass
 
-        def add_attachments(self):
-            
+    def add_attachments(self):
+        pass
 
     def send_letter(self) -> None:
         """Wrapper for sending the message for unit-testing"""

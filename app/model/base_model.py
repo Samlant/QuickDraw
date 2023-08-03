@@ -101,10 +101,42 @@ class BaseModel:
             return attachments
         return attachments
 
-    def list_of_cc_to_str(self, input_list: list) -> str:
-        """Transforms lists into strings. In-use for CC_address assignment."""
-        input_list = "; ".join(str(element) for element in input_list)
-        return input_list
+    def format_cc_for_api(self, all_addresses: list | str) -> list:
+        """Prepares list of CC addresses to be properly formatted for api call."""
+        if isinstance(all_addresses, list):
+            split_address = self._split_addresses(input_list=all_addresses)
+            formatted_address = self._eliminate_whitespaces_invalid_chars(
+                list_of_str=split_address
+            )
+            return formatted_address
+        elif isinstance(all_addresses, str):
+            formatted_address = self._del_whitespace_invalid_chars(input=all_addresses)
+            return formatted_address
+        else:
+            raise TypeError(
+                "email address is neither a string nor list. Please double-check."
+            )
+
+    def _split_addresses(self, input_list: list[str]) -> list[str]:
+        list_of_strings: list[str] = []
+        for item in input_list:
+            x = item.split(";")
+            for y in x:
+                if y.strip() != "":
+                    list_of_strings.append(y)
+        return list_of_strings
+
+    def _eliminate_whitespaces_invalid_chars(self, list_of_str: list[str]) -> list[str]:
+        list_of_formatted_str: list[str] = []
+        for item in list_of_str:
+            x = self._del_whitespace_invalid_chars(input=item)
+            list_of_formatted_str.append(x)
+        return list_of_formatted_str
+
+    def _del_whitespace_invalid_chars(self, input: str) -> str:
+        x = input.translate({ord(i): None for i in r'"() ,:;<>[\]'})
+        print(x)
+        return x
 
     ########## Dialog-related Functions Below ############
     def process_user_choice(self, all_options: dict[str, any], current_submission):
