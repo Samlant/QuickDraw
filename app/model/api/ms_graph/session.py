@@ -66,7 +66,6 @@ class GraphSession:
         # Define the base headers.
         headers = {
             "Authorization": f"Bearer {self.client.access_token}",
-            "Content-Type": "application/json",
         }
 
         if additional_args:
