@@ -847,10 +847,15 @@ class Mail:
         """
 
         message["saveToSentItems"] = save_to_send_items
-
+        header_payload = {
+            "Content-Type": "application/json",
+            }
         content = self.graph_session.make_request(
-            method="post", endpoint="/me/sendMail", json=message
-        )
+            method="post",
+            endpoint="/me/sendMail",
+            json=message,
+            additional_headers=header_payload,
+            )
 
         return content
 
