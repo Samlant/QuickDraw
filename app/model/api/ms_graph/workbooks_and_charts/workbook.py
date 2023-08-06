@@ -317,8 +317,6 @@ class Workbooks:
         if workbook_id and table_id:
             content = self.graph_session.make_request(
                 method="post",
-                # endpoint=f"{path}/drive/items/{workbook_id}/workbook/tables/{table_id}/rows",
-                # https://graph.microsoft.com/v1.0/groups/8c653932-c7aa-44c2-af48-26692d17cc2a/drive/items/01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD/workbook/tables/july_table/rows
                 endpoint=f"{path}/drive/items/{workbook_id}/workbook/tables/{table_id}/rows",
                 additional_headers=header_payload,
                 json=json_data,
@@ -326,7 +324,6 @@ class Workbooks:
         elif workbook_path and table_path and worksheet_path:
             content = self.graph_session.make_request(
                 method="post",
-                # endpoint=f"{path}/drive/root:/{workbook_path}:/workbook/tables/{table_path}/rows",
                 endpoint=f"{path}/drive/items/{workbook_path}/workbook/worksheets/{worksheet_path}/tables/{table_path}/rows",
                 additional_headers=header_payload,
                 data=json_data,

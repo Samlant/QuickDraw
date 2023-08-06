@@ -5,10 +5,10 @@ import random
 import string
 import pathlib
 
-from typing import List
-from typing import Dict
-
 import msal
+from selenium import webdriver
+from selenium.webdriver.edge.options import Options
+from selenium.webdriver.edge.service import Service
 
 from model.api.ms_graph.users import Users
 from model.api.ms_graph.drives import Drives
@@ -19,7 +19,6 @@ from model.api.ms_graph.drive_items import DriveItems
 from model.api.ms_graph.search import Search
 from model.api.ms_graph.personal_contacts import PersonalContacts
 from model.api.ms_graph.mail import Mail
-
 from model.api.ms_graph.workbooks_and_charts.workbook import Workbooks
 from model.api.ms_graph.workbooks_and_charts.range import Range
 
@@ -49,7 +48,7 @@ class MicrosoftGraphClient:
         tenant_id: str,
         client_secret: str,
         redirect_uri: str,
-        scope: List[str],
+        scope: list[str],
         account_type: str = "consumers",  # by default this was used instead of tenant_id
         office365: bool = False,
         credentials: str = None,
@@ -70,7 +69,7 @@ class MicrosoftGraphClient:
             The application Redirect URI assigned when
             creating a new Microsoft App.
 
-        scope : List[str]
+        scope : list[str]
             The list of scopes you want the application
             to have access to.
 
@@ -253,7 +252,25 @@ class MicrosoftGraphClient:
         # More than likely a first time login, so can"t do silent authenticaiton.
         return False
 
-    def login(self) -> None:
+    def login_browser(self, uri: str, browser_driver):
+        options = Options()
+        options.page_load_strategy = "normal"
+        service = Service(executable_path=browser_driver)
+        driver = webdriver.Edge(options=options, service=service)
+        driver.set_window_rect(
+            width=575,
+            height=556,
+            x=665,
+            y=190,
+        )
+        driver.get(uri)
+        while driver.title == "Sign in to your account":
+            time.sleep(2)
+        url = driver.current_url
+        driver.quit()
+        return url
+
+    def login(self, browser_driver) -> bool:
         """Logs the user into the session."""
 
         # Load the State.
@@ -269,23 +286,38 @@ class MicrosoftGraphClient:
         else:
             # Build the URL.
             url = self.authorization_url()
-
+            self._redirect_code = self.login_browser(
+                uri=url, browser_driver=browser_driver
+            )
             # aks the user to go to the URL provided, they will be prompted
             # to authenticate themsevles.
-            print(f"Please go to URL provided authorize your account: {url}")
+            # print(f"Please go to URL provided authorize your account: {url}")
 
-            # ask the user to take the final URL after authentication and
-            # paste here so we can parse.
-            my_response = input("Paste the full URL redirect here: ")
+            # # ask the user to take the final URL after authentication and
+            # # paste here so we can parse.
+            # my_response = input("Paste the full URL redirect here: ")
 
-            # store the redirect URL
-            self._redirect_code = my_response
+            # # store the redirect URL
+            # self._redirect_code = my_response
 
             # this will complete the final part of the authentication process.
-            self.grab_access_token()
+            try:
+                if self.grab_access_token():
+                    return True
+            except KeyError:
+                try:
+                    self._redirect_code = self.login_browser(
+                        uri=url,
+                        browser_driver=browser_driver,
+                    )
+                    if self.grab_access_token():
+                        return True
+                except KeyError:
+                    return False
 
             # Set the session.
             self.graph_session = GraphSession(client=self)
+            return True
 
     def authorization_url(self):
         """Builds the authorization URL used to get an Authorization Code.
@@ -302,7 +334,7 @@ class MicrosoftGraphClient:
 
         return auth_url
 
-    def grab_access_token(self) -> Dict:
+    def grab_access_token(self) -> dict:
         """Exchanges a code for an Access Token.
 
         ### Returns:
@@ -326,7 +358,7 @@ class MicrosoftGraphClient:
 
         return token_dict
 
-    def grab_refresh_token(self) -> Dict:
+    def grab_refresh_token(self) -> dict:
         """Grabs a new access token using a refresh token.
 
         ### Returns

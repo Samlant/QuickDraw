@@ -14,9 +14,13 @@ class ClientInfo(Protocol):
 
 
 class BaseModel:
-    def __init__(self, positive_value, negative_value) -> None:
-        self.yes: str | int | bool | list = positive_value
-        self.no: str | int | bool | list = negative_value
+    def __init__(
+        self,
+        positive_value: str | int | bool,
+        negative_value: str | int | bool,
+    ) -> None:
+        self.yes = positive_value
+        self.no = negative_value
         self.quoteform_path: str = None
         self.extra_attachments: list = []
 

@@ -31,9 +31,10 @@ class MSGraphClient:
         self.credentials = ms_graph_state_path
         self.session_id = None
 
-    def setup_api(self, connection_data):
+    def setup_api(self, connection_data, browser_driver: str) -> bool:
         self._set_connection_data(connection_data)
-        self._init_graph_client()
+        if not self._init_graph_client(browser_driver):
+            return False
         pprint("set graph_session successfully.")
         print("starting workbooks service")
         self._init_workbooks_service()
@@ -41,6 +42,7 @@ class MSGraphClient:
         self._init_mail_service()
         print("starting users service")
         self._init_user_service()
+        return True
 
     def _set_connection_data(self, connection_data):
         pprint(connection_data)
@@ -60,7 +62,7 @@ class MSGraphClient:
         self.json_data = json_payload
         self.session_id = self._create_workbook()
 
-    def _init_graph_client(self):
+    def _init_graph_client(self, browser_driver: str) -> bool:
         self.graph_client = MicrosoftGraphClient(
             client_id=self.client_id,
             tenant_id=self.tenant_id,
@@ -69,9 +71,21 @@ class MSGraphClient:
             scope=self.scopes,
             credentials=self.credentials,
         )
-        pprint("logging into graph_client.")
-        self.graph_client.login()
-        pprint("logged into graph client.")
+        print("logging into graph_client.")
+        if self.try_login(browser_driver):
+            return True
+        else:
+            if self.try_login(browser_driver):
+                return True
+            else:
+                return False
+
+    def try_login(self, browser_driver) -> bool:
+        if self.graph_client.login(browser_driver):
+            print("logged into graph client.")
+            return True
+        else:
+            return False
 
     ###############################################
     ################ EXCEL SERVICES ###############

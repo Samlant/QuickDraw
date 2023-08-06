@@ -50,6 +50,7 @@ QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
 RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
 CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
 MS_GRAPH_STATE_PATH = RESOURCE_PATH / "ms_graph_state.jsonc"
+BROWSER_DRIVER = RESOURCE_PATH / "msedgedriver.exe"
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
 
@@ -98,7 +99,8 @@ def initialize_modules() -> Presenter:
 
 def main():
     presenter = initialize_modules()
-    presenter.setup_api()
+    if not presenter.setup_api(browser_driver=str(BROWSER_DRIVER)):
+        sys.exit()
     presenter.dir_watch.assign_presenter(presenter)
     tray_icon = TrayIcon()
     tray_icon.assign_presenter(presenter=presenter)

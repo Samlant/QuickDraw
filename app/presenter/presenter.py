@@ -388,9 +388,12 @@ class Presenter:
         self.send_or_view: str = None
         self.run_flag: bool = False
 
-    def setup_api(self):
+    def setup_api(self, browser_driver: str) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
-        self.api_client.setup_api(connection_data=graph_values)
+        if not self.api_client.setup_api(
+            connection_data=graph_values, browser_driver=browser_driver
+        ):
+            return False
         if self.config_worker.has_value("graph_api", "user_id"):
             str_count = len(
                 self.config_worker.get_value(
@@ -408,6 +411,7 @@ class Presenter:
                         "user_id": user_id,
                     },
                 )
+        return True
 
     def start_program(self):
         self.dir_watch.begin_watch()
