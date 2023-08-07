@@ -166,3 +166,4 @@ cython_debug/
 .vs/slnx.sqlite
 .vs/ProjectSettings.json
 ./resource_usage.png
+app/resources/ms_graph_state.jsonc
