@@ -55,7 +55,7 @@ class MSGraphClient:
         self.quote_tracker_id = connection_data.get("quote_tracker_id").value
         self.quote_worksheet_id = connection_data.get("quote_worksheet_id").value
         self.quote_table_id = connection_data.get("quote_table_id").value
-        self.service_tracker_id = connection_data.get("service_tracker_id").value
+        # self.service_tracker_id = connection_data.get("service_tracker_id").value
         pprint("set connection data successfully.")
 
     def run_excel_program(self, json_payload: dict[any, any]):
