@@ -1,0 +1,50 @@
+site_name: QuickDraw - For the Productive Novamarian!
+theme:
+  name: material
+  logo: assets/logo.png
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: blue grey
+
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: blue grey
+
+  features:
+    - toc.follow
+    - header.autohide
+    - navigation.footer
+    # - navigation.tabs
+    # - navigation.sections
+    # - navigation.expand
+    # - toc.integrate
+
+plugins:
+  - offline
+  - search
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Overview: "index.md"
+  - Getting Started:
+      - Quick-Start: "quickstart/quickstart.md"
+      - Submitting to Markets: "quickstart/submitting.md"
+      - Customization Options: "quickstart/configurations-options.md"
+  - Features:
+      - Features: "features.md"
+      - Roadmap: "roadmap.md"
+  - Installation details: "install.md"
+  - Support: "support.md"
+  - License: "license.md"
