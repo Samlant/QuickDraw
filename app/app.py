@@ -23,7 +23,7 @@ TEST = True
 
 # production environment
 production_data = Path.home() / "AppData" / "Local" / "Work-Tools"
-prduction_dir = production_data / "QuickDraw"
+production_dir = production_data / "QuickDraw"
 
 # Check if frozen or not, then assign path to config & icon
 if getattr(sys, "frozen", False):
@@ -44,6 +44,7 @@ if TEST:
     QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
     RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
     MS_GRAPH_STATE_PATH = RESOURCE_PATH / "ms_graph_state.jsonc"
+    CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
 else:
     RESOURCE_PATH = production_dir / "resources"
     MS_GRAPH_STATE_PATH = production_data / "ms_graph_state.jsonc"
@@ -55,34 +56,38 @@ NEGATIVE_SUBMISSION_VALUE = "no"
 
 # def assign_per_user_settings() -> dict[str, str]:
 config_worker = ConfigWorker(file_path=CONFIG_PATH)
-user: str = config_worker.get_value({"section_name":"graph_api", "key": "user_id"}
+user: str = config_worker.get_value({"section_name": "graph_api", "key": "user_id"})
 if (user == SAM) or (user == JERRY):
-  # Dont need to assign data since config file will only save one persons data...
-  data: dict[str, str] = {
-    "group_id": "8c653932-c7aa-44c2-af48-26692d17cc2a",
-    "drive_id": "b!72BhVkwaKkWhQLjj2MkQj7aaO4u8enROg9pPo5H8gbAgXSsPyv0XQI7rQyHsurqn",
-    "tracker_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
-    "worksheet_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
+    # Dont need to assign data since config file will only save one persons data...
+    data: dict[str, str] = {
+        "group_id": "8c653932-c7aa-44c2-af48-26692d17cc2a",
+        "drive_id": "b!72BhVkwaKkWhQLjj2MkQj7aaO4u8enROg9pPo5H8gbAgXSsPyv0XQI7rQyHsurqn",
+        "tracker_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
+        "worksheet_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
     }
-  if not TEST:
-    PATH_TO_WATCH = (
-    Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
+    if not TEST:
+        PATH_TO_WATCH = (
+            Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
         )
-    QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
-    RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
+        QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
+        RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
 elif user == CHARLIE:
-  data: dict[str, str] = {
-    "group_id": "bfcde084-7435-4890-92e4-5615ee758cc6",
-    "drive_id": "b!_GoBsM12aUuwmnkatgIfaDWSWhbF0WRFn3BVfpNWGj-jtSOXa7tnRa1tF3u-Ehgm",
-    "tracker_id": "017L2QHN5JU7SAOS2MXZEYKZFTRDIOEAQ4",
-    "worksheet_id": "FA8C9563-0D20-40E4-BB66-778010DA5ED1",
-        }
-  if not TEST:
-    PATH_TO_WATCH = (
-    Path.home() / "NovamarUSSharedFiles" / "Newport Beach Office" / "CB NEW CLIENT"
+    data: dict[str, str] = {
+        "group_id": "bfcde084-7435-4890-92e4-5615ee758cc6",
+        "drive_id": "b!_GoBsM12aUuwmnkatgIfaDWSWhbF0WRFn3BVfpNWGj-jtSOXa7tnRa1tF3u-Ehgm",
+        "tracker_id": "017L2QHN5JU7SAOS2MXZEYKZFTRDIOEAQ4",
+        "worksheet_id": "FA8C9563-0D20-40E4-BB66-778010DA5ED1",
+    }
+    if not TEST:
+        PATH_TO_WATCH = (
+            Path.home()
+            / "NovamarUSSharedFiles"
+            / "Newport Beach Office"
+            / "CB NEW CLIENT"
         )
-    QUOTES_DIR = PATH_TO_WATCH / "CB NOVAMAR CLIENTS"
-    RENEWALS_DIR = QUOTES_DIR
+        QUOTES_DIR = PATH_TO_WATCH / "CB NOVAMAR CLIENTS"
+        RENEWALS_DIR = QUOTES_DIR
+
 
 def initialize_modules() -> Presenter:
     "Creates and passes all models and views to the Presenter and returns the Presenter as an object."
