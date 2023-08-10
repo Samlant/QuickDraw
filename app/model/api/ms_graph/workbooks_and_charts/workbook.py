@@ -311,9 +311,9 @@ class Workbooks:
             # "Workbook-Session-Id": session_id,
         }
         if group_drive:
-            path = f"/groups/{group_drive}"
+            path = f"groups/{group_drive}"
         else:
-            path = "/me"
+            path = "me"
         if workbook_id and table_id:
             content = self.graph_session.make_request(
                 method="post",

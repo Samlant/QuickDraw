@@ -66,6 +66,7 @@ class TrayIcon:
                     MenuItem("Exit", self._on_clicked),
                 ),
             ).run(),
+            name="Sys Tray Icon",
         )
         return thread
 

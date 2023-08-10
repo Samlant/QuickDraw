@@ -141,6 +141,9 @@ class MSGraphClient(Protocol):
         json_payload: dict,
     ):
         ...
+        
+    def run_excel_program(self, json_payload: dict[any, any]) -> None:
+        ...
 
     def add_row(self) -> None:
         ...
@@ -456,7 +459,6 @@ class Presenter:
     def create_and_send_data_to_api(self):
         json = self.api_model.create_excel_json(self.current_submission)
         self.api_client.run_excel_program(
-            connection_data=self.data,
             json_payload=json,
         )
 
@@ -701,11 +703,6 @@ class Presenter:
             json = self.api_model.create_email_json(data=self.email_handler)
             self.api_client.send_message(message=json)
         self._send_excel_api_call()
-        # time.wait(5000)
-        # i = input("Press an key to send the next envelope.")
-        # EXIT THE TKINTER WINDOW
-
-        self.submission.root.quit()
 
     def _handle_getting_CC_addresses(self) -> list:
         """Gets userinput of all CC addresses and adds the to a list. It then

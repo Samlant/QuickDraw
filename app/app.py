@@ -80,13 +80,12 @@ elif user == CHARLIE:
     }
     if not TEST:
         PATH_TO_WATCH = (
-            Path.home()
-            / "NovamarUSSharedFiles"
-            / "Newport Beach Office"
-            / "CB NEW CLIENT"
+            Path.home() / "NovamarUSSharedFiles" / "Newport Beach Office" / "CB NEW CLIENT"
         )
         QUOTES_DIR = PATH_TO_WATCH / "CB NOVAMAR CLIENTS"
         RENEWALS_DIR = QUOTES_DIR
+else:
+    sys.exit()
 
 
 def initialize_modules() -> Presenter:
@@ -98,7 +97,7 @@ def initialize_modules() -> Presenter:
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
     )
-    config_worker = ConfigWorker(file_path=CONFIG_PATH)
+    # config_worker = ConfigWorker(file_path=CONFIG_PATH)
     dir_handler = DirHandler(
         quotes_dir=QUOTES_DIR,
         renewals_dir=RENEWALS_DIR,
@@ -141,7 +140,7 @@ def main():
     tray_icon.assign_presenter(presenter=presenter)
     thread1 = tray_icon.create_icon(src_icon=TRAY_ICON)
     thread1.start()
-    thread2 = threading.Thread(daemon=True, target=presenter.start_program)
+    thread2 = threading.Thread(daemon=True, target=presenter.start_program, name="Dir_Watch")
     thread2.start()
     while tray_icon.active is True:
         if presenter.run_flag:

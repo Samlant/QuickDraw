@@ -131,14 +131,14 @@ class MSGraphClient:
 
     def create_message_draft(self, json: dict[str, any]):
         """Create message and return the message object & id in a tuple"""
-        new_message_draft = self.mail_service.create_my_message(
-            message={
+        message= {"message": {
                 "subject": json["subject"],
                 "importance": "Normal",  # Low was default
                 "body": {"contentType": "HTML", "content": json["HTML_content"]},
                 "toRecipients": json["recipients"],
-            }
-        )
+            }}
+        pprint(message)
+        new_message_draft = self.mail_service.create_my_message(message=message)
         pprint(new_message_draft)
         return new_message_draft, new_message_draft["id"]
 

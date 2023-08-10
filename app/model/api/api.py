@@ -45,13 +45,13 @@ class API:
         start_date = self.__get_current_date()
         vessel = data.vessel
         vessel_year = data.vessel_year
-        markets = data.markets
+        markets = self.__format_markets_for_excel(data.markets)
         status = data.status
         referral = data.referral
 
         json = {
             "index": 2,
-            "value": [
+            "values": [[
                 "",  # A
                 "",  # B
                 "SL",  # C
@@ -77,10 +77,34 @@ class API:
                 "",  # W
                 "",  # X
                 status,  # Y
-                referral,  # Z
-            ],
+                referral  # Z
+            ]],
         }
         return json
+    
+    def __format_markets_for_excel(self, markets: list[str]) -> str:
+        new_list: list[str] = []
+        for market in markets:
+            if "seawave" in market.lower():
+                new_list.append("SW")
+            if "hampshire" in market.lower():
+                new_list.append("NH")
+            if "prime" in market.lower():
+                new_list.append("PT")
+            if "modern" in market.lower():
+                new_list.append("AM")
+            if "kemah" in market.lower():
+                new_list.append("KM")
+            if "concept" in market.lower():
+                new_list.append("CP")
+            if "yachtin" in market.lower():
+                new_list.append("YI")
+            if "trav" in market.lower():
+                new_list.append("TV")
+            if "intact" in market.lower():
+                new_list.append("IN")
+        new_string = ", ".join(new_list)
+        return new_string
 
     def __get_current_date(self) -> str:
         "Gets todays date and formats it (mm-dd)."
@@ -141,13 +165,13 @@ class API:
     def create_email_json(
         self, data: EmailHandler
     ) -> dict[str, str | dict[str, str] | list[dict[str, dict[str, str]]]]:
-        json = {
+        json = {"message": {
             "subject": data.subject,
             "importance": "normal",
             "body": {"contentType": "HTML", "content": data.body},
             "toRecipients": [{"emailAddress": {"address": data.to}}],
             "attachments": data.attachments_list,
-        }
+        }}
         cc_addresses = self._create_address_list(data.cc)
         json["ccRecipients"] = [{"emailAddress": {"address": cc_addresses}}]
         return json
