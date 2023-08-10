@@ -852,7 +852,7 @@ class Mail:
             }
         content = self.graph_session.make_request(
             method="post",
-            endpoint="/me/sendMail",
+            endpoint="me/sendMail",
             json=message,
             additional_headers=header_payload,
             )
