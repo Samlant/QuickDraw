@@ -41,11 +41,13 @@ class API:
         json payload, which will be used as
         the values for the new excel row.
         """
-        name = data.lname + data.fname
+        name = data.lname + " " + data.fname
         start_date = self.__get_current_date()
         vessel = data.vessel
         vessel_year = data.vessel_year
-        markets = self.__format_markets_for_excel(data.markets)
+        markets, mrkt_status = self.__format_markets_for_excel(
+            data.markets
+            )
         status = data.status
         referral = data.referral
 
@@ -59,20 +61,20 @@ class API:
                 start_date,  # E
                 "",  # F
                 start_date,  # G
-                vessel,  # H
-                vessel_year,  # I
+                vessel_year,  # H
+                vessel,  # I
                 markets,  # J
-                "",  # K
-                "",  # L
-                "",  # M
-                "",  # N
-                "",  # O
-                "",  # P
-                "",  # Q
-                "",  # R
-                "",  # S
-                "",  # T
-                "",  # U
+                "",  # K - CH
+                "",  # L - MK
+                "",  # M - AI
+                mrkt_status["AM"],  # N - AM
+                "",  # O - PG
+                mrkt_status["SW"],  # P - SW
+                mrkt_status["KM"],  # Q - KM
+                mrkt_status["CP"],  # R - CP
+                mrkt_status["NH"],  # S - NH
+                mrkt_status["IN"],  # T - IN
+                mrkt_status["TV"],  # U - TV
                 "",  # V
                 "",  # W
                 "",  # X
@@ -82,29 +84,57 @@ class API:
         }
         return json
     
-    def __format_markets_for_excel(self, markets: list[str]) -> str:
-        new_list: list[str] = []
+    def __format_markets_for_excel(self, markets: list[str])-> tuple[str, dict[str, str]]:
+        shorthand: list[str] = []
+        submitted: dict[str, str] = {}
         for market in markets:
             if "seawave" in market.lower():
-                new_list.append("SW")
+                shorthand.append("SW")
+                submitted["SW"] = "P"
+            else:
+                submitted["SW"] = ""
             if "hampshire" in market.lower():
-                new_list.append("NH")
+                shorthand.append("NH")
+                submitted["NH"] = "P"
+            else:
+                submitted["NH"] = ""
             if "prime" in market.lower():
-                new_list.append("PT")
+                shorthand.append("PT")
+                submitted["PT"] = "P"
+            else:
+                submitted["PT"] = ""
             if "modern" in market.lower():
-                new_list.append("AM")
+                shorthand.append("AM")
+                submitted["AM"] = "P"
+            else:
+                submitted["AM"] = ""
             if "kemah" in market.lower():
-                new_list.append("KM")
+                shorthand.append("KM")
+                submitted["KM"] = "P"
+            else:
+                submitted["KM"] = ""
             if "concept" in market.lower():
-                new_list.append("CP")
+                shorthand.append("CP")
+                submitted["CP"] = "P"
+            else:
+                submitted["CP"] = ""
             if "yachtin" in market.lower():
-                new_list.append("YI")
+                shorthand.append("YI")
+                submitted["YI"] = "P"
+            else:
+                submitted["YI"] = ""
             if "trav" in market.lower():
-                new_list.append("TV")
+                shorthand.append("TV")
+                submitted["TV"] = "P"
+            else:
+                submitted["TV"] = ""
             if "intact" in market.lower():
-                new_list.append("IN")
-        new_string = ", ".join(new_list)
-        return new_string
+                shorthand.append("IN")
+                submitted["IN"] = "P"
+            else:
+                submitted["IN"] = ""
+        shorthand_string = ", ".join(shorthand)
+        return shorthand_string, submitted
 
     def __get_current_date(self) -> str:
         "Gets todays date and formats it (mm-dd)."
