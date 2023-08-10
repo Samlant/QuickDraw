@@ -1,5 +1,7 @@
 import threading
 from typing import Protocol
+import webbrowser
+from pathlib import Path
 
 from PIL import Image, ImageDraw
 from pystray import Icon, Menu, MenuItem
@@ -36,7 +38,10 @@ class TrayIcon:
         elif str(item) == "Settings":
             print("Opening Settings")
         elif str(item) == "Open ReadMe":
-            # os.startfile(README_FILE)
+            path = (
+                Path(__file__).parents[2] / "docs" / "site" / "index.html"
+            ).resolve()
+            webbrowser.open(path.as_uri())
             print("Opening ReadMe")
         elif str(item) == "Exit":
             icon.visible = False
@@ -61,6 +66,7 @@ class TrayIcon:
                     MenuItem("Exit", self._on_clicked),
                 ),
             ).run(),
+            name="Sys Tray Icon",
         )
         return thread
 
