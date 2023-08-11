@@ -3,11 +3,11 @@ import sys
 import threading
 import time
 
-from model.api.api import API
-from model.api.client import MSGraphClient
+from model.api.model import API
+from model.api.app import MSGraphClient
 from model.base_model import BaseModel
 from model.config import ConfigWorker
-from model.dir_handler import DirHandler
+from model.dir_handler.app import DirHandler
 from model.dir_watch import DirWatch
 from model.email import EmailHandler
 from model.pdf import DocParser
@@ -58,32 +58,9 @@ NEGATIVE_SUBMISSION_VALUE = "no"
 config_worker = ConfigWorker(file_path=CONFIG_PATH)
 user: str = config_worker.get_value({"section_name": "graph_api", "key": "user_id"})
 if (user == SAM) or (user == JERRY):
-    # Dont need to assign data since config file will only save one persons data...
-    data: dict[str, str] = {
-        "group_id": "8c653932-c7aa-44c2-af48-26692d17cc2a",
-        "drive_id": "b!72BhVkwaKkWhQLjj2MkQj7aaO4u8enROg9pPo5H8gbAgXSsPyv0XQI7rQyHsurqn",
-        "tracker_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
-        "worksheet_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
-    }
-    if not TEST:
-        PATH_TO_WATCH = (
-            Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
-        )
-        QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
-        RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
+    user = "florida"
 elif user == CHARLIE:
-    data: dict[str, str] = {
-        "group_id": "bfcde084-7435-4890-92e4-5615ee758cc6",
-        "drive_id": "b!_GoBsM12aUuwmnkatgIfaDWSWhbF0WRFn3BVfpNWGj-jtSOXa7tnRa1tF3u-Ehgm",
-        "tracker_id": "017L2QHN5JU7SAOS2MXZEYKZFTRDIOEAQ4",
-        "worksheet_id": "FA8C9563-0D20-40E4-BB66-778010DA5ED1",
-    }
-    if not TEST:
-        PATH_TO_WATCH = (
-            Path.home() / "NovamarUSSharedFiles" / "Newport Beach Office" / "CB NEW CLIENT"
-        )
-        QUOTES_DIR = PATH_TO_WATCH / "CB NOVAMAR CLIENTS"
-        RENEWALS_DIR = QUOTES_DIR
+    user = "charlie"
 else:
     sys.exit()
 
@@ -99,10 +76,10 @@ def initialize_modules() -> Presenter:
     )
     # config_worker = ConfigWorker(file_path=CONFIG_PATH)
     dir_handler = DirHandler(
-        quotes_dir=QUOTES_DIR,
-        renewals_dir=RENEWALS_DIR,
+        user=user,
     )
-    dir_watch = DirWatch(path_to_watch=PATH_TO_WATCH)
+    watch_dir: Path = dir_handler.get_watch_dir()
+    dir_watch = DirWatch(path_to_watch=watch_dir)
     email_handler = EmailHandler()
     pdf = DocParser()
     # Views

@@ -86,9 +86,16 @@ class DialogAllocateMarkets(Protocol):
 
 
 class Dirhandler(Protocol):
-    def create_folder(
+    def create_dirs(
         self,
         submission_info,
+    ) -> Path:
+        ...
+    
+    def move_path(
+            self,
+            client_dir: Path,
+            orgin_file: Path,
     ) -> Path:
         ...
 
@@ -442,7 +449,13 @@ class Presenter:
         return True
 
     def choice(self, choice: str):
-        path = self.dir_handler.create_folder(self.current_submission)
+        client_dir = self.dir_handler.create_dirs(
+            self.current_submission
+            )
+        new_qf_path = self.dir_handler.move_file(
+            client_dir,
+            self.current_submission.original_file_path,
+            )
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
