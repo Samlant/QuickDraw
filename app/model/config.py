@@ -9,7 +9,7 @@ class ConfigWorker:
 
     def _open_config(self) -> None:  # GOOD
         """This is a helper to read config when called using ConfigUpdater,  an improvement on configParser."""
-        open_read_update = ConfigUpdater()
+        open_read_update = ConfigUpdater(comment_prefixes=("^",))
         open_read_update.read(self.file_path)
         return open_read_update
 

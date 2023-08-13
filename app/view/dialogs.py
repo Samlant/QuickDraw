@@ -134,7 +134,7 @@ class DialogNewFile:
 
 class DialogAllocateMarkets:
     def __init__(self, icon_src) -> None:
-        self.icon_path = icon_src
+        self.icon_path: str = icon_src
         self.market_info: dict[str, any] = None
         self.root: Tk = None
         self.presenter: Presenter = None

@@ -45,94 +45,109 @@ class API:
         start_date = self.__get_current_date()
         vessel = data.vessel
         vessel_year = data.vessel_year
-        markets, mrkt_status = self.__format_markets_for_excel(
-            data.markets
-            )
+        markets, mrkt_status = self.__format_markets_for_excel(data.markets)
         status = data.status
         referral = data.referral
 
         json = {
             "index": 2,
-            "values": [[
-                "",  # A
-                "",  # B
-                "SL",  # C
-                name,  # D
-                start_date,  # E
-                "",  # F
-                start_date,  # G
-                vessel_year,  # H
-                vessel,  # I
-                markets,  # J
-                "",  # K - CH
-                "",  # L - MK
-                "",  # M - AI
-                mrkt_status["AM"],  # N - AM
-                "",  # O - PG
-                mrkt_status["SW"],  # P - SW
-                mrkt_status["KM"],  # Q - KM
-                mrkt_status["CP"],  # R - CP
-                mrkt_status["NH"],  # S - NH
-                mrkt_status["IN"],  # T - IN
-                mrkt_status["TV"],  # U - TV
-                "",  # V
-                "",  # W
-                "",  # X
-                status,  # Y
-                referral  # Z
-            ]],
+            "values": [
+                [
+                    "",  # A
+                    "",  # B
+                    "SL",  # C
+                    name,  # D
+                    start_date,  # E
+                    "",  # F
+                    start_date,  # G
+                    vessel_year,  # H
+                    vessel,  # I
+                    markets,  # J
+                    "",  # K - CH
+                    "",  # L - MK
+                    "",  # M - AI
+                    mrkt_status["AM"],  # N - AM
+                    "",  # O - PG
+                    mrkt_status["SW"],  # P - SW
+                    mrkt_status["KM"],  # Q - KM
+                    mrkt_status["CP"],  # R - CP
+                    mrkt_status["NH"],  # S - NH
+                    mrkt_status["IN"],  # T - IN
+                    mrkt_status["TV"],  # U - TV
+                    "",  # V
+                    "",  # W
+                    "",  # X
+                    status,  # Y
+                    referral,  # Z
+                ]
+            ],
         }
         return json
-    
-    def __format_markets_for_excel(self, markets: list[str])-> tuple[str, dict[str, str]]:
+
+    def __format_markets_for_excel(
+        self, markets: list[str]
+    ) -> tuple[str, dict[str, str]]:
         shorthand: list[str] = []
         submitted: dict[str, str] = {}
-        for market in markets:
-            if "seawave" in market.lower():
-                shorthand.append("SW")
-                submitted["SW"] = "P"
-            else:
-                submitted["SW"] = ""
-            if "hampshire" in market.lower():
-                shorthand.append("NH")
-                submitted["NH"] = "P"
-            else:
-                submitted["NH"] = ""
-            if "prime" in market.lower():
-                shorthand.append("PT")
-                submitted["PT"] = "P"
-            else:
-                submitted["PT"] = ""
-            if "modern" in market.lower():
-                shorthand.append("AM")
-                submitted["AM"] = "P"
-            else:
-                submitted["AM"] = ""
-            if "kemah" in market.lower():
-                shorthand.append("KM")
-                submitted["KM"] = "P"
-            else:
-                submitted["KM"] = ""
-            if "concept" in market.lower():
-                shorthand.append("CP")
-                submitted["CP"] = "P"
-            else:
-                submitted["CP"] = ""
-            if "yachtin" in market.lower():
-                shorthand.append("YI")
-                submitted["YI"] = "P"
-            else:
-                submitted["YI"] = ""
-            if "trav" in market.lower():
-                shorthand.append("TV")
-                submitted["TV"] = "P"
-            else:
-                submitted["TV"] = ""
-            if "intact" in market.lower():
-                shorthand.append("IN")
-                submitted["IN"] = "P"
-            else:
-                submitted["IN"] = ""
+        if len(markets) >= 1:
+            for market in markets:
+                if "seawave" in market.lower():
+                    shorthand.append("SW")
+                    submitted["SW"] = "P"
+                else:
+                    submitted["SW"] = ""
+                if "hampshire" in market.lower():
+                    shorthand.append("NH")
+                    submitted["NH"] = "P"
+                else:
+                    submitted["NH"] = ""
+                if "prime" in market.lower():
+                    shorthand.append("PT")
+                    submitted["PT"] = "P"
+                else:
+                    submitted["PT"] = ""
+                if "modern" in market.lower():
+                    shorthand.append("AM")
+                    submitted["AM"] = "P"
+                else:
+                    submitted["AM"] = ""
+                if "kemah" in market.lower():
+                    shorthand.append("KM")
+                    submitted["KM"] = "P"
+                else:
+                    submitted["KM"] = ""
+                if "concept" in market.lower():
+                    shorthand.append("CP")
+                    submitted["CP"] = "P"
+                else:
+                    submitted["CP"] = ""
+                if "yachtin" in market.lower():
+                    shorthand.append("YI")
+                    submitted["YI"] = "P"
+                else:
+                    submitted["YI"] = ""
+                if "trav" in market.lower():
+                    shorthand.append("TV")
+                    submitted["TV"] = "P"
+                else:
+                    submitted["TV"] = ""
+                if "intact" in market.lower():
+                    shorthand.append("IN")
+                    submitted["IN"] = "P"
+                else:
+                    submitted["IN"] = ""
+        else:
+            submitted = {
+                "SW": "",
+                "NH": "",
+                "PT": "",
+                "AM": "",
+                "KM": "",
+                "CP": "",
+                "YI": "",
+                "TV": "",
+                "IN": "",
+            }
         shorthand_string = ", ".join(shorthand)
         return shorthand_string, submitted
 
@@ -195,15 +210,18 @@ class API:
     def create_email_json(
         self, data: EmailHandler
     ) -> dict[str, str | dict[str, str] | list[dict[str, dict[str, str]]]]:
-        json = {"message": {
-            "subject": data.subject,
-            "importance": "normal",
-            "body": {"contentType": "HTML", "content": data.body},
-            "toRecipients": [{"emailAddress": {"address": data.to}}],
-            "attachments": data.attachments_list,
-        }}
-        cc_addresses = self._create_address_list(data.cc)
-        json["ccRecipients"] = [{"emailAddress": {"address": cc_addresses}}]
+        json = {
+            "message": {
+                "subject": data.subject,
+                "importance": "normal",
+                "body": {"contentType": "HTML", "content": data.body},
+                "toRecipients": [{"emailAddress": {"address": data.to}}],
+                "attachments": data.attachments_list,
+            }
+        }
+        if len(data.cc) >= 1:
+            cc_addresses = self._create_address_list(data.cc)
+            json["ccRecipients"] = [{"emailAddress": {"address": cc_addresses}}]
         return json
 
     def _create_address_list(self, input: list[str]) -> list[dict[str, dict[str, str]]]:

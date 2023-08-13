@@ -1,118 +1,80 @@
-from pathlib import Path
 import sys
 import threading
 import time
+from pathlib import Path
 
-from model.api.api import API
-from model.api.client import MSGraphClient
+from model.api.app import MSGraphClient
+from model.api.model import API
 from model.base_model import BaseModel
 from model.config import ConfigWorker
-from model.dir_handler import DirHandler
+from model.dir_handler.app import DirHandler, Resources
 from model.dir_watch import DirWatch
-from model.email import EmailHandler
+from model.email.email import EmailHandler
 from model.pdf import DocParser
-from view.base_view import Submission
-from view.dialogs import DialogNewFile
-from view.dialogs import DialogAllocateMarkets
-from view.sys_tray_icon import TrayIcon
 from presenter.presenter import Presenter
+from view.base_view import Submission
+from view.dialogs import DialogAllocateMarkets, DialogNewFile
+from view.sys_tray_icon import TrayIcon
 
-
-# Debugging & development purposes
-TEST = True
-
-# production environment
-production_data = Path.home() / "AppData" / "Local" / "Work-Tools"
-production_dir = production_data / "QuickDraw"
-
-# Check if frozen or not, then assign path to config & icon
-if getattr(sys, "frozen", False):
-    app_dir = sys._MEIPASS
-else:
-    app_dir = Path(__file__).parent
-
+TEST = False
+POSITIVE_SUBMISSION_VALUE = "yes"
+NEGATIVE_SUBMISSION_VALUE = "no"
 SAM = "ad0819fd-96be-42cb-82bd-ed8aa2f767fb"
 JERRY = "bbc08f20-6f81-4f0d-8904-0f21b453f116"
 CHARLIE = "aa7432c6-d322-4669-8640-2c48570dd7a8"
 
-# Assign appropriate resource file names
-RESOURCE_PATH = Path(app_dir) / "resources"
-APP_ICON = RESOURCE_PATH / "app.ico"
-TRAY_ICON = RESOURCE_PATH / "sys_tray.ico"
-if TEST:
-    PATH_TO_WATCH = Path(app_dir).parent / "tests"
-    QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
-    RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
-    MS_GRAPH_STATE_PATH = RESOURCE_PATH / "ms_graph_state.jsonc"
-    CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
-else:
-    RESOURCE_PATH = production_dir / "resources"
-    MS_GRAPH_STATE_PATH = production_data / "ms_graph_state.jsonc"
-    CONFIG_PATH = production_data / "configurations.ini"
+PATHS = Resources(TEST)
 
-BROWSER_DRIVER = RESOURCE_PATH / "msedgedriver.exe"
-POSITIVE_SUBMISSION_VALUE = "yes"
-NEGATIVE_SUBMISSION_VALUE = "no"
-
-# def assign_per_user_settings() -> dict[str, str]:
-config_worker = ConfigWorker(file_path=CONFIG_PATH)
-user: str = config_worker.get_value({"section_name": "graph_api", "key": "user_id"})
-if (user == SAM) or (user == JERRY):
-    # Dont need to assign data since config file will only save one persons data...
-    data: dict[str, str] = {
-        "group_id": "8c653932-c7aa-44c2-af48-26692d17cc2a",
-        "drive_id": "b!72BhVkwaKkWhQLjj2MkQj7aaO4u8enROg9pPo5H8gbAgXSsPyv0XQI7rQyHsurqn",
-        "tracker_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
-        "worksheet_id": "01E2ZXUSLHIGJIXN6Q2NC2S73MSSQ2GITD",
+config_worker = ConfigWorker(
+    file_path=str(PATHS.config_path),
+)
+user_id: str = config_worker.get_value(
+    {
+        "section_name": "graph_api",
+        "key": "user_id",
     }
-    if not TEST:
-        PATH_TO_WATCH = (
-            Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
-        )
-        QUOTES_DIR = PATH_TO_WATCH / "QUOTES New"
-        RENEWALS_DIR = PATH_TO_WATCH / "QUOTES Renewal"
-elif user == CHARLIE:
-    data: dict[str, str] = {
-        "group_id": "bfcde084-7435-4890-92e4-5615ee758cc6",
-        "drive_id": "b!_GoBsM12aUuwmnkatgIfaDWSWhbF0WRFn3BVfpNWGj-jtSOXa7tnRa1tF3u-Ehgm",
-        "tracker_id": "017L2QHN5JU7SAOS2MXZEYKZFTRDIOEAQ4",
-        "worksheet_id": "FA8C9563-0D20-40E4-BB66-778010DA5ED1",
-    }
-    if not TEST:
-        PATH_TO_WATCH = (
-            Path.home() / "NovamarUSSharedFiles" / "Newport Beach Office" / "CB NEW CLIENT"
-        )
-        QUOTES_DIR = PATH_TO_WATCH / "CB NOVAMAR CLIENTS"
-        RENEWALS_DIR = QUOTES_DIR
+)
+if (user_id == SAM) or (user_id == JERRY):
+    user = "florida"
+elif user_id == CHARLIE:
+    user = "charlie"
 else:
     sys.exit()
 
+dir_handler = DirHandler(TEST)
+dir_handler.set_user(user)
+
 
 def initialize_modules() -> Presenter:
-    "Creates and passes all models and views to the Presenter and returns the Presenter as an object."
+    """Creates and passes all models and views to the Presenter and
+    returns the Presenter as an object."""
     # Models
-    api_client = MSGraphClient(ms_graph_state_path=MS_GRAPH_STATE_PATH)
+    api_client = MSGraphClient(
+        ms_graph_state_path=str(
+            PATHS.ms_graph_state_path,
+        )
+    )
     api_model = API()
     base_model = BaseModel(
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
     )
-    # config_worker = ConfigWorker(file_path=CONFIG_PATH)
-    dir_handler = DirHandler(
-        quotes_dir=QUOTES_DIR,
-        renewals_dir=RENEWALS_DIR,
-    )
-    dir_watch = DirWatch(path_to_watch=PATH_TO_WATCH)
+    watch_dir: Path = dir_handler.get_watch_dir()
+    dir_watch = DirWatch(path_to_watch=watch_dir)
     email_handler = EmailHandler()
     pdf = DocParser()
     # Views
     submission = Submission(
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
-        icon_src=APP_ICON,
+        icon_src=str(PATHS.app_icon),
     )
-    dialog_new_file = DialogNewFile(icon_src=str(APP_ICON))
-    dialog_allocate_markets = DialogAllocateMarkets(icon_src=APP_ICON)
+    dialog_new_file = DialogNewFile(
+        icon_src=str(PATHS.app_icon),
+    )
+    dialog_allocate_markets = DialogAllocateMarkets(
+        icon_src=str(PATHS.app_icon),
+    )
     # Presenter
     presenter = Presenter(
         api_client=api_client,
@@ -133,19 +95,26 @@ def initialize_modules() -> Presenter:
 def main():
     # user_data = assign_per_user_settings()
     presenter = initialize_modules()
-    if not presenter.setup_api(browser_driver=str(BROWSER_DRIVER)):
+    if not presenter.setup_api(browser_driver=str(PATHS.browser_driver)):
         sys.exit()
     presenter.dir_watch.assign_presenter(presenter)
-    tray_icon = TrayIcon()
+    tray_icon = TrayIcon(PATHS.readme)
     tray_icon.assign_presenter(presenter=presenter)
-    thread1 = tray_icon.create_icon(src_icon=TRAY_ICON)
+    thread1 = tray_icon.create_icon(src_icon=str(PATHS.tray_icon))
     thread1.start()
-    thread2 = threading.Thread(daemon=True, target=presenter.start_program, name="Dir_Watch")
+    thread2 = threading.Thread(
+        daemon=True, target=presenter.start_program, name="Dir_Watch"
+    )
     thread2.start()
     while tray_icon.active is True:
         if presenter.run_flag:
             presenter.start_submission_program()
             presenter.run_flag = False
+        elif presenter.run_settings_flag:
+            presenter.start_submission_program(settings_tab=True)
+            presenter.run_settings_flag = False
+        else:
+            pass
         time.sleep(2)
     thread1.join()
     sys.exit()

@@ -1,3 +1,4 @@
+import tkinter
 from typing import Protocol
 from dataclasses import dataclass
 import tkinter as tk
@@ -1078,3 +1079,6 @@ class Submission:
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
         # del self.sig_image_file
+
+    def set_start_tab(self) -> None:
+        self.root.tabControl.select(2)

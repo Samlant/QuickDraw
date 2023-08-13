@@ -1,10 +1,13 @@
-# Overview
-
 :information_source: Note: You may run this Readme either in Light Mode or Dark Mode, by pressing the sun near the search bar in the top-right corner.
+
+# Overview
 
 A **customizable, automated client intake tool** to organize your **new clients** on your system, **track them** via an excel tracker, & boasts a **powerful email submission tool** to submit quote requests to several markets for you---easily & efficiently..
 
-![Logo](https://i.postimg.cc/CK3Gbr4Z/6-DB2-F6-EE-F692-4-EDD-A987-9-FBE2999355-A.png){.center}
+<figure markdown>
+![Logo](https://i.postimg.cc/CK3Gbr4Z/6-DB2-F6-EE-F692-4-EDD-A987-9-FBE2999355-A.png)
+<figcaption></figcaption>
+</figure>
 
 **QuickDraw is a program that utilizes Microsoft's Graph API for:**
 
