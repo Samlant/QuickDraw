@@ -1,29 +1,46 @@
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+from string import capwords
+
 
 @dataclass
 class Dirs:
     watch_path: Path = (
-            Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
-        )
+        Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
+    )
     new_biz_path: Path = watch_path / "QUOTES New"
-    renewals_path: Path = watch_path / "QUOTES Renewal"
+    renewal_path: Path = watch_path / "QUOTES Renewal"
 
     def make_other_dirs(self, client_dir: Path):
         # dirs: list[Path] = []
         # for dir in dirs:
-        #     dir.mkdir()
+        #     dir.mkdir(exist_ok=True)
         pass
-####### PLEASE COMPLETE BOTTOM ###################
-    def _assign_dir_name(self, fname: str, lname: str, parent_dir: str):
-        dir_name = lname + " " + fname
-        dir_path = Path.joinpath(parent_dir) / dir_name
-        return self.__validate_save_path(dir_path=dir_path)
 
-    def __validate_save_path(self, dir_path: Path):
-        test_dir_path = dir_path
-        num = 1
-        while Path.exists(test_dir_path):
-            num += 1
-            test_dir_path = test_dir_path.with_stem(f"{dir_path.stem}-{num}")
-        return test_dir_path
+    def assign_dir_name(
+        self,
+        fname: str,
+        lname: str,
+        parent_dir: Path,
+    ) -> Path:
+        dir_name = lname + " " + capwords(fname)
+        return parent_dir / dir_name
+
+
+#################################################################################
+# below is for when dir paths are retrieved from config file,
+# then made via default_factory  upon instantiation.
+
+# def make_watch_path(self):
+#     if self.test:
+#         return Path(app_dir).parent / "tests"
+#     else:
+#         return (
+#             Path.home() / "Novamar Insurance" / "Flordia Office Master - Documents"
+#         )
+
+# def make_new_biz_path(self):
+#     return self.watch_path / "QUOTES New"
+
+# def make_renewal_path(self):
+#     return self.watch_path / "QUOTES Renewal"

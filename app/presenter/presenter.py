@@ -40,18 +40,12 @@ class BaseModel(Protocol):
     def get_all_attachments(self) -> list:
         ...
 
-    def list_of_cc_to_str(
-        self,
-        input_list: list,
-    ) -> str:
-        ...
-
 
 class ConfigWorker(Protocol):
     def get_value(
         self,
         request: dict,
-    ) -> any:
+    ) -> str:
         ...
 
     def get_section(
@@ -91,11 +85,11 @@ class Dirhandler(Protocol):
         submission_info,
     ) -> Path:
         ...
-    
-    def move_path(
-            self,
-            client_dir: Path,
-            orgin_file: Path,
+
+    def move_file(
+        self,
+        client_dir: Path,
+        orgin_file: Path,
     ) -> Path:
         ...
 
@@ -117,22 +111,14 @@ class DocParser(Protocol):
 
 
 class EmailHandler(Protocol):
-    def create_letter(self) -> None:
-        ...
-
-    def assign_content_to_letter(
-        self,
-        subject: str,
-        formatted_cc_str: str,
-        extra_notes: str,
-        username: str,
-        carrier_config_dict: dict[str, str],
-        attachments_list: list[str],
-    ) -> None:
-        ...
-
-    def send_letter(self) -> None:
-        ...
+    subject: str
+    cc: str
+    to: str
+    body: str
+    extra_notes: str
+    username: str
+    img_sig_url: str
+    attachments_list: str
 
     def view_letter(self) -> bool:
         raise NotImplementedError
@@ -142,14 +128,7 @@ class EmailHandler(Protocol):
 
 
 class MSGraphClient(Protocol):
-    def run_program(
-        self,
-        connection_data: dict,
-        json_payload: dict,
-    ):
-        ...
-        
-    def run_excel_program(self, json_payload: dict[any, any]) -> None:
+    def run_excel_program(self, json_payload: dict) -> None:
         ...
 
     def add_row(self) -> None:
@@ -306,6 +285,9 @@ class Submission(Protocol):
     ) -> None:
         ...
 
+    def set_start_tab(self) -> None:
+        ...
+
     def mainloop(self) -> None:
         ...
 
@@ -337,7 +319,9 @@ class ClientInfo:
 
 
 class Presenter:
-    """Responsible for communicating between the Models and Views, including all interactions between user input and program logic.
+    """Responsible for communicating between the Models and
+    Views, including all interactions between user input and
+    program logic.
 
     Attributes:
 
@@ -351,7 +335,8 @@ class Presenter:
         Views:
             submission: creates the submission window/settings;
             dialog_new_file: creates dialog when dir_watch is triggered;
-            dialog_allocate_markets: creates dialog when user allocates markets for client;
+            dialog_allocate_markets: creates dialog when user allocates
+            markets for client;
             tray_icon: interactive icon that shows in system tray area;
     """
 
@@ -371,32 +356,20 @@ class Presenter:
     ) -> None:
         # Models
         self.api_client = api_client
-        # ALL GOOD. 3rd tier launch list.
         self.api_model = api_model
         self.base_model = base_model
-        # ALL GOOD. Consider renaming. 1st tier launch list.
         self.config_worker = config_worker
-        # GOOD. double-check at end. 1st tier launch list.
         self.dir_handler = dir_handler
         self.dir_watch = dir_watch
-        # ALL GOOD. 1st tier launch list.
         self.email_handler = email_handler
-        # Working on it now.  3rd tier launch list.
         self.pdf = pdf
-        # ALL GOOD. 2nd tier launch list.
-
-        # Views
         self.submission = submission
-        # 3rd tier launch list.
         self.dialog_new_file = dialog_new_file
-        # 2nd tier launch list.
         self.dialog_allocate_markets = dialog_allocate_markets
-        # 2nd tier launch list.
-        # self.tray_icon = tray_icon
-        # Mostly good,  double-check. #1st tier launch list.
         self.current_submission = None
-        self.send_or_view: str = None
+        self.only_view_msg: bool = None
         self.run_flag: bool = False
+        self.run_settings_flag: bool = False
 
     def setup_api(self, browser_driver: str) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
@@ -426,15 +399,6 @@ class Presenter:
     def start_program(self):
         self.dir_watch.begin_watch()
 
-    def trigger_new_file(self, file: Path):
-        self._process_document(file=file)
-        print(f"the current client is: {self.current_submission.__repr__}")
-        self.dialog_new_file.initialize(
-            presenter=self,
-            submission_info=self.current_submission,
-        )
-        self.dialog_new_file.root.mainloop()
-
     def _process_document(self, file: Path):
         values_dict = self.pdf.process_doc(file)
         self.current_submission = ClientInfo(
@@ -448,32 +412,14 @@ class Presenter:
         )
         return True
 
-    def choice(self, choice: str):
-        client_dir = self.dir_handler.create_dirs(
-            self.current_submission
-            )
-        new_qf_path = self.dir_handler.move_file(
-            client_dir,
-            self.current_submission.original_file_path,
-            )
-        self.dialog_new_file.root.destroy()
-        if choice == "track_allocate":
-            self.start_allocate_dialog()
-            self._send_excel_api_call()
-        elif choice == "track_submit":
-            self.start_submission_program()
-            print("Submission emailed to markets.")
-
-    def _send_excel_api_call(self):
-        self.create_and_send_data_to_api()
-        self.api_client.add_row()
-        self.api_client.close_workbook_session()
-
-    def create_and_send_data_to_api(self):
-        json = self.api_model.create_excel_json(self.current_submission)
-        self.api_client.run_excel_program(
-            json_payload=json,
+    def trigger_new_file(self, file: Path):
+        self._process_document(file=file)
+        print(f"the current client is: {self.current_submission.__repr__}")
+        self.dialog_new_file.initialize(
+            presenter=self,
+            submission_info=self.current_submission,
         )
+        self.dialog_new_file.root.mainloop()
 
     def start_allocate_dialog(self):
         # start dialog_allocate_markets
@@ -487,15 +433,42 @@ class Presenter:
             self.current_submission,
         )
 
-    ############# Start Submissions Program #############
+    def create_and_send_data_to_api(self):
+        json = self.api_model.create_excel_json(self.current_submission)
+        self.api_client.run_excel_program(
+            json_payload=json,
+        )
 
-    def start_submission_program(self) -> None:
+    def _send_excel_api_call(self):
+        self.create_and_send_data_to_api()
+        self.api_client.add_row()
+        self.api_client.close_workbook_session()
+
+    def choice(self, choice: str):
+        client_dir = self.dir_handler.create_dirs(self.current_submission)
+        new_qf_path = self.dir_handler.move_file(
+            client_dir,
+            self.current_submission.original_file_path,
+        )
+        self.dialog_new_file.root.destroy()
+        self._send_excel_api_call()
+        if choice == "track_allocate":
+            self.start_allocate_dialog()
+            self._send_excel_api_call()
+        elif choice == "track_submit":
+            self.start_submission_program()
+            print("Submission emailed to markets.")
+
+    ############# Start Submissions Program #############
+    def start_submission_program(self, settings_tab: bool = False) -> None:  # type: ignore
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
         This also sets the default mail application.
         """
         self.submission.create_UI_obj(self)
         self.set_initial_placeholders()
+        if settings_tab:
+            self.submission.set_start_tab()
         self.submission.root.mainloop()
 
     def set_dropdown_options(self) -> list:
@@ -554,7 +527,9 @@ class Presenter:
         return self.base_model.save_path(path, is_quoteform=False)
 
     def process_signature_image_path(self, drag_n_drop_event) -> None:
-        """Saves the signature image file onto the Settings page, but does not save it to the config file yet;  the Save button writes this to the config file.
+        """Saves the signature image file onto the Settings page, but
+        does not save it to the config file yet;  the Save button writes
+        this to the config file.
 
         Arguments:
             raw_path {str} -- the raw str of full path of the file
@@ -574,10 +549,11 @@ class Presenter:
         del self.submission.extra_attachments
 
     def btn_view_template(self) -> None:
+        self.only_view_msg = True
         raise NotImplementedError
 
     def btn_send_envelopes(self) -> None:
-        self.send_or_view = "send"
+        self.only_view_msg = False
         self._process_document(self.base_model.quoteform_path)
         self.current_submission.markets = self.gather_active_markets()
         self.loop_through_envelopes()
@@ -587,7 +563,8 @@ class Presenter:
     ############# Sending Envelope #############
 
     def gather_active_markets(self) -> list:
-        """This gets the markets that the user chose. Also checks for and handles any duplicate email address.
+        """This gets the markets that the user chose. Also checks
+        for and handles any duplicate email address.
 
         Returns: list of market names to submit to.
 
@@ -676,23 +653,28 @@ class Presenter:
     def loop_through_envelopes(self):
         """This loops through each submission;  it:
         (1) forms an envelope when a positive_submission is found,
-        (2) gets and transforms needed data into each of its final formatted type and form,
+        (2) gets and transforms needed data into each of its final
+        formatted type and form,
         (3) applies the properly formatted data into each the envelope, and,
         (4) sends the envelope to the recipient, inclusive of all data.
         """
         print("looping through envelopes")
-        self.email_handler.subject = str(
-            self.email_handler.stringify_subject(self.current_submission)
+        self.email_handler.subject = self.email_handler.stringify_subject(
+            self.current_submission,
         )
 
-        unformatted_cc = list(self._handle_getting_CC_addresses())
-        self.email_handler.cc = self.base_model.format_cc_for_api(unformatted_cc)
-        self.email_handler.extra_notes = self.submission.extra_notes
-        self.email_handler.username = str(
-            self.config_worker.get_value(
-                {"section_name": "General settings", "key": "username"}
-            )
+        unformatted_cc = self._handle_getting_CC_addresses()
+        self.email_handler.cc = self.base_model.format_cc_for_api(
+            unformatted_cc,
         )
+        self.email_handler.extra_notes = self.submission.extra_notes
+        self.email_handler.username = self.config_worker.get_value(
+            {
+                "section_name": "General settings",
+                "key": "username",
+            }
+        )
+
         attachments = self.base_model.get_all_attachments()
         self.email_handler.attachments_list = self.api_model.create_attachments_json(
             attachment_paths=attachments
@@ -705,12 +687,11 @@ class Presenter:
             }
         )
         for carrier in self.current_submission.markets:
-            self.email_handler.create_letter()
             carrier_section = self.config_worker.get_section(carrier)
             unformatted_to = carrier_section.get("address").value
             self.email_handler.to = self.base_model.format_cc_for_api(unformatted_to)
-            self.email_handler.body = self.email_handler.build_HTML_body(
-                carrier_section
+            self.email_handler.body = self.email_handler.make_msg(
+                carrier_section, self.email_handler.img_sig_url
             )
 
             json = self.api_model.create_email_json(data=self.email_handler)
@@ -773,7 +754,7 @@ class Presenter:
         placeholders_dict = self.config_worker.get_section(selected_template)
         self._set_customize_tab_placeholders(placeholders_dict)
 
-    def on_focus_out(self, event) -> bool:
+    def on_focus_out(self, event) -> bool | None:
         carrier = self.submission.selected_template
         widget_name = event.widget.winfo_name()
         widget_type = event.widget.widgetName
@@ -862,17 +843,13 @@ class Presenter:
 
     ############# Establish Settings Tab #############
 
-    def _set_settings_tab_placeholders(self, section_obj) -> None:
+    def _set_settings_tab_placeholders(self, section_obj) -> bool:
         """Sets the placeholders for the settings tab"""
-        try:
-            self.submission.default_cc1 = section_obj.get("default_cc1").value
-            self.submission.default_cc2 = section_obj.get("default_cc2").value
-            self.submission.username = section_obj.get("username").value
-            self.submission.sig_image_file = section_obj.get("signature_image").value
-        except:
-            raise Exception("Couldn't set placeholders for the settings_tab")
-        else:
-            return True
+        self.submission.default_cc1 = section_obj.get("default_cc1").value
+        self.submission.default_cc2 = section_obj.get("default_cc2").value
+        self.submission.username = section_obj.get("username").value
+        self.submission.sig_image_file = section_obj.get("signature_image").value
+        return True
 
     def btn_revert_settings(self) -> None:
         section = self.config_worker.get_section("General settings")
@@ -890,7 +867,7 @@ class Presenter:
         settings_dict = self._get_settings_values()
         self.config_worker.handle_save_contents("General settings", settings_dict)
 
-    def _get_settings_values(self) -> dict[str, any]:
+    def _get_settings_values(self) -> dict[str, str]:
         """Gets all userinput from the settings_tab.
 
         Returns:
@@ -898,8 +875,7 @@ class Presenter:
                         appear in the config along with their
                     userinput values
         """
-        settings_dict = dict[str, any]
-        settings_dict = {
+        settings_dict: dict[str, str] = {
             "default_cc1": self.submission.default_cc1,
             "default_cc2": self.submission.default_cc2,
             "username": self.submission.username,

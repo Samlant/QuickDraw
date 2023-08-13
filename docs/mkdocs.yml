@@ -1,4 +1,5 @@
 site_name: QuickDraw - For the Productive Novamarian!
+site_author: Samuel Alexander Lanteigne
 theme:
   name: material
   logo: assets/logo.png
@@ -32,12 +33,13 @@ plugins:
 
 markdown_extensions:
   - attr_list
+  - md_in_html
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
 nav:
-  - Overview: "index.md"
+  - Overview: "readme.md"
   - Getting Started:
       - Quick-Start: "quickstart/quickstart.md"
       - Submitting to Markets: "quickstart/submitting.md"

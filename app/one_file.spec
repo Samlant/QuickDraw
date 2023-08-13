@@ -13,6 +13,8 @@ a = Analysis(
         '.\\model\\api\\ms_graph',
         '.\\model\\api\\ms_graph\\utils',
         '.\\model\\api\\ms_graph\\workbooks_and_charts',
+        '.\\model\\dir_handler',
+        '.\\model\\email',
         '.\\model\\base_model.py',
         '.\\presenter',
         '.\\view',
@@ -20,8 +22,9 @@ a = Analysis(
     ],
     binaries=[],
     datas=[
-        ('.\\resources\\app.ico', '.\\resources'),
-        ('.\\resources\\sys_tray.ico', '.\\resources'),
+        ('.\\resources\\img\\app.ico', '.\\resources\\img'),
+        ('.\\resources\\img\\sys_tray.ico', '.\\resources\\img'),
+        ('.\\resources\\msedgedriver.exe', '.\\resources'),
         ],
     hiddenimports=[],
     hookspath=['.'],
@@ -33,6 +36,7 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
@@ -55,5 +59,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['resources\\app.ico'],
+    icon=['resources\\img\\app.ico'],
 )

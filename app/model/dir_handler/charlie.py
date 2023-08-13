@@ -1,5 +1,6 @@
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+from string import capwords
 
 
 @dataclass
@@ -36,17 +37,17 @@ class Dirs:
             certificates,
         ]
         for dir in dirs:
-            dir.mkdir()
-####### PLEASE COMPLETE BOTTOM ###################
-    def assign_dir_name(self, fname: str, lname: str, parent_dir: str):
-        dir_name = lname + " " + fname
-        dir_path = Path.joinpath(parent_dir) / dir_name
-        return self.__validate_save_path(dir_path=dir_path)
+            dir.mkdir(exist_ok=True)
 
-    def _validate_save_path(self, dir_path: Path):
-        test_dir_path = dir_path
-        num = 1
-        while Path.exists(test_dir_path):
-            num += 1
-            test_dir_path = test_dir_path.with_stem(f"{dir_path.stem}-{num}")
-        return test_dir_path
+    def assign_dir_name(
+        self,
+        fname: str,
+        lname: str,
+        parent_dir: Path,
+        **kwargs: str,
+    ):
+        if kwargs["entity"]:
+            dir_name = kwargs["entity"]
+        else:
+            dir_name = capwords(fname) + " " + capwords(lname)
+        return parent_dir / dir_name

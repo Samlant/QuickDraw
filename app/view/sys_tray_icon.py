@@ -16,6 +16,10 @@ class Presenter(Protocol):
     def run_flag(self) -> bool:
         ...
 
+    @property
+    def run_settings_flag(self) -> bool:
+        ...
+
     def start_program(self) -> None:
         ...
 
@@ -24,9 +28,10 @@ class Presenter(Protocol):
 
 
 class TrayIcon:
-    def __init__(self):
+    def __init__(self, readme: Path):
         self.active = True
         self.presenter = None
+        self.readme: Path = readme
 
     def assign_presenter(self, presenter: Presenter):
         self.presenter = presenter
@@ -34,15 +39,17 @@ class TrayIcon:
     def _on_clicked(self, icon, item):
         if str(item) == "Run QuickDraw":
             print("Running QuickDraw")
-            self.presenter.run_flag = True
+            if self.presenter.run_settings_flag is False:
+                self.presenter.run_flag = True
         elif str(item) == "Settings":
             print("Opening Settings")
+            if self.presenter.run_flag is False:
+                self.presenter.run_settings_flag = True
+
         elif str(item) == "Open ReadMe":
-            path = (
-                Path(__file__).parents[2] / "docs" / "site" / "index.html"
-            ).resolve()
-            webbrowser.open(path.as_uri())
+            path = self.readme.resolve()
             print("Opening ReadMe")
+            webbrowser.open(path.as_uri())
         elif str(item) == "Exit":
             icon.visible = False
             icon.stop()
