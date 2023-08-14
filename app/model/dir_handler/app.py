@@ -14,12 +14,13 @@ class Resources:
     user_resources: Path = Path.home() / "AppData" / "Local" / "Work-Tools"
     ms_graph_state_path: Path = user_resources / "ms_graph_state.jsonc"
     config_path: Path = user_resources / "configurations.ini"
-    app_dir: Path = user_resources / "QuickDraw"
     # App resources
-    app_icon: Path = app_dir / "resources" / "img" / "app.ico"
-    tray_icon: Path = app_dir / "resources" / "img" / "sys_tray"
-    browser_driver: Path = app_dir / "resources" / "msedgedriver"
-    readme: Path = app_dir / "resources" / "docs" / "index.html"
+    app_dir: Path = user_resources / "QuickDraw"
+    app_resources: Path = app_dir / "resources"
+    app_icon: Path = app_resources / "img" / "app.ico"
+    tray_icon: Path = app_resources / "img" / "sys_tray"
+    browser_driver: Path = app_resources / "msedgedriver"
+    readme: Path = app_resources / "docs" / "readme.html"
 
     def __post_init__(self):
         if self.test:
