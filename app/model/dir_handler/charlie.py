@@ -6,7 +6,9 @@ from string import capwords
 @dataclass
 class Dirs:
     watch_path: Path = (
-        Path.home() / "NovamarUSSharedFiles" / "Newport Beach Office" / "CB NEW CLIENT"
+        Path.home() / "Novamar Insurance"
+        / "Novamar US Shared Files - Documents"
+        / "Newport Beach Office" / "CB NEW CLIENT"
     )
     new_biz_path: Path = (
         Path.home()

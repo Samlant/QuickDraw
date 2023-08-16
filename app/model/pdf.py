@@ -86,8 +86,7 @@ class DocParser:
         values_dict["vessel"] = string.capwords(vessel)
         values_dict["vessel_year"] = needed_values.get(self.keys["year"])
         referral = needed_values.get(self.keys["referral"])
-        if referral:
-            values_dict["referral"] = referral.upper()
+        values_dict["referral"] = referral.upper()
 
         values_dict["status"] = "ALLOCATE AND SUBMIT TO MRKTS"
         values_dict["original_file_path"] = file_path

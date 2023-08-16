@@ -35,8 +35,8 @@ class EmailHandler:
         """Wrapper for displaying the message for unit-testing"""
         raise NotImplementedError
 
-    def make_msg(self, carrier_section) -> str:
-        html_msg = build_html(self, carrier_section)
+    def make_msg(self, carrier_section, signature_settings) -> str:
+        html_msg = build_html(self, carrier_section, signature_settings)
         return html_msg
 
     def stringify_subject(self, current_submission) -> str:

@@ -397,9 +397,11 @@ class Presenter:
         return True
 
     def start_program(self):
+        print("Starting watch on specified folder.")
         self.dir_watch.begin_watch()
 
     def _process_document(self, file: Path):
+        print("Processing/Parsing PDF document.")
         values_dict = self.pdf.process_doc(file)
         self.current_submission = ClientInfo(
             fname=values_dict["fname"],
@@ -414,6 +416,7 @@ class Presenter:
 
     def trigger_new_file(self, file: Path):
         self._process_document(file=file)
+        print("Detected new Quoteform")
         print(f"the current client is: {self.current_submission.__repr__}")
         self.dialog_new_file.initialize(
             presenter=self,
@@ -423,10 +426,12 @@ class Presenter:
 
     def start_allocate_dialog(self):
         # start dialog_allocate_markets
+        print("Starting dialog to allocate markets.")
         self.dialog_allocate_markets.initialize(self)
         self.dialog_allocate_markets.root.mainloop()
 
     def save_user_choices(self):
+        print("Saving choices")
         all_options = self.dialog_allocate_markets.get_markets()
         self.current_submission = self.base_model.process_user_choice(
             all_options,
@@ -434,6 +439,7 @@ class Presenter:
         )
 
     def create_and_send_data_to_api(self):
+        print("creating call to send to Microsoft API")
         json = self.api_model.create_excel_json(self.current_submission)
         self.api_client.run_excel_program(
             json_payload=json,
@@ -441,6 +447,7 @@ class Presenter:
 
     def _send_excel_api_call(self):
         self.create_and_send_data_to_api()
+        print("Adding excel row via API")
         self.api_client.add_row()
         self.api_client.close_workbook_session()
 
@@ -451,13 +458,14 @@ class Presenter:
             self.current_submission.original_file_path,
         )
         self.dialog_new_file.root.destroy()
-        self._send_excel_api_call()
         if choice == "track_allocate":
             self.start_allocate_dialog()
             self._send_excel_api_call()
         elif choice == "track_submit":
             self.start_submission_program()
             print("Submission emailed to markets.")
+        else:
+            self._send_excel_api_call()
 
     ############# Start Submissions Program #############
     def start_submission_program(self, settings_tab: bool = False) -> None:  # type: ignore
@@ -465,6 +473,7 @@ class Presenter:
         configuring initial values,  then running it
         This also sets the default mail application.
         """
+        print("starting email submission program")
         self.submission.create_UI_obj(self)
         self.set_initial_placeholders()
         if settings_tab:
@@ -504,6 +513,7 @@ class Presenter:
             Tuple -- returns the path & a boolean for distinguishing
                           it apart from other attachments.
         """
+        print("processing quoteform for email msg")
         raw_path: str = drag_n_drop_event.data
         path = self.base_model.filter_out_brackets(raw_path)
         del self.submission.quoteform
@@ -521,6 +531,7 @@ class Presenter:
             Tuple -- returns the path & a boolean for distinguishing
                           it apart from the client's quoteform.
         """
+        print("processing additional attachments")
         raw_path: str = drag_n_drop_event.data
         path = self.base_model.filter_out_brackets(raw_path)
         self.submission.extra_attachments = Path(path).name
@@ -534,6 +545,7 @@ class Presenter:
         Arguments:
             raw_path {str} -- the raw str of full path of the file
         """
+        print("saving signature image")
         raw_path: str = drag_n_drop_event.data
         path = self.base_model.filter_out_brackets(raw_path)
         self.submission.sig_image_file = path
@@ -543,16 +555,19 @@ class Presenter:
     ############# Establish Main Actions #############
 
     def btn_clear_attachments(self) -> None:
+        print("cleared attachments from QuickDraw")
         self.base_model.extra_attachments: list = []
         self.base_model.quoteform_path: str = ""
         del self.submission.quoteform
         del self.submission.extra_attachments
 
     def btn_view_template(self) -> None:
+        print("Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again.")
         self.only_view_msg = True
         raise NotImplementedError
 
     def btn_send_envelopes(self) -> None:
+        print("clicked send button")
         self.only_view_msg = False
         self._process_document(self.base_model.quoteform_path)
         self.current_submission.markets = self.gather_active_markets()
@@ -574,6 +589,7 @@ class Presenter:
                 will be sequentially sent. If False, a window will be shown for
                 each email prior to sending.
         """
+        print("Gathering single markets and redundant markets")
         submission_list = self._handle_single_markets()
         redundant_result = self._handle_redundancies()
         if redundant_result is not None:
@@ -658,7 +674,7 @@ class Presenter:
         (3) applies the properly formatted data into each the envelope, and,
         (4) sends the envelope to the recipient, inclusive of all data.
         """
-        print("looping through envelopes")
+        print("looping through envelopes for all carriers selected")
         self.email_handler.subject = self.email_handler.stringify_subject(
             self.current_submission,
         )
@@ -690,13 +706,34 @@ class Presenter:
             carrier_section = self.config_worker.get_section(carrier)
             unformatted_to = carrier_section.get("address").value
             self.email_handler.to = self.base_model.format_cc_for_api(unformatted_to)
+            signature_settings = self.get_signature_settings()
             self.email_handler.body = self.email_handler.make_msg(
-                carrier_section, self.email_handler.img_sig_url
+                carrier_section,
+                signature_settings,
             )
 
             json = self.api_model.create_email_json(data=self.email_handler)
+            print("sending email message")
             self.api_client.send_message(message=json)
         self._send_excel_api_call()
+
+    def get_signature_settings(self) -> dict[str, str]:
+        print("Getting signature settings")
+        office_phone = self.config_worker.get_value(
+            {"section_name": "Signature settings", "key": "office_phone"}
+        )
+        office_street = self.config_worker.get_value(
+            {"section_name": "Signature settings", "key": "office_street"}
+        )
+        office_city_st_zip = self.config_worker.get_value(
+            {"section_name": "Signature settings", "key": "office_city_st_zip"}
+        )
+
+        return {
+            "office_phone": office_phone,
+            "office_street": office_street,
+            "office_city_st_zip": office_city_st_zip,
+        }
 
     def _handle_getting_CC_addresses(self) -> list:
         """Gets userinput of all CC addresses and adds the to a list. It then
@@ -812,6 +849,7 @@ class Presenter:
         """
         template_dict: dict = self.get_template_page_values()
         section_name = template_dict.pop("selected_template")
+        print(f"saving template for {section_name}")
         try:
             self.config_worker.handle_save_contents(section_name, template_dict)
         except:
@@ -864,6 +902,7 @@ class Presenter:
                    appears in the config file.
             Dict -- returns a dict of all userinput from settings_tab
         """
+        print("saving settings")
         settings_dict = self._get_settings_values()
         self.config_worker.handle_save_contents("General settings", settings_dict)
 

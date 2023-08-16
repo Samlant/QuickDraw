@@ -144,9 +144,13 @@ class BaseModel:
 
     ########## Dialog-related Functions Below ############
     def process_user_choice(self, all_options: dict[str, any], current_submission):
+        list_mrkts = []
         for market, value in all_options.items():
-            if value == self.yes:
+            if value == 1:
                 mrkt = market.upper()
-                current_submission.markets.append(mrkt)
+                list_mrkts.append(mrkt)
+            else:
+                pass
         current_submission.status = "SUBMIT TO MRKTS"
+        current_submission.markets = list_mrkts
         return current_submission

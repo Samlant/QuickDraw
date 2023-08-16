@@ -100,6 +100,7 @@ class MSGraphClient:
             item_id=self.quote_tracker_id,
         )
         pprint("created workbook session.")
+        print("The session ID for the API is:")
         pprint(session_response["id"])
         return session_response["id"]
 

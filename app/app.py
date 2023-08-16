@@ -16,7 +16,7 @@ from view.base_view import Submission
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
 from view.sys_tray_icon import TrayIcon
 
-TEST = False
+TEST = True
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
 SAM = "ad0819fd-96be-42cb-82bd-ed8aa2f767fb"

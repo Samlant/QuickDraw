@@ -5,6 +5,7 @@ from pathlib import Path
 from model.dir_handler.charlie import Dirs as CharlieDirs
 from model.dir_handler.dev_dirs import DevDirs
 from model.dir_handler.florida import Dirs as FloridaDirs
+import ctypes   
 
 
 @dataclass
@@ -18,8 +19,8 @@ class Resources:
     app_dir: Path = user_resources / "QuickDraw"
     app_resources: Path = app_dir / "resources"
     app_icon: Path = app_resources / "img" / "app.ico"
-    tray_icon: Path = app_resources / "img" / "sys_tray"
-    browser_driver: Path = app_resources / "msedgedriver"
+    tray_icon: Path = app_resources / "img" / "sys_tray.ico"
+    browser_driver: Path = app_resources / "msedgedriver.exe"
     readme: Path = app_resources / "docs" / "readme.html"
 
     def __post_init__(self):
@@ -119,11 +120,32 @@ class DirHandler:
         self.dirs.make_other_dirs(client_dir)
         return client_dir
 
-    def move_file(self, client_dir: Path, orgin_file: Path) -> Path:
+    def move_file(self, client_dir: Path, origin_file: Path) -> Path:
         """Moves the client quoteform from its origin to dest dir."""
-        new_file_path = client_dir / orgin_file.name
+        new_file_path = client_dir / origin_file.name
+        copied_file = self._create_copy(origin_file=origin_file)
         shutil.move(
-            str(orgin_file),
+            str(copied_file),
             str(new_file_path),
         )
+        self._delete_original(origin_file)
         return new_file_path
+    
+    def _create_copy(self, origin_file: Path) -> Path:
+        new_file_name = origin_file.stem + "1" + origin_file.suffix
+        new_file = origin_file.parent / new_file_name
+        try:
+            shutil.copyfile(
+            str(origin_file),
+            str(new_file),
+            )
+        except:
+            ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+            self._create_copy(origin_file=origin_file)
+        return new_file
+    def _delete_original(self, origin_file: Path):
+        try:
+            origin_file.unlink()
+        except:
+            ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+            self._delete_original(origin_file=origin_file)

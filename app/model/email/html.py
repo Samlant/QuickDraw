@@ -7,7 +7,7 @@ def organize_inputs(email_handler, carrier_section) -> tuple[dict, dict, str]:
         "greeting": email_handler.greeting_style,
         "body": email_handler.body_style,
         "salutation": email_handler.salutation_style,
-        "signature": email_handler.signature_style,
+        # "signature": email_handler.signature_style,
         "username": email_handler.username_style,
     }
     wordings: dict[str, str] = {
@@ -46,7 +46,8 @@ def make_body(
             </head>
             <body>
                 <p style={style_greeting}>{greeting}</p>
-                <p style={style_body}>{body} {extra_notes}</p>
+                <p style={style_body}>{body}</p> 
+                <p style={style_body}>{extra_notes}</p>
             </body>
             <footer>
             <p style={style_salutation}>{salutation}</p>
@@ -58,11 +59,11 @@ def make_body(
     return html_msg
 
 
-def make_signature(sig_img: str) -> str:
-    logo_img = ("https://i.postimg.cc/yWCHTYjJ/novamar.png",)
-    office_phone = ("(941)-444-5099",)
-    office_street = ("1549 Ringling Blvd., Suite 101",)
-    office_city_st_zip = ("Sarasota, FL",)
+def make_signature(sig_img: str, signature_settings: dict[str, str]) -> str:
+    logo_img = "https://i.postimg.cc/yWCHTYjJ/novamar.png"
+    office_phone = signature_settings["office_phone"]
+    office_street = signature_settings["office_street"]
+    office_city_st_zip = signature_settings["office_city_st_zip"]
     signature = f"""
         <img src='{sig_img}'>
         <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>NOVAMAR INSURANCE GROUP</p>
@@ -85,6 +86,7 @@ def make_signature(sig_img: str) -> str:
 def build_HTML_message(
     email_handler,
     carrier_section,
+    signature_settings,
 ) -> str:
     styles, wordings, sig_img = organize_inputs(
         email_handler,
@@ -92,6 +94,7 @@ def build_HTML_message(
     )
     signature = make_signature(
         sig_img,
+        signature_settings,
     )
     html_msg = make_body(
         styles,
