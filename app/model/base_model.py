@@ -105,7 +105,7 @@ class BaseModel:
             return attachments
         return attachments
 
-    def format_cc_for_api(self, all_addresses: list | str) -> list:
+    def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
         """Prepares list of CC addresses to be properly formatted for api call."""
         if isinstance(all_addresses, list):
             split_address = self._split_addresses(input_list=all_addresses)
@@ -120,6 +120,17 @@ class BaseModel:
             raise TypeError(
                 "email address is neither a string nor list. Please double-check."
             )
+    def format_to_for_api(self, addresses: str) -> list[str]:
+        list_of_strings: list[str] = []
+        if ";" in addresses:
+            x = addresses.split(";")
+            for y in x:
+                if y.strip("; ") != "":
+                    list_of_strings.append(y)
+            formatted_addresses = self._eliminate_whitespaces_invalid_chars(list_of_strings)
+        else:
+            formatted_addresses = self._del_whitespace_invalid_chars(addresses)
+        return formatted_addresses
 
     def _split_addresses(self, input_list: list[str]) -> list[str]:
         list_of_strings: list[str] = []

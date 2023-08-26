@@ -16,6 +16,7 @@ class ClientInfo(Protocol):
         self.status: str
         self.extra_attachements: list
         self.markets: list[str]
+        self.submit_tool: bool
 
 
 @dataclass
@@ -45,7 +46,11 @@ class API:
         start_date = self.__get_current_date()
         vessel = data.vessel
         vessel_year = data.vessel_year
-        markets, mrkt_status = self.__format_markets_for_excel(data.markets)
+        markets = self.__get_allocated_markets(data.markets)
+        if data.submit_tool:
+            market_status = self.__format_markets_from_submission_tool(data.markets)
+        else:
+            market_status = self.__assign_empty_str_markets()
         status = data.status
         referral = data.referral
 
@@ -66,14 +71,14 @@ class API:
                     "",  # K - CH
                     "",  # L - MK
                     "",  # M - AI
-                    mrkt_status["AM"],  # N - AM
+                    market_status["AM"],  # N - AM
                     "",  # O - PG
-                    mrkt_status["SW"],  # P - SW
-                    mrkt_status["KM"],  # Q - KM
-                    mrkt_status["CP"],  # R - CP
-                    mrkt_status["NH"],  # S - NH
-                    mrkt_status["IN"],  # T - IN
-                    mrkt_status["TV"],  # U - TV
+                    market_status["SW"],  # P - SW
+                    market_status["KM"],  # Q - KM
+                    market_status["CP"],  # R - CP
+                    market_status["NH"],  # S - NH
+                    market_status["IN"],  # T - IN
+                    market_status["TV"],  # U - TV
                     "",  # V
                     "",  # W
                     "",  # X
@@ -84,58 +89,64 @@ class API:
         }
         return json
 
-    def __format_markets_for_excel(
+    def __get_allocated_markets(self, markets: list[str]) -> list:
+        mrkt: list[str] = [mrkt for mrkt in markets]
+        mrkt = ", ".join(mrkt)
+        print(mrkt)
+        return mrkt
+    
+    def __assign_empty_str_markets(self) -> dict[str, str]:
+        mrkt_status = {}
+        mrkt_status["AM"] = ""
+        mrkt_status["SW"] = ""
+        mrkt_status["KM"] = ""
+        mrkt_status["CP"] = ""
+        mrkt_status["NH"] = ""
+        mrkt_status["IN"] = ""
+        mrkt_status["TV"] = ""
+        return mrkt_status
+    
+    def __format_markets_from_submission_tool(
         self, markets: list[str]
-    ) -> tuple[str, dict[str, str]]:
-        shorthand: list[str] = []
+    ) -> dict[str, str]:
         submitted: dict[str, str] = {}
         if len(markets) >= 1:
-            for market in markets:
-                if "seawave" in market.lower():
-                    shorthand.append("SW")
-                    submitted["SW"] = "P"
-                else:
-                    submitted["SW"] = ""
-                if "hampshire" in market.lower():
-                    shorthand.append("NH")
-                    submitted["NH"] = "P"
-                else:
-                    submitted["NH"] = ""
-                if "prime" in market.lower():
-                    shorthand.append("PT")
-                    submitted["PT"] = "P"
-                else:
-                    submitted["PT"] = ""
-                if "modern" in market.lower():
-                    shorthand.append("AM")
-                    submitted["AM"] = "P"
-                else:
-                    submitted["AM"] = ""
-                if "kemah" in market.lower():
-                    shorthand.append("KM")
-                    submitted["KM"] = "P"
-                else:
-                    submitted["KM"] = ""
-                if "concept" in market.lower():
-                    shorthand.append("CP")
-                    submitted["CP"] = "P"
-                else:
-                    submitted["CP"] = ""
-                if "yachtin" in market.lower():
-                    shorthand.append("YI")
-                    submitted["YI"] = "P"
-                else:
-                    submitted["YI"] = ""
-                if "trav" in market.lower():
-                    shorthand.append("TV")
-                    submitted["TV"] = "P"
-                else:
-                    submitted["TV"] = ""
-                if "intact" in market.lower():
-                    shorthand.append("IN")
-                    submitted["IN"] = "P"
-                else:
-                    submitted["IN"] = ""
+            if "Seawave" in markets:
+                submitted["SW"] = "P"
+            else:
+                submitted["SW"] = ""
+            if "Hampshire" in markets:
+                submitted["NH"] = "P"
+            else:
+                submitted["NH"] = ""
+            if "PT" in markets:
+                submitted["PT"] = "P"
+            else:
+                submitted["PT"] = ""
+            if "AM" in markets:
+                submitted["AM"] = "P"
+            else:
+                submitted["AM"] = ""
+            if "KM" in markets:
+                submitted["KM"] = "P"
+            else:
+                submitted["KM"] = ""
+            if "CP" in markets:
+                submitted["CP"] = "P"
+            else:
+                submitted["CP"] = ""
+            if "YI" in markets:
+                submitted["YI"] = "P"
+            else:
+                submitted["YI"] = ""
+            if "TV" in markets:
+                submitted["TV"] = "P"
+            else:
+                submitted["TV"] = ""
+            if "IN" in markets:
+                submitted["IN"] = "P"
+            else:
+                submitted["IN"] = ""
         else:
             submitted = {
                 "SW": "",
@@ -148,8 +159,7 @@ class API:
                 "TV": "",
                 "IN": "",
             }
-        shorthand_string = ", ".join(shorthand)
-        return shorthand_string, submitted
+        return submitted
 
     def __get_current_date(self) -> str:
         "Gets todays date and formats it (mm-dd)."
@@ -208,25 +218,30 @@ class API:
             return None
 
     def create_email_json(
-        self, data: EmailHandler
+        self, email: EmailHandler
     ) -> dict[str, str | dict[str, str] | list[dict[str, dict[str, str]]]]:
         json = {
             "message": {
-                "subject": data.subject,
+                "subject": email.subject,
                 "importance": "normal",
-                "body": {"contentType": "HTML", "content": data.body},
-                "toRecipients": [{"emailAddress": {"address": data.to}}],
-                "attachments": data.attachments_list,
+                "body": {"contentType": "HTML", "content": email.body},
+                "attachments": email.attachments_list,
+                "toRecipients": self.__create_address_list(email.to),
             }
         }
-        if len(data.cc) >= 1:
-            cc_addresses = self._create_address_list(data.cc)
-            json["ccRecipients"] = [{"emailAddress": {"address": cc_addresses}}]
+        if email.cc:
+            json["message"]["ccRecipients"] = self.__create_address_list(email.cc)
         return json
 
-    def _create_address_list(self, input: list[str]) -> list[dict[str, dict[str, str]]]:
+    def __create_address_list(self, addresses: list[str]) -> list[dict[str, dict[str, str]]]:
         output: list[dict[str, dict[str, str]]] = []
-        for address in input:
-            x: dict[str, dict[str, str]] = {"emailAddress": {"address": address}}
+        if not addresses:
+            addresses = [""]
+        if isinstance(addresses, list):
+            for address in addresses:
+                x: dict[str, dict[str, str]] = {"emailAddress": {"address": address}}
+                output.append(x)
+        elif isinstance(addresses, str):
+            x = {"emailAddress": {"address": addresses}}
             output.append(x)
         return output

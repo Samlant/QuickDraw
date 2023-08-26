@@ -6,9 +6,11 @@ from string import capwords
 @dataclass
 class Dirs:
     watch_path: Path = (
-        Path.home() / "Novamar Insurance"
+        Path.home() 
+        / "Novamar Insurance"
         / "Novamar US Shared Files - Documents"
-        / "Newport Beach Office" / "CB NEW CLIENT"
+        / "Newport Beach Office"
+        / "CB NEW CLIENT"
     )
     new_biz_path: Path = (
         Path.home()
@@ -48,8 +50,9 @@ class Dirs:
         parent_dir: Path,
         **kwargs: str,
     ):
-        if kwargs["entity"]:
+        try:
+            kwargs["entity"]
             dir_name = kwargs["entity"]
-        else:
+        except KeyError:
             dir_name = capwords(fname) + " " + capwords(lname)
         return parent_dir / dir_name

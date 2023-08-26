@@ -248,27 +248,3 @@ class DialogAllocateMarkets:
         self.root.destroy()
         return dict_of_markets
 
-
-class DialogAuthAPI:
-    def __init__(self):
-        self.presenter = presenter
-        self.root = Tk()
-        self.root.geometry("300x50")
-        self.root.title("Login")
-        # self.root.iconbitmap(self.icon_path)
-        self.URI_second = StringVar(self.root.frame, name="second_URI")
-        self.root.frame = Frame(self.root, bg="#CFEBDF")
-        self.root.frame.pack(fill=BOTH, expand=False)
-        self._create_widgets()
-
-    def _create_widgets(self):
-        Label(text="Test:", font=(None, 28), width=9).grid(column=0, row=0)
-        Entry(
-            master=self.root.frame,
-            name="second URI entry",
-            textvariable=self.URI_second,
-        ).grid(column=0, row=1)
-        Button(master=self.root.frame, text="Submit", command=self.return_URI)
-
-    def return_URI(self):
-        pass

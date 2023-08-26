@@ -101,8 +101,25 @@ class MSGraphClient:
         )
         pprint("created workbook session.")
         print("The session ID for the API is:")
-        pprint(session_response["id"])
+        pprint(f'The session ID is: {session_response["id"]}')
         return session_response["id"]
+    
+    def client_already_exists(self) -> bool:
+        table_row_obj = self.workbooks_service.get_table_rows(
+            group_drive=self.group_id,
+            workbook_id=self.quote_tracker_id,
+            worksheet_id=self.quote_worksheet_id,
+            table_id=self.quote_table_id,
+            session_id=self.session_id,
+            )
+        name = self.json_data.get("values")[0][3]
+        vessel = self.json_data.get("values")[0][8]
+        for row in table_row_obj["value"]:
+            row_name = row["values"][0][3]
+            row_vessel = row["values"][0][8]
+            if name in row_name and vessel in row_vessel:
+                return True
+        return False
 
     def add_row(self) -> None:
         "Creates the reques to add an excel row"

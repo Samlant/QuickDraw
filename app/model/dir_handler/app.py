@@ -4,7 +4,8 @@ from pathlib import Path
 
 from model.dir_handler.charlie import Dirs as CharlieDirs
 from model.dir_handler.dev_dirs import DevDirs
-from model.dir_handler.florida import Dirs as FloridaDirs
+from model.dir_handler.jerry import Dirs as JerryDirs
+from model.dir_handler.sam import Dirs as SamDirs
 import ctypes   
 
 
@@ -40,14 +41,16 @@ class Resources:
 class DirHandler:
     def __init__(self, test: bool) -> None:
         self.user: str
-        self.dirs: FloridaDirs | CharlieDirs | DevDirs
+        self.dirs: JerryDirs | SamDirs | CharlieDirs | DevDirs
         self.test: bool = test
 
     def set_user(self, user: str):
         if self.test:
             self.dirs: DevDirs = DevDirs()
-        elif user == "florida":
-            self.dirs: FloridaDirs = FloridaDirs()
+        elif user == "sam":
+            self.dirs: SamDirs = SamDirs()
+        elif user == "jerry":
+            self.dirs: JerryDirs = JerryDirs()
         elif user == "charlie":
             self.dirs: CharlieDirs = CharlieDirs()
         elif user == "ericka":

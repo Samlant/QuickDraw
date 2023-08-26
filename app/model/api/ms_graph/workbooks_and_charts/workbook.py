@@ -276,6 +276,50 @@ class Workbooks:
             )
 
         return content
+    def search_for_client(
+            self,
+            group_drive: str = None,
+            workbook_id: str = None,
+            workbook_path: str = None,
+            worksheet_id: str = None,
+            worksheet_path: str = None,
+            table_id: str = None,
+            table_path: str = None,
+            session_id: str = None, 
+            json_data=None,) -> bool:
+        name = json_data.get("values")[0][3]
+        vessel = json_data.get("values")[0][8]
+        table_row_obj = self.get_table_rows(
+            
+        )
+
+    def get_table_rows(self,
+        group_drive: str = None,
+        workbook_id: str = None,
+        workbook_path: str = None,
+        worksheet_id: str = None,
+        worksheet_path: str = None,
+        table_id: str = None,
+        table_path: str = None,
+        session_id: str = None,) -> bool:
+        if group_drive:
+            path = f"groups/{group_drive}"
+        else:
+            path = "me"
+        if workbook_id and table_id:
+            content = self.graph_session.make_request(
+                method="get",
+                endpoint=f"{path}/drive/items/{workbook_id}/workbook/tables/{table_id}/rows",
+            )
+        elif workbook_path and table_path and worksheet_path:
+            content = self.graph_session.make_request(
+                method="get",
+                endpoint=f"{path}/drive/items/{workbook_path}/workbook/worksheets/{worksheet_path}/tables/{table_path}/rows",
+            )
+        else:
+            print("Add functionality to accommodate mixing paths & id's in endpoint!")
+            raise NotImplementedError
+        return content
 
     def add_row(
         self,

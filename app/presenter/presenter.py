@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
+import ctypes
 from typing import Protocol
-
+import threading
 
 class API(Protocol):
     def create_excel_json(self, data) -> dict[str, any]:
@@ -131,10 +132,16 @@ class MSGraphClient(Protocol):
     def run_excel_program(self, json_payload: dict) -> None:
         ...
 
+    def client_already_exists(self) -> bool:
+        ...
+
     def add_row(self) -> None:
         ...
 
     def close_workbook_session(self) -> None:
+        ...
+
+    def send_message(self, message) -> None:
         ...
 
 
@@ -316,6 +323,7 @@ class ClientInfo:
     new_file_path: Path = None
     extra_attachements: list = None
     markets: list | str = ""
+    submit_tool: bool = False
 
 
 class Presenter:
@@ -402,7 +410,15 @@ class Presenter:
 
     def _process_document(self, file: Path):
         print("Processing/Parsing PDF document.")
-        values_dict = self.pdf.process_doc(file)
+        try:
+            values_dict = self.pdf.process_doc(file)
+        except:
+            ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+            try:
+                values_dict = self.pdf.process_doc(file)
+            except:
+                ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+                values_dict = self.pdf.process_doc(file)
         self.current_submission = ClientInfo(
             fname=values_dict["fname"],
             lname=values_dict["lname"],
@@ -448,8 +464,11 @@ class Presenter:
     def _send_excel_api_call(self):
         self.create_and_send_data_to_api()
         print("Adding excel row via API")
-        self.api_client.add_row()
-        self.api_client.close_workbook_session()
+        if not self.api_client.client_already_exists():
+            self.api_client.add_row()
+            self.api_client.close_workbook_session()
+        else:
+            print("Client already exists on tracker,  skipping adding to the tracker.")
 
     def choice(self, choice: str):
         client_dir = self.dir_handler.create_dirs(self.current_submission)
@@ -460,22 +479,42 @@ class Presenter:
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
-            self._send_excel_api_call()
+            try:
+                thread_xl = threading.Thread(
+                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+                    )
+                thread_xl.start()
+            except:
+                thread_xl = threading.Thread(
+                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+                    )
+                thread_xl.start()
         elif choice == "track_submit":
-            self.start_submission_program()
+            self.start_submission_program(quote_path=new_qf_path)
             print("Submission emailed to markets.")
         else:
-            self._send_excel_api_call()
-
+            try:
+                thread_xl = threading.Thread(
+                    daemon=True, target=self._send_excel_api_call, name="Excel API Call"
+                    )
+                thread_xl.start()
+            except:
+                thread_xl = threading.Thread(
+                    daemon=True, target=self._send_excel_api_call, name="Excel API Call"
+                    )
+                thread_xl.start()
     ############# Start Submissions Program #############
-    def start_submission_program(self, settings_tab: bool = False) -> None:  # type: ignore
+    def start_submission_program(self, settings_tab: bool = False, quote_path: str = None) -> None:  # type: ignore
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
         This also sets the default mail application.
         """
         print("starting email submission program")
         self.submission.create_UI_obj(self)
-        self.set_initial_placeholders()
+        if quote_path:
+            self.set_initial_placeholders(quote_path)
+        else:
+            self.set_initial_placeholders()
         if settings_tab:
             self.submission.set_start_tab()
         self.submission.root.mainloop()
@@ -486,7 +525,7 @@ class Presenter:
 
     ############# Establish Main Tab #############
 
-    def set_initial_placeholders(self) -> None:
+    def set_initial_placeholders(self, quote_path: str = None) -> None:
         """Sets initial texts for the main/home tab, if applicable"""
         personal_settings_keys: list[str] = [
             "username",
@@ -502,8 +541,13 @@ class Presenter:
         self._set_customize_tab_placeholders(
             self.config_worker.get_section("Initial placeholders")
         )
+        if quote_path:
+            self.process_quoteform_path(quote_path=quote_path)
+        else:
+            pass
 
-    def process_quoteform_path(self, drag_n_drop_event) -> None:  # GOOD
+
+    def process_quoteform_path(self, drag_n_drop_event = None, quote_path: str = None) -> None:  # GOOD
         """Sends the raw path to model for proccessing & saving.
 
         Arguments:
@@ -514,8 +558,11 @@ class Presenter:
                           it apart from other attachments.
         """
         print("processing quoteform for email msg")
-        raw_path: str = drag_n_drop_event.data
-        path = self.base_model.filter_out_brackets(raw_path)
+        if quote_path:
+            path = quote_path
+        else:
+            raw_path: str = drag_n_drop_event.data
+            path = self.base_model.filter_out_brackets(raw_path)
         del self.submission.quoteform
         self.submission.quoteform = Path(path).name
         return self.base_model.save_path(path, is_quoteform=True)
@@ -571,6 +618,7 @@ class Presenter:
         self.only_view_msg = False
         self._process_document(self.base_model.quoteform_path)
         self.current_submission.markets = self.gather_active_markets()
+        self.current_submission.submit_tool = True
         self.loop_through_envelopes()
 
     ############# END --Main Actions-- END #############
@@ -705,17 +753,38 @@ class Presenter:
         for carrier in self.current_submission.markets:
             carrier_section = self.config_worker.get_section(carrier)
             unformatted_to = carrier_section.get("address").value
-            self.email_handler.to = self.base_model.format_cc_for_api(unformatted_to)
+            self.email_handler.to = self.base_model.format_to_for_api(unformatted_to)
             signature_settings = self.get_signature_settings()
             self.email_handler.body = self.email_handler.make_msg(
                 carrier_section,
                 signature_settings,
             )
 
-            json = self.api_model.create_email_json(data=self.email_handler)
+            self.json = self.api_model.create_email_json(email=self.email_handler)
             print("sending email message")
-            self.api_client.send_message(message=json)
-        self._send_excel_api_call()
+        try:
+            thread_ol = threading.Thread(
+                    daemon=False, target=self.send_email_api, name="Outlook API Call"
+                    )
+            thread_ol.start()
+        except:
+            thread_ol = threading.Thread(
+                    daemon=False, target=self.send_email_api, name="Outlook API Call"
+                    )
+            thread_ol.start()
+        try:
+            thread_xl = threading.Thread(
+                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+                    )
+            thread_xl.start()
+        except:
+            thread_xl = threading.Thread(
+                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+                    )
+            thread_xl.start()
+
+    def send_email_api(self):
+        self.api_client.send_message(message=self.json)
 
     def get_signature_settings(self) -> dict[str, str]:
         print("Getting signature settings")

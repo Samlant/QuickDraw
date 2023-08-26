@@ -45,7 +45,6 @@ class TrayIcon:
             print("Opening Settings")
             if self.presenter.run_flag is False:
                 self.presenter.run_settings_flag = True
-
         elif str(item) == "Open ReadMe":
             path = self.readme.resolve()
             print("Opening ReadMe")
@@ -59,6 +58,9 @@ class TrayIcon:
             print(self.presenter.submission.root.state())
             self.presenter.submission.root.quit()
             # print(self.presenter.submission.state())
+        elif str(item) == "Run Surplus Lines Calculator":
+            print("Running Surplus Lines Calculator")
+            print("Not yet implemented!")
 
     def create_icon(self, src_icon):
         thread = threading.Thread(
@@ -68,6 +70,7 @@ class TrayIcon:
                 Image.open(src_icon),
                 menu=Menu(
                     MenuItem("Run QuickDraw", self._on_clicked),
+                    MenuItem("Run Surplus Lines Calculator", self._on_clicked),
                     MenuItem("Settings", self._on_clicked),
                     MenuItem("Open ReadMe", self._on_clicked),
                     MenuItem("Exit", self._on_clicked),

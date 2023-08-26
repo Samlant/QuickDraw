@@ -4,6 +4,7 @@ from pathlib import Path
 from fillpdf import fillpdfs
 
 
+
 class DocParser:
     def __init__(self) -> None:
         self.keys: dict[str, str] = {
@@ -12,7 +13,6 @@ class DocParser:
             "year": "vessel_year",
             "vessel": "",
             "referral": "referral",
-            "entity": "entity",
         }
 
     def process_doc(self, file_path: Path) -> dict:
@@ -51,10 +51,15 @@ class DocParser:
             self.keys["vessel"] = "vessel_make"
             self.keys["vessel model"] = "vessel_model"
             self.keys["vessel length"] = "vessel_length"
-            self.keys["entity"] = "entity"
         else:
             raise KeyError("Double check the keys in quoteform")
         pdf_dict = {key: pdf_dict[key] for key in pdf_dict.keys() & self.keys.values()}
+        # try:
+        #     entity_dict = {"entity": "entity"}
+        #     entity = {key: pdf_dict[key] for key in pdf_dict.keys() & entity_dict.values()}
+        #     pdf_dict["entity"] = entity["entity"]
+        # except:
+        #     print("No entity shown on quoteform, passing.")
         return pdf_dict
 
     def _assign_values_to_dict(

@@ -16,7 +16,7 @@ from view.base_view import Submission
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
 from view.sys_tray_icon import TrayIcon
 
-TEST = True
+TEST = False
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
 SAM = "ad0819fd-96be-42cb-82bd-ed8aa2f767fb"
@@ -34,14 +34,16 @@ user_id: str = config_worker.get_value(
         "key": "user_id",
     }
 )
-if (user_id == SAM) or (user_id == JERRY):
-    user = "florida"
+dir_handler = DirHandler(TEST)
+if user_id == SAM:
+    user = "sam"
+elif user_id == JERRY:
+    user = "jerry"
 elif user_id == CHARLIE:
     user = "charlie"
 else:
     sys.exit()
 
-dir_handler = DirHandler(TEST)
 dir_handler.set_user(user)
 
 
