@@ -15,6 +15,7 @@ class MSGraphClient:
         ]
         self.json_data: dict[any, any] = None
         self.graph_client = None
+        self.browser_driver: str = None
         self.workbooks_service = None
         self.mail_service = None
         self.user_service = None
@@ -33,13 +34,9 @@ class MSGraphClient:
 
     def setup_api(self, connection_data, browser_driver: str) -> bool:
         self._set_connection_data(connection_data)
-        if not self._init_graph_client(browser_driver):
+        self.browser_driver = browser_driver
+        if not self._init_graph_client():
             return False
-        pprint("set graph_session successfully.")
-        print("starting workbooks service")
-        self._init_workbooks_service()
-        print("starting mail service")
-        self._init_mail_service()
         print("starting users service")
         self._init_user_service()
         return True
@@ -60,9 +57,11 @@ class MSGraphClient:
 
     def run_excel_program(self, json_payload: dict[any, any]):
         self.json_data = json_payload
+        self._init_graph_client()
+        self._init_workbooks_service()
         self.session_id = self._create_workbook()
 
-    def _init_graph_client(self, browser_driver: str) -> bool:
+    def _init_graph_client(self) -> bool:
         self.graph_client = MicrosoftGraphClient(
             client_id=self.client_id,
             tenant_id=self.tenant_id,
@@ -72,10 +71,10 @@ class MSGraphClient:
             credentials=self.credentials,
         )
         print("logging into graph_client.")
-        if self.try_login(browser_driver):
+        if self.try_login(self.browser_driver):
             return True
         else:
-            if self.try_login(browser_driver):
+            if self.try_login(self.browser_driver):
                 return True
             else:
                 return False
@@ -161,7 +160,8 @@ class MSGraphClient:
         return new_message_draft, new_message_draft["id"]
 
     def send_message(self, message):
-        # Consider accessing this below call directly from Presenter...
+        self._init_graph_client()
+        self._init_mail_service()
         self.mail_service.send_my_mail(message=message)
 
     ###############################################
