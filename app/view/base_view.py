@@ -28,10 +28,16 @@ class Presenter(Protocol):
     def btn_save_template(self) -> None:
         ...
 
-    def btn_save_settings(self) -> None:
+    def btn_save_email_settings(self) -> None:
+        ...
+    
+    def btn_save_folder_settings(self) -> None:
         ...
 
-    def btn_revert_settings(self, event) -> None:
+    def btn_revert_email_settings(self, event) -> None:
+        ...
+    
+    def btn_revert_folder_settings(self, event) -> None:
         ...
 
     def set_dropdown_options(self) -> list:
@@ -93,6 +99,7 @@ class Submission:
         self._username = StringVar(name="username", value="")
         self._default_cc1 = StringVar(name="default_cc1", value="")
         self._default_cc2 = StringVar(name="default_cc2", value="")
+        self._watch_dir = StringVar(name="watch_dir", value="")
 
     # main_tab: getters/setters
     @property
@@ -236,7 +243,7 @@ class Submission:
     def salutation(self) -> None:
         self._salutation.set("")
 
-    # settings_tab: getters/setters
+    # Email settings_tab: getters/setters
     @property
     def default_cc1(self) -> str:
         return self._default_cc1.get()
@@ -285,6 +292,18 @@ class Submission:
     @sig_image_file.deleter
     def sig_image_file(self):
         self.sig_image_path_box.delete("1.0", END)
+    # Folder Settings Tab: getters/setters
+    @property
+    def watch_dir(self) -> str:
+        return self._watch_dir.get()
+    
+    @watch_dir.setter
+    def watch_dir(self, new_watch_dir: str):
+        self._watch_dir.set(new_watch_dir)
+    
+    @watch_dir.deleter
+    def watch_dir(self):
+        self._watch_dir.set("")
 
     def create_UI_obj(self, presenter: Presenter):
         """This creates the GUI root,  along with the main
@@ -322,12 +341,14 @@ class Submission:
     def create_tabs(self):
         self.home = ttk.Frame(self.root.tabControl)
         self.template_customization = ttk.Frame(self.root.tabControl)
-        self.settings = ttk.Frame(self.root.tabControl)
+        self.email_settings = ttk.Frame(self.root.tabControl)
+        self.folder_settings = ttk.Frame(self.root.tabControl)
         self.root.tabControl.add(self.home, text="Home - Outbox")
         self.root.tabControl.add(
             self.template_customization, text="Customize Templates"
         )
-        self.root.tabControl.add(self.settings, text="Settings")
+        self.root.tabControl.add(self.email_settings, text="Email Settings")
+        self.root.tabControl.add(self.folder_settings, text="Folder Settings")
 
     def create_main_tab_widgets(self, presenter: Presenter):
         frame_header = Frame(self.home, bg="#5F9EA0", pady=17)
@@ -771,8 +792,9 @@ class Submission:
         )
 
     def create_settings_tab_widgets(self, presenter: Presenter):
+        ### START TITLE ###
         content_boder = Frame(
-            self.settings,
+            self.email_settings,
             padx=20,
             pady=20,
             bg="#5F9EA0",
@@ -793,7 +815,7 @@ class Submission:
         )
         Label(
             title_frame,
-            text="Settings Page",
+            text="Email Settings Page",
             bg="#aedadb",
             font=("helvetica", 20, "normal"),
         ).pack(
@@ -877,9 +899,9 @@ class Submission:
         # BEGIN SIGNATURE SETTINGS
         signature_lf = LabelFrame(
             main_settings_frame,
-            text="Settings for your Signature",
+            text="Email Signature Settings",
             bg="#aedadb",
-            font=("helvetica", 8, "normal"),
+            font=("helvetica", 12, "normal"),
         )
         signature_lf.pack(
             fill=X,
@@ -949,16 +971,7 @@ class Submission:
             ipady=8,
             pady=(2, 1),
         )
-
-        future_settings_frame = Frame(
-            content_boder,
-            bg="#5F9EA0",
-        )
-        future_settings_frame.pack(
-            fill=BOTH,
-            expand=True,
-            side="top",
-        )
+        ### BUTTONS FRAME ###
         buttons_frame = Frame(
             content_boder,
             bg="#5F9EA0",
@@ -982,29 +995,174 @@ class Submission:
             text="Revert Back",
             bg="#ff0032",
             font=("helvetica", 12, "normal"),
-            command=presenter.btn_revert_settings,
+            command=presenter.btn_revert_email_settings,
         ).pack(
             fill=BOTH,
             expand=True,
             side="left",
             padx=10,
-            pady=10,
+            pady=5,
         )
         Button(
             master=buttons_frame,
             text="Save Settings",
             bg="#22c26a",
             font=("helvetica", 12, "normal"),
-            command=presenter.btn_save_settings,
+            command=presenter.btn_save_email_settings,
         ).pack(
             fill=BOTH,
             expand=True,
             side="left",
             padx=10,
-            pady=10,
+            pady=5,
         )
         right_btn_spacer = Frame(
             buttons_frame,
+            bg="#5F9EA0",
+        )
+        right_btn_spacer.pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+        )
+        ### Start Watch Dir Settings ###
+        ### START TITLE ###
+        content_frame = Frame(
+            self.folder_settings,
+            padx=20,
+            pady=20,
+            bg="#5F9EA0",
+        )
+        content_frame.pack(
+            fill=BOTH,
+            expand=True,
+        )
+        title_frame = Frame(
+            content_frame,
+            bg="#5F9EA0",
+            height=10,
+        )
+        title_frame.pack(
+            fill=X,
+            expand=False,
+            side="top",
+        )
+        Label(
+            title_frame,
+            text="Folder Settings Page",
+            bg="#aedadb",
+            font=("helvetica", 20, "normal"),
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            padx=200,
+        )
+        # END OF TITLE
+        # START CONTENT
+        folder_settings_frame = Frame(
+            content_frame,
+            bg="#5F9EA0",
+        )
+        folder_settings_frame.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
+        )
+        watch_dir_lf = LabelFrame(
+            folder_settings_frame,
+            text="Watch Folder Options",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        )
+        watch_dir_lf.pack(
+            fill=X,
+            expand=False,
+            pady=10,
+            side="top",
+        )
+        top_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
+        top_dir_frame.pack(
+            fill=X,
+            expand=False,
+            side="top",
+        )
+        bottom_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
+        bottom_dir_frame.pack(
+            fill=X,
+            expand=False,
+            side="top",
+        )
+        Label(top_dir_frame,text="Current Watch Folder: ",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(
+            fill=X,
+            expand=False,
+            side="left",
+        )
+        self.watch_dir_entry = Entry(top_dir_frame, textvariable=self._watch_dir,)
+        self.watch_dir_entry.pack(fill=X, expand=True, side="left", padx=5, ipady=3, pady=6)
+        Label(bottom_dir_frame,text="Choose a new watch folder -->",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        ).pack(
+            fill=X,
+            expand=False,
+            side="left",
+        )
+        watch_dir_btn = Button(
+            bottom_dir_frame,
+            command=self._browse_watch_dir,
+            text="Browse",
+        )
+        watch_dir_btn.pack(fill=X, expand=False, side="left", padx=5, ipady=3, ipadx=10)
+        ### BUTTONS FRAME ###
+        buttons_box = Frame(
+            content_frame,
+            bg="#5F9EA0",
+        )
+        buttons_box.pack(
+            fill=BOTH,
+            expand=True,
+            side="top",
+        )
+        left_btn_spacer = Frame(
+            buttons_box,
+            bg="#5F9EA0",
+        )
+        left_btn_spacer.pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+        )
+        Button(
+            master=buttons_box,
+            text="Revert Back",
+            bg="#ff0032",
+            font=("helvetica", 12, "normal"),
+            command=presenter.btn_revert_folder_settings,
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+            padx=10,
+            pady=5,
+        )
+        Button(
+            master=buttons_box,
+            text="Save Settings",
+            bg="#22c26a",
+            font=("helvetica", 12, "normal"),
+            command=presenter.btn_save_folder_settings,
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+            padx=10,
+            pady=5,
+        )
+        right_btn_spacer = Frame(
+            buttons_box,
             bg="#5F9EA0",
         )
         right_btn_spacer.pack(
@@ -1079,6 +1237,13 @@ class Submission:
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
         # del self.sig_image_file
+
+    def _browse_watch_dir(self):
+        try:
+            dir_name = filedialog.askdirectory()
+            self.watch_dir = dir_name
+        except AttributeError as e:
+            print(f"caught {e}. Continuing on.")
 
     def set_start_tab(self) -> None:
         self.root.tabControl.select(2)

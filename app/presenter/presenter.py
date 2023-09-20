@@ -256,6 +256,10 @@ class Submission(Protocol):
     def sig_image_file(self) -> str:
         ...
 
+    @ property
+    def watch_dir(self) -> str:
+        ...
+
     # extra_notes: str
     # selected_template:str
     # userinput_CC1: str
@@ -405,7 +409,7 @@ class Presenter:
         return True
 
     def start_program(self):
-        print("Starting watch on specified folder.")
+        print(f"Watching for any new PDF files in: {str(self.dir_watch.path)}.")
         self.dir_watch.begin_watch()
 
     def _process_document(self, file: Path):
@@ -527,6 +531,8 @@ class Presenter:
 
     def set_initial_placeholders(self, quote_path: str = None) -> None:
         """Sets initial texts for the main/home tab, if applicable"""
+        new_value = self.config_worker.get_value({"section_name": "Folder settings", "key": "watch_dir"})
+        self.submission.watch_dir = new_value
         personal_settings_keys: list[str] = [
             "username",
             "use_default_cc_addresses",
@@ -541,6 +547,7 @@ class Presenter:
         self._set_customize_tab_placeholders(
             self.config_worker.get_section("Initial placeholders")
         )
+
         if quote_path:
             self.process_quoteform_path(quote_path=quote_path)
         else:
@@ -949,8 +956,8 @@ class Presenter:
     ############# END --Customize Tab-- END #############
 
     ############# Establish Settings Tab #############
-
-    def _set_settings_tab_placeholders(self, section_obj) -> bool:
+    ### Email Settings Tab ###
+    def _set_email_settings_placeholders(self, section_obj) -> bool:
         """Sets the placeholders for the settings tab"""
         self.submission.default_cc1 = section_obj.get("default_cc1").value
         self.submission.default_cc2 = section_obj.get("default_cc2").value
@@ -958,11 +965,12 @@ class Presenter:
         self.submission.sig_image_file = section_obj.get("signature_image").value
         return True
 
-    def btn_revert_settings(self) -> None:
+    def btn_revert_email_settings(self) -> None:
         section = self.config_worker.get_section("General settings")
-        self._set_settings_tab_placeholders(section)
+        self._set_email_settings_placeholders(section)
 
-    def btn_save_settings(self) -> None:
+
+    def btn_save_email_settings(self) -> None:
         """Calls a private getter method & saves output as a dict,
         along with the section_name as it appears in config file
 
@@ -972,10 +980,10 @@ class Presenter:
             Dict -- returns a dict of all userinput from settings_tab
         """
         print("saving settings")
-        settings_dict = self._get_settings_values()
+        settings_dict = self._get_email_settings_values()
         self.config_worker.handle_save_contents("General settings", settings_dict)
 
-    def _get_settings_values(self) -> dict[str, str]:
+    def _get_email_settings_values(self) -> dict[str, str]:
         """Gets all userinput from the settings_tab.
 
         Returns:
@@ -990,6 +998,44 @@ class Presenter:
             "signature_image": self.submission.sig_image_file,
         }
         return settings_dict
+    ### End of Email Settings Tab ###
+    ### Folder Settings Tab ###
+    def _set_folder_settings_placeholders(self, section_obj) -> bool:
+        """Sets the placeholders for the settings tab"""
+        self.submission.watch_dir = section_obj.get("watch_dir").value
+        # self.submission.default_cc2 = section_obj.get("default_cc2").value
+        return True
+
+    def btn_revert_folder_settings(self) -> None:
+        section = self.config_worker.get_section("Folder settings")
+        self._set_folder_settings_placeholders(section)
+
+    def btn_save_folder_settings(self) -> None:
+        """Calls a private getter method & saves output as a dict,
+        along with the section_name as it appears in config file
+
+        Returns:
+                Str -- returns a string of the section_name as it
+                   appears in the config file.
+            Dict -- returns a dict of all userinput from settings_tab
+        """
+        print("saving settings")
+        settings_dict = self._get_folder_settings_values()
+        self.config_worker.handle_save_contents("Folder settings", settings_dict)
+
+    def _get_folder_settings_values(self) -> dict[str, str]:
+        """Gets all userinput from the settings_tab.
+
+        Returns:
+                Dict -- returns a dict of key-names as they
+                        appear in the config along with their
+                    userinput values
+        """
+        settings_dict: dict[str, str] = {
+            "watch_dir": self.submission.watch_dir,
+        }
+        return settings_dict
+    ### End of Folder Settings Tab ###
 
     ############# END --Settings Tab-- END #############
 
