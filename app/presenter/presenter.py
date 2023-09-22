@@ -270,7 +270,8 @@ class Presenter:
         self.current_submission = None
         self.only_view_msg: bool = None
         self.run_flag: bool = False
-        self.run_settings_flag: bool = False
+        self.run_email_settings_flag: bool = False
+        self.run_folder_settings_flag: bool = False
 
     def setup_api(self, browser_driver: str) -> bool:
         graph_values = self.config_worker.get_section("graph_api")

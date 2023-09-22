@@ -112,9 +112,12 @@ def main():
         if presenter.run_flag:
             presenter.start_submission_program()
             presenter.run_flag = False
-        elif presenter.run_settings_flag:
+        elif presenter.run_email_settings_flag:
             presenter.start_submission_program(settings_tab=True)
-            presenter.run_settings_flag = False
+            presenter.run_email_settings_flag = False
+        elif presenter.run_folder_settings_flag:
+            presenter.start_submission_program(settings_tab=True)
+            presenter.run_folder_settings_flag = False
         else:
             pass
         time.sleep(2)
