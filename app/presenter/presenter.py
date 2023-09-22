@@ -146,142 +146,31 @@ class MSGraphClient(Protocol):
 
 
 class Submission(Protocol):
-    @property
-    def extra_notes(self) -> str:
-        ...
-
-    @property
-    def use_default_cc_addresses(self) -> bool:
-        ...
-
-    @property
-    def sw(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def pt(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def nh(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def am(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def km(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def cp(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def yi(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def ce(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def In(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def tv(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def quoteform(self) -> str:
-        ...
-
-    @property
-    def extra_attachments(self) -> str:
-        ...
-
-    @property
-    def selected_template(self) -> str:
-        ...
-
-    @property
-    def address(
-        self,
-        address: str,
-    ) -> str:
-        ...
-
-    @property
-    def greeting(
-        self,
-        greeting: str,
-    ) -> str:
-        ...
-
-    @property
-    def body(
-        self,
-        body: str,
-    ) -> str:
-        ...
-
-    @property
-    def salutation(
-        self,
-        salutation: str,
-    ) -> str:
-        ...
-
-    @property
-    def default_cc1(
-        self,
-        default_cc1: str,
-    ) -> str:
-        ...
-
-    @property
-    def default_cc2(
-        self,
-        default_cc2: str,
-    ) -> str:
-        ...
-
-    @property
-    def username(self) -> str:
-        ...
-
-    @property
-    def sig_image_file(self) -> str:
-        ...
-
-    @ property
-    def watch_dir(self) -> str:
-        ...
-
-    # extra_notes: str
-    # selected_template:str
-    # userinput_CC1: str
-    # userinput_CC2: str
-    # use_CC_defaults: bool
-    # sw: str
-    # pt: str
-    # nh: str
-    # am: str
-    # km: str
-    # cp: str
-    # yi: str
-    # ce: str
-    # In: str
-    # tv: str
-    # address: str
-    # greeting: str
-    # body: str
-    # salutation: str
-    # default_cc1: str
-    # default_cc2: str
-    # username: str
+    extra_notes: str
+    use_default_cc_addresses: bool
+    sw: str | int | bool | list
+    pt: str | int | bool | list
+    nh: str | int | bool | list
+    am: str | int | bool | list
+    km: str | int | bool | list
+    cp: str | int | bool | list
+    yi: str | int | bool | list
+    ce: str | int | bool | list
+    In: str | int | bool | list
+    tv: str | int | bool | list
+    quoteform: str
+    extra_attachments: str
+    selected_template: str
+    address: str
+    greeting: str
+    body: str
+    salutation: str
+    default_cc1: str
+    default_cc2: str
+    username: str
+    sig_image_file:str
+    watch_dir: str
+    custom_dir: str
 
     def reset_attributes(
         self,
@@ -1011,32 +900,24 @@ class Presenter:
         self._set_folder_settings_placeholders(section)
 
     def btn_save_folder_settings(self) -> None:
-        """Calls a private getter method & saves output as a dict,
-        along with the section_name as it appears in config file
-
-        Returns:
-                Str -- returns a string of the section_name as it
-                   appears in the config file.
-            Dict -- returns a dict of all userinput from settings_tab
-        """
         print("saving settings")
         settings_dict = self._get_folder_settings_values()
         self.config_worker.handle_save_contents("Folder settings", settings_dict)
 
     def _get_folder_settings_values(self) -> dict[str, str]:
-        """Gets all userinput from the settings_tab.
-
-        Returns:
-                Dict -- returns a dict of key-names as they
-                        appear in the config along with their
-                    userinput values
-        """
         settings_dict: dict[str, str] = {
             "watch_dir": self.submission.watch_dir,
         }
         return settings_dict
+    ### End of Watch Dir Settings ###
+    ### Begin Custom Dir Creation Settings ###
+    def add_custom_dir_path(self, path: str) -> None:
+        print("processing additional attachments")
+        path = self.base_model.filter_out_brackets(path)
+        # We may want to remove the ".name" attr below and just show the full path--depends on tree view's presentation...
+        self.submission.custom_dir = Path(path).name
+        
+    ### End of Custom Dir Creation Settings ###
     ### End of Folder Settings Tab ###
-
-    ############# END --Settings Tab-- END #############
-
+    ############# END --Settings Tabs-- END #############
     ############# END --Submissions Program-- END #############

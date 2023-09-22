@@ -3,7 +3,7 @@ from typing import Protocol
 from dataclasses import dataclass
 import tkinter as tk
 from tkinter import ttk, filedialog
-from tkinter.ttk import Notebook, Style
+from tkinter.ttk import Notebook, Style, Treeview
 from tkinter import *
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
@@ -100,6 +100,7 @@ class Submission:
         self._default_cc1 = StringVar(name="default_cc1", value="")
         self._default_cc2 = StringVar(name="default_cc2", value="")
         self._watch_dir = StringVar(name="watch_dir", value="")
+        self._custom_dir = StringVar(name="custom_dir", value="")
 
     # main_tab: getters/setters
     @property
@@ -304,6 +305,19 @@ class Submission:
     @watch_dir.deleter
     def watch_dir(self):
         self._watch_dir.set("")
+
+    @property
+    def custom_dir(self) -> str:
+        return self._custom_dir.get()
+    
+    @custom_dir.setter
+    def custom_dir(self, new_custom_dir: str):
+        self._custom_dir.set(new_custom_dir)
+    
+    @custom_dir.deleter
+    def custom_dir(self):
+        self._custom_dir.set("")
+    ### END of Getters/Setters ###
 
     def create_UI_obj(self, presenter: Presenter):
         """This creates the GUI root,  along with the main
@@ -1102,20 +1116,47 @@ class Submission:
         )
         self.watch_dir_entry = Entry(top_dir_frame, textvariable=self._watch_dir,)
         self.watch_dir_entry.pack(fill=X, expand=True, side="left", padx=5, ipady=3, pady=6)
-        Label(bottom_dir_frame,text="Choose a new watch folder -->",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(
-            fill=X,
-            expand=False,
-            side="left",
-        )
         watch_dir_btn = Button(
             bottom_dir_frame,
             command=self._browse_watch_dir,
-            text="Browse",
+            text="Browse and select a folder to change the Watch Folder",
         )
-        watch_dir_btn.pack(fill=X, expand=False, side="left", padx=5, ipady=3, ipadx=10)
+        watch_dir_btn.pack(fill=X, expand=False, side="right", padx=5, ipady=3, ipadx=10)
+        custom_dir_lf = LabelFrame(
+            folder_settings_frame,
+            text="Create additional folders when a client folder is created",
+            bg="#aedadb",
+            font=("helvetica", 12, "normal"),
+        )
+        custom_dir_lf.pack(
+            fill=X,
+            expand=False,
+            pady=10,
+            side="top",
+        )
+        top_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
+        top_custom_dir_frame.pack(
+            fill=X,
+            expand=False,
+            side="top",
+        )
+        bottom_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
+        bottom_custom_dir_frame.pack(
+            fill=X,
+            expand=False,
+            side="top",
+        )
+        self.custom_dir_entry = Entry(top_custom_dir_frame, textvariable=self._custom_dir,)
+        self.custom_dir_entry.pack(fill=X, expand=True, side="left", padx=5, ipady=3, pady=6)
+        custom_dir_btn = Button(
+            top_custom_dir_frame,
+            command=self._add_custom_dir,
+            text="Add folder",
+            font=("helvetica", 10, "normal"),
+        )
+        custom_dir_btn.pack(fill=X, expand=False, side="left", padx=5, ipady=3, ipadx=10)
+        tree = Treeview(bottom_custom_dir_frame, columns=0,)
+        tree.pack(fill=BOTH, expand=True, side="top")
         ### BUTTONS FRAME ###
         buttons_box = Frame(
             content_frame,
@@ -1242,6 +1283,13 @@ class Submission:
         try:
             dir_name = filedialog.askdirectory()
             self.watch_dir = dir_name
+        except AttributeError as e:
+            print(f"caught {e}. Continuing on.")
+
+    def _add_custom_dir(self):
+        try:
+            dir_name = self.custom_dir
+            self.custom_dir = dir_name
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
 
