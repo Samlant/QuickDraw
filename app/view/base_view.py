@@ -30,13 +30,13 @@ class Presenter(Protocol):
 
     def btn_save_email_settings(self) -> None:
         ...
-    
+
     def btn_save_folder_settings(self) -> None:
         ...
 
     def btn_revert_email_settings(self, event) -> None:
         ...
-    
+
     def btn_revert_folder_settings(self, event) -> None:
         ...
 
@@ -293,15 +293,16 @@ class Submission:
     @sig_image_file.deleter
     def sig_image_file(self):
         self.sig_image_path_box.delete("1.0", END)
+
     # Folder Settings Tab: getters/setters
     @property
     def watch_dir(self) -> str:
         return self._watch_dir.get()
-    
+
     @watch_dir.setter
     def watch_dir(self, new_watch_dir: str):
         self._watch_dir.set(new_watch_dir)
-    
+
     @watch_dir.deleter
     def watch_dir(self):
         self._watch_dir.set("")
@@ -309,14 +310,15 @@ class Submission:
     @property
     def custom_dir(self) -> str:
         return self._custom_dir.get()
-    
+
     @custom_dir.setter
     def custom_dir(self, new_custom_dir: str):
         self._custom_dir.set(new_custom_dir)
-    
+
     @custom_dir.deleter
     def custom_dir(self):
         self._custom_dir.set("")
+
     ### END of Getters/Setters ###
 
     def create_UI_obj(self, presenter: Presenter):
@@ -1106,7 +1108,9 @@ class Submission:
             expand=False,
             side="top",
         )
-        Label(top_dir_frame,text="Current Watch Folder: ",
+        Label(
+            top_dir_frame,
+            text="Current Watch Folder: ",
             bg="#aedadb",
             font=("helvetica", 12, "normal"),
         ).pack(
@@ -1114,14 +1118,21 @@ class Submission:
             expand=False,
             side="left",
         )
-        self.watch_dir_entry = Entry(top_dir_frame, textvariable=self._watch_dir,)
-        self.watch_dir_entry.pack(fill=X, expand=True, side="left", padx=5, ipady=3, pady=6)
+        self.watch_dir_entry = Entry(
+            top_dir_frame,
+            textvariable=self._watch_dir,
+        )
+        self.watch_dir_entry.pack(
+            fill=X, expand=True, side="left", padx=5, ipady=3, pady=6
+        )
         watch_dir_btn = Button(
             bottom_dir_frame,
             command=self._browse_watch_dir,
             text="Browse and select a folder to change the Watch Folder",
         )
-        watch_dir_btn.pack(fill=X, expand=False, side="right", padx=5, ipady=3, ipadx=10)
+        watch_dir_btn.pack(
+            fill=X, expand=False, side="right", padx=5, ipady=3, ipadx=10
+        )
         custom_dir_lf = LabelFrame(
             folder_settings_frame,
             text="Create additional folders when a client folder is created",
@@ -1146,17 +1157,47 @@ class Submission:
             expand=False,
             side="top",
         )
-        self.custom_dir_entry = Entry(top_custom_dir_frame, textvariable=self._custom_dir,)
-        self.custom_dir_entry.pack(fill=X, expand=True, side="left", padx=5, ipady=3, pady=6)
+        custom_rm_dir_btn = Button(
+            top_custom_dir_frame,
+            command=self._rm_custom_dir,
+            text="Remove selected folder",
+            font=("helvetica", 10, "normal"),
+        )
+        custom_rm_dir_btn.pack(
+            fill="none", expand=False, side="left", padx=5, ipady=3, ipadx=10
+        )
+        self.custom_dir_entry = Entry(
+            top_custom_dir_frame,
+            textvariable=self._custom_dir,
+        )
+        self.custom_dir_entry.pack(
+            fill=X, expand=True, side="left", padx=5, ipady=3, pady=6
+        )
         custom_dir_btn = Button(
             top_custom_dir_frame,
             command=self._add_custom_dir,
             text="Add folder",
             font=("helvetica", 10, "normal"),
         )
-        custom_dir_btn.pack(fill=X, expand=False, side="left", padx=5, ipady=3, ipadx=10)
-        tree = Treeview(bottom_custom_dir_frame, columns=0,)
-        tree.pack(fill=BOTH, expand=True, side="top")
+        custom_dir_btn.pack(
+            fill=X, expand=False, side="left", padx=5, ipady=3, ipadx=10
+        )
+        ### TREEVIEW SECTION ###
+
+        self.tree = Treeview(
+            bottom_custom_dir_frame,
+            columns=1,
+        )
+        self.tree.column(
+            "#0",
+            width=20,
+            minwidth=15,
+        )
+        self.tree.heading("#0", text="Structure / Hierarchy", anchor="w")
+        self.tree.heading("#1", text="Folder Name", anchor="w")
+        self.tree.pack(fill="both", expand=True, side="top")
+
+        ### END OF TREEVIEW SECTION ###
         ### BUTTONS FRAME ###
         buttons_box = Frame(
             content_frame,
@@ -1287,11 +1328,58 @@ class Submission:
             print(f"caught {e}. Continuing on.")
 
     def _add_custom_dir(self):
-        try:
-            dir_name = self.custom_dir
-            self.custom_dir = dir_name
-        except AttributeError as e:
-            print(f"caught {e}. Continuing on.")
+        dir_name: str = self.custom_dir
+        if "/" in dir_name:
+            # split "/" up into a list of strings
+            entry_list = dir_name.split("/")
+            # find the top-most parent's row id by name & label == "Top Level"
+            parent_id = self.__find_row_id_by_name(entry_list[0])
+            # check for any other slashes / parents
+            if len(entry_list) == 3:
+                # find the next parent's row id by name & label != "Top Level"
+                sub_parent_id = self.__find_row_id_by_name(entry_list[1])
+                # create row under sub_parent row:
+                self.tree.insert(
+                    parent=sub_parent_id,
+                    index="end",
+                    text=entry_list[1],
+                    values=entry_list[2],
+                )
+            else:
+                # create row under parent row:
+                self.tree.insert(
+                    parent=parent_id,
+                    index="end",
+                    text=entry_list[0],
+                    values=[entry_list[1]],
+                )
+        else:
+            # add entry as a row:
+            # assign "Top Level" as label,
+            # "name" as folder name, and
+            # a unique row id
+            self.tree.insert(
+                parent="",
+                index="end",
+                text="Top Level",
+                values=[dir_name],
+            )
+        del self.custom_dir
 
-    def set_start_tab(self) -> None:
-        self.root.tabControl.select(2)
+    def _rm_custom_dir(self):
+        current_item = self.tree.selection()
+        self.tree.delete(current_item)
+
+    def __find_row_id_by_name(self, name: str):
+        for parent in self.tree.get_children():
+            if name in self.tree.item(parent)["values"]:
+                return parent
+            for child in self.tree.get_children(parent):
+                if name in self.tree.item(child)["values"]:
+                    return child
+
+    def set_start_tab(self, specific_tab: str) -> None:
+        if specific_tab == "email":
+            self.root.tabControl.select(2)
+        if specific_tab == "folder":
+            self.root.tabControl.select(3)

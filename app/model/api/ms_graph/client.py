@@ -8,7 +8,6 @@ import pathlib
 import msal
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
-from selenium.webdriver.edge.service import Service
 
 from model.api.ms_graph.users import Users
 from model.api.ms_graph.drives import Drives
@@ -252,11 +251,10 @@ class MicrosoftGraphClient:
         # More than likely a first time login, so can"t do silent authenticaiton.
         return False
 
-    def login_browser(self, uri: str, browser_driver):
+    def login_browser(self, uri: str):
         options = Options()
         options.page_load_strategy = "normal"
-        service = Service(executable_path=browser_driver)
-        driver = webdriver.Edge(options=options, service=service)
+        driver = webdriver.Edge(options=options)
         driver.set_window_rect(
             width=575,
             height=556,
@@ -270,7 +268,7 @@ class MicrosoftGraphClient:
         driver.quit()
         return url
 
-    def login(self, browser_driver) -> bool:
+    def login(self) -> bool:
         """Logs the user into the session."""
 
         # Load the State.
@@ -286,9 +284,7 @@ class MicrosoftGraphClient:
         else:
             # Build the URL.
             url = self.authorization_url()
-            self._redirect_code = self.login_browser(
-                uri=url, browser_driver=browser_driver
-            )
+            self._redirect_code = self.login_browser(uri=url)
             # aks the user to go to the URL provided, they will be prompted
             # to authenticate themsevles.
             # print(f"Please go to URL provided authorize your account: {url}")
@@ -308,7 +304,6 @@ class MicrosoftGraphClient:
                 try:
                     self._redirect_code = self.login_browser(
                         uri=url,
-                        browser_driver=browser_driver,
                     )
                     if self.grab_access_token():
                         return True

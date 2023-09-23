@@ -4,11 +4,7 @@ import PyInstaller.config
 PyInstaller.config.CONF['distpath'] = "../../pkging/dist"
 
 block_cipher = None
-
-
-a = Analysis(
-    ['app.py'],
-    pathex=[
+python_module_dirs = [
         '..\\..\\..\\..\\virtualenvs\\QuickDraw\\Lib\\site-packages', 
         '.\\model',
         '.\\model\\api',
@@ -21,14 +17,17 @@ a = Analysis(
         '.\\presenter',
         '.\\view',
         '.',
-    ],
+    ]
+
+a = Analysis(
+    ['app.py'],
+    pathex=python_module_dirs,
     binaries=[],
     datas=[
         ('.\\resources\\img\\app.ico', '.\\resources\\img'),
         ('.\\resources\\img\\sys_tray.ico', '.\\resources\\img'),
-        ('.\\resources\\msedgedriver.exe', '.\\resources'),
         ],
-    hiddenimports=["pkg_resources.py2_warn"],
+    hiddenimports=[],
     hookspath=['.'],
     hooksconfig={},
     runtime_hooks=[],

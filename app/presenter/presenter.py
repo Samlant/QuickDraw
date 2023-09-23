@@ -3,6 +3,8 @@ from pathlib import Path
 import ctypes
 from typing import Protocol
 import threading
+from tkinter import TclError
+
 
 class API(Protocol):
     def create_excel_json(self, data) -> dict[str, any]:
@@ -168,7 +170,7 @@ class Submission(Protocol):
     default_cc1: str
     default_cc2: str
     username: str
-    sig_image_file:str
+    sig_image_file: str
     watch_dir: str
     custom_dir: str
 
@@ -273,11 +275,9 @@ class Presenter:
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
 
-    def setup_api(self, browser_driver: str) -> bool:
+    def setup_api(self) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
-        if not self.api_client.setup_api(
-            connection_data=graph_values, browser_driver=browser_driver
-        ):
+        if not self.api_client.setup_api(connection_data=graph_values):
             return False
         if self.config_worker.has_value("graph_api", "user_id"):
             str_count = len(
@@ -307,11 +307,21 @@ class Presenter:
         try:
             values_dict = self.pdf.process_doc(file)
         except:
-            ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+            ctypes.windll.user32.MessageBoxW(
+                0,
+                "Please exit out of the PDF file so that the program can delete the original file.",
+                "Warning: Exit the PDF",
+                1,
+            )
             try:
                 values_dict = self.pdf.process_doc(file)
             except:
-                ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+                ctypes.windll.user32.MessageBoxW(
+                    0,
+                    "Please exit out of the PDF file so that the program can delete the original file.",
+                    "Warning: Exit the PDF",
+                    1,
+                )
                 values_dict = self.pdf.process_doc(file)
         self.current_submission = ClientInfo(
             fname=values_dict["fname"],
@@ -375,13 +385,17 @@ class Presenter:
             self.start_allocate_dialog()
             try:
                 thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
                 thread_xl.start()
             except:
                 thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
                 thread_xl.start()
         elif choice == "track_submit":
             self.start_submission_program(quote_path=new_qf_path)
@@ -390,15 +404,16 @@ class Presenter:
             try:
                 thread_xl = threading.Thread(
                     daemon=True, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                )
                 thread_xl.start()
             except:
                 thread_xl = threading.Thread(
                     daemon=True, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                )
                 thread_xl.start()
+
     ############# Start Submissions Program #############
-    def start_submission_program(self, settings_tab: bool = False, quote_path: str = None) -> None:  # type: ignore
+    def start_submission_program(self, specific_tab: str | None = None, quote_path: str = None) -> None:  # type: ignore
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
         This also sets the default mail application.
@@ -409,9 +424,13 @@ class Presenter:
             self.set_initial_placeholders(quote_path)
         else:
             self.set_initial_placeholders()
-        if settings_tab:
-            self.submission.set_start_tab()
+        if specific_tab:
+            self.submission.set_start_tab(specific_tab)
         self.submission.root.mainloop()
+        try:
+            self.submission.root.lift()
+        except TclError:
+            pass
 
     def set_dropdown_options(self) -> list:
         "Submission (View) calls this value upon creation."
@@ -421,7 +440,9 @@ class Presenter:
 
     def set_initial_placeholders(self, quote_path: str = None) -> None:
         """Sets initial texts for the main/home tab, if applicable"""
-        new_value = self.config_worker.get_value({"section_name": "Folder settings", "key": "watch_dir"})
+        new_value = self.config_worker.get_value(
+            {"section_name": "Folder settings", "key": "watch_dir"}
+        )
         self.submission.watch_dir = new_value
         personal_settings_keys: list[str] = [
             "username",
@@ -443,8 +464,9 @@ class Presenter:
         else:
             pass
 
-
-    def process_quoteform_path(self, drag_n_drop_event = None, quote_path: str = None) -> None:  # GOOD
+    def process_quoteform_path(
+        self, drag_n_drop_event=None, quote_path: str = None
+    ) -> None:  # GOOD
         """Sends the raw path to model for proccessing & saving.
 
         Arguments:
@@ -506,7 +528,9 @@ class Presenter:
         del self.submission.extra_attachments
 
     def btn_view_template(self) -> None:
-        print("Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again.")
+        print(
+            "Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again."
+        )
         self.only_view_msg = True
         raise NotImplementedError
 
@@ -661,23 +685,23 @@ class Presenter:
             print("sending email message")
         try:
             thread_ol = threading.Thread(
-                    daemon=False, target=self.send_email_api, name="Outlook API Call"
-                    )
+                daemon=False, target=self.send_email_api, name="Outlook API Call"
+            )
             thread_ol.start()
         except:
             thread_ol = threading.Thread(
-                    daemon=False, target=self.send_email_api, name="Outlook API Call"
-                    )
+                daemon=False, target=self.send_email_api, name="Outlook API Call"
+            )
             thread_ol.start()
         try:
             thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+            )
             thread_xl.start()
         except:
             thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+            )
             thread_xl.start()
 
     def send_email_api(self):
@@ -859,7 +883,6 @@ class Presenter:
         section = self.config_worker.get_section("General settings")
         self._set_email_settings_placeholders(section)
 
-
     def btn_save_email_settings(self) -> None:
         """Calls a private getter method & saves output as a dict,
         along with the section_name as it appears in config file
@@ -888,6 +911,7 @@ class Presenter:
             "signature_image": self.submission.sig_image_file,
         }
         return settings_dict
+
     ### End of Email Settings Tab ###
     ### Folder Settings Tab ###
     def _set_folder_settings_placeholders(self, section_obj) -> bool:
@@ -910,6 +934,7 @@ class Presenter:
             "watch_dir": self.submission.watch_dir,
         }
         return settings_dict
+
     ### End of Watch Dir Settings ###
     ### Begin Custom Dir Creation Settings ###
     def add_custom_dir_path(self, path: str) -> None:
@@ -917,7 +942,7 @@ class Presenter:
         path = self.base_model.filter_out_brackets(path)
         # We may want to remove the ".name" attr below and just show the full path--depends on tree view's presentation...
         self.submission.custom_dir = Path(path).name
-        
+
     ### End of Custom Dir Creation Settings ###
     ### End of Folder Settings Tab ###
     ############# END --Settings Tabs-- END #############

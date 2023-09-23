@@ -97,7 +97,7 @@ def initialize_modules() -> Presenter:
 def main():
     # user_data = assign_per_user_settings()
     presenter = initialize_modules()
-    if not presenter.setup_api(browser_driver=str(PATHS.browser_driver)):
+    if not presenter.setup_api():
         sys.exit()
     presenter.dir_watch.assign_presenter(presenter)
     tray_icon = TrayIcon(PATHS.readme)
@@ -113,10 +113,10 @@ def main():
             presenter.start_submission_program()
             presenter.run_flag = False
         elif presenter.run_email_settings_flag:
-            presenter.start_submission_program(settings_tab=True)
+            presenter.start_submission_program(specific_tab="email")
             presenter.run_email_settings_flag = False
         elif presenter.run_folder_settings_flag:
-            presenter.start_submission_program(settings_tab=True)
+            presenter.start_submission_program(specific_tab="folder")
             presenter.run_folder_settings_flag = False
         else:
             pass

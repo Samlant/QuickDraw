@@ -5,17 +5,20 @@ from string import capwords
 
 @dataclass
 class Dirs:
-    watch_path: Path = (
-        Path.home() / "OneDrive - Novamar Insurance" / "Desktop"
-    )
-    new_biz_path: Path = (Path.home()
-                          / "Novamar Insurance"
-                          / "Flordia Office Master - Documents"
-                          / "QUOTES New")
-    renewal_path: Path = (Path.home()
-                          / "Novamar Insurance"
-                          / "Flordia Office Master - Documents"
-                          / "QUOTES Renewal")
+    # watch_path: Path = (
+    #     Path.home() / "OneDrive - Novamar Insurance" / "Desktop"
+    # )
+    # new_biz_path: Path = (Path.home()
+    #                       / "Novamar Insurance"
+    #                       / "Flordia Office Master - Documents"
+    #                       / "QUOTES New")
+    # renewal_path: Path = (Path.home()
+    #                       / "Novamar Insurance"
+    #                       / "Flordia Office Master - Documents"
+    #                       / "QUOTES Renewal")
+    watch_path: Path = Path.home()
+    new_biz_path = watch_path
+    renewal_path = watch_path
 
     def make_other_dirs(self, client_dir: Path):
         # dirs: list[Path] = []
