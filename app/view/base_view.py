@@ -1328,7 +1328,7 @@ class Submission:
             print(f"caught {e}. Continuing on.")
 
     def _add_custom_dir(self):
-        dir_name: str = self.custom_dir
+        dir_name: str | int = self.custom_dir
         if "/" in dir_name:
             # split "/" up into a list of strings
             entry_list = dir_name.split("/")
@@ -1372,9 +1372,9 @@ class Submission:
 
     def __find_row_id_by_name(self, name: str):
         for parent in self.tree.get_children():
-            if name in self.tree.item(parent)["values"]:
+            if name in str(self.tree.item(parent)["values"]):
                 return parent
-            for child in self.tree.get_children(parent):
+            for child in str(self.tree.get_children(parent)):
                 if name in self.tree.item(child)["values"]:
                     return child
 
