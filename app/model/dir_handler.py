@@ -1,12 +1,9 @@
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-
-from model.dir_handler.charlie import Dirs as CharlieDirs
-from model.dir_handler.dev_dirs import DevDirs
-from model.dir_handler.jerry import Dirs as JerryDirs
-from model.dir_handler.sam import Dirs as SamDirs
+from ast import literal_eval
 import ctypes
+from string import capwords
 
 
 @dataclass
@@ -37,72 +34,10 @@ class Resources:
 
 
 class DirHandler:
-    def __init__(self, test: bool) -> None:
-        self.user: str
-        self.dirs: JerryDirs | SamDirs | CharlieDirs | DevDirs
-        self.test: bool = test
+    def __init__(self) -> None:
+        pass
 
-    def set_user(self, user: str):
-        if self.test:
-            self.dirs: DevDirs = DevDirs()
-        elif user == "sam":
-            self.dirs: SamDirs = SamDirs()
-        elif user == "jerry":
-            self.dirs: JerryDirs = JerryDirs()
-        elif user == "charlie":
-            self.dirs: CharlieDirs = CharlieDirs()
-        elif user == "ericka":
-            raise NotImplementedError
-        elif user == "peter":
-            raise NotImplementedError
-        elif user == "courtney":
-            raise NotImplementedError
-        elif user == "ed":
-            raise NotImplementedError
-        elif user == "craig":
-            raise NotImplementedError
-        elif user == "rob":
-            raise NotImplementedError
-        else:
-            raise ValueError("user value passed to DirHandler is incorrect.")
-
-    def get_watch_dir(self) -> Path:
-        """returns the watch dir for the specific user in a Path obj."""
-        return self.dirs.watch_path
-
-    def _check_if_renewal(self, renewal: str) -> bool:
-        if "RENEWAL" in renewal.upper():
-            return self.dirs.renewal_path
-        else:
-            return self.dirs.new_biz_path
-
-    def _assign_parent_dir(self, referral: bool):
-        if str(referral).upper() == "RENEWAL":
-            return self.dirs.renewal_path
-        else:
-            return self.dirs.new_biz_path
-
-    def return_unused_path(self, client_dir: Path):
-        test_dir_path = client_dir
-        num = 1
-        while test_dir_path.exists():
-            num += 1
-            test_dir_path = test_dir_path.with_stem(f"{client_dir.stem}-{num}")
-        return test_dir_path
-
-    def _create_client_dir(self, referral, fname, lname) -> Path:
-        renewal = self._check_if_renewal(referral)
-        parent_dir = self._assign_parent_dir(renewal)
-        client_dir = self.dirs.assign_dir_name(
-            fname=fname,
-            lname=lname,
-            parent_dir=parent_dir,
-        )
-        result_dir = self.return_unused_path(client_dir)
-        result_dir.mkdir()
-        return result_dir
-
-    def create_dirs(self, submission_info) -> Path:
+    def create_dirs(self, submission_info, folder_section_obj) -> Path:
         """Creates the client folder and moves the .PDF file to it.
         This includes validating and renaming the dir until there's
         no collission with existing dirs.
@@ -114,12 +49,45 @@ class DirHandler:
         lname = submission_info.lname
 
         client_dir = self._create_client_dir(
-            referral=referral,
+            referral=referral, fname=fname, lname=lname, section_obj=folder_section_obj
+        )
+        self.make_other_dirs(client_dir, folder_section_obj)
+        return client_dir
+
+    def _create_client_dir(self, referral, fname, lname, section_obj) -> Path:
+        if self._check_if_renewal(referral):
+            parent_dir = section_obj.get("renewals_dir").value
+        else:
+            parent_dir = Path(section_obj.get("new_biz_dir").value)
+        client_dir = self.assign_dir_name(
             fname=fname,
             lname=lname,
+            parent_dir=parent_dir,
         )
-        self.dirs.make_other_dirs(client_dir)
-        return client_dir
+        result_dir = self.return_new_unique_path(client_dir)
+        result_dir.mkdir()
+        return result_dir
+
+    def _check_if_renewal(self, referral: str) -> bool:
+        if "RENEWAL" in referral.upper():
+            return True
+        else:
+            return False
+
+    def return_new_unique_path(self, client_dir: Path):
+        test_dir_path = client_dir
+        num = 1
+        while test_dir_path.exists():
+            num += 1
+            test_dir_path = test_dir_path.with_stem(f"{client_dir.stem}-{num}")
+        return test_dir_path
+
+    def make_other_dirs(self, client_dir: Path, section_obj):
+        config_dirs = section_obj.get("custom_dirs").value
+        custom_dirs: list[str] = literal_eval(config_dirs)
+        for path in custom_dirs:
+            new_path = client_dir / str(path)
+            new_path.mkdir(exist_ok=True)
 
     def move_file(self, client_dir: Path, origin_file: Path) -> Path:
         """Moves the client quoteform from its origin to dest dir."""
@@ -161,3 +129,12 @@ class DirHandler:
                 1,
             )
             self._delete_original(origin_file=origin_file)
+
+    def assign_dir_name(
+        self,
+        fname: str,
+        lname: str,
+        parent_dir: Path,
+    ) -> Path:
+        dir_name = lname + " " + capwords(fname)
+        return parent_dir / dir_name

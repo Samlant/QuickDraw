@@ -100,6 +100,8 @@ class Submission:
         self._default_cc1 = StringVar(name="default_cc1", value="")
         self._default_cc2 = StringVar(name="default_cc2", value="")
         self._watch_dir = StringVar(name="watch_dir", value="")
+        self._new_biz_dir = StringVar(name="new_biz_dir", value="")
+        self._renewals_dir = StringVar(name="renewals_dir", value="")
         self._custom_dir = StringVar(name="custom_dir", value="")
 
     # main_tab: getters/setters
@@ -308,6 +310,30 @@ class Submission:
         self._watch_dir.set("")
 
     @property
+    def new_biz_dir(self) -> str:
+        return self._new_biz_dir.get()
+
+    @new_biz_dir.setter
+    def new_biz_dir(self, new_new_biz_dir: str):
+        self._new_biz_dir.set(new_new_biz_dir)
+
+    @new_biz_dir.deleter
+    def new_biz_dir(self):
+        self._new_biz_dir.set("")
+
+    @property
+    def renewals_dir(self) -> str:
+        return self._renewals_dir.get()
+
+    @renewals_dir.setter
+    def renewals_dir(self, new_renewals_dir: str):
+        self._renewals_dir.set(new_renewals_dir)
+
+    @renewals_dir.deleter
+    def renewals_dir(self):
+        self._renewals_dir.set("")
+
+    @property
     def custom_dir(self) -> str:
         return self._custom_dir.get()
 
@@ -318,6 +344,9 @@ class Submission:
     @custom_dir.deleter
     def custom_dir(self):
         self._custom_dir.set("")
+
+    # @property
+    # def custom_dir_tree(self):
 
     ### END of Getters/Setters ###
 
@@ -336,7 +365,7 @@ class Submission:
         self.create_settings_tab_widgets(presenter)
 
     def assign_window_traits(self):
-        self.root.geometry("760x548")
+        self.root.geometry("760x600")
         self.root.configure(background="#5F9EA0")
         self.root.attributes("-topmost", True)
         self.root.title("QuickDraw")
@@ -760,8 +789,8 @@ class Submission:
             buttons_frame,
             name="btnResetTemplate",
             text="RESET to last saved",
-            bg="#ff0032",
-            font=("helvetica", 16, "normal"),
+            bg="#ff666c",
+            font=("helvetica", 16, "bold"),
             command=presenter.btn_reset_template,
         ).pack(
             padx=10,
@@ -777,7 +806,7 @@ class Submission:
             name="btnViewTemplate",
             text="View Current Example",
             bg="#00feff",
-            font=("helvetica", 16, "normal"),
+            font=("helvetica", 16, "bold"),
             width=20,
             command=presenter.btn_view_template,
         ).pack(
@@ -794,7 +823,7 @@ class Submission:
             name="btnSaveTemplate",
             text="Save",
             bg="#22c26a",
-            font=("helvetica", 16, "normal"),
+            font=("helvetica", 16, "bold"),
             width=20,
             command=presenter.btn_save_template,
         ).pack(
@@ -1009,8 +1038,8 @@ class Submission:
         Button(
             master=buttons_frame,
             text="Revert Back",
-            bg="#ff0032",
-            font=("helvetica", 12, "normal"),
+            bg="#ff666c",
+            font=("helvetica", 12, "bold"),
             command=presenter.btn_revert_email_settings,
         ).pack(
             fill=BOTH,
@@ -1023,7 +1052,7 @@ class Submission:
             master=buttons_frame,
             text="Save Settings",
             bg="#22c26a",
-            font=("helvetica", 12, "normal"),
+            font=("helvetica", 12, "bold"),
             command=presenter.btn_save_email_settings,
         ).pack(
             fill=BOTH,
@@ -1096,43 +1125,71 @@ class Submission:
             pady=10,
             side="top",
         )
-        top_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
-        top_dir_frame.pack(
-            fill=X,
-            expand=False,
-            side="top",
-        )
-        bottom_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
-        bottom_dir_frame.pack(
-            fill=X,
-            expand=False,
-            side="top",
-        )
+        # top_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
+        # top_dir_frame.pack(
+        #     fill=X,
+        #     expand=False,
+        #     side="top",
+        # )
+        # bottom_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
+        # bottom_dir_frame.pack(
+        #     fill=X,
+        #     expand=False,
+        #     side="top",
+        # )
         Label(
-            top_dir_frame,
-            text="Current Watch Folder: ",
+            watch_dir_lf,
+            text="Current Watch Folder:",
             bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(
-            fill=X,
-            expand=False,
-            side="left",
-        )
+            font=("helvetica", 11, "normal"),
+        ).grid(column=0, row=0, ipady=3, padx=0)
         self.watch_dir_entry = Entry(
-            top_dir_frame,
+            watch_dir_lf,
             textvariable=self._watch_dir,
         )
-        self.watch_dir_entry.pack(
-            fill=X, expand=True, side="left", padx=5, ipady=3, pady=6
-        )
+        self.watch_dir_entry.grid(column=1, row=0, padx=5, pady=6, ipady=3, ipadx=149)
         watch_dir_btn = Button(
-            bottom_dir_frame,
+            watch_dir_lf,
             command=self._browse_watch_dir,
-            text="Browse and select a folder to change the Watch Folder",
+            text="Browse to change",
         )
-        watch_dir_btn.pack(
-            fill=X, expand=False, side="right", padx=5, ipady=3, ipadx=10
+        watch_dir_btn.grid(column=2, row=0, padx=5, pady=6, ipady=3, ipadx=4)
+        Label(
+            watch_dir_lf,
+            text="New Biz Client Folder:",
+            bg="#aedadb",
+            font=("helvetica", 11, "normal"),
+        ).grid(column=0, row=1, ipady=3, padx=0)
+        self.new_biz_dir_entry = Entry(
+            watch_dir_lf,
+            textvariable=self._new_biz_dir,
         )
+        self.new_biz_dir_entry.grid(column=1, row=1, padx=5, pady=0, ipady=3, ipadx=149)
+        new_biz_dir_btn = Button(
+            watch_dir_lf,
+            command=self._browse_new_biz_dir,
+            text="Browse to change",
+        )
+        new_biz_dir_btn.grid(column=2, row=1, padx=5, pady=0, ipady=3, ipadx=4)
+        Label(
+            watch_dir_lf,
+            text="Renewals Client Folder:",
+            bg="#aedadb",
+            font=("helvetica", 11, "normal"),
+        ).grid(column=0, row=2, ipady=3, padx=0)
+        self.renewals_dir_entry = Entry(
+            watch_dir_lf,
+            textvariable=self._renewals_dir,
+        )
+        self.renewals_dir_entry.grid(
+            column=1, row=2, padx=5, pady=6, ipady=3, ipadx=149
+        )
+        renewals_dir_btn = Button(
+            watch_dir_lf,
+            command=self._browse_renewals_dir,
+            text="Browse to change",
+        )
+        renewals_dir_btn.grid(column=2, row=2, padx=5, pady=6, ipady=3, ipadx=4)
         custom_dir_lf = LabelFrame(
             folder_settings_frame,
             text="Create additional folders when a client folder is created",
@@ -1157,14 +1214,15 @@ class Submission:
             expand=False,
             side="top",
         )
-        custom_rm_dir_btn = Button(
+        Label(
             top_custom_dir_frame,
-            command=self._rm_custom_dir,
-            text="Remove selected folder",
+            text='Input the name (or path using " / ") of the folder:',
+            bg="#aedadb",
             font=("helvetica", 10, "normal"),
-        )
-        custom_rm_dir_btn.pack(
-            fill="none", expand=False, side="left", padx=5, ipady=3, ipadx=10
+        ).pack(
+            fill=X,
+            expand=False,
+            side="left",
         )
         self.custom_dir_entry = Entry(
             top_custom_dir_frame,
@@ -1183,20 +1241,33 @@ class Submission:
             fill=X, expand=False, side="left", padx=5, ipady=3, ipadx=10
         )
         ### TREEVIEW SECTION ###
-
         self.tree = Treeview(
             bottom_custom_dir_frame,
             columns=1,
         )
         self.tree.column(
             "#0",
-            width=20,
-            minwidth=15,
+            width=110,
+            stretch=False,
         )
-        self.tree.heading("#0", text="Structure / Hierarchy", anchor="w")
+        self.tree.heading("#0", text="Folder Structure", anchor="w")
         self.tree.heading("#1", text="Folder Name", anchor="w")
-        self.tree.pack(fill="both", expand=True, side="top")
-
+        self.tree.pack(fill="both", expand=True, side="left")
+        custom_rm_dir_btn = Button(
+            bottom_custom_dir_frame,
+            command=self._rm_custom_dir,
+            text="Remove selected folder",
+            font=("helvetica", 10, "normal"),
+        )
+        custom_rm_dir_btn.pack(
+            fill="none",
+            expand=False,
+            side="top",
+            pady=10,
+            padx=5,
+            ipady=10,
+            ipadx=10,
+        )
         ### END OF TREEVIEW SECTION ###
         ### BUTTONS FRAME ###
         buttons_box = Frame(
@@ -1220,28 +1291,28 @@ class Submission:
         Button(
             master=buttons_box,
             text="Revert Back",
-            bg="#ff0032",
-            font=("helvetica", 12, "normal"),
+            bg="#ff666c",
+            font=("helvetica", 12, "bold"),
             command=presenter.btn_revert_folder_settings,
         ).pack(
             fill=BOTH,
             expand=True,
             side="left",
             padx=10,
-            pady=5,
+            pady=1,
         )
         Button(
             master=buttons_box,
             text="Save Settings",
             bg="#22c26a",
-            font=("helvetica", 12, "normal"),
+            font=("helvetica", 12, "bold"),
             command=presenter.btn_save_folder_settings,
         ).pack(
             fill=BOTH,
             expand=True,
             side="left",
             padx=10,
-            pady=5,
+            pady=1,
         )
         right_btn_spacer = Frame(
             buttons_box,
@@ -1314,7 +1385,7 @@ class Submission:
     def _browse_sig_image(self):
         try:
             file_name = filedialog.askopenfile().name
-            self.sig_image_path_box.delete("1.0", END)
+            self.sig_image_path_box.delete("1.0", "end")
             self.sig_image_path_box.insert("1.0", file_name)
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
@@ -1323,15 +1394,38 @@ class Submission:
     def _browse_watch_dir(self):
         try:
             dir_name = filedialog.askdirectory()
-            self.watch_dir = dir_name
+            if not dir_name == "":
+                self.watch_dir = dir_name
+        except AttributeError as e:
+            print(f"caught {e}. Continuing on.")
+
+    def _browse_new_biz_dir(self):
+        try:
+            dir_name = filedialog.askdirectory()
+            if not dir_name == "":
+                self.new_biz_dir = dir_name
+        except AttributeError as e:
+            print(f"caught {e}. Continuing on.")
+
+    def _browse_renewals_dir(self):
+        try:
+            dir_name = filedialog.askdirectory()
+            if not dir_name == "":
+                self.renewals_dir = dir_name
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
 
     def _add_custom_dir(self):
         dir_name: str | int = self.custom_dir
-        if "/" in dir_name:
+        self._insert_row(data=dir_name)
+        del self.custom_dir
+
+    def _insert_row(self, data: str):
+        if isinstance(data, int):
+            data = str(data)
+        if "/" in data:
             # split "/" up into a list of strings
-            entry_list = dir_name.split("/")
+            entry_list = data.split("/")
             # find the top-most parent's row id by name & label == "Top Level"
             parent_id = self.__find_row_id_by_name(entry_list[0])
             # check for any other slashes / parents
@@ -1344,6 +1438,7 @@ class Submission:
                     index="end",
                     text=entry_list[1],
                     values=entry_list[2],
+                    open=True,
                 )
             else:
                 # create row under parent row:
@@ -1352,6 +1447,7 @@ class Submission:
                     index="end",
                     text=entry_list[0],
                     values=[entry_list[1]],
+                    open=True,
                 )
         else:
             # add entry as a row:
@@ -1361,10 +1457,28 @@ class Submission:
             self.tree.insert(
                 parent="",
                 index="end",
-                text="Top Level",
-                values=[dir_name],
+                text="----------------",
+                values=[data],
+                open=True,
             )
-        del self.custom_dir
+
+    def get_all_rows(self) -> list[str]:
+        row_data = []
+        for parent in self.tree.get_children():
+            parent_dir = self.tree.item(parent)["values"]
+            row_data.append(parent_dir[0])
+            for child in self.tree.get_children(parent):
+                child_dir = self.tree.item(child)["values"]
+                path = f"{parent_dir[0]}/{child_dir.pop()}"
+                row_data.append(path)
+        return row_data
+
+    def set_data_into_treeview(self, data: list[str]):
+        if isinstance(data, list):
+            for item in data:
+                self._insert_row(item)
+        else:
+            self._insert_row(data)
 
     def _rm_custom_dir(self):
         current_item = self.tree.selection()
@@ -1374,8 +1488,8 @@ class Submission:
         for parent in self.tree.get_children():
             if name in str(self.tree.item(parent)["values"]):
                 return parent
-            for child in str(self.tree.get_children(parent)):
-                if name in self.tree.item(child)["values"]:
+            for child in self.tree.get_children(parent):
+                if name in self.tree.item(str(child))["values"]:
                     return child
 
     def set_start_tab(self, specific_tab: str) -> None:

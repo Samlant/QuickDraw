@@ -4,6 +4,7 @@ import ctypes
 from typing import Protocol
 import threading
 from tkinter import TclError
+from ast import literal_eval
 
 
 class API(Protocol):
@@ -172,7 +173,10 @@ class Submission(Protocol):
     username: str
     sig_image_file: str
     watch_dir: str
+    new_biz_dir: str
+    renewals_dir: str
     custom_dir: str
+    tree: any
 
     def reset_attributes(
         self,
@@ -203,6 +207,12 @@ class Submission(Protocol):
         ...
 
     def get_template_page_values(self) -> dict:
+        ...
+
+    def get_all_rows(self) -> list[str]:
+        ...
+
+    def set_data_into_treeview(self, data: list[str]):
         ...
 
 
@@ -375,7 +385,8 @@ class Presenter:
             print("Client already exists on tracker,  skipping adding to the tracker.")
 
     def choice(self, choice: str):
-        client_dir = self.dir_handler.create_dirs(self.current_submission)
+        section_obj = self.config_worker.get_section("Folder settings")
+        client_dir = self.dir_handler.create_dirs(self.current_submission, section_obj)
         new_qf_path = self.dir_handler.move_file(
             client_dir,
             self.current_submission.original_file_path,
@@ -440,10 +451,7 @@ class Presenter:
 
     def set_initial_placeholders(self, quote_path: str = None) -> None:
         """Sets initial texts for the main/home tab, if applicable"""
-        new_value = self.config_worker.get_value(
-            {"section_name": "Folder settings", "key": "watch_dir"}
-        )
-        self.submission.watch_dir = new_value
+        self.btn_revert_folder_settings()
         personal_settings_keys: list[str] = [
             "username",
             "use_default_cc_addresses",
@@ -917,7 +925,12 @@ class Presenter:
     def _set_folder_settings_placeholders(self, section_obj) -> bool:
         """Sets the placeholders for the settings tab"""
         self.submission.watch_dir = section_obj.get("watch_dir").value
-        # self.submission.default_cc2 = section_obj.get("default_cc2").value
+        self.submission.new_biz_dir = section_obj.get("new_biz_dir").value
+        self.submission.renewals_dir = section_obj.get("renewals_dir").value
+        config_dirs = section_obj.get("custom_dirs").value
+        custom_dirs: list[str] = literal_eval(config_dirs)
+        self.submission.tree.delete(*self.submission.tree.get_children())
+        self.submission.set_data_into_treeview(data=custom_dirs)
         return True
 
     def btn_revert_folder_settings(self) -> None:
@@ -928,20 +941,19 @@ class Presenter:
         print("saving settings")
         settings_dict = self._get_folder_settings_values()
         self.config_worker.handle_save_contents("Folder settings", settings_dict)
+        self.dir_watch.path = Path(self.submission.watch_dir)
 
     def _get_folder_settings_values(self) -> dict[str, str]:
         settings_dict: dict[str, str] = {
             "watch_dir": self.submission.watch_dir,
+            "new_biz_dir": self.submission.new_biz_dir,
+            "renewals_dir": self.submission.renewals_dir,
+            "custom_dirs": self.submission.get_all_rows(),
         }
         return settings_dict
 
     ### End of Watch Dir Settings ###
     ### Begin Custom Dir Creation Settings ###
-    def add_custom_dir_path(self, path: str) -> None:
-        print("processing additional attachments")
-        path = self.base_model.filter_out_brackets(path)
-        # We may want to remove the ".name" attr below and just show the full path--depends on tree view's presentation...
-        self.submission.custom_dir = Path(path).name
 
     ### End of Custom Dir Creation Settings ###
     ### End of Folder Settings Tab ###

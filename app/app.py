@@ -7,7 +7,7 @@ from model.api.app import MSGraphClient
 from model.api.model import API
 from model.base_model import BaseModel
 from model.config import ConfigWorker
-from model.dir_handler.app import DirHandler, Resources
+from model.dir_handler import DirHandler, Resources
 from model.dir_watch import DirWatch
 from model.email.email import EmailHandler
 from model.pdf import DocParser
@@ -19,32 +19,12 @@ from view.sys_tray_icon import TrayIcon
 TEST = False
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
-SAM = "ad0819fd-96be-42cb-82bd-ed8aa2f767fb"
-JERRY = "bbc08f20-6f81-4f0d-8904-0f21b453f116"
-CHARLIE = "aa7432c6-d322-4669-8640-2c48570dd7a8"
 
 PATHS = Resources(TEST)
 
 config_worker = ConfigWorker(
     file_path=str(PATHS.config_path),
 )
-user_id: str = config_worker.get_value(
-    {
-        "section_name": "graph_api",
-        "key": "user_id",
-    }
-)
-dir_handler = DirHandler(TEST)
-if user_id == SAM:
-    user = "sam"
-elif user_id == JERRY:
-    user = "jerry"
-elif user_id == CHARLIE:
-    user = "charlie"
-else:
-    sys.exit()
-
-dir_handler.set_user(user)
 
 
 def initialize_modules() -> Presenter:
@@ -61,7 +41,15 @@ def initialize_modules() -> Presenter:
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
     )
-    watch_dir: Path = dir_handler.get_watch_dir()
+    watch_dir: Path = Path(
+        config_worker.get_value(
+            {
+                "section_name": "Folder settings",
+                "key": "watch_dir",
+            }
+        )
+    )
+    dir_handler = DirHandler()
     dir_watch = DirWatch(path_to_watch=watch_dir)
     email_handler = EmailHandler()
     pdf = DocParser()
