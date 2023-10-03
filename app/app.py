@@ -7,7 +7,7 @@ from model.api.app import MSGraphClient
 from model.api.model import API
 from model.base_model import BaseModel
 from model.config import ConfigWorker
-from model.dir_handler.app import DirHandler, Resources
+from model.dir_handler import DirHandler, Resources
 from model.dir_watch import DirWatch
 from model.email.email import EmailHandler
 from model.pdf import DocParser
@@ -16,35 +16,15 @@ from view.base_view import Submission
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
 from view.sys_tray_icon import TrayIcon
 
-TEST = False
+TEST = True
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
-SAM = "ad0819fd-96be-42cb-82bd-ed8aa2f767fb"
-JERRY = "bbc08f20-6f81-4f0d-8904-0f21b453f116"
-CHARLIE = "aa7432c6-d322-4669-8640-2c48570dd7a8"
 
 PATHS = Resources(TEST)
 
 config_worker = ConfigWorker(
     file_path=str(PATHS.config_path),
 )
-user_id: str = config_worker.get_value(
-    {
-        "section_name": "graph_api",
-        "key": "user_id",
-    }
-)
-dir_handler = DirHandler(TEST)
-if user_id == SAM:
-    user = "sam"
-elif user_id == JERRY:
-    user = "jerry"
-elif user_id == CHARLIE:
-    user = "charlie"
-else:
-    sys.exit()
-
-dir_handler.set_user(user)
 
 
 def initialize_modules() -> Presenter:
@@ -61,7 +41,15 @@ def initialize_modules() -> Presenter:
         positive_value=POSITIVE_SUBMISSION_VALUE,
         negative_value=NEGATIVE_SUBMISSION_VALUE,
     )
-    watch_dir: Path = dir_handler.get_watch_dir()
+    watch_dir: Path = Path(
+        config_worker.get_value(
+            {
+                "section_name": "Folder settings",
+                "key": "watch_dir",
+            }
+        )
+    )
+    dir_handler = DirHandler()
     dir_watch = DirWatch(path_to_watch=watch_dir)
     email_handler = EmailHandler()
     pdf = DocParser()
@@ -97,7 +85,7 @@ def initialize_modules() -> Presenter:
 def main():
     # user_data = assign_per_user_settings()
     presenter = initialize_modules()
-    if not presenter.setup_api(browser_driver=str(PATHS.browser_driver)):
+    if not presenter.setup_api():
         sys.exit()
     presenter.dir_watch.assign_presenter(presenter)
     tray_icon = TrayIcon(PATHS.readme)
@@ -112,9 +100,12 @@ def main():
         if presenter.run_flag:
             presenter.start_submission_program()
             presenter.run_flag = False
-        elif presenter.run_settings_flag:
-            presenter.start_submission_program(settings_tab=True)
-            presenter.run_settings_flag = False
+        elif presenter.run_email_settings_flag:
+            presenter.start_submission_program(specific_tab="email")
+            presenter.run_email_settings_flag = False
+        elif presenter.run_folder_settings_flag:
+            presenter.start_submission_program(specific_tab="folder")
+            presenter.run_folder_settings_flag = False
         else:
             pass
         time.sleep(2)

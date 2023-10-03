@@ -15,7 +15,6 @@ class MSGraphClient:
         ]
         self.json_data: dict[any, any] = None
         self.graph_client = None
-        self.browser_driver: str = None
         self.workbooks_service = None
         self.mail_service = None
         self.user_service = None
@@ -32,9 +31,8 @@ class MSGraphClient:
         self.credentials = ms_graph_state_path
         self.session_id = None
 
-    def setup_api(self, connection_data, browser_driver: str) -> bool:
+    def setup_api(self, connection_data) -> bool:
         self._set_connection_data(connection_data)
-        self.browser_driver = browser_driver
         if not self._init_graph_client():
             return False
         print("starting users service")
@@ -71,16 +69,16 @@ class MSGraphClient:
             credentials=self.credentials,
         )
         print("logging into graph_client.")
-        if self.try_login(self.browser_driver):
+        if self.try_login():
             return True
         else:
-            if self.try_login(self.browser_driver):
+            if self.try_login():
                 return True
             else:
                 return False
 
-    def try_login(self, browser_driver) -> bool:
-        if self.graph_client.login(browser_driver):
+    def try_login(self) -> bool:
+        if self.graph_client.login():
             print("logged into graph client.")
             return True
         else:
@@ -102,7 +100,7 @@ class MSGraphClient:
         print("The session ID for the API is:")
         pprint(f'The session ID is: {session_response["id"]}')
         return session_response["id"]
-    
+
     def client_already_exists(self) -> bool:
         table_row_obj = self.workbooks_service.get_table_rows(
             group_drive=self.group_id,
@@ -110,7 +108,7 @@ class MSGraphClient:
             worksheet_id=self.quote_worksheet_id,
             table_id=self.quote_table_id,
             session_id=self.session_id,
-            )
+        )
         name = self.json_data.get("values")[0][3]
         vessel = self.json_data.get("values")[0][8]
         for row in table_row_obj["value"]:
@@ -148,12 +146,14 @@ class MSGraphClient:
 
     def create_message_draft(self, json: dict[str, any]):
         """Create message and return the message object & id in a tuple"""
-        message= {"message": {
+        message = {
+            "message": {
                 "subject": json["subject"],
                 "importance": "Normal",  # Low was default
                 "body": {"contentType": "HTML", "content": json["HTML_content"]},
                 "toRecipients": json["recipients"],
-            }}
+            }
+        }
         pprint(message)
         new_message_draft = self.mail_service.create_my_message(message=message)
         pprint(new_message_draft)

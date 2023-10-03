@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
 
-import win32com.client as win32
-
 from model.email.html import build_HTML_message as build_html
 
 
