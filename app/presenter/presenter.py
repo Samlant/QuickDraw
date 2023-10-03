@@ -928,9 +928,10 @@ class Presenter:
         self.submission.new_biz_dir = section_obj.get("new_biz_dir").value
         self.submission.renewals_dir = section_obj.get("renewals_dir").value
         config_dirs = section_obj.get("custom_dirs").value
-        custom_dirs: list[str] = literal_eval(config_dirs)
-        self.submission.tree.delete(*self.submission.tree.get_children())
-        self.submission.set_data_into_treeview(data=custom_dirs)
+        if config_dirs is not "":
+            custom_dirs: list[str] = literal_eval(config_dirs)
+            self.submission.tree.delete(*self.submission.tree.get_children())
+            self.submission.set_data_into_treeview(data=custom_dirs)
         return True
 
     def btn_revert_folder_settings(self) -> None:

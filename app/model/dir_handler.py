@@ -22,7 +22,7 @@ class Resources:
 
     def __post_init__(self):
         if self.test:
-            self.app_dir = Path(__file__).parents[3]
+            self.app_dir = Path(__file__).parents[2]
             # User resources
             self.resource_path = self.app_dir / "app" / "resources"
             self.config_path = self.resource_path / "configurations.ini"
