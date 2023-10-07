@@ -175,7 +175,7 @@ class Submission(Protocol):
     watch_dir: str
     new_biz_dir: str
     renewals_dir: str
-    custom_dir: str
+    custom_parent_dir: str
     tree: any
 
     def reset_attributes(
