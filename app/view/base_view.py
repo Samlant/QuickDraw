@@ -102,7 +102,8 @@ class Submission:
         self._watch_dir = StringVar(name="watch_dir", value="")
         self._new_biz_dir = StringVar(name="new_biz_dir", value="")
         self._renewals_dir = StringVar(name="renewals_dir", value="")
-        self._custom_dir = StringVar(name="custom_dir", value="")
+        self._custom_parent_dir = StringVar(name="custom_parent_dir", value="")
+        self._custom_sub_dir = StringVar(name="custom_sub_dir", value="")
 
     # main_tab: getters/setters
     @property
@@ -334,19 +335,28 @@ class Submission:
         self._renewals_dir.set("")
 
     @property
-    def custom_dir(self) -> str:
-        return self._custom_dir.get()
+    def custom_parent_dir(self) -> str:
+        return self._custom_parent_dir.get()
 
-    @custom_dir.setter
-    def custom_dir(self, new_custom_dir: str):
-        self._custom_dir.set(new_custom_dir)
+    @custom_parent_dir.setter
+    def custom_parent_dir(self, new_custom_parent_dir: str):
+        self._custom_parent_dir.set(new_custom_parent_dir)
 
-    @custom_dir.deleter
-    def custom_dir(self):
-        self._custom_dir.set("")
+    @custom_parent_dir.deleter
+    def custom_parent_dir(self):
+        self._custom_parent_dir.set("")
 
-    # @property
-    # def custom_dir_tree(self):
+    @property
+    def custom_sub_dir(self) -> str:
+        return self._custom_sub_dir.get()
+
+    @custom_sub_dir.setter
+    def custom_sub_dir(self, new__custom_sub_dir: str):
+        self._custom_sub_dir.set(new__custom_sub_dir)
+
+    @custom_sub_dir.deleter
+    def custom_sub_dir(self):
+        self._custom_sub_dir.set("")
 
     ### END of Getters/Setters ###
 
@@ -381,7 +391,7 @@ class Submission:
 
     def create_notebook(self):
         self.root.tabControl = Notebook(master=self.root)
-        self.root.tabControl.pack(pady=0, expand=True)
+        self.root.tabControl.pack(fill="both", pady=0, expand=True)
 
     def create_tabs(self):
         self.home = ttk.Frame(self.root.tabControl)
@@ -1074,7 +1084,7 @@ class Submission:
         ### START TITLE ###
         content_frame = Frame(
             self.folder_settings,
-            padx=20,
+            padx=10,
             pady=20,
             bg="#5F9EA0",
         )
@@ -1125,18 +1135,6 @@ class Submission:
             pady=10,
             side="top",
         )
-        # top_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
-        # top_dir_frame.pack(
-        #     fill=X,
-        #     expand=False,
-        #     side="top",
-        # )
-        # bottom_dir_frame = Frame(watch_dir_lf, bg="#aedadb")
-        # bottom_dir_frame.pack(
-        #     fill=X,
-        #     expand=False,
-        #     side="top",
-        # )
         Label(
             watch_dir_lf,
             text="Current Watch Folder:",
@@ -1196,63 +1194,156 @@ class Submission:
             bg="#aedadb",
             font=("helvetica", 12, "normal"),
         )
+        ### START Custom Dir Structure Label Frame ###
         custom_dir_lf.pack(
             fill=X,
             expand=False,
             pady=10,
             side="top",
         )
-        top_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
-        top_custom_dir_frame.pack(
-            fill=X,
-            expand=False,
-            side="top",
-        )
-        bottom_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
-        bottom_custom_dir_frame.pack(
-            fill=X,
-            expand=False,
-            side="top",
-        )
-        Label(
-            top_custom_dir_frame,
-            text='Input the name (or path using " / ") of the folder:',
-            bg="#aedadb",
-            font=("helvetica", 10, "normal"),
-        ).pack(
+        ### LEFT SECTION ###
+        left_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
+        left_custom_dir_frame.pack(
             fill=X,
             expand=False,
             side="left",
         )
-        self.custom_dir_entry = Entry(
-            top_custom_dir_frame,
-            textvariable=self._custom_dir,
-        )
-        self.custom_dir_entry.pack(
-            fill=X, expand=True, side="left", padx=5, ipady=3, pady=6
-        )
-        custom_dir_btn = Button(
-            top_custom_dir_frame,
-            command=self._add_custom_dir,
-            text="Add folder",
-            font=("helvetica", 10, "normal"),
-        )
-        custom_dir_btn.pack(
-            fill=X, expand=False, side="left", padx=5, ipady=3, ipadx=10
-        )
-        ### TREEVIEW SECTION ###
+        ### Treeview Section ###
         self.tree = Treeview(
-            bottom_custom_dir_frame,
+            left_custom_dir_frame,
             columns=1,
         )
         self.tree.column(
             "#0",
-            width=110,
+            width=120,
+            stretch=False,
+        )
+        self.tree.column(
+            "#1",
+            width=390,
             stretch=False,
         )
         self.tree.heading("#0", text="Folder Structure", anchor="w")
         self.tree.heading("#1", text="Folder Name", anchor="w")
-        self.tree.pack(fill="both", expand=True, side="left")
+        # self.tree.pack(fill="both", expand=True, side="left")
+        self.tree.grid(column=0, row=0, pady=(5, 0))
+        ### END OF TREEVIEW SECTION ###
+        ### END OF LEFT SECTION ###
+        ### RIGHT SECTION ###
+        right_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
+        right_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="left",
+            pady=5,
+            padx=7,
+        )
+        ### TOP SECTION ###
+        top_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
+        top_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="top",
+        )
+        # top_custom_dir_frame.grid(column=0, row=0, padx=(10, 0), pady=(5,0), columnspan=2)
+        ### Top Left ###
+        top_left_custom_dir_frame = Frame(top_custom_dir_frame, bg="#aedadb")
+        top_left_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="left",
+            anchor=S,
+        )
+        Label(
+            top_left_custom_dir_frame,
+            text="Add a Parent folder:",
+            bg="#aedadb",
+            font=("helvetica", 10, "normal"),
+            justify="left",
+        ).pack(
+            fill="both",
+            expand=True,
+            side="top",
+        )
+        self.top_left_custom_dir_entry = Entry(
+            top_left_custom_dir_frame,
+            textvariable=self._custom_parent_dir,
+        )
+        self.top_left_custom_dir_entry.pack(
+            fill=X, expand=True, side="top", ipady=3, anchor=N
+        )
+        ### Top Right ###
+        top_right_custom_dir_frame = Frame(top_custom_dir_frame, bg="#aedadb")
+        top_right_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="left",
+        )
+        custom_parent_dir_btn = Button(
+            top_right_custom_dir_frame,
+            command=self._add_custom_parent_dir,
+            text="Add",
+            font=("helvetica", 10, "normal"),
+        )
+        custom_parent_dir_btn.pack(
+            fill="both", expand=True, side="left", pady=6, padx=(5, 0)
+        )
+        ### MIDDLE SECTION ###
+        middle_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
+        middle_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="top",
+            pady=15,
+        )
+        # middle_custom_dir_frame.grid(column=0, row=1, padx=(10, 0), pady=(20,20), columnspan=2)
+
+        ### Middle Left ###
+        middle_left_custom_dir_frame = Frame(middle_custom_dir_frame, bg="#aedadb")
+        middle_left_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="left",
+        )
+        Label(
+            middle_left_custom_dir_frame,
+            text="Add a sub-folder:",
+            bg="#aedadb",
+            font=("helvetica", 10, "normal"),
+            justify="left",
+        ).pack(fill="both", expand=True, side="top", anchor=S)
+        self.middle_left_custom_dir_entry = Entry(
+            middle_left_custom_dir_frame,
+            textvariable=self._custom_sub_dir,
+        )
+        self.middle_left_custom_dir_entry.pack(
+            fill=X, expand=True, side="top", ipady=3, anchor=N
+        )
+        ### Middle Right ###
+        middle_right_custom_dir_frame = Frame(middle_custom_dir_frame, bg="#aedadb")
+        middle_right_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="left",
+        )
+        custom_sub_dir_btn = Button(
+            middle_right_custom_dir_frame,
+            command=self._add_custom_sub_dir,
+            text="Add",
+            font=("helvetica", 10, "normal"),
+        )
+        custom_sub_dir_btn.pack(
+            fill="both", expand=True, side="left", pady=6, padx=(5, 0)
+        )
+        ### BOTTOM SECTION ###
+        bottom_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
+        bottom_custom_dir_frame.pack(
+            fill="both",
+            expand=True,
+            side="top",
+        )
+        # bottom_custom_dir_frame.grid(column=0, row=2, padx=(10, 0), pady=(0,0), columnspan=2)
+
         custom_rm_dir_btn = Button(
             bottom_custom_dir_frame,
             command=self._rm_custom_dir,
@@ -1260,15 +1351,11 @@ class Submission:
             font=("helvetica", 10, "normal"),
         )
         custom_rm_dir_btn.pack(
-            fill="none",
-            expand=False,
+            fill="both",
+            expand=True,
             side="top",
-            pady=10,
-            padx=5,
-            ipady=10,
-            ipadx=10,
         )
-        ### END OF TREEVIEW SECTION ###
+        ### END OF CUSTOM DIR STRUCTURE SECTION ###
         ### BUTTONS FRAME ###
         buttons_box = Frame(
             content_frame,
@@ -1415,10 +1502,24 @@ class Submission:
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
 
-    def _add_custom_dir(self):
-        dir_name: str | int = self.custom_dir
+    def _add_custom_parent_dir(self):
+        dir_name: str | int = self.custom_parent_dir
         self._insert_row(data=dir_name)
-        del self.custom_dir
+        del self.custom_parent_dir
+
+    def _add_custom_sub_dir(self):
+        # Get selected row_id
+        current_selected_id = self.tree.selection()
+        parent_name = self.tree.set(current_selected_id)["1"]
+        dir_name: str | int = self.custom_sub_dir
+        self.tree.insert(
+            parent=current_selected_id,
+            index="end",
+            text=parent_name,
+            values=dir_name,
+            open=True,
+        )
+        del self.custom_sub_dir
 
     def _insert_row(self, data: str):
         if isinstance(data, int):
