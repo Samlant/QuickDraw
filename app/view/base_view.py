@@ -1226,7 +1226,7 @@ class Submission:
         self.tree.heading("#0", text="Folder Structure", anchor="w")
         self.tree.heading("#1", text="Folder Name", anchor="w")
         # self.tree.pack(fill="both", expand=True, side="left")
-        self.tree.grid(column=0, row=0, pady=(5,0))
+        self.tree.grid(column=0, row=0, pady=(5, 0))
         ### END OF TREEVIEW SECTION ###
         ### END OF LEFT SECTION ###
         ### RIGHT SECTION ###
@@ -1256,7 +1256,7 @@ class Submission:
         )
         Label(
             top_left_custom_dir_frame,
-            text='Add a Parent folder:',
+            text="Add a Parent folder:",
             bg="#aedadb",
             font=("helvetica", 10, "normal"),
             justify="left",
@@ -1286,7 +1286,7 @@ class Submission:
             font=("helvetica", 10, "normal"),
         )
         custom_parent_dir_btn.pack(
-            fill="both", expand=True, side="left", pady=6, padx=(5,0)
+            fill="both", expand=True, side="left", pady=6, padx=(5, 0)
         )
         ### MIDDLE SECTION ###
         middle_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
@@ -1307,16 +1307,11 @@ class Submission:
         )
         Label(
             middle_left_custom_dir_frame,
-            text='Add a sub-folder:',
+            text="Add a sub-folder:",
             bg="#aedadb",
             font=("helvetica", 10, "normal"),
             justify="left",
-        ).pack(
-            fill="both",
-            expand=True,
-            side="top",
-            anchor=S
-        )
+        ).pack(fill="both", expand=True, side="top", anchor=S)
         self.middle_left_custom_dir_entry = Entry(
             middle_left_custom_dir_frame,
             textvariable=self._custom_sub_dir,
@@ -1338,7 +1333,7 @@ class Submission:
             font=("helvetica", 10, "normal"),
         )
         custom_sub_dir_btn.pack(
-            fill="both", expand=True, side="left", pady=6, padx=(5,0)
+            fill="both", expand=True, side="left", pady=6, padx=(5, 0)
         )
         ### BOTTOM SECTION ###
         bottom_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
@@ -1515,15 +1510,16 @@ class Submission:
     def _add_custom_sub_dir(self):
         # Get selected row_id
         current_selected_id = self.tree.selection()
+        parent_name = self.tree.set(current_selected_id)["1"]
         dir_name: str | int = self.custom_sub_dir
         self.tree.insert(
-                    parent=current_selected_id,
-                    index="end",
-                    text=dir_name,
-                    values=dir_name,
-                    open=True,
-                )
-        del self.custom_parent_dir
+            parent=current_selected_id,
+            index="end",
+            text=parent_name,
+            values=dir_name,
+            open=True,
+        )
+        del self.custom_sub_dir
 
     def _insert_row(self, data: str):
         if isinstance(data, int):
