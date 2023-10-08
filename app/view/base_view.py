@@ -4,8 +4,11 @@ from dataclasses import dataclass
 import tkinter as tk
 from tkinter import ttk, filedialog
 from tkinter.ttk import Notebook, Style, Treeview
+
 from tkinter import *
 from tkinterdnd2 import DND_FILES, TkinterDnD
+
+from view.styling import BlueRose, create_style
 
 
 class Presenter(Protocol):
@@ -63,6 +66,9 @@ class Presenter(Protocol):
 
     def on_focus_out(self, field_name: str, current_text: str) -> bool:
         ...
+
+
+BR = BlueRose()
 
 
 class Submission:
@@ -367,27 +373,21 @@ class Submission:
         self.root = TkinterDnD.Tk()
         self.assign_private_string_bool_vars()
         self.assign_window_traits()
-        self.create_style()
+        self.style = create_style(self.root)
         self.create_notebook()
         self.create_tabs()
         self.create_main_tab_widgets(presenter)
         self.create_customize_tab_widgets(presenter)
-        self.create_settings_tab_widgets(presenter)
+        self.create_email_settings_tab_widgets(presenter)
+        self.create_folder_settings_tab_widgets(presenter)
 
     def assign_window_traits(self):
         self.root.geometry("760x600")
-        self.root.configure(background="#5F9EA0")
+        # self.root.configure(background="red")
         self.root.attributes("-topmost", True)
         self.root.title("QuickDraw")
         self.root.attributes("-alpha", 0.95)
         self.root.iconbitmap(self.icon)
-
-    def create_style(self):
-        self.style = Style(master=self.root)
-        self.style.theme_use("default")
-        self.style.configure("TNotebook", background="#5F9EA0")
-        self.style.configure("TFrame", background="#5F9EA0")
-        self.style.map("TNotebook", background=[("selected", "#5F9EA0")])
 
     def create_notebook(self):
         self.root.tabControl = Notebook(master=self.root)
@@ -399,270 +399,242 @@ class Submission:
         self.email_settings = ttk.Frame(self.root.tabControl)
         self.folder_settings = ttk.Frame(self.root.tabControl)
         self.root.tabControl.add(self.home, text="Home - Outbox")
-        self.root.tabControl.add(
-            self.template_customization, text="Customize Templates"
-        )
+        self.root.tabControl.add(self.template_customization, text="Email Templates")
         self.root.tabControl.add(self.email_settings, text="Email Settings")
         self.root.tabControl.add(self.folder_settings, text="Folder Settings")
 
     def create_main_tab_widgets(self, presenter: Presenter):
-        frame_header = Frame(self.home, bg="#5F9EA0", pady=17)
-        frame_header.pack(padx=5, fill=X, expand=False)
-        Label(
-            frame_header,
+        self.home.rowconfigure(2, minsize=100, pad=5)
+        self.home.columnconfigure(0, pad=5)
+        self.home.columnconfigure(1, pad=5)
+        self.home.columnconfigure(2, pad=5)
+        left_header_frame = ttk.Frame(self.home)
+        left_header_frame.grid(column=0, row=0, pady=(0, 5))
+        ttk.Label(
+            left_header_frame,
             text="Get Client Information",
-            bg="#5F9EA0",
-            font=("helvetica", 20, "normal"),
+            style="Header.TLabel",
         ).pack(fill=X, expand=True, side="left")
-        Label(
-            frame_header,
-            text="Extra Notes & CC",
-            bg="#5F9EA0",
-            font=("helvetica", 20, "normal"),
-        ).pack(fill=X, expand=True, side="left")
-        Label(
-            frame_header,
-            text="Choose Markets:",
-            bg="#5F9EA0",
-            font=("helvetica", 20, "normal"),
-        ).pack(fill=X, expand=True, side="left")
-
-        frame_left = Frame(self.home, bg="#5F9EA0")
-        frame_left.pack(padx=5, fill=Y, side="left", expand=False, anchor=NE)
-        Label(
+        frame_left = ttk.Frame(self.home)
+        frame_left.grid(column=0, row=1, sticky=N, pady=(5, 0), padx=(5, 0))
+        labelframe_dd_qf = ttk.Labelframe(
             frame_left,
             text="Dag-N-Drop Quoteform Below",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=5, fill=BOTH, expand=True)
-        self.create_quoteform_path_box(frame_left, presenter)
-        Label(
-            frame_left,
-            text="Dag-N-Drop Extra Attachments Below",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=5, fill=BOTH, expand=True)
-        self.create_extra_attachments_path_box(frame_left, presenter)
-        Button(
-            frame_left,
-            text="Clear attachments",
-            bg="#ff666c",
-            font=("helvetica", 12, "bold"),
-            command=presenter.btn_clear_attachments,
-        ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
-
-        frame_middle = Frame(self.home, bg="#5F9EA0")
-        frame_middle.pack(padx=5, fill=Y, side="left", expand=False, anchor=N)
-        labelframe_main1 = LabelFrame(
-            frame_middle,
-            text="To end with a message, enter it below:",
-            bg="#aedadb",
-            font=("helvetica", 8, "normal"),
+            name="labelframe_dd_qf",
         )
-        labelframe_main1.pack(fill=X, expand=False, side="top")
+        labelframe_dd_qf.pack(fill=NONE, expand=False, side="top")
+        self.create_quoteform_path_box(labelframe_dd_qf, presenter)
+        ttk.Button(
+            labelframe_dd_qf,
+            text="Browse",
+            command=self._browse_qf_path,
+        ).pack(fill=None, pady=5, expand=False, side="top")
+        labelframe_dd_ea = ttk.Labelframe(
+            frame_left,
+            text="Dag-N-Drop Extra Files Below",
+            name="labelframe_dd_ea",
+        )
+        labelframe_dd_ea.pack(fill=None, expand=False, side="top", pady=(15, 0))
+        self.create_extra_attachments_path_box(labelframe_dd_ea, presenter)
+        ttk.Button(
+            labelframe_dd_ea,
+            text="Browse",
+            command=self._browse_extra_file_path,
+        ).pack(fill=None, pady=5, expand=False, side="top")
+        ttk.Button(
+            self.home,
+            text="Clear attachments",
+            command=presenter.btn_clear_attachments,
+        ).grid(column=0, row=2, sticky=NSEW, padx=5, pady=10)
+
+        middle_header_frame = ttk.Frame(self.home)
+        middle_header_frame.grid(column=1, row=0, pady=(0, 5))
+        ttk.Label(
+            middle_header_frame,
+            style="Header.TLabel",
+            text="Extra Notes & CC",
+        ).pack(fill=X, expand=True, side="left")
+        frame_middle = ttk.Frame(self.home)
+        frame_middle.grid(column=1, row=1, sticky=N)
+        labelframe_main1 = ttk.Labelframe(
+            frame_middle,
+            text="Want to add any notes?",
+        )
+        labelframe_main1.pack(fill=BOTH, expand=True, side="top")
         self._extra_notes_text = Text(
             labelframe_main1,
             height=7,
-            width=30,
+            width=10,
             name="raw_extra_notes",
+            background=BR.alt_bg_color,
+            foreground=BR.alt_fg_color,
+            highlightcolor=BR.alt_bg_color,
+            selectbackground=BR.alt_fg_color,
+            selectforeground=BR.alt_bg_color,
         )
         self._extra_notes_text.focus_set()
-        self._extra_notes_text.pack(fill=X, anchor=N, expand=FALSE, side="top")
-        labelframe_cc = LabelFrame(
+        self._extra_notes_text.pack(fill=BOTH, expand=FALSE, side="top")
+        labelframe_cc = ttk.Labelframe(
             frame_middle,
-            text="CC-address settings for this submission:",
-            bg="#aedadb",
+            text="Want to CC Anyone?",
             name="labelframe_cc",
         )
-        labelframe_cc.pack(fill=X, expand=True, side="top")
-        Label(
-            labelframe_cc,
-            text="email address to CC:",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(fill=X, expand=True, side="top")
+        labelframe_cc.pack(fill=X, expand=False, side="top", pady=(15, 0))
         Checkbutton(
             labelframe_cc,
             text="Include default CC addresses",
             variable=self._use_CC_defaults,
-            bg="#aedadb",
             name="cc_def_check",
             onvalue=True,
             offvalue=False,
-        ).pack(pady=5, fill=X, expand=False, side="top")
-        self._userinput_CC1 = Text(labelframe_cc, height=1, width=30)
-        self._userinput_CC1.pack(
-            pady=2, ipady=4, anchor=N, fill=X, expand=True, side="top"
-        )
-        Label(
+            relief="raised",
+            justify=CENTER,
+            anchor=W,
+            fg="#FFCAB1",
+            bg="#5F634F",
+            selectcolor="#000000",
+        ).pack(pady=5, expand=False, side="top", ipady=3)
+        ttk.Label(
             labelframe_cc,
-            text="email address to CC:",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(fill=X, expand=True, side="top")
-        self._userinput_CC2 = Text(labelframe_cc, height=1, width=30)
-        self._userinput_CC2.pack(ipady=4, anchor=N, fill=X, expand=True, side="top")
-        Button(
-            frame_middle,
+            text="Add emails here to copy them:",
+        ).pack(fill=X, expand=False, side="top")
+        self._userinput_CC1 = Text(
+            labelframe_cc,
+            height=1,
+            width=30,
+            background=BR.alt_bg_color,
+            foreground=BR.alt_fg_color,
+            highlightcolor=BR.alt_bg_color,
+            selectbackground=BR.alt_fg_color,
+            selectforeground=BR.alt_bg_color,
+        )
+        self._userinput_CC1.pack(
+            pady=2, ipady=4, anchor=N, fill=X, expand=False, side="top"
+        )
+        ttk.Label(
+            labelframe_cc,
+            text="2nd Optional list to copy:",
+        ).pack(fill=X, expand=False, side="top")
+        self._userinput_CC2 = Text(
+            labelframe_cc,
+            height=1,
+            width=30,
+            background=BR.alt_bg_color,
+            foreground=BR.alt_fg_color,
+            highlightcolor=BR.alt_bg_color,
+            selectbackground=BR.alt_fg_color,
+            selectforeground=BR.alt_bg_color,
+        )
+        self._userinput_CC2.pack(ipady=4, anchor=N, fill=X, expand=False, side="top")
+        ttk.Button(
+            self.home,
             text="View Each Before Sending!",
-            bg="#22c26a",
-            font=("helvetica", 12, "bold"),
             command=lambda: presenter.btn_send_envelopes(autosend=False),
-        ).pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
+        ).grid(column=1, row=2, sticky=NSEW, padx=(10), pady=10)
+        # .pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
+        right_header_frame = ttk.Frame(self.home)
+        right_header_frame.grid(column=2, row=0, pady=5)
+        ttk.Label(
+            right_header_frame,
+            style="Header.TLabel",
+            text="Choose Markets:",
+        ).pack(fill=X, expand=True, side="left")
 
-        self.frame_right = Frame(self.home, bg="#5F9EA0")
-        self.frame_right.pack(padx=5, fill=BOTH, side="left", expand=True, anchor=NW)
-        Checkbutton(
-            master=self.frame_right,
-            name="seawave",
-            text="Seawave",
-            variable=self._seawave,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="prime time",
-            text="Prime Time",
-            variable=self._primetime,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="newhampshire",
-            text="New Hampshire",
-            variable=self._newhampshire,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="americanmodern",
-            text="American Modern",
-            variable=self._americanmodern,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="kemah",
-            text="Kemah Marine",
-            variable=self._kemah,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="concept",
-            text="Concept",
-            variable=self._concept,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="yachtinsure",
-            text="Yacht Insure",
-            variable=self._yachtinsure,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="century",
-            text="Century",
-            variable=self._century,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="intact",
-            text="Intact",
-            variable=self._intact,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Checkbutton(
-            master=self.frame_right,
-            name="travelers",
-            text="Travelers",
-            variable=self._travelers,
-            onvalue=self._yes,
-            offvalue=self._no,
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).pack(ipady=3, fill=BOTH, expand=True)
-        Button(
+        self.frame_right = ttk.Frame(self.home)
+        self.frame_right.grid(column=2, row=1, pady=(0, 5), sticky=N)
+        self.__create_button(
             self.frame_right,
+            "Seawave",
+            self._seawave,
+        )
+        self.__create_button(
+            self.frame_right,
+            "Prime Time",
+            self._primetime,
+        )
+        self.__create_button(
+            self.frame_right,
+            "New Hampshire",
+            self._newhampshire,
+        )
+        self.__create_button(
+            self.frame_right,
+            "American Modern",
+            self._americanmodern,
+        )
+        self.__create_button(
+            self.frame_right,
+            "Kemah Marine",
+            self._kemah,
+        )
+        self.__create_button(
+            self.frame_right,
+            "Concept",
+            self._concept,
+        )
+        self.__create_button(
+            self.frame_right,
+            "Yachtinsure",
+            self._yachtinsure,
+        )
+        self.__create_button(
+            self.frame_right,
+            "Century",
+            self._century,
+        )
+        self.__create_button(
+            self.frame_right,
+            "Intact",
+            self._intact,
+        )
+        self.__create_button(
+            self.frame_right,
+            "Travelers",
+            self._travelers,
+        )
+        ttk.Button(
+            self.home,
             text="Submit & auto-send all",
-            bg="#22c26a",
-            font=("helvetica", 12, "bold"),
             command=presenter.btn_send_envelopes,
-        ).pack(ipady=20, pady=10, anchor=S, fill=BOTH, expand=True)
+        ).grid(column=2, row=2, sticky=NSEW, padx=5, pady=10)
 
     def create_customize_tab_widgets(self, presenter: Presenter):
-        title_frame = Frame(
+        self.template_customization.columnconfigure(0, minsize=740, pad=5)
+        self.template_customization.rowconfigure(2, minsize=100, pad=5)
+
+        title_frame = ttk.Frame(
             self.template_customization,
-            bg="#5F9EA0",
             height=5,
         )
-        title_frame.pack(pady=20, fill=X, expand=False)
-        Label(
+        title_frame.grid(column=0, row=0, pady=(0, 5), padx=10, sticky=N)
+        ttk.Label(
             title_frame,
-            text="Customize Your Envelopes Here",
-            bg="#aedadb",
-            font=("helvetica", 20, "normal"),
+            text="Customize Email Templates for Each Underwriter",
+            style="Header.TLabel",
         ).pack(
             fill=X,
             expand=True,
             side="top",
             anchor=N,
-            padx=140,
         )
-        Label(
-            title_frame,
-            text="Customize the email template for each carrier,  or a  combination of carriers if they use the same address.",
-            bg="#5F9EA0",
-            font=("helvetica", 12, "normal"),
-        ).pack(
-            padx=4,
-            pady=5,
-            fill=X,
-            expand=True,
-            side="top",
-            anchor=N,
-        )
-
-        template_select_frame = Frame(
+        customize_msg_lf = ttk.Labelframe(
             self.template_customization,
-            bg="#5F9EA0",
+            text="Don't forget to save!",
         )
-        template_select_frame.pack(
-            padx=15,
-            pady=10,
-            fill=BOTH,
-            expand=True,
+        customize_msg_lf.grid(column=0, row=1, padx=10, sticky=NSEW)
+
+        template_select_frame = ttk.Frame(
+            customize_msg_lf,
         )
+        template_select_frame.grid(
+            column=0, row=0, padx=15, pady=10, sticky=NSEW, columnspan=2
+        )
+        # .pack(
+        #     padx=15,
+        #     pady=10,
+        #     fill=BOTH,
+        #     expand=True,
+        # )
         self.create_dropdown(
             parent=template_select_frame,
             presenter=presenter,
@@ -672,28 +644,13 @@ class Submission:
             presenter.on_change_template,
         )
 
-        content_frame = Frame(
-            self.template_customization,
-            bg="#aedadb",
-        )
-        content_frame.pack(
-            fill=BOTH,
-            expand=True,
-            anchor=N,
-            side="top",
-            padx=5,
-            pady=5,
-        )
-
-        Label(
-            content_frame,
+        ttk.Label(
+            customize_msg_lf,
             text="Submission Address:",
-            bg="#aedadb",
-            font=("helvetica", 16, "normal"),
-        ).grid(column=0, row=0)
+        ).grid(column=0, row=1)
 
-        self.address_entry = Entry(
-            master=content_frame,
+        self.address_entry = ttk.Entry(
+            master=customize_msg_lf,
             name="address",
             textvariable=self._address,
             width=89,
@@ -702,7 +659,7 @@ class Submission:
         )
         self.address_entry.grid(
             column=1,
-            row=0,
+            row=1,
             sticky=W,
             ipady=5,
             pady=5,
@@ -712,22 +669,21 @@ class Submission:
             presenter.on_focus_out,
         )
 
-        Label(
-            content_frame,
+        ttk.Label(
+            customize_msg_lf,
             text="Greeting:",
-            bg="#aedadb",
-            font=("helvetica", 16, "normal"),
-        ).grid(column=0, row=1)
+        ).grid(column=0, row=2)
 
-        self.greet_entry = Entry(
-            master=content_frame,
+        self.greet_entry = ttk.Entry(
+            master=customize_msg_lf,
             name="greeting",
             textvariable=self._greeting,
             width=89,
+            style="TEntry",
         )
         self.greet_entry.grid(
             column=1,
-            row=1,
+            row=2,
             sticky=W,
             pady=5,
             ipady=5,
@@ -737,23 +693,26 @@ class Submission:
             presenter.on_focus_out,
         )
 
-        Label(
-            content_frame,
+        ttk.Label(
+            customize_msg_lf,
             text="Body of the email:",
-            bg="#aedadb",
-            font=("helvetica", 16, "normal"),
-        ).grid(column=0, row=2)
+        ).grid(column=0, row=3)
 
         self._body_text = Text(
-            content_frame,
+            customize_msg_lf,
             name="body",
             width=67,
             height=5,
             wrap=WORD,
+            foreground=BR.alt_fg_color,
+            background=BR.alt_bg_color,
+            highlightcolor=BR.alt_bg_color,
+            selectbackground=BR.alt_fg_color,
+            selectforeground=BR.alt_bg_color,
         )
         self._body_text.grid(
             column=1,
-            row=2,
+            row=3,
             sticky=W,
             pady=5,
         )
@@ -762,117 +721,84 @@ class Submission:
             presenter.on_focus_out,
         )
 
-        Label(
-            content_frame,
+        ttk.Label(
+            customize_msg_lf,
             text="Salutation:",
-            bg="#aedadb",
-            font=("helvetica", 16, "normal"),
-        ).grid(column=0, row=3)
+        ).grid(column=0, row=4)
 
-        self.sal_entry = Entry(
-            content_frame,
+        self.sal_entry = ttk.Entry(
+            customize_msg_lf,
             name="salutation",
             textvariable=self._salutation,
             width=89,
-            highlightbackground="green",
-            highlightcolor="red",
         )
         self.sal_entry.grid(
             column=1,
-            row=3,
+            row=4,
             sticky=W,
             pady=5,
             ipady=5,
         )
         self.sal_entry.bind("<FocusOut>", presenter.on_focus_out)
 
-        buttons_frame = Frame(
+        buttons_frame = ttk.Frame(
             self.template_customization,
-            bg="#5F9EA0",
         )
-        buttons_frame.pack(
-            fill=X,
-            expand=True,
-            anchor=N,
-        )
-        Button(
+        buttons_frame.grid(column=0, row=2, padx=10, sticky=NSEW)
+        ttk.Button(
             buttons_frame,
             name="btnResetTemplate",
-            text="RESET to last saved",
-            bg="#ff666c",
-            font=("helvetica", 16, "bold"),
+            text="Revert Back",
             command=presenter.btn_reset_template,
         ).pack(
             padx=10,
             pady=10,
-            ipady=30,
-            fill=X,
-            expand=False,
+            fill=BOTH,
+            expand=True,
             anchor=N,
             side="left",
         )
-        Button(
+        ttk.Button(
             buttons_frame,
             name="btnViewTemplate",
             text="View Current Example",
-            bg="#00feff",
-            font=("helvetica", 16, "bold"),
             width=20,
             command=presenter.btn_view_template,
         ).pack(
             padx=4,
             pady=10,
-            ipady=30,
-            fill=X,
-            expand=False,
+            fill=BOTH,
+            expand=True,
             anchor=N,
             side="left",
         )
-        Button(
+        ttk.Button(
             buttons_frame,
             name="btnSaveTemplate",
             text="Save",
-            bg="#22c26a",
-            font=("helvetica", 16, "bold"),
             width=20,
             command=presenter.btn_save_template,
         ).pack(
             padx=10,
             pady=10,
-            ipady=30,
-            fill=X,
-            expand=False,
+            fill=BOTH,
+            expand=True,
             anchor=N,
             side="left",
         )
 
-    def create_settings_tab_widgets(self, presenter: Presenter):
+    def create_email_settings_tab_widgets(self, presenter: Presenter):
+        self.email_settings.rowconfigure(3, minsize=100, pad=5)
         ### START TITLE ###
-        content_boder = Frame(
+        title_frame = ttk.Frame(
             self.email_settings,
-            padx=20,
-            pady=20,
-            bg="#5F9EA0",
-        )
-        content_boder.pack(
-            fill=BOTH,
-            expand=True,
-        )
-        title_frame = Frame(
-            content_boder,
-            bg="#5F9EA0",
             height=10,
         )
-        title_frame.pack(
-            fill=X,
-            expand=False,
-            side="top",
-        )
-        Label(
+        title_frame.grid(column=0, row=0, sticky=NSEW, pady=(0, 5), padx=15)
+        ttk.Label(
             title_frame,
             text="Email Settings Page",
-            bg="#aedadb",
-            font=("helvetica", 20, "normal"),
+            style="Header.TLabel",
         ).pack(
             fill=BOTH,
             expand=True,
@@ -880,38 +806,23 @@ class Submission:
         )
         # END OF TITLE
         # BEGIN CC SETTINGS
-        main_settings_frame = Frame(
-            content_boder,
-            bg="#5F9EA0",
+        default_cc_lf = ttk.Labelframe(
+            self.email_settings,
+            text="""Want to CC specific groups of people by default?""",
         )
-        main_settings_frame.pack(
-            fill=BOTH,
-            expand=True,
-            side="top",
-        )
-        default_cc_lf = LabelFrame(
-            main_settings_frame,
-            text="""Add emails that you want to CC quote submissions on---separate using a ";" (semicolon)""",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        )
-        default_cc_lf.pack(
-            fill=X,
-            expand=False,
-            pady=10,
-            side="top",
-        )
-        Label(
+        default_cc_lf.grid(column=0, row=1, sticky=NSEW, padx=10)
+        default_cc_lf.columnconfigure(1, minsize=660)
+        ttk.Label(
             master=default_cc_lf,
             text="CC Group 1:",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
         ).grid(
             column=0,
             row=0,
             pady=6,
+            padx=(0, 5),
+            sticky=EW,
         )
-        cc1 = Entry(
+        cc1 = ttk.Entry(
             default_cc_lf,
             textvariable=self._default_cc1,
             name="default_cc1",
@@ -925,17 +836,16 @@ class Submission:
             ipady=3,
             pady=6,
         )
-        Label(
+        ttk.Label(
             default_cc_lf,
             text="CC Group 2:",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
         ).grid(
             column=0,
             row=1,
             pady=6,
+            padx=(0, 5),
         )
-        cc2 = Entry(
+        cc2 = ttk.Entry(
             default_cc_lf,
             textvariable=self._default_cc2,
             name="default_cc2",
@@ -952,32 +862,18 @@ class Submission:
         )
         # END OF CC SETTINGS
         # BEGIN SIGNATURE SETTINGS
-        signature_lf = LabelFrame(
-            main_settings_frame,
+        signature_lf = ttk.Labelframe(
+            self.email_settings,
             text="Email Signature Settings",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
         )
-        signature_lf.pack(
-            fill=X,
-            expand=False,
-            pady=10,
-            side="top",
-        )
-        sig_frame = Frame(signature_lf, bg="#aedadb")
-        sig_frame.pack(
-            fill=X,
-            expand=True,
-            side="top",
-        )
-        Label(
-            sig_frame,
+        signature_lf.grid(column=0, row=2, sticky=NSEW, padx=10, pady=(15, 0))
+        signature_lf.columnconfigure(4, minsize=105)
+        ttk.Label(
+            signature_lf,
             text="Your name:",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).grid(row=0, column=0, padx=(0, 5))
-        username_entry = Entry(
-            master=sig_frame,
+        ).grid(row=0, column=0, padx=(0, 5), pady=(5, 0))
+        username_entry = ttk.Entry(
+            master=signature_lf,
             textvariable=self._username,
             font=1,
         )
@@ -986,70 +882,59 @@ class Submission:
             column=1,
             columnspan=2,
             padx=(0, 7),
+            pady=(5, 0),
             ipadx=30,
             ipady=3,
         )
-        Label(
-            sig_frame,
+        ttk.Label(
+            signature_lf,
             text="Signature image:",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
-        ).grid(row=0, column=4, padx=(5, 5))
+        ).grid(row=0, column=4, padx=5, pady=(5, 0))
         self.sig_image_path_box = Text(
-            sig_frame,
-            background="#59f3e3",
+            signature_lf,
             name="sig_image_path_file",
             height=4,
-            width=29,
+            width=36,
+            foreground=BR.alt_fg_color,
+            background=BR.alt_bg_color,
+            highlightcolor=BR.alt_bg_color,
+            selectbackground=BR.alt_fg_color,
+            selectforeground=BR.alt_bg_color,
         )
         self.sig_image_path_box.grid(
             row=0,
             column=5,
             columnspan=2,
             rowspan=2,
-            pady=(0, 1),
+            pady=(5, 1),
+            padx=(0, 1),
+            sticky=NSEW,
         )
         self.sig_image_path_box.drop_target_register(DND_FILES)
         self.sig_image_path_box.dnd_bind(
             "<<Drop>>",
             presenter.process_signature_image_path,
         )
-        self.sig_image_btn = Button(
-            sig_frame,
+        self.sig_image_btn = ttk.Button(
+            signature_lf,
             command=self._browse_sig_image,
             text="Browse",
         )
         self.sig_image_btn.grid(
             row=1,
             column=4,
-            ipadx=35,
             ipady=8,
             pady=(2, 1),
+            padx=5,
         )
         ### BUTTONS FRAME ###
-        buttons_frame = Frame(
-            content_boder,
-            bg="#5F9EA0",
+        buttons_frame = ttk.Frame(
+            self.email_settings,
         )
-        buttons_frame.pack(
-            fill=BOTH,
-            expand=True,
-            side="top",
-        )
-        left_btn_spacer = Frame(
-            buttons_frame,
-            bg="#5F9EA0",
-        )
-        left_btn_spacer.pack(
-            fill=BOTH,
-            expand=True,
-            side="left",
-        )
-        Button(
+        buttons_frame.grid(column=0, row=3, sticky=NSEW, padx=10, pady=5)
+        ttk.Button(
             master=buttons_frame,
             text="Revert Back",
-            bg="#ff666c",
-            font=("helvetica", 12, "bold"),
             command=presenter.btn_revert_email_settings,
         ).pack(
             fill=BOTH,
@@ -1058,11 +943,9 @@ class Submission:
             padx=10,
             pady=5,
         )
-        Button(
+        ttk.Button(
             master=buttons_frame,
             text="Save Settings",
-            bg="#22c26a",
-            font=("helvetica", 12, "bold"),
             command=presenter.btn_save_email_settings,
         ).pack(
             fill=BOTH,
@@ -1071,145 +954,89 @@ class Submission:
             padx=10,
             pady=5,
         )
-        right_btn_spacer = Frame(
-            buttons_frame,
-            bg="#5F9EA0",
-        )
-        right_btn_spacer.pack(
-            fill=BOTH,
-            expand=True,
-            side="left",
-        )
+
+    def create_folder_settings_tab_widgets(self, presenter: Presenter):
         ### Start Watch Dir Settings ###
+        self.folder_settings.rowconfigure(3, minsize=100, pad=5)
         ### START TITLE ###
-        content_frame = Frame(
+        title_frame = ttk.Frame(
             self.folder_settings,
-            padx=10,
-            pady=20,
-            bg="#5F9EA0",
         )
-        content_frame.pack(
-            fill=BOTH,
-            expand=True,
-        )
-        title_frame = Frame(
-            content_frame,
-            bg="#5F9EA0",
-            height=10,
-        )
-        title_frame.pack(
-            fill=X,
-            expand=False,
-            side="top",
-        )
-        Label(
-            title_frame,
-            text="Folder Settings Page",
-            bg="#aedadb",
-            font=("helvetica", 20, "normal"),
-        ).pack(
+        title_frame.grid(column=0, row=0, sticky=NSEW)
+        ttk.Label(title_frame, text="Folder Settings Page", style="Header.TLabel").pack(
             fill=BOTH,
             expand=True,
             padx=200,
         )
         # END OF TITLE
         # START CONTENT
-        folder_settings_frame = Frame(
-            content_frame,
-            bg="#5F9EA0",
-        )
-        folder_settings_frame.pack(
-            fill=BOTH,
-            expand=True,
-            side="top",
-        )
-        watch_dir_lf = LabelFrame(
-            folder_settings_frame,
+        watch_dir_lf = ttk.Labelframe(
+            self.folder_settings,
             text="Watch Folder Options",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
         )
-        watch_dir_lf.pack(
-            fill=X,
-            expand=False,
-            pady=10,
-            side="top",
-        )
-        Label(
+        watch_dir_lf.grid(column=0, row=1, sticky=NSEW, padx=10, pady=(5, 0))
+        ttk.Label(
             watch_dir_lf,
             text="Current Watch Folder:",
-            bg="#aedadb",
-            font=("helvetica", 11, "normal"),
-        ).grid(column=0, row=0, ipady=3, padx=0)
-        self.watch_dir_entry = Entry(
+        ).grid(column=0, row=0, ipady=3, pady=6)
+        self.watch_dir_entry = ttk.Entry(
             watch_dir_lf,
             textvariable=self._watch_dir,
         )
         self.watch_dir_entry.grid(column=1, row=0, padx=5, pady=6, ipady=3, ipadx=149)
-        watch_dir_btn = Button(
+        watch_dir_btn = ttk.Button(
             watch_dir_lf,
             command=self._browse_watch_dir,
             text="Browse to change",
         )
         watch_dir_btn.grid(column=2, row=0, padx=5, pady=6, ipady=3, ipadx=4)
-        Label(
+        ttk.Label(
             watch_dir_lf,
             text="New Biz Client Folder:",
-            bg="#aedadb",
-            font=("helvetica", 11, "normal"),
         ).grid(column=0, row=1, ipady=3, padx=0)
-        self.new_biz_dir_entry = Entry(
+        self.new_biz_dir_entry = ttk.Entry(
             watch_dir_lf,
             textvariable=self._new_biz_dir,
         )
         self.new_biz_dir_entry.grid(column=1, row=1, padx=5, pady=0, ipady=3, ipadx=149)
-        new_biz_dir_btn = Button(
+        new_biz_dir_btn = ttk.Button(
             watch_dir_lf,
             command=self._browse_new_biz_dir,
             text="Browse to change",
         )
         new_biz_dir_btn.grid(column=2, row=1, padx=5, pady=0, ipady=3, ipadx=4)
-        Label(
+        ttk.Label(
             watch_dir_lf,
             text="Renewals Client Folder:",
-            bg="#aedadb",
-            font=("helvetica", 11, "normal"),
         ).grid(column=0, row=2, ipady=3, padx=0)
-        self.renewals_dir_entry = Entry(
+        self.renewals_dir_entry = ttk.Entry(
             watch_dir_lf,
             textvariable=self._renewals_dir,
         )
         self.renewals_dir_entry.grid(
             column=1, row=2, padx=5, pady=6, ipady=3, ipadx=149
         )
-        renewals_dir_btn = Button(
+        renewals_dir_btn = ttk.Button(
             watch_dir_lf,
             command=self._browse_renewals_dir,
             text="Browse to change",
         )
         renewals_dir_btn.grid(column=2, row=2, padx=5, pady=6, ipady=3, ipadx=4)
-        custom_dir_lf = LabelFrame(
-            folder_settings_frame,
+        custom_dir_lf = ttk.Labelframe(
+            self.folder_settings,
             text="Create additional folders when a client folder is created",
-            bg="#aedadb",
-            font=("helvetica", 12, "normal"),
         )
         ### START Custom Dir Structure Label Frame ###
-        custom_dir_lf.pack(
-            fill=X,
-            expand=False,
-            pady=10,
-            side="top",
-        )
+        custom_dir_lf.grid(column=0, row=2, sticky=NSEW, pady=(5, 0), padx=10)
         ### LEFT SECTION ###
-        left_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
+        left_custom_dir_frame = ttk.Frame(custom_dir_lf)
         left_custom_dir_frame.pack(
             fill=X,
             expand=False,
             side="left",
         )
         ### Treeview Section ###
-        self.tree = Treeview(
+        self.tree = ttk.Treeview(
             left_custom_dir_frame,
             columns=1,
         )
@@ -1220,7 +1047,7 @@ class Submission:
         )
         self.tree.column(
             "#1",
-            width=390,
+            width=350,
             stretch=False,
         )
         self.tree.heading("#0", text="Folder Structure", anchor="w")
@@ -1230,7 +1057,7 @@ class Submission:
         ### END OF TREEVIEW SECTION ###
         ### END OF LEFT SECTION ###
         ### RIGHT SECTION ###
-        right_custom_dir_frame = Frame(custom_dir_lf, bg="#aedadb")
+        right_custom_dir_frame = ttk.Frame(custom_dir_lf)
         right_custom_dir_frame.pack(
             fill="both",
             expand=True,
@@ -1239,7 +1066,9 @@ class Submission:
             padx=7,
         )
         ### TOP SECTION ###
-        top_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
+        top_custom_dir_frame = ttk.Frame(
+            right_custom_dir_frame,
+        )
         top_custom_dir_frame.pack(
             fill="both",
             expand=True,
@@ -1247,25 +1076,25 @@ class Submission:
         )
         # top_custom_dir_frame.grid(column=0, row=0, padx=(10, 0), pady=(5,0), columnspan=2)
         ### Top Left ###
-        top_left_custom_dir_frame = Frame(top_custom_dir_frame, bg="#aedadb")
+        top_left_custom_dir_frame = ttk.Frame(
+            top_custom_dir_frame,
+        )
         top_left_custom_dir_frame.pack(
             fill="both",
             expand=True,
             side="left",
             anchor=S,
         )
-        Label(
+        ttk.Label(
             top_left_custom_dir_frame,
             text="Add a Parent folder:",
-            bg="#aedadb",
-            font=("helvetica", 10, "normal"),
             justify="left",
         ).pack(
             fill="both",
             expand=True,
             side="top",
         )
-        self.top_left_custom_dir_entry = Entry(
+        self.top_left_custom_dir_entry = ttk.Entry(
             top_left_custom_dir_frame,
             textvariable=self._custom_parent_dir,
         )
@@ -1273,23 +1102,24 @@ class Submission:
             fill=X, expand=True, side="top", ipady=3, anchor=N
         )
         ### Top Right ###
-        top_right_custom_dir_frame = Frame(top_custom_dir_frame, bg="#aedadb")
+        top_right_custom_dir_frame = ttk.Frame(
+            top_custom_dir_frame,
+        )
         top_right_custom_dir_frame.pack(
             fill="both",
             expand=True,
             side="left",
         )
-        custom_parent_dir_btn = Button(
+        custom_parent_dir_btn = ttk.Button(
             top_right_custom_dir_frame,
             command=self._add_custom_parent_dir,
             text="Add",
-            font=("helvetica", 10, "normal"),
         )
         custom_parent_dir_btn.pack(
             fill="both", expand=True, side="left", pady=6, padx=(5, 0)
         )
         ### MIDDLE SECTION ###
-        middle_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
+        middle_custom_dir_frame = ttk.Frame(right_custom_dir_frame)
         middle_custom_dir_frame.pack(
             fill="both",
             expand=True,
@@ -1299,20 +1129,19 @@ class Submission:
         # middle_custom_dir_frame.grid(column=0, row=1, padx=(10, 0), pady=(20,20), columnspan=2)
 
         ### Middle Left ###
-        middle_left_custom_dir_frame = Frame(middle_custom_dir_frame, bg="#aedadb")
+        middle_left_custom_dir_frame = ttk.Frame(middle_custom_dir_frame)
         middle_left_custom_dir_frame.pack(
             fill="both",
             expand=True,
             side="left",
         )
-        Label(
+        ttk.Label(
             middle_left_custom_dir_frame,
             text="Add a sub-folder:",
-            bg="#aedadb",
             font=("helvetica", 10, "normal"),
             justify="left",
         ).pack(fill="both", expand=True, side="top", anchor=S)
-        self.middle_left_custom_dir_entry = Entry(
+        self.middle_left_custom_dir_entry = ttk.Entry(
             middle_left_custom_dir_frame,
             textvariable=self._custom_sub_dir,
         )
@@ -1320,23 +1149,22 @@ class Submission:
             fill=X, expand=True, side="top", ipady=3, anchor=N
         )
         ### Middle Right ###
-        middle_right_custom_dir_frame = Frame(middle_custom_dir_frame, bg="#aedadb")
+        middle_right_custom_dir_frame = ttk.Frame(middle_custom_dir_frame)
         middle_right_custom_dir_frame.pack(
             fill="both",
             expand=True,
             side="left",
         )
-        custom_sub_dir_btn = Button(
+        custom_sub_dir_btn = ttk.Button(
             middle_right_custom_dir_frame,
             command=self._add_custom_sub_dir,
             text="Add",
-            font=("helvetica", 10, "normal"),
         )
         custom_sub_dir_btn.pack(
             fill="both", expand=True, side="left", pady=6, padx=(5, 0)
         )
         ### BOTTOM SECTION ###
-        bottom_custom_dir_frame = Frame(right_custom_dir_frame, bg="#aedadb")
+        bottom_custom_dir_frame = ttk.Frame(right_custom_dir_frame)
         bottom_custom_dir_frame.pack(
             fill="both",
             expand=True,
@@ -1344,11 +1172,10 @@ class Submission:
         )
         # bottom_custom_dir_frame.grid(column=0, row=2, padx=(10, 0), pady=(0,0), columnspan=2)
 
-        custom_rm_dir_btn = Button(
+        custom_rm_dir_btn = ttk.Button(
             bottom_custom_dir_frame,
             command=self._rm_custom_dir,
             text="Remove selected folder",
-            font=("helvetica", 10, "normal"),
         )
         custom_rm_dir_btn.pack(
             fill="both",
@@ -1357,58 +1184,29 @@ class Submission:
         )
         ### END OF CUSTOM DIR STRUCTURE SECTION ###
         ### BUTTONS FRAME ###
-        buttons_box = Frame(
-            content_frame,
-            bg="#5F9EA0",
+        buttons_box = ttk.Frame(
+            self.folder_settings,
         )
-        buttons_box.pack(
-            fill=BOTH,
-            expand=True,
-            side="top",
-        )
-        left_btn_spacer = Frame(
-            buttons_box,
-            bg="#5F9EA0",
-        )
-        left_btn_spacer.pack(
-            fill=BOTH,
-            expand=True,
-            side="left",
-        )
-        Button(
+        buttons_box.grid(column=0, row=3, sticky=NSEW, pady=(10, 0), padx=10)
+        ttk.Button(
             master=buttons_box,
             text="Revert Back",
-            bg="#ff666c",
-            font=("helvetica", 12, "bold"),
             command=presenter.btn_revert_folder_settings,
         ).pack(
             fill=BOTH,
             expand=True,
             side="left",
-            padx=10,
-            pady=1,
+            padx=(0, 5),
         )
-        Button(
+        ttk.Button(
             master=buttons_box,
             text="Save Settings",
-            bg="#22c26a",
-            font=("helvetica", 12, "bold"),
             command=presenter.btn_save_folder_settings,
         ).pack(
             fill=BOTH,
             expand=True,
             side="left",
-            padx=10,
-            pady=1,
-        )
-        right_btn_spacer = Frame(
-            buttons_box,
-            bg="#5F9EA0",
-        )
-        right_btn_spacer.pack(
-            fill=BOTH,
-            expand=True,
-            side="left",
+            padx=(5, 0),
         )
 
     def create_quoteform_path_box(
@@ -1419,10 +1217,14 @@ class Submission:
         """Creates the drag-n-drop box for the quoteform."""
         self.quoteform_path_box = Text(
             parent,
-            height=8,
-            width=27,
-            background="#59f3e3",
             name="raw_quoteform_path",
+            height=8,
+            width=10,
+            background=BR.alt_bg_color,
+            foreground=BR.alt_fg_color,
+            highlightcolor=BR.alt_bg_color,
+            selectbackground=BR.alt_fg_color,
+            selectforeground=BR.alt_bg_color,
         )
         self.quoteform_path_box.drop_target_register(DND_FILES)
         self.quoteform_path_box.dnd_bind(
@@ -1430,10 +1232,18 @@ class Submission:
             presenter.process_quoteform_path,
         )
         self.quoteform_path_box.pack(
-            fill=X,
+            fill=BOTH,
             anchor=N,
-            expand=True,
+            expand=False,
         )
+
+    def _browse_qf_path(self):
+        try:
+            dir_name = filedialog.askdirectory()
+            if not dir_name == "":
+                self.quoteform_path_box = self.quoteform
+        except AttributeError as e:
+            print(f"caught {e}. Continuing on.")
 
     def create_extra_attachments_path_box(
         self, parent: Frame, presenter=Presenter
@@ -1442,28 +1252,67 @@ class Submission:
         self.extra_attachments_path_box = Text(
             parent,
             height=8,
-            width=27,
-            background="#59f3e3",
+            width=10,
+            foreground=BR.alt_fg_color,
+            background=BR.alt_bg_color,
+            highlightcolor=BR.alt_bg_color,
+            selectbackground=BR.alt_fg_color,
+            selectforeground=BR.alt_bg_color,
             name="raw_attachments_paths_list",
         )
-        self.extra_attachments_path_box.pack(fill=X, expand=True, anchor=N)
+        self.extra_attachments_path_box.pack(fill=BOTH, expand=False, anchor=N)
         self.extra_attachments_path_box.drop_target_register(DND_FILES)
         self.extra_attachments_path_box.dnd_bind(
             "<<Drop>>", presenter.process_attachments_path
         )
+
+    def _browse_extra_file_path(self):
+        try:
+            dir_name = filedialog.askdirectory()
+            if not dir_name == "":
+                self.extra_attachments_path_box = self.extra_attachments
+        except AttributeError as e:
+            print(f"caught {e}. Continuing on.")
+
+    def __create_button(self, root, text: str, int_variable: IntVar):
+        x = Checkbutton(
+            root,
+            name=text.lower(),
+            text=text,
+            variable=int_variable,
+            onvalue=self._yes,
+            offvalue=self._no,
+            relief="raised",
+            # font=("helvetica", 10, "bold"),
+            justify=CENTER,
+            anchor=W,
+            fg="#FFCAB1",
+            bg="#5F634F",
+            selectcolor="#000000",
+        )
+        x.pack(fill=BOTH, expand=True, ipady=3, ipadx=40, pady=(0, 3))
 
     def create_dropdown(self, parent, presenter: Presenter) -> None:
         """Creates the OptionMenu widget separately for less coupling."""
         options: list[str] = presenter.set_dropdown_options()
         dropdown_menu = OptionMenu(parent, self._dropdown_menu_var, *options)
         dropdown_menu.configure(
-            background="#aedadb",
-            foreground="black",
-            highlightbackground="#5F9EA0",
-            activebackground="#5F9EA0",
-            font=("helvetica", 12, "normal"),
+            background=BR.btn_base_bg,
+            foreground=BR.btn_fg,
+            activebackground=BR.btn_active_bg,
+            activeforeground=BR.btn_fg,
+            highlightbackground=BR.alt_bg_color,
+            highlightcolor="red",
+            font=("helvetica", 14, "normal"),
         )
-        dropdown_menu["menu"].configure(background="#aedadb")
+        print(dropdown_menu["menu"].keys())
+        dropdown_menu["menu"].configure(
+            background=BR.menuoption_bg_color,
+            foreground=BR.menuoption_fg_color,
+            activebackground=BR.menuoption_fg_color,
+            activeforeground=BR.menuoption_bg_color,
+            selectcolor="red",
+        )
         dropdown_menu.pack(padx=15, ipady=5, fill=X, expand=True)
 
     def get_active_focus(self) -> dict:
