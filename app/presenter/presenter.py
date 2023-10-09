@@ -352,13 +352,20 @@ class Presenter:
             presenter=self,
             submission_info=self.current_submission,
         )
+        self.dialog_new_file.root.attributes('-topmost', True)
+        self.dialog_new_file.root.update()
+        self.dialog_new_file.root.attributes('-topmost', False)
         self.dialog_new_file.root.mainloop()
 
     def start_allocate_dialog(self):
         # start dialog_allocate_markets
         print("Starting dialog to allocate markets.")
         self.dialog_allocate_markets.initialize(self)
+        self.dialog_allocate_markets.root.attributes('-topmost', True)
+        self.dialog_allocate_markets.root.update()
+        self.dialog_allocate_markets.root.attributes('-topmost', False)
         self.dialog_allocate_markets.root.mainloop()
+        
 
     def save_user_choices(self):
         print("Saving choices")
@@ -437,11 +444,10 @@ class Presenter:
             self.set_initial_placeholders()
         if specific_tab:
             self.submission.set_start_tab(specific_tab)
+        self.submission.root.attributes('-topmost', True)
+        self.submission.root.update()
+        self.submission.root.attributes('-topmost', False)
         self.submission.root.mainloop()
-        try:
-            self.submission.root.lift()
-        except TclError:
-            pass
 
     def set_dropdown_options(self) -> list:
         "Submission (View) calls this value upon creation."
