@@ -1305,7 +1305,6 @@ class Submission:
             highlightcolor="red",
             font=("helvetica", 14, "normal"),
         )
-        print(dropdown_menu["menu"].keys())
         dropdown_menu["menu"].configure(
             background=BR.menuoption_bg_color,
             foreground=BR.menuoption_fg_color,
