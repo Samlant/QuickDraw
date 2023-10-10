@@ -171,3 +171,4 @@ cython_debug/
 ./resource_usage.png
 app/resources/ms_graph_state.jsonc
 *.ini
+*.ini
