@@ -48,8 +48,8 @@ class MSGraphClient:
         # self.user_id = connection_data.get("user_id").value
         self.group_id = connection_data.get("group_id").value
         self.quote_tracker_id = connection_data.get("quote_tracker_id").value
-        self.quote_worksheet_id = connection_data.get("quote_worksheet_id").value
-        self.quote_table_id = connection_data.get("quote_table_id").value
+        # self.quote_worksheet_id = connection_data.get("quote_worksheet_id").value
+        # self.quote_table_id = connection_data.get("quote_table_id").value
         # self.service_tracker_id = connection_data.get("service_tracker_id").value
         pprint("set connection data successfully.")
 
@@ -98,10 +98,16 @@ class MSGraphClient:
         )
         pprint("created workbook session.")
         print("The session ID for the API is:")
-        pprint(f'The session ID is: {session_response["id"]}')
+        pprint(session_response["id"])
         return session_response["id"]
 
+    def _get_table_id(self):
+        tables_data = self.workbooks_service.list_tables_id(group_drive=self.group_id, item_id=self.quote_tracker_id,)
+        table_data = tables_data["value"].pop()
+        self.quote_table_id = table_data["id"]
+
     def client_already_exists(self) -> bool:
+        self._get_table_id()
         table_row_obj = self.workbooks_service.get_table_rows(
             group_drive=self.group_id,
             workbook_id=self.quote_tracker_id,
@@ -123,7 +129,6 @@ class MSGraphClient:
         self.workbooks_service.add_row(
             group_drive=self.group_id,
             workbook_id=self.quote_tracker_id,
-            worksheet_id=self.quote_worksheet_id,
             table_id=self.quote_table_id,
             session_id=self.session_id,
             json_data=self.json_data,
