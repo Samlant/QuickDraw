@@ -56,7 +56,7 @@ class DirHandler:
 
     def _create_client_dir(self, referral, fname, lname, section_obj) -> Path:
         if self._check_if_renewal(referral):
-            parent_dir = section_obj.get("renewals_dir").value
+            parent_dir = Path(section_obj.get("renewals_dir").value)
         else:
             parent_dir = Path(section_obj.get("new_biz_dir").value)
         client_dir = self.assign_dir_name(
