@@ -160,7 +160,7 @@ class Workbooks:
 
         return content
 
-    def list_tables(
+    def list_tables_id(
         self,
         group_drive: str = None,
         item_id: str = None,
@@ -189,12 +189,12 @@ class Workbooks:
             path = "/me"
         if item_id:
             content = self.graph_session.make_request(
-                method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/tables"
+                method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/tables?$select=id"
             )
         elif item_path:
             content = self.graph_session.make_request(
                 method="get",
-                endpoint=f"{path}/drive/root:/{item_path}:/workbook/tables",
+                endpoint=f"{path}/drive/root:/{item_path}:/workbook/tables?$select=id",
             )
 
         return content
@@ -326,7 +326,6 @@ class Workbooks:
         group_drive: str = None,
         workbook_id: str = None,
         workbook_path: str = None,
-        worksheet_id: str = None,
         worksheet_path: str = None,
         table_id: str = None,
         table_path: str = None,
