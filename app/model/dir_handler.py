@@ -86,7 +86,10 @@ class DirHandler:
         config_dirs = section_obj.get("custom_dirs").value
         custom_dirs: list[str] = literal_eval(config_dirs)
         for path in custom_dirs:
-            new_path = client_dir / str(path)
+            filtered_dir_name = str(path).translate({ord(i): None for i in r'?<>:*|"'})
+            if filtered_dir_name != path:
+                 print("Invalid characters removed from folder name because they're invalid for Windows systems.")
+            new_path = client_dir / str(filtered_dir_name)
             new_path.mkdir(exist_ok=True)
 
     def move_file(self, client_dir: Path, origin_file: Path) -> Path:
@@ -137,4 +140,7 @@ class DirHandler:
         parent_dir: Path,
     ) -> Path:
         dir_name = lname + " " + capwords(fname)
-        return parent_dir / dir_name
+        filtered_dir_name = dir_name.translate({ord(i): None for i in r'/?<>\:*|"'})
+        if filtered_dir_name != dir_name:
+                print("Invalid characters removed from folder name because they're invalid for Windows systems.")
+        return parent_dir / filtered_dir_name
