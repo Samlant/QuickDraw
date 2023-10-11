@@ -46,6 +46,13 @@ class BaseModel(Protocol):
 
 
 class ConfigWorker(Protocol):
+
+    def get(
+            self,
+            section_name: str,
+            option: str,
+    ):
+        ...
     def get_value(
         self,
         request: dict,
@@ -66,6 +73,12 @@ class ConfigWorker(Protocol):
         ...
 
     def check_if_using_default_carboncopies(self) -> bool:
+        ...
+    def set_multi_line_values_for_option(
+            self,
+            section_name,
+            option_name,
+            values,):
         ...
 
 
@@ -853,9 +866,15 @@ class Presenter:
         """
         template_dict: dict = self.get_template_page_values()
         section_name = template_dict.pop("selected_template")
+        body: list[str] = template_dict.pop("body").splitlines()
         print(f"saving template for {section_name}")
         try:
             self.config_worker.handle_save_contents(section_name, template_dict)
+            self.config_worker.set_multi_line_values_for_option(
+                section_name,
+                "body",
+                body,
+                )
         except:
             raise Exception("Couldn't save template_dict to config.")
 
