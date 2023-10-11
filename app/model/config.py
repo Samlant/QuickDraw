@@ -1,5 +1,4 @@
-from configupdater import ConfigUpdater
-
+from configupdater import ConfigUpdater, Option, Section
 
 class ConfigWorker:
     """This class handles all interactions between the python and config file. It utilizes open_config() as a helper to acces config, discerns the path of flowing information & then performs those queries on the config file."""
@@ -44,6 +43,16 @@ class ConfigWorker:
         section = config.get_section(section_name)
         # section = section.to_dict()
         return section
+    
+    def get(self, section: str, option: str):
+        config = self._open_config()
+        return config, config.get(section, option)
+    
+    def set_values_for_option(self, section_name, option_name, values):
+        config, option = self.get(section_name, option_name,)
+        option.set_values(values=values)
+        config.update_file()
+
 
     def handle_save_contents(self, section_name: str, save_contents: dict) -> bool:
         """This is a generic function to save both Save buttons' data to the appropriate config section. It also ensures the section exists."""
