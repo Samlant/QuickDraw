@@ -48,7 +48,7 @@ class ConfigWorker:
         config = self._open_config()
         return config, config.get(section, option)
     
-    def set_values_for_option(self, section_name, option_name, values):
+    def set_multi_line_values_for_option(self, section_name, option_name, values):
         config, option = self.get(section_name, option_name,)
         option.set_values(values=values)
         config.update_file()
