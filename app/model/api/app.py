@@ -104,6 +104,7 @@ class MSGraphClient:
     def _get_table_id(self):
         tables_data = self.workbooks_service.list_tables_id(group_drive=self.group_id, item_id=self.quote_tracker_id,)
         table_data = tables_data["value"].pop()
+        # Change from popping last element to popping the correct month's table id
         self.quote_table_id = table_data["id"]
 
     def client_already_exists(self) -> bool:
@@ -124,12 +125,19 @@ class MSGraphClient:
                 return True
         return False
 
-    def add_row(self) -> None:
+    def add_row(self, table_name: str = None) -> None:
         "Creates the reques to add an excel row"
+        if table_name:
+            tables_data = self.workbooks_service.list_tables_id(group_drive=self.group_id, item_id=self.quote_tracker_id,)
+            for tables in tables_data["value"]:
+                if tables["name"] == table_name:
+                    target_table_id = tables["id"]
+        else:
+            table_name = self.quote_table_id
         self.workbooks_service.add_row(
             group_drive=self.group_id,
             workbook_id=self.quote_tracker_id,
-            table_id=self.quote_table_id,
+            table_id=table_name,
             session_id=self.session_id,
             json_data=self.json_data,
         )

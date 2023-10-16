@@ -31,12 +31,16 @@ class DialogNewFile:
         self.presenter: Presenter = None
         self.icon_path = icon_src
 
-    def initialize(self, presenter: Presenter, submission_info: ClientInfo) -> str:
-        self.presenter = presenter
-        self._setup_window()
-        self._create_widgets(submission_info)
+    @property
+    def selected_month(self) -> str:
+        return self._dropdown_menu_var.get()
 
-    def _setup_window(self):
+    def initialize(self, presenter: Presenter, submission_info: ClientInfo, current_month: str, next_month: str, second_month: str,) -> str:
+        self.presenter = presenter
+        self._setup_window(current_month)
+        self._create_widgets(submission_info, current_month, next_month, second_month)
+
+    def _setup_window(self, current_month: str):
         self.root = Tk()
         self.root.geometry("300x400")
         self.root.title("Next Steps")
@@ -45,8 +49,10 @@ class DialogNewFile:
         self.root.text_frame.pack(fill=BOTH, expand=True)
         self.root.btn_frame = Frame(self.root, bg="#CFEBDF")
         self.root.btn_frame.pack(fill=BOTH, expand=True, ipady=2)
+        self._dropdown_menu_var = StringVar(value=current_month.capitalize())
 
-    def _create_widgets(self, submission_info):
+
+    def _create_widgets(self, submission_info, current_month: str, next_month: str, second_month: str,):
         client_name = " ".join(
             [
                 submission_info.fname,
@@ -94,7 +100,31 @@ class DialogNewFile:
         )
         referral_entry.insert(0, submission_info.referral)
         referral_entry.grid(column=0, row=7, pady=(0, 7))
-
+        Label(self.root.text_frame, text="Add Client to Month:", bg="#CFEBDF").grid(
+            column=0, row=8
+        )
+        if submission_info.referral.lower() == "renewal":
+            self.root.geometry('300x443')
+            options: list[str] = [current_month.capitalize(), next_month.capitalize(), second_month.capitalize()]
+            dropdown_menu = OptionMenu(self.root.text_frame, self._dropdown_menu_var, *options)
+            dropdown_menu.configure(
+                background="#1D3461",
+                foreground="#CFEBDF",
+                activebackground="#203b6f",
+                activeforeground="#CFEBDF",
+                highlightbackground="#5F634F",
+                highlightcolor="red",
+                font=("helvetica", 14, "normal"),
+            )
+            dropdown_menu["menu"].configure(
+                background="#5F634F",
+                foreground="#FFCAB1",
+                activebackground="#FFCAB1",
+                activeforeground="#5F634F",
+                selectcolor="red",
+            )
+            dropdown_menu.grid(column=0, row=9)
+        
         create_folder_only_btn = Button(
             self.root.btn_frame,
             text="Create Folder & Track Client",

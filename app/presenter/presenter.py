@@ -361,9 +361,13 @@ class Presenter:
         self._process_document(file=file)
         print("Detected new Quoteform")
         print(f"the current client is: {self.current_submission.__repr__}")
+        next_month, second_month = self.api_model.get_future_two_months()
         self.dialog_new_file.initialize(
             presenter=self,
             submission_info=self.current_submission,
+            current_month=self.api_model.get_current_month(),
+            next_month=next_month,
+            second_month=second_month,
         )
         self.dialog_new_file.root.attributes('-topmost', True)
         self.dialog_new_file.root.update()
@@ -399,7 +403,10 @@ class Presenter:
         self.create_and_send_data_to_api()
         print("Adding excel row via API")
         if not self.api_client.client_already_exists():
-            self.api_client.add_row()
+            if self.excel_table_name:
+                self.api_client.add_row(self.excel_table_name)
+            else:
+                self.api_client.add_row()
             self.api_client.close_workbook_session()
         else:
             print("Client already exists on tracker,  skipping adding to the tracker.")
@@ -411,6 +418,7 @@ class Presenter:
             client_dir,
             self.current_submission.original_file_path,
         )
+        self.excel_table_name = self.dialog_new_file.selected_month
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()

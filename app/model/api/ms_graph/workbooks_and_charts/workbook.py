@@ -189,12 +189,12 @@ class Workbooks:
             path = "/me"
         if item_id:
             content = self.graph_session.make_request(
-                method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/tables?$select=id"
+                method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/tables?$select=id, name"
             )
         elif item_path:
             content = self.graph_session.make_request(
                 method="get",
-                endpoint=f"{path}/drive/root:/{item_path}:/workbook/tables?$select=id",
+                endpoint=f"{path}/drive/root:/{item_path}:/workbook/tables?$select=id, name",
             )
 
         return content
