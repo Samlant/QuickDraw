@@ -100,11 +100,11 @@ class DialogNewFile:
         )
         referral_entry.insert(0, submission_info.referral)
         referral_entry.grid(column=0, row=7, pady=(0, 7))
-        Label(self.root.text_frame, text="Add Client to Month:", bg="#CFEBDF").grid(
-            column=0, row=8
-        )
         if submission_info.referral.lower() == "renewal":
-            self.root.geometry('300x443')
+            Label(self.root.text_frame, text="Add Client to Month:", bg="#CFEBDF").grid(
+                column=0, row=8
+            )
+            self.root.geometry('300x448')
             options: list[str] = [current_month.capitalize(), next_month.capitalize(), second_month.capitalize()]
             dropdown_menu = OptionMenu(self.root.text_frame, self._dropdown_menu_var, *options)
             dropdown_menu.configure(
@@ -123,7 +123,7 @@ class DialogNewFile:
                 activeforeground="#5F634F",
                 selectcolor="red",
             )
-            dropdown_menu.grid(column=0, row=9)
+            dropdown_menu.grid(column=0, row=9, pady=(0, 7))
         
         create_folder_only_btn = Button(
             self.root.btn_frame,

@@ -91,12 +91,12 @@ class MSGraphClient:
         self.workbooks_service = self.graph_client.workbooks()
 
     def _create_workbook(self):
-        pprint("creating workbook session.")
+        print("creating workbook session.")
         session_response = self.workbooks_service.create_session(
             group_drive=self.group_id,
             item_id=self.quote_tracker_id,
         )
-        pprint("created workbook session.")
+        print("created workbook session.")
         print("The session ID for the API is:")
         pprint(session_response["id"])
         return session_response["id"]
@@ -108,6 +108,7 @@ class MSGraphClient:
         self.quote_table_id = table_data["id"]
 
     def client_already_exists(self) -> bool:
+        return False
         self._get_table_id()
         table_row_obj = self.workbooks_service.get_table_rows(
             group_drive=self.group_id,
@@ -128,16 +129,20 @@ class MSGraphClient:
     def add_row(self, table_name: str = None) -> None:
         "Creates the reques to add an excel row"
         if table_name:
-            tables_data = self.workbooks_service.list_tables_id(group_drive=self.group_id, item_id=self.quote_tracker_id,)
+            tables_data = self.workbooks_service.list_tables_id(
+                group_drive=self.group_id, 
+                item_id=self.quote_tracker_id,
+                )
             for tables in tables_data["value"]:
-                if tables["name"] == table_name:
+                if tables["name"] == table_name.lower():
                     target_table_id = tables["id"]
+                    break
         else:
-            table_name = self.quote_table_id
+            target_table_id = self.quote_table_id
         self.workbooks_service.add_row(
             group_drive=self.group_id,
             workbook_id=self.quote_tracker_id,
-            table_id=table_name,
+            table_id=target_table_id,
             session_id=self.session_id,
             json_data=self.json_data,
         )

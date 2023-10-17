@@ -101,6 +101,40 @@ class GraphSession:
         additional_headers: dict = None,
         expect_no_response: bool = False,
     ) -> Union[Dict, List]:
+        try:
+            response = self._make_request(
+        method,
+        endpoint,
+        params,
+        data,
+        json,
+        additional_headers,
+        expect_no_response,
+    )
+            return response
+        except:
+            print('failed API call, retrying...')
+            response = self._make_request(
+        method,
+        endpoint,
+        params,
+        data,
+        json,
+        additional_headers,
+        expect_no_response,
+    )
+            return response
+
+    def _make_request(
+        self,
+        method: str,
+        endpoint: str,
+        params: dict = None,
+        data: dict = None,
+        json: dict = None,
+        additional_headers: dict = None,
+        expect_no_response: bool = False,
+    ) -> Union[Dict, List]:
         """Handles all the requests in the library.
 
         ### Overview:
