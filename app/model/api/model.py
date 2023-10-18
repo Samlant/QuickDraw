@@ -71,7 +71,7 @@ class API:
         referral = data.referral
 
         json = {
-            "index": 2,
+            "index": 1,
             "values": [
                 [
                     "",  # A

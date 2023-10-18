@@ -297,6 +297,7 @@ class Presenter:
         self.run_flag: bool = False
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
+        self.quoteform_detected: bool = False
 
     def setup_api(self) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
@@ -402,16 +403,16 @@ class Presenter:
     def _send_excel_api_call(self):
         self.create_and_send_data_to_api()
         print("Adding excel row via API")
-        if not self.api_client.client_already_exists():
-            if self.excel_table_name:
-                self.api_client.add_row(self.excel_table_name)
-            else:
-                self.api_client.add_row()
-            self.api_client.close_workbook_session()
+        if not self.quoteform_detected:
+            self.excel_table_name = self.api_model.get_current_month()
+        if not self.api_client.client_already_exists(self.excel_table_name):
+            self.api_client.add_row(self.excel_table_name)
         else:
             print("Client already exists on tracker,  skipping adding to the tracker.")
+        self.api_client.close_workbook_session()
 
     def choice(self, choice: str):
+        self.quoteform_detected = True
         section_obj = self.config_worker.get_section("Folder settings")
         client_dir = self.dir_handler.create_dirs(self.current_submission, section_obj)
         new_qf_path = self.dir_handler.move_file(
@@ -738,6 +739,7 @@ class Presenter:
                 daemon=False, target=self._send_excel_api_call, name="Excel API Call"
             )
             thread_xl.start()
+        self.quoteform_detected = False
 
     def send_email_api(self):
         self.api_client.send_message(message=self.json)

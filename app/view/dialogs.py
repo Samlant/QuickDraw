@@ -33,7 +33,7 @@ class DialogNewFile:
 
     @property
     def selected_month(self) -> str:
-        return self._dropdown_menu_var.get()
+        return self._dropdown_menu_var.get().lower()
 
     def initialize(self, presenter: Presenter, submission_info: ClientInfo, current_month: str, next_month: str, second_month: str,) -> str:
         self.presenter = presenter
