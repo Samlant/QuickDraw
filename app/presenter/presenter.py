@@ -297,6 +297,7 @@ class Presenter:
         self.run_flag: bool = False
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
+        self.quoteform_detected: bool = False
 
     def setup_api(self) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
@@ -361,9 +362,13 @@ class Presenter:
         self._process_document(file=file)
         print("Detected new Quoteform")
         print(f"the current client is: {self.current_submission.__repr__}")
+        next_month, second_month = self.api_model.get_future_two_months()
         self.dialog_new_file.initialize(
             presenter=self,
             submission_info=self.current_submission,
+            current_month=self.api_model.get_current_month(),
+            next_month=next_month,
+            second_month=second_month,
         )
         self.dialog_new_file.root.attributes('-topmost', True)
         self.dialog_new_file.root.update()
@@ -398,19 +403,23 @@ class Presenter:
     def _send_excel_api_call(self):
         self.create_and_send_data_to_api()
         print("Adding excel row via API")
-        if not self.api_client.client_already_exists():
-            self.api_client.add_row()
-            self.api_client.close_workbook_session()
+        if not self.quoteform_detected:
+            self.excel_table_name = self.api_model.get_current_month()
+        if not self.api_client.client_already_exists(self.excel_table_name):
+            self.api_client.add_row(self.excel_table_name)
         else:
             print("Client already exists on tracker,  skipping adding to the tracker.")
+        self.api_client.close_workbook_session()
 
     def choice(self, choice: str):
+        self.quoteform_detected = True
         section_obj = self.config_worker.get_section("Folder settings")
         client_dir = self.dir_handler.create_dirs(self.current_submission, section_obj)
         new_qf_path = self.dir_handler.move_file(
             client_dir,
             self.current_submission.original_file_path,
         )
+        self.excel_table_name = self.dialog_new_file.selected_month
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
@@ -730,6 +739,7 @@ class Presenter:
                 daemon=False, target=self._send_excel_api_call, name="Excel API Call"
             )
             thread_xl.start()
+        self.quoteform_detected = False
 
     def send_email_api(self):
         self.api_client.send_message(message=self.json)
