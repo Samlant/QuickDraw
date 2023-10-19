@@ -166,7 +166,7 @@ class GraphSession:
             count += 1
             if count > 4:
                 print("Couldn't secure an 'OK' response from the API server.  Tried 4/4 times.  Please retry your action.")
-                pass
+                return False
             # Send the request.
             response: requests.Response = request_session.send(request=request_request)
             print("received response. closing call session.")
