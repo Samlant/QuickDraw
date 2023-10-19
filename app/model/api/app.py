@@ -91,30 +91,39 @@ class MSGraphClient:
         self.workbooks_service = self.graph_client.workbooks()
 
     def _create_workbook(self):
-        pprint("creating workbook session.")
+        print("creating workbook session.")
         session_response = self.workbooks_service.create_session(
             group_drive=self.group_id,
             item_id=self.quote_tracker_id,
         )
-        pprint("created workbook session.")
+        print("created workbook session.")
         print("The session ID for the API is:")
         pprint(session_response["id"])
         return session_response["id"]
 
-    def _get_table_id(self):
-        tables_data = self.workbooks_service.list_tables_id(group_drive=self.group_id, item_id=self.quote_tracker_id,)
-        table_data = tables_data["value"].pop()
-        self.quote_table_id = table_data["id"]
+    # def _get_table_id(self):
+    #     tables_data = self.workbooks_service.list_tables_id(group_drive=self.group_id, item_id=self.quote_tracker_id,)
+    #     table_data = tables_data["value"].pop()
+    #     # Change from popping last element to popping the correct month's table id
+    #     self.quote_table_id = table_data["id"]
 
-    def client_already_exists(self) -> bool:
-        self._get_table_id()
-        table_row_obj = self.workbooks_service.get_table_rows(
-            group_drive=self.group_id,
-            workbook_id=self.quote_tracker_id,
-            worksheet_id=self.quote_worksheet_id,
-            table_id=self.quote_table_id,
-            session_id=self.session_id,
-        )
+    def client_already_exists(self, quote_table_name: str) -> bool:
+        try:
+            table_row_obj = self.workbooks_service.get_table_rows(
+                group_drive=self.group_id,
+                workbook_id=self.quote_tracker_id,
+                worksheet_id=self.quote_worksheet_id,
+                table_id=quote_table_name,
+                session_id=self.session_id,
+            )
+        except:
+            table_row_obj = self.workbooks_service.get_table_rows(
+                group_drive=self.group_id,
+                workbook_id=self.quote_tracker_id,
+                worksheet_id=self.quote_worksheet_id,
+                table_id=quote_table_name,
+                session_id=self.session_id,
+            )
         name = self.json_data.get("values")[0][3]
         vessel = self.json_data.get("values")[0][8]
         for row in table_row_obj["value"]:
@@ -124,16 +133,20 @@ class MSGraphClient:
                 return True
         return False
 
-    def add_row(self) -> None:
+    def add_row(self, table_name: str = None) -> None:
         "Creates the reques to add an excel row"
+        if table_name:
+            target_table_id = table_name
+        else:
+            target_table_id = self.quote_table_id
         self.workbooks_service.add_row(
             group_drive=self.group_id,
             workbook_id=self.quote_tracker_id,
-            table_id=self.quote_table_id,
+            table_id=target_table_id,
             session_id=self.session_id,
             json_data=self.json_data,
         )
-        pprint("added row to excel tracker.")
+        print("added row to excel tracker.")
 
     def close_workbook_session(self) -> None:
         self.workbooks_service.close_session(

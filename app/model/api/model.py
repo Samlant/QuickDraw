@@ -31,6 +31,21 @@ class EmailHandler(Protocol):
         img_sig_url: str
         attachments_list: list
 
+months: dict[int, str] = {
+    1: "January",
+    2: "February",
+    3: "March",
+    4: "April",
+    5: "May",
+    6: "June",
+    7: "July",
+    8: "August",
+    9: "September",
+    10: "October",
+    11: "November",
+    12: "December",
+}
+
 
 class API:
     def __init__(self) -> None:
@@ -56,7 +71,7 @@ class API:
         referral = data.referral
 
         json = {
-            "index": 2,
+            "index": 1,
             "values": [
                 [
                     "",  # A
@@ -193,6 +208,25 @@ class API:
         current_date = datetime.now()
         current_date = f"{current_date.month}-{current_date.day}"
         return current_date
+
+    def get_current_month(self):
+        current_month = datetime.now().month
+        return months[current_month].lower()
+
+    def get_future_two_months(self):
+        current_month = datetime.now().month
+        next_month = current_month + 1
+        if next_month > 12:
+            next_month -= 12
+        second_month = current_month + 2
+        if second_month > 12:
+            second_month -= 12
+            print(current_month, next_month, second_month)
+        next_month = months[next_month].lower()
+        second_month = months[second_month].lower()
+        return next_month, second_month
+    
+
 
     def get_connection_data(self, config_) -> dict[str, any]:
         config = config_
