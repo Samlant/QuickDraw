@@ -160,35 +160,45 @@ class GraphSession:
             json=json,
         ).prepare()
         print("prepared API call request. Sending.")
-        # Send the request.
-        response: requests.Response = request_session.send(request=request_request)
-        print("received response. closing call session.")
-        # Close the session.
-        request_session.close()
+        not_successful: bool = True
+        count: int = 0
+        while not_successful:
+            count += 1
+            if count > 4:
+                print("Couldn't secure an 'OK' response from the API server.  Tried 4/4 times.  Please retry your action.")
+                pass
+            # Send the request.
+            response: requests.Response = request_session.send(request=request_request)
+            print("received response. closing call session.")
+            # Close the session.
+            request_session.close()
 
-        # If it"s okay and no details.
-        if response.ok and expect_no_response:
-            return {"status_code": response.status_code}
-        elif response.ok and len(response.content) > 0:
-            return response.json()
-        elif len(response.content) == 0 and response.ok:
-            return {
-                "message": "Request was successful, status code provided.",
-                "status_code": response.status_code,
-            }
-        elif not response.ok:
-            # Define the error dict.
-            error_dict = {
-                "error_code": response.status_code,
-                "response_url": response.url,
-                "response_body": json_lib.loads(response.content.decode("ascii")),
-                "response_request": dict(response.request.headers),
-                "response_method": response.request.method,
-            }
+            # If it"s okay and no details.
+            if response.ok and expect_no_response:
+                not_successful = False
+                return {"status_code": response.status_code}
+            elif response.ok and len(response.content) > 0:
+                not_successful = False
+                return response.json()
+            elif len(response.content) == 0 and response.ok:
+                not_successful = False
+                return {
+                    "message": "Request was successful, status code provided.",
+                    "status_code": response.status_code,
+                }
+            elif not response.ok:
+                # Define the error dict.
+                error_dict = {
+                    "error_code": response.status_code,
+                    "response_url": response.url,
+                    "response_body": json_lib.loads(response.content.decode("ascii")),
+                    "response_request": dict(response.request.headers),
+                    "response_method": response.request.method,
+                }
 
             # Log the error.
-            logging.error(msg=json_lib.dumps(obj=error_dict, indent=4))
-            error = error_dict["response_body"]["error"]
-            print(f"Code: {error['code']}")
-            print(f"Message: {error['message']}")
-            raise requests.HTTPError()
+                logging.error(msg=json_lib.dumps(obj=error_dict, indent=4))
+                error = error_dict["response_body"]["error"]
+                print(f"Code: {error['code']}")
+                print(f"Message: {error['message']}")
+                # raise requests.HTTPError()
