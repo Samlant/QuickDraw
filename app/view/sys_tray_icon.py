@@ -79,8 +79,8 @@ class TrayIcon:
                 menu=Menu(
                     MenuItem("Run QuickDraw", self._on_clicked),
                     MenuItem("Run Surplus Lines Calculator", self._on_clicked),
-                    MenuItem("Email Settings", self._on_clicked),
-                    MenuItem("Folder Settings", self._on_clicked),
+                    MenuItem("Settings", Menu(MenuItem("Email Settings", self._on_clicked),
+                    MenuItem("Folder Settings", self._on_clicked),)),
                     MenuItem("Open ReadMe", self._on_clicked),
                     MenuItem("Exit", self._on_clicked),
                 ),
