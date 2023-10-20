@@ -97,7 +97,14 @@ def main():
     )
     thread2.start()
     while tray_icon.active is True:
-        if presenter.run_flag:
+        if presenter.new_file_path != None:
+            try:
+                presenter.trigger_new_file(file=presenter.new_file_path)
+            except:
+                print("exception raised during triggering new file.")
+            else:
+                presenter.new_file_path = None
+        elif presenter.run_flag:
             presenter.start_submission_program()
             presenter.run_flag = False
         elif presenter.run_email_settings_flag:
