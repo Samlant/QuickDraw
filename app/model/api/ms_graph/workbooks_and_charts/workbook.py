@@ -48,9 +48,9 @@ class Workbooks:
             A workbookSessionInfo resource object.
         """
         if group_drive:
-            path = f"/groups/{group_drive}"
+            path = f"groups/{group_drive}"
         else:
-            path = "/me"
+            path = "me"
         if item_id:
             content = self.graph_session.make_request(
                 method="post",
@@ -92,9 +92,9 @@ class Workbooks:
             A response object, 204 for a success.
         """
         if group_drive:
-            path = f"/groups/{group_drive}"
+            path = f"groups/{group_drive}"
         else:
-            path = "/me"
+            path = "me"
         if item_id:
             content = self.graph_session.make_request(
                 method="post",
@@ -140,9 +140,9 @@ class Workbooks:
             A response object, 204 for a success.
         """
         if group_drive:
-            path = f"/groups/{group_drive}"
+            path = f"groups/{group_drive}"
         else:
-            path = "/me"
+            path = "me"
         if item_id:
             content = self.graph_session.make_request(
                 method="post",
@@ -160,7 +160,7 @@ class Workbooks:
 
         return content
 
-    def list_tables(
+    def list_tables_id(
         self,
         group_drive: str = None,
         item_id: str = None,
@@ -184,17 +184,17 @@ class Workbooks:
             A collection of Table Object resources.
         """
         if group_drive:
-            path = f"/groups/{group_drive}"
+            path = f"groups/{group_drive}"
         else:
-            path = "/me"
+            path = "me"
         if item_id:
             content = self.graph_session.make_request(
-                method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/tables"
+                method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/tables?$select=id, name"
             )
         elif item_path:
             content = self.graph_session.make_request(
                 method="get",
-                endpoint=f"{path}/drive/root:/{item_path}:/workbook/tables",
+                endpoint=f"{path}/drive/root:/{item_path}:/workbook/tables?$select=id, name",
             )
 
         return content
@@ -223,9 +223,9 @@ class Workbooks:
             A collection of Worksheet resource objects.
         """
         if group_drive:
-            path = f"/groups/{group_drive}"
+            path = f"groups/{group_drive}"
         else:
-            path = "/me"
+            path = "me"
         if item_id:
             content = self.graph_session.make_request(
                 method="get",
@@ -263,9 +263,9 @@ class Workbooks:
             A collection of Named resource objects.
         """
         if group_drive:
-            path = f"/groups/{group_drive}"
+            path = f"groups/{group_drive}"
         else:
-            path = "/me"
+            path = "me"
         if item_id:
             content = self.graph_session.make_request(
                 method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/names"
@@ -326,7 +326,6 @@ class Workbooks:
         group_drive: str = None,
         workbook_id: str = None,
         workbook_path: str = None,
-        worksheet_id: str = None,
         worksheet_path: str = None,
         table_id: str = None,
         table_path: str = None,

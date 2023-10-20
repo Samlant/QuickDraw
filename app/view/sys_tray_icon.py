@@ -17,7 +17,11 @@ class Presenter(Protocol):
         ...
 
     @property
-    def run_settings_flag(self) -> bool:
+    def run_email_settings_flag(self) -> bool:
+        ...
+
+    @property
+    def run_folder_settings_flag(self) -> bool:
         ...
 
     def start_program(self) -> None:
@@ -39,12 +43,16 @@ class TrayIcon:
     def _on_clicked(self, icon, item):
         if str(item) == "Run QuickDraw":
             print("Running QuickDraw")
-            if self.presenter.run_settings_flag is False:
+            if self.presenter.run_email_settings_flag is False:
                 self.presenter.run_flag = True
-        elif str(item) == "Settings":
-            print("Opening Settings")
+        elif str(item) == "Email Settings":
+            print("Opening Email Settings")
             if self.presenter.run_flag is False:
-                self.presenter.run_settings_flag = True
+                self.presenter.run_email_settings_flag = True
+        elif str(item) == "Folder Settings":
+            print("Opening Folder Settings")
+            if self.presenter.run_flag is False:
+                self.presenter.run_folder_settings_flag = True
         elif str(item) == "Open ReadMe":
             path = self.readme.resolve()
             print("Opening ReadMe")
@@ -71,7 +79,8 @@ class TrayIcon:
                 menu=Menu(
                     MenuItem("Run QuickDraw", self._on_clicked),
                     MenuItem("Run Surplus Lines Calculator", self._on_clicked),
-                    MenuItem("Settings", self._on_clicked),
+                    MenuItem("Settings", Menu(MenuItem("Email Settings", self._on_clicked),
+                    MenuItem("Folder Settings", self._on_clicked),)),
                     MenuItem("Open ReadMe", self._on_clicked),
                     MenuItem("Exit", self._on_clicked),
                 ),

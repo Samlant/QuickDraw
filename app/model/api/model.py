@@ -31,6 +31,21 @@ class EmailHandler(Protocol):
         img_sig_url: str
         attachments_list: list
 
+months: dict[int, str] = {
+    1: "January",
+    2: "February",
+    3: "March",
+    4: "April",
+    5: "May",
+    6: "June",
+    7: "July",
+    8: "August",
+    9: "September",
+    10: "October",
+    11: "November",
+    12: "December",
+}
+
 
 class API:
     def __init__(self) -> None:
@@ -46,16 +61,17 @@ class API:
         start_date = self.__get_current_date()
         vessel = data.vessel
         vessel_year = data.vessel_year
-        markets = self.__get_allocated_markets(data.markets)
         if data.submit_tool:
+            markets = self.__get_submitted_markets(data.markets)
             market_status = self.__format_markets_from_submission_tool(data.markets)
         else:
+            markets = self.__get_allocated_markets(data.markets)
             market_status = self.__assign_empty_str_markets()
         status = data.status
         referral = data.referral
 
         json = {
-            "index": 2,
+            "index": 1,
             "values": [
                 [
                     "",  # A
@@ -93,6 +109,32 @@ class API:
         mrkt: list[str] = [mrkt for mrkt in markets]
         mrkt = ", ".join(mrkt)
         print(mrkt)
+        return mrkt
+    
+    def __get_submitted_markets(self, markets: list[str]) -> list:
+        mrkt = []
+        if "Seawave" in markets:
+            mrkt.append("SW")
+        elif "New hampshire" in markets:
+            mrkt.append("NH")
+        elif "Prime Time" in markets:
+            mrkt.append("PT")
+        elif "American Modern" in markets:
+            mrkt.append("AM")
+        elif "Kemah Marine" in markets:
+            mrkt.append("KM")
+        elif "Concept Special Risks" in markets:
+            mrkt.append("CP")
+        elif "Yachtinsure" in markets:
+            mrkt.append("YI")
+        elif "Travelers" in markets:
+            mrkt.append("TV")
+        elif "Intact" in markets:
+            mrkt.append("IN")
+        elif "Century" in markets:
+            mrkt.append("CE")
+        else:
+            return []
         return mrkt
     
     def __assign_empty_str_markets(self) -> dict[str, str]:
@@ -166,6 +208,25 @@ class API:
         current_date = datetime.now()
         current_date = f"{current_date.month}-{current_date.day}"
         return current_date
+
+    def get_current_month(self):
+        current_month = datetime.now().month
+        return months[current_month].lower()
+
+    def get_future_two_months(self):
+        current_month = datetime.now().month
+        next_month = current_month + 1
+        if next_month > 12:
+            next_month -= 12
+        second_month = current_month + 2
+        if second_month > 12:
+            second_month -= 12
+            print(current_month, next_month, second_month)
+        next_month = months[next_month].lower()
+        second_month = months[second_month].lower()
+        return next_month, second_month
+    
+
 
     def get_connection_data(self, config_) -> dict[str, any]:
         config = config_

@@ -3,6 +3,9 @@ from pathlib import Path
 import ctypes
 from typing import Protocol
 import threading
+from tkinter import TclError
+from ast import literal_eval
+
 
 class API(Protocol):
     def create_excel_json(self, data) -> dict[str, any]:
@@ -43,6 +46,13 @@ class BaseModel(Protocol):
 
 
 class ConfigWorker(Protocol):
+
+    def get(
+            self,
+            section_name: str,
+            option: str,
+    ):
+        ...
     def get_value(
         self,
         request: dict,
@@ -63,6 +73,12 @@ class ConfigWorker(Protocol):
         ...
 
     def check_if_using_default_carboncopies(self) -> bool:
+        ...
+    def set_multi_line_values_for_option(
+            self,
+            section_name,
+            option_name,
+            values,):
         ...
 
 
@@ -146,138 +162,34 @@ class MSGraphClient(Protocol):
 
 
 class Submission(Protocol):
-    @property
-    def extra_notes(self) -> str:
-        ...
-
-    @property
-    def use_default_cc_addresses(self) -> bool:
-        ...
-
-    @property
-    def sw(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def pt(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def nh(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def am(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def km(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def cp(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def yi(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def ce(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def In(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def tv(self) -> str | int | bool | list:
-        ...
-
-    @property
-    def quoteform(self) -> str:
-        ...
-
-    @property
-    def extra_attachments(self) -> str:
-        ...
-
-    @property
-    def selected_template(self) -> str:
-        ...
-
-    @property
-    def address(
-        self,
-        address: str,
-    ) -> str:
-        ...
-
-    @property
-    def greeting(
-        self,
-        greeting: str,
-    ) -> str:
-        ...
-
-    @property
-    def body(
-        self,
-        body: str,
-    ) -> str:
-        ...
-
-    @property
-    def salutation(
-        self,
-        salutation: str,
-    ) -> str:
-        ...
-
-    @property
-    def default_cc1(
-        self,
-        default_cc1: str,
-    ) -> str:
-        ...
-
-    @property
-    def default_cc2(
-        self,
-        default_cc2: str,
-    ) -> str:
-        ...
-
-    @property
-    def username(self) -> str:
-        ...
-
-    @property
-    def sig_image_file(self) -> str:
-        ...
-
-    # extra_notes: str
-    # selected_template:str
-    # userinput_CC1: str
-    # userinput_CC2: str
-    # use_CC_defaults: bool
-    # sw: str
-    # pt: str
-    # nh: str
-    # am: str
-    # km: str
-    # cp: str
-    # yi: str
-    # ce: str
-    # In: str
-    # tv: str
-    # address: str
-    # greeting: str
-    # body: str
-    # salutation: str
-    # default_cc1: str
-    # default_cc2: str
-    # username: str
+    extra_notes: str
+    use_default_cc_addresses: bool
+    sw: str | int | bool | list
+    pt: str | int | bool | list
+    nh: str | int | bool | list
+    am: str | int | bool | list
+    km: str | int | bool | list
+    cp: str | int | bool | list
+    yi: str | int | bool | list
+    ce: str | int | bool | list
+    In: str | int | bool | list
+    tv: str | int | bool | list
+    quoteform: str
+    extra_attachments: str
+    selected_template: str
+    address: str
+    greeting: str
+    body: str
+    salutation: str
+    default_cc1: str
+    default_cc2: str
+    username: str
+    sig_image_file: str
+    watch_dir: str
+    new_biz_dir: str
+    renewals_dir: str
+    custom_parent_dir: str
+    tree: any
 
     def reset_attributes(
         self,
@@ -308,6 +220,12 @@ class Submission(Protocol):
         ...
 
     def get_template_page_values(self) -> dict:
+        ...
+
+    def get_all_rows(self) -> list[str]:
+        ...
+
+    def set_data_into_treeview(self, data: list[str]):
         ...
 
 
@@ -377,13 +295,13 @@ class Presenter:
         self.current_submission = None
         self.only_view_msg: bool = None
         self.run_flag: bool = False
-        self.run_settings_flag: bool = False
+        self.run_email_settings_flag: bool = False
+        self.run_folder_settings_flag: bool = False
+        self.quoteform_detected: bool = False
 
-    def setup_api(self, browser_driver: str) -> bool:
+    def setup_api(self) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
-        if not self.api_client.setup_api(
-            connection_data=graph_values, browser_driver=browser_driver
-        ):
+        if not self.api_client.setup_api(connection_data=graph_values):
             return False
         if self.config_worker.has_value("graph_api", "user_id"):
             str_count = len(
@@ -405,7 +323,7 @@ class Presenter:
         return True
 
     def start_program(self):
-        print("Starting watch on specified folder.")
+        print(f"Watching for any new PDF files in: {str(self.dir_watch.path)}.")
         self.dir_watch.begin_watch()
 
     def _process_document(self, file: Path):
@@ -413,11 +331,21 @@ class Presenter:
         try:
             values_dict = self.pdf.process_doc(file)
         except:
-            ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+            ctypes.windll.user32.MessageBoxW(
+                0,
+                "Please exit out of the PDF file so that the program can delete the original file.",
+                "Warning: Exit the PDF",
+                1,
+            )
             try:
                 values_dict = self.pdf.process_doc(file)
             except:
-                ctypes.windll.user32.MessageBoxW(0, "Please exit out of the PDF file so that the program can delete the original file.", "Warning: Exit the PDF", 1)
+                ctypes.windll.user32.MessageBoxW(
+                    0,
+                    "Please exit out of the PDF file so that the program can delete the original file.",
+                    "Warning: Exit the PDF",
+                    1,
+                )
                 values_dict = self.pdf.process_doc(file)
         self.current_submission = ClientInfo(
             fname=values_dict["fname"],
@@ -434,17 +362,28 @@ class Presenter:
         self._process_document(file=file)
         print("Detected new Quoteform")
         print(f"the current client is: {self.current_submission.__repr__}")
+        next_month, second_month = self.api_model.get_future_two_months()
         self.dialog_new_file.initialize(
             presenter=self,
             submission_info=self.current_submission,
+            current_month=self.api_model.get_current_month(),
+            next_month=next_month,
+            second_month=second_month,
         )
+        self.dialog_new_file.root.attributes('-topmost', True)
+        self.dialog_new_file.root.update()
+        self.dialog_new_file.root.attributes('-topmost', False)
         self.dialog_new_file.root.mainloop()
 
     def start_allocate_dialog(self):
         # start dialog_allocate_markets
         print("Starting dialog to allocate markets.")
         self.dialog_allocate_markets.initialize(self)
+        self.dialog_allocate_markets.root.attributes('-topmost', True)
+        self.dialog_allocate_markets.root.update()
+        self.dialog_allocate_markets.root.attributes('-topmost', False)
         self.dialog_allocate_markets.root.mainloop()
+        
 
     def save_user_choices(self):
         print("Saving choices")
@@ -464,30 +403,39 @@ class Presenter:
     def _send_excel_api_call(self):
         self.create_and_send_data_to_api()
         print("Adding excel row via API")
-        if not self.api_client.client_already_exists():
-            self.api_client.add_row()
-            self.api_client.close_workbook_session()
+        if not self.quoteform_detected:
+            self.excel_table_name = self.api_model.get_current_month()
+        if not self.api_client.client_already_exists(self.excel_table_name):
+            self.api_client.add_row(self.excel_table_name)
         else:
             print("Client already exists on tracker,  skipping adding to the tracker.")
+        self.api_client.close_workbook_session()
 
     def choice(self, choice: str):
-        client_dir = self.dir_handler.create_dirs(self.current_submission)
+        self.quoteform_detected = True
+        section_obj = self.config_worker.get_section("Folder settings")
+        client_dir = self.dir_handler.create_dirs(self.current_submission, section_obj)
         new_qf_path = self.dir_handler.move_file(
             client_dir,
             self.current_submission.original_file_path,
         )
+        self.excel_table_name = self.dialog_new_file.selected_month
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
             try:
                 thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
                 thread_xl.start()
             except:
                 thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
                 thread_xl.start()
         elif choice == "track_submit":
             self.start_submission_program(quote_path=new_qf_path)
@@ -496,15 +444,16 @@ class Presenter:
             try:
                 thread_xl = threading.Thread(
                     daemon=True, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                )
                 thread_xl.start()
             except:
                 thread_xl = threading.Thread(
                     daemon=True, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                )
                 thread_xl.start()
+
     ############# Start Submissions Program #############
-    def start_submission_program(self, settings_tab: bool = False, quote_path: str = None) -> None:  # type: ignore
+    def start_submission_program(self, specific_tab: str | None = None, quote_path: str = None) -> None:  # type: ignore
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
         This also sets the default mail application.
@@ -515,8 +464,11 @@ class Presenter:
             self.set_initial_placeholders(quote_path)
         else:
             self.set_initial_placeholders()
-        if settings_tab:
-            self.submission.set_start_tab()
+        if specific_tab:
+            self.submission.set_start_tab(specific_tab)
+        self.submission.root.attributes('-topmost', True)
+        self.submission.root.update()
+        self.submission.root.attributes('-topmost', False)
         self.submission.root.mainloop()
 
     def set_dropdown_options(self) -> list:
@@ -527,6 +479,7 @@ class Presenter:
 
     def set_initial_placeholders(self, quote_path: str = None) -> None:
         """Sets initial texts for the main/home tab, if applicable"""
+        self.btn_revert_folder_settings()
         personal_settings_keys: list[str] = [
             "username",
             "use_default_cc_addresses",
@@ -541,13 +494,15 @@ class Presenter:
         self._set_customize_tab_placeholders(
             self.config_worker.get_section("Initial placeholders")
         )
+
         if quote_path:
             self.process_quoteform_path(quote_path=quote_path)
         else:
             pass
 
-
-    def process_quoteform_path(self, drag_n_drop_event = None, quote_path: str = None) -> None:  # GOOD
+    def process_quoteform_path(
+        self, drag_n_drop_event=None, quote_path: str = None
+    ) -> None:  # GOOD
         """Sends the raw path to model for proccessing & saving.
 
         Arguments:
@@ -609,7 +564,9 @@ class Presenter:
         del self.submission.extra_attachments
 
     def btn_view_template(self) -> None:
-        print("Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again.")
+        print(
+            "Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again."
+        )
         self.only_view_msg = True
         raise NotImplementedError
 
@@ -764,24 +721,25 @@ class Presenter:
             print("sending email message")
         try:
             thread_ol = threading.Thread(
-                    daemon=False, target=self.send_email_api, name="Outlook API Call"
-                    )
+                daemon=False, target=self.send_email_api, name="Outlook API Call"
+            )
             thread_ol.start()
         except:
             thread_ol = threading.Thread(
-                    daemon=False, target=self.send_email_api, name="Outlook API Call"
-                    )
+                daemon=False, target=self.send_email_api, name="Outlook API Call"
+            )
             thread_ol.start()
         try:
             thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+            )
             thread_xl.start()
         except:
             thread_xl = threading.Thread(
-                    daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-                    )
+                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
+            )
             thread_xl.start()
+        self.quoteform_detected = False
 
     def send_email_api(self):
         self.api_client.send_message(message=self.json)
@@ -918,9 +876,15 @@ class Presenter:
         """
         template_dict: dict = self.get_template_page_values()
         section_name = template_dict.pop("selected_template")
+        body: list[str] = template_dict.pop("body").splitlines()
         print(f"saving template for {section_name}")
         try:
             self.config_worker.handle_save_contents(section_name, template_dict)
+            self.config_worker.set_multi_line_values_for_option(
+                section_name,
+                "body",
+                body,
+                )
         except:
             raise Exception("Couldn't save template_dict to config.")
 
@@ -949,8 +913,8 @@ class Presenter:
     ############# END --Customize Tab-- END #############
 
     ############# Establish Settings Tab #############
-
-    def _set_settings_tab_placeholders(self, section_obj) -> bool:
+    ### Email Settings Tab ###
+    def _set_email_settings_placeholders(self, section_obj) -> bool:
         """Sets the placeholders for the settings tab"""
         self.submission.default_cc1 = section_obj.get("default_cc1").value
         self.submission.default_cc2 = section_obj.get("default_cc2").value
@@ -958,11 +922,11 @@ class Presenter:
         self.submission.sig_image_file = section_obj.get("signature_image").value
         return True
 
-    def btn_revert_settings(self) -> None:
+    def btn_revert_email_settings(self) -> None:
         section = self.config_worker.get_section("General settings")
-        self._set_settings_tab_placeholders(section)
+        self._set_email_settings_placeholders(section)
 
-    def btn_save_settings(self) -> None:
+    def btn_save_email_settings(self) -> None:
         """Calls a private getter method & saves output as a dict,
         along with the section_name as it appears in config file
 
@@ -972,10 +936,10 @@ class Presenter:
             Dict -- returns a dict of all userinput from settings_tab
         """
         print("saving settings")
-        settings_dict = self._get_settings_values()
+        settings_dict = self._get_email_settings_values()
         self.config_worker.handle_save_contents("General settings", settings_dict)
 
-    def _get_settings_values(self) -> dict[str, str]:
+    def _get_email_settings_values(self) -> dict[str, str]:
         """Gets all userinput from the settings_tab.
 
         Returns:
@@ -991,6 +955,43 @@ class Presenter:
         }
         return settings_dict
 
-    ############# END --Settings Tab-- END #############
+    ### End of Email Settings Tab ###
+    ### Folder Settings Tab ###
+    def _set_folder_settings_placeholders(self, section_obj) -> bool:
+        """Sets the placeholders for the settings tab"""
+        self.submission.watch_dir = section_obj.get("watch_dir").value
+        self.submission.new_biz_dir = section_obj.get("new_biz_dir").value
+        self.submission.renewals_dir = section_obj.get("renewals_dir").value
+        config_dirs = section_obj.get("custom_dirs").value
+        if config_dirs is not "":
+            custom_dirs: list[str] = literal_eval(config_dirs)
+            self.submission.tree.delete(*self.submission.tree.get_children())
+            self.submission.set_data_into_treeview(data=custom_dirs)
+        return True
 
+    def btn_revert_folder_settings(self) -> None:
+        section = self.config_worker.get_section("Folder settings")
+        self._set_folder_settings_placeholders(section)
+
+    def btn_save_folder_settings(self) -> None:
+        print("saving settings")
+        settings_dict = self._get_folder_settings_values()
+        self.config_worker.handle_save_contents("Folder settings", settings_dict)
+        self.dir_watch.path = Path(self.submission.watch_dir)
+
+    def _get_folder_settings_values(self) -> dict[str, str]:
+        settings_dict: dict[str, str] = {
+            "watch_dir": self.submission.watch_dir,
+            "new_biz_dir": self.submission.new_biz_dir,
+            "renewals_dir": self.submission.renewals_dir,
+            "custom_dirs": self.submission.get_all_rows(),
+        }
+        return settings_dict
+
+    ### End of Watch Dir Settings ###
+    ### Begin Custom Dir Creation Settings ###
+
+    ### End of Custom Dir Creation Settings ###
+    ### End of Folder Settings Tab ###
+    ############# END --Settings Tabs-- END #############
     ############# END --Submissions Program-- END #############
