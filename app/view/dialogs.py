@@ -34,6 +34,29 @@ class DialogNewFile:
     @property
     def selected_month(self) -> str:
         return self._dropdown_menu_var.get().lower()
+    @property
+    def vessel(self) -> str:
+        return self._vessel.get()
+
+    @vessel.setter
+    def vessel(self, new_vessel: str) -> None:
+        self._vessel.set(new_vessel)
+
+    @property
+    def year(self) -> str:
+        return self._year.get()
+
+    @year.setter
+    def year(self, new_year: str) -> None:
+        self._year.set(new_year)
+
+    @property
+    def referral(self) -> str:
+        return self._referral.get()
+
+    @referral.setter
+    def referral(self, new_referral: str) -> None:
+        self._referral.set(new_referral)
 
     def initialize(self, presenter: Presenter, submission_info: ClientInfo, current_month: str, next_month: str, second_month: str,) -> str:
         self.presenter = presenter
@@ -50,9 +73,17 @@ class DialogNewFile:
         self.root.btn_frame = Frame(self.root, bg="#CFEBDF")
         self.root.btn_frame.pack(fill=BOTH, expand=True, ipady=2)
         self._dropdown_menu_var = StringVar(value=current_month.capitalize())
+        self._vessel = StringVar(name="vessel", value="")
+        self._year = StringVar(name="year", value="")
+        self._referral = StringVar(name="referral", value="")
 
 
-    def _create_widgets(self, submission_info, current_month: str, next_month: str, second_month: str,):
+    def _create_widgets(self, 
+                        submission_info, 
+                        current_month: str, 
+                        next_month: str, 
+                        second_month: str,
+                        ):
         client_name = " ".join(
             [
                 submission_info.fname,
@@ -74,18 +105,18 @@ class DialogNewFile:
 
         Label(self.root.text_frame, text="Vessel: ", bg="#CFEBDF").grid(column=0, row=2)
         vessel_entry = Entry(
-            self.root.text_frame, width=30, justify="center", bg="#5F634F", fg="#FFCAB1"
+            self.root.text_frame, textvariable=self._vessel, width=30, justify="center", bg="#5F634F", fg="#FFCAB1"
         )
-        vessel_entry.insert(0, submission_info.vessel)
+        self.vessel = submission_info.vessel
         vessel_entry.grid(column=0, row=3, pady=(0, 8))
 
         Label(self.root.text_frame, text="Vessel year: ", bg="#CFEBDF").grid(
             column=0, row=4
         )
         year_entry = Entry(
-            self.root.text_frame, width=10, justify="center", bg="#5F634F", fg="#FFCAB1"
+            self.root.text_frame, textvariable=self._year, width=10, justify="center", bg="#5F634F", fg="#FFCAB1"
         )
-        year_entry.insert(0, submission_info.vessel_year)
+        self.year = submission_info.vessel_year
         year_entry.grid(column=0, row=5, pady=(0, 8))
 
         Label(self.root.text_frame, text="Referral: ", bg="#CFEBDF").grid(
@@ -93,12 +124,13 @@ class DialogNewFile:
         )
         referral_entry = Entry(
             self.root.text_frame,
+            textvariable=self._referral,
             width=30,
             justify="center",
             bg="#5F634F",
             fg="#FFCAB1",
         )
-        referral_entry.insert(0, submission_info.referral)
+        self.referral = submission_info.referral
         referral_entry.grid(column=0, row=7, pady=(0, 7))
         if submission_info.referral.lower() == "renewal":
             Label(self.root.text_frame, text="Add Client to Month:", bg="#CFEBDF").grid(

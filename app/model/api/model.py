@@ -76,7 +76,7 @@ class API:
                 [
                     "",  # A
                     "",  # B
-                    "SL",  # C
+                    "JN",  # C
                     name,  # D
                     start_date,  # E
                     "",  # F
