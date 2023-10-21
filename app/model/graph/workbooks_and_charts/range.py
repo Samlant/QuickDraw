@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Union
-from model.api.ms_graph.session import GraphSession
-from model.api.ms_graph.utils.range import RangeProperties
-from model.api.ms_graph.utils.range import RangeFormatProperties
+from model.graph.session import GraphSession
+from model.graph.utils.range import RangeProperties
+from model.graph.utils.range import RangeFormatProperties
 
 
 def build_endpoint(inputs: dict) -> str:

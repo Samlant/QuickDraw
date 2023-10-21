@@ -94,13 +94,11 @@ class Submission:
         self._intact = StringVar(name="Intact", value=self._no)
         self._travelers = StringVar(name="Travelers", value=self._no)
         # customize_tab vars
-        self._dropdown_menu_var = StringVar(
-            value="Select Market(s)"
-            # name='Current Selection'
-        )
+        self._dropdown_menu_var = StringVar(value="Select Market(s)")
         self._address = StringVar(name="address", value="")
         self._greeting = StringVar(name="greeting", value="")
         self._salutation = StringVar(name="salutation", value="")
+        self._outro = StringVar(name="outro", value="")
         # settings_tab vars
         self._username = StringVar(name="username", value="")
         self._default_cc1 = StringVar(name="default_cc1", value="")
@@ -240,6 +238,18 @@ class Submission:
     @body.deleter
     def body(self) -> None:
         self._body_text.delete("1.0", "end-1c")
+
+    @property
+    def outro(self) -> str:
+        return self._outro.get()
+
+    @outro.setter
+    def outro(self, new_outro: str) -> None:
+        self._outro.set(new_outro)
+
+    @outro.deleter
+    def outro(self) -> None:
+        self._outro.set("")
 
     @property
     def salutation(self) -> str:
@@ -660,7 +670,7 @@ class Submission:
         self.address_entry.grid(
             column=1,
             row=1,
-            sticky=W,
+            sticky=EW,
             ipady=5,
             pady=5,
         )
@@ -684,9 +694,9 @@ class Submission:
         self.greet_entry.grid(
             column=1,
             row=2,
-            sticky=W,
             pady=5,
             ipady=5,
+            sticky=EW,
         )
         self.greet_entry.bind(
             "<FocusOut>",
@@ -701,7 +711,7 @@ class Submission:
         self._body_text = Text(
             customize_msg_lf,
             name="body",
-            width=67,
+            width=73,
             height=5,
             wrap=WORD,
             foreground=BR.alt_fg_color,
@@ -723,8 +733,28 @@ class Submission:
 
         ttk.Label(
             customize_msg_lf,
-            text="Salutation:",
+            text="Outro:",
         ).grid(column=0, row=4)
+
+        self.outro_entry = ttk.Entry(
+            customize_msg_lf,
+            name="outro",
+            textvariable=self._outro,
+            width=89,
+        )
+        self.outro_entry.grid(
+            column=1,
+            row=4,
+            sticky=EW,
+            pady=5,
+            ipady=5,
+        )
+        self.outro_entry.bind("<FocusOut>", presenter.on_focus_out)
+
+        ttk.Label(
+            customize_msg_lf,
+            text="Salutation:",
+        ).grid(column=0, row=5)
 
         self.sal_entry = ttk.Entry(
             customize_msg_lf,
@@ -734,8 +764,8 @@ class Submission:
         )
         self.sal_entry.grid(
             column=1,
-            row=4,
-            sticky=W,
+            row=5,
+            sticky=EW,
             pady=5,
             ipady=5,
         )
@@ -867,7 +897,8 @@ class Submission:
             text="Email Signature Settings",
         )
         signature_lf.grid(column=0, row=2, sticky=NSEW, padx=10, pady=(15, 0))
-        signature_lf.columnconfigure(4, minsize=105)
+        signature_lf.columnconfigure(2, minsize=170)
+
         ttk.Label(
             signature_lf,
             text="Your name:",
@@ -880,21 +911,23 @@ class Submission:
         username_entry.grid(
             row=0,
             column=1,
-            columnspan=2,
+            columnspan=1,
             padx=(0, 7),
             pady=(5, 0),
             ipadx=30,
             ipady=3,
+            sticky=W,
         )
+        ttk.Frame(signature_lf).grid(row=0, column=2, columnspan=3)
         ttk.Label(
             signature_lf,
-            text="Signature image:",
-        ).grid(row=0, column=4, padx=5, pady=(5, 0))
+            text="Name image:",
+        ).grid(row=1, column=0, padx=5, pady=(5, 0))
         self.sig_image_path_box = Text(
             signature_lf,
             name="sig_image_path_file",
-            height=4,
-            width=36,
+            height=2,
+            width=45,
             foreground=BR.alt_fg_color,
             background=BR.alt_bg_color,
             highlightcolor=BR.alt_bg_color,
@@ -902,13 +935,12 @@ class Submission:
             selectforeground=BR.alt_bg_color,
         )
         self.sig_image_path_box.grid(
-            row=0,
-            column=5,
+            row=1,
+            column=1,
             columnspan=2,
-            rowspan=2,
             pady=(5, 1),
             padx=(0, 1),
-            sticky=NSEW,
+            sticky=EW,
         )
         self.sig_image_path_box.drop_target_register(DND_FILES)
         self.sig_image_path_box.dnd_bind(
@@ -917,10 +949,22 @@ class Submission:
         )
         self.sig_image_btn = ttk.Button(
             signature_lf,
-            command=self._browse_sig_image,
+            command=self._browse_name_img,
             text="Browse",
         )
         self.sig_image_btn.grid(
+            row=1,
+            column=3,
+            ipady=8,
+            pady=(2, 1),
+            padx=5,
+        )
+        self.sig_upload_btn = ttk.Button(
+            signature_lf,
+            command=self._upload_img_btn,
+            text="Upload",
+        )
+        self.sig_upload_btn.grid(
             row=1,
             column=4,
             ipady=8,
@@ -1304,6 +1348,7 @@ class Submission:
             highlightbackground=BR.alt_bg_color,
             highlightcolor="red",
             font=("helvetica", 14, "normal"),
+            width=54,
         )
         dropdown_menu["menu"].configure(
             background=BR.menuoption_bg_color,
@@ -1317,7 +1362,7 @@ class Submission:
     def get_active_focus(self) -> dict:
         return self.root.focus_get()
 
-    def _browse_sig_image(self):
+    def _browse_name_img(self):
         try:
             file_name = filedialog.askopenfile().name
             self.sig_image_path_box.delete("1.0", "end")
@@ -1325,6 +1370,16 @@ class Submission:
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
         # del self.sig_image_file
+
+    def _upload_img_btn(self):
+        try:
+            file_path = self.sig_image_path_box.get("1.0", END)
+            # send URL request to upload img to hosting site
+            # insert received response url into text box
+            self.sig_image_path_box.delete("1.0", END)
+            self.sig_image_path_box.insert("1.0", file_name)
+        except AttributeError as e:
+            print(f"caught {e}. Continuing on.")
 
     def _browse_watch_dir(self):
         try:
@@ -1442,7 +1497,9 @@ class Submission:
                     return child
 
     def set_start_tab(self, specific_tab: str) -> None:
-        if specific_tab == "email":
+        if specific_tab == "template":
+            self.root.tabControl.select(1)
+        elif specific_tab == "email":
             self.root.tabControl.select(2)
-        if specific_tab == "folder":
+        elif specific_tab == "folder":
             self.root.tabControl.select(3)

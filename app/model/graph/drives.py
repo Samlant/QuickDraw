@@ -1,7 +1,7 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
-class Drives():
+class Drives:
 
     """
     ## Overview:
@@ -38,8 +38,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.endpoint + "/root"
+            method="get", endpoint=self.endpoint + "/root"
         )
 
         return content
@@ -54,8 +53,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.endpoint + "/root/children"
+            method="get", endpoint=self.endpoint + "/root/children"
         )
 
         return content
@@ -70,8 +68,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.endpoint + "/root/delta"
+            method="get", endpoint=self.endpoint + "/root/delta"
         )
 
         return content
@@ -86,8 +83,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.endpoint + "/root/followed"
+            method="get", endpoint=self.endpoint + "/root/followed"
         )
 
         return content
@@ -107,8 +103,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint="me/drive/recent"
+            method="get", endpoint="me/drive/recent"
         )
 
         return content
@@ -124,8 +119,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint="me/drive/sharedWithMe"
+            method="get", endpoint="me/drive/sharedWithMe"
         )
 
         return content
@@ -152,8 +146,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/me/drive/special/{folder_name}"
+            method="get", endpoint=f"/me/drive/special/{folder_name}"
         )
 
         return content
@@ -169,8 +162,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/me/drive/special/{folder_name}/children"
+            method="get", endpoint=f"/me/drive/special/{folder_name}/children"
         )
 
         return content
@@ -185,8 +177,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.collections_endpoint + f"/{drive_id}"
+            method="get", endpoint=self.collections_endpoint + f"/{drive_id}"
         )
 
         return content
@@ -201,8 +192,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.endpoint + "/me"
+            method="get", endpoint=self.endpoint + "/me"
         )
 
         return content
@@ -217,8 +207,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.endpoint + f"/me/drive/items/{item_id}/children"
+            method="get", endpoint=self.endpoint + f"/me/drive/items/{item_id}/children"
         )
 
         return content
@@ -233,8 +222,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.collections_endpoint + "/me"
+            method="get", endpoint=self.collections_endpoint + "/me"
         )
 
         return content
@@ -249,8 +237,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"users/{user_id}/drive"
+            method="get", endpoint=f"users/{user_id}/drive"
         )
 
         return content
@@ -265,8 +252,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"users/{user_id}/drive/items/{item_id}/children"
+            method="get", endpoint=f"users/{user_id}/drive/items/{item_id}/children"
         )
 
         return content
@@ -281,8 +267,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"users/{user_id}/drives"
+            method="get", endpoint=f"users/{user_id}/drives"
         )
 
         return content
@@ -297,8 +282,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"groups/{group_id}/drive"
+            method="get", endpoint=f"groups/{group_id}/drive"
         )
 
         return content
@@ -313,8 +297,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"groups/{group_id}/drive/items/{item_id}/children"
+            method="get", endpoint=f"groups/{group_id}/drive/items/{item_id}/children"
         )
 
         return content
@@ -329,8 +312,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"groups/{group_id}/drives"
+            method="get", endpoint=f"groups/{group_id}/drives"
         )
 
         return content
@@ -345,8 +327,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"sites/{site_id}/drive"
+            method="get", endpoint=f"sites/{site_id}/drive"
         )
 
         return content
@@ -361,8 +342,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"sites/{site_id}/drive/items/{item_id}/children"
+            method="get", endpoint=f"sites/{site_id}/drive/items/{item_id}/children"
         )
 
         return content
@@ -377,8 +357,7 @@ class Drives():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"sites/{site_id}/drives"
+            method="get", endpoint=f"sites/{site_id}/drives"
         )
 
         return content

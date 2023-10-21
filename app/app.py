@@ -3,8 +3,8 @@ import threading
 import time
 from pathlib import Path
 
-from model.api.app import MSGraphClient
-from model.api.model import API
+from model.graph.graph import MSGraphClient
+from model.graph.model import API
 from model.base_model import BaseModel
 from model.config import ConfigWorker
 from model.dir_handler import DirHandler, Resources
@@ -16,7 +16,7 @@ from view.base_view import Submission
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
 from view.sys_tray_icon import TrayIcon
 
-TEST = False
+TEST = True
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
 
@@ -107,6 +107,9 @@ def main():
         elif presenter.run_flag:
             presenter.start_submission_program()
             presenter.run_flag = False
+        elif presenter.run_template_settings_flag:
+            presenter.start_submission_program(specific_tab="template")
+            presenter.run_template_settings_flag = False
         elif presenter.run_email_settings_flag:
             presenter.start_submission_program(specific_tab="email")
             presenter.run_email_settings_flag = False

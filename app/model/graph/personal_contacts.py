@@ -1,7 +1,7 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
-class PersonalContacts():
+class PersonalContacts:
 
     """
     ## Overview:
@@ -39,10 +39,7 @@ class PersonalContacts():
         # define the endpoints.
         endpoint = "me/" + self.endpoint
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -58,10 +55,7 @@ class PersonalContacts():
         # define the endpoints.
         endpoint = "me/" + self.endpoint_folders
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -85,10 +79,7 @@ class PersonalContacts():
         # define the endpoints.
         endpoint = f"users/{user_id}/" + self.endpoint_folders + f"/{folder_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -112,9 +103,7 @@ class PersonalContacts():
         endpoint = "me/" + self.endpoint_folders
 
         content = self.graph_session.make_request(
-            method="post",
-            endpoint=endpoint,
-            json=folder_resource
+            method="post", endpoint=endpoint, json=folder_resource
         )
 
         return content
@@ -142,9 +131,7 @@ class PersonalContacts():
         endpoint = f"users/{user_id}/" + self.endpoint_folders
 
         content = self.graph_session.make_request(
-            method="post",
-            endpoint=endpoint,
-            json=folder_resource
+            method="post", endpoint=endpoint, json=folder_resource
         )
 
         return content
@@ -166,10 +153,7 @@ class PersonalContacts():
         # define the endpoints.
         endpoint = "me/" + self.endpoint_folders + f"/{folder_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -194,10 +178,7 @@ class PersonalContacts():
         # define the endpoints.
         endpoint = f"users/{user_id}/" + self.endpoint_folders + f"/{folder_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -218,9 +199,6 @@ class PersonalContacts():
         # define the endpoints.
         endpoint = "me/" + self.endpoint + f"/{contact_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
