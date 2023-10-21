@@ -3,7 +3,11 @@ import threading
 import time
 from pathlib import Path
 
+<<<<<<< Updated upstream
 from model.graph.graph import MSGraphClient
+=======
+from model.graph.app import MSGraphClient
+>>>>>>> Stashed changes
 from model.graph.model import API
 from model.base_model import BaseModel
 from model.config import ConfigWorker
@@ -84,7 +88,7 @@ def initialize_modules() -> Presenter:
 
 
 def main():
-    update_app()
+    update_app(sys.argv[1:])
     # user_data = assign_per_user_settings()
     presenter = initialize_modules()
     if not presenter.setup_api():

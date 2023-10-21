@@ -1,1 +1,1 @@
-pyinstaller.exe app/one_dir.spec --clean --distpath "../../pkging/dist" --workpath temp/build
+pyinstaller.exe one_file.spec --clean --distpath "../pkging/staging" --workpath "../pkging/tmp"

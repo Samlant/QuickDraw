@@ -6,12 +6,15 @@ __pycache__/
 # C extensions
 *.so
 
-# Distribution / packaging
+# Distribution / packaging / repo
 .Python
 build/
-develop-eggs/
 dist/
+repo/
+.tufup-repo-config
+repo*.py
 downloads/
+develop-eggs/
 eggs/
 .eggs/
 lib/
