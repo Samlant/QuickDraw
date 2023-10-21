@@ -11,9 +11,6 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-app/dir/
-build/
-app/build/
 downloads/
 eggs/
 .eggs/
@@ -33,7 +30,8 @@ MANIFEST
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-# *.spec
+*.spec
+app/*.spec
 
 # Installer logs
 pip-log.txt
@@ -128,6 +126,15 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# Repo Files
+# *.py
+# *.bat
+
+
+# Configurations Files
+*.jsonc
+*.ini
+
 # Environments
 .env
 .venv
@@ -169,9 +176,7 @@ cython_debug/
 #.idea/
 *.pyc
 *.vsidx
+
+# VS Code Editor
 .vs/
 .vscode/
-./resource_usage.png
-app/resources/ms_graph_state.jsonc
-*.ini
-*.ini

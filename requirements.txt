@@ -7,4 +7,5 @@ pystray==0.19.4
 requests==2.31.0
 selenium==4.11.2
 tkinterdnd2==0.3.0
+tufup @ git+https://github.com/dennisvang/tufup.git@master
 urllib3==2.0.4
