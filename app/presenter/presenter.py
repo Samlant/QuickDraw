@@ -298,6 +298,7 @@ class Presenter:
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
         self.quoteform_detected: bool = False
+        self.new_file_path = None
 
     def setup_api(self) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
@@ -420,6 +421,9 @@ class Presenter:
             self.current_submission.original_file_path,
         )
         self.excel_table_name = self.dialog_new_file.selected_month
+        self.current_submission.vessel_year = self.dialog_new_file.year
+        self.current_submission.vessel = self.dialog_new_file.vessel
+        self.current_submission.referral = self.dialog_new_file.referral
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
