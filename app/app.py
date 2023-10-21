@@ -11,6 +11,7 @@ from model.dir_handler import DirHandler, Resources
 from model.dir_watch import DirWatch
 from model.email.email import EmailHandler
 from model.pdf import DocParser
+from model.updater import update_app
 from presenter.presenter import Presenter
 from view.base_view import Submission
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
@@ -83,6 +84,7 @@ def initialize_modules() -> Presenter:
 
 
 def main():
+    update_app()
     # user_data = assign_per_user_settings()
     presenter = initialize_modules()
     if not presenter.setup_api():
