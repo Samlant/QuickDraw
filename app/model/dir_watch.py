@@ -6,6 +6,7 @@ from typing import Protocol
 class Presenter(Protocol):
     def trigger_new_file(self):
         ...
+    
 
 
 class DirWatch:
@@ -30,5 +31,5 @@ class DirWatch:
                     print("New file detected.")
                     print("triggering presenter's new file function.")
                     file_path = self.path / new_file.name
-                    self.presenter.trigger_new_file(file=file_path)
+                    self.presenter.new_file_path = file_path
             before = dict([(f, None) for f in self.path.iterdir()])
