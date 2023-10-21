@@ -17,6 +17,10 @@ class Presenter(Protocol):
         ...
 
     @property
+    def run_template_settings_flag(self) -> bool:
+        ...
+
+    @property
     def run_email_settings_flag(self) -> bool:
         ...
 
@@ -45,6 +49,12 @@ class TrayIcon:
             print("Running QuickDraw")
             if self.presenter.run_email_settings_flag is False:
                 self.presenter.run_flag = True
+
+        elif str(item) == "Custom Templates":
+            print("Opening custom templates")
+            if self.presenter.run_flag is False:
+                self.presenter.run_template_settings_flag = True
+
         elif str(item) == "Email Settings":
             print("Opening Email Settings")
             if self.presenter.run_flag is False:
@@ -79,8 +89,14 @@ class TrayIcon:
                 menu=Menu(
                     MenuItem("Run QuickDraw", self._on_clicked),
                     MenuItem("Run Surplus Lines Calculator", self._on_clicked),
-                    MenuItem("Settings", Menu(MenuItem("Email Settings", self._on_clicked),
-                    MenuItem("Folder Settings", self._on_clicked),)),
+                    MenuItem(
+                        "Settings",
+                        Menu(
+                            MenuItem("Custom Templates", self._on_clicked),
+                            MenuItem("Email Settings", self._on_clicked),
+                            MenuItem("Folder Settings", self._on_clicked),
+                        ),
+                    ),
                     MenuItem("Open ReadMe", self._on_clicked),
                     MenuItem("Exit", self._on_clicked),
                 ),

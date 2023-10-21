@@ -1,4 +1,4 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
 class Mail:
@@ -849,13 +849,13 @@ class Mail:
         message["saveToSentItems"] = save_to_send_items
         header_payload = {
             "Content-Type": "application/json",
-            }
+        }
         content = self.graph_session.make_request(
             method="post",
             endpoint="me/sendMail",
             json=message,
             additional_headers=header_payload,
-            )
+        )
 
         return content
 

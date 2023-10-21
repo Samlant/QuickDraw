@@ -1,7 +1,7 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
-class Notes():
+class Notes:
 
     """
     ## Overview:
@@ -40,10 +40,7 @@ class Notes():
         # define the endpoints.
         endpoint = "me/" + self.endpoint + "/notebooks"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -62,12 +59,9 @@ class Notes():
         """
 
         # Define the endpoint.
-        endpoint =f"users/{user_id}" + self.endpoint + "/notebooks"
+        endpoint = f"users/{user_id}" + self.endpoint + "/notebooks"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -88,10 +82,7 @@ class Notes():
         # Define the endpoint.
         endpoint = f"groups/{group_id}" + self.endpoint + "/notebooks"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -112,10 +103,7 @@ class Notes():
         # Define the endpoint.
         endpoint = f"sites/{site_id}" + self.endpoint + "/notebooks"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -136,10 +124,7 @@ class Notes():
         # define the endpoints.
         endpoint = "me/" + self.endpoint + f"/notebooks/{notebook_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -163,10 +148,7 @@ class Notes():
         # Define the endpoint.
         endpoint = f"users/{user_id}" + self.endpoint + f"/notebooks/{notebook_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -190,10 +172,7 @@ class Notes():
         # Define the endpoint.
         endpoint = f"groups/{group_id}" + self.endpoint + f"/notebooks/{notebook_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -217,10 +196,7 @@ class Notes():
         # Define the endpoint.
         endpoint = f"sites/{site_id}" + self.endpoint + f"/notebooks/{notebook_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -239,12 +215,11 @@ class Notes():
         """
 
         # Define the endpoint.
-        endpoint = endpoint = "me/" + self.endpoint + f"/notebooks/{notebook_id}/sections"
-
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
+        endpoint = endpoint = (
+            "me/" + self.endpoint + f"/notebooks/{notebook_id}/sections"
         )
+
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -268,9 +243,6 @@ class Notes():
         # Define the endpoint.
         endpoint = endpoint = f"me/{self.endpoint}/" + f"/sections/{section_id}"
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content

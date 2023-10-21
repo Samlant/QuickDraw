@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Union
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
 def build_endpoint(inputs: dict) -> str:
@@ -38,11 +38,11 @@ def build_endpoint(inputs: dict) -> str:
     else:
         raise ValueError("Must specify an Item ID or Item Path.")
 
-    if (worksheet_name_or_id and address):
+    if worksheet_name_or_id and address:
         range_path = f"worksheets/{worksheet_name_or_id}/range(address='{address}')"
     elif name:
         range_path = f"names/{name}/range"
-    elif (table_name_or_id and column_name_or_id):
+    elif table_name_or_id and column_name_or_id:
         range_path = f"tables/{table_name_or_id}/columns/{column_name_or_id}/range"
 
     return workbook_path + range_path
@@ -106,17 +106,14 @@ class Table:
         else:
             raise ValueError("Must specify an Item ID or Item Path.")
 
-        if (worksheet_name_or_id and table_name_or_id):
+        if worksheet_name_or_id and table_name_or_id:
             table_path = f"worksheets/{worksheet_name_or_id}/tables/{table_name_or_id}"
         elif table_name_or_id:
             table_path = f"tables/{table_name_or_id}"
 
         endpoint = workbook_path + table_path
 
-        content = self.graph_session.make_request(
-            method="get",
-            endpoint=endpoint
-        )
+        content = self.graph_session.make_request(method="get", endpoint=endpoint)
 
         return content
 
@@ -178,7 +175,7 @@ class Table:
         else:
             raise ValueError("Must specify an Item ID or Item Path.")
 
-        if (worksheet_name_or_id and table_name_or_id):
+        if worksheet_name_or_id and table_name_or_id:
             table_path = f"worksheets/{worksheet_name_or_id}/tables/{table_name_or_id}"
         elif table_name_or_id:
             table_path = f"tables/{table_name_or_id}"
@@ -190,7 +187,7 @@ class Table:
             method="post",
             json=body,
             additional_headers={"Content-type": "application/json"},
-            endpoint=endpoint
+            endpoint=endpoint,
         )
 
         return content
@@ -254,7 +251,7 @@ class Table:
         else:
             raise ValueError("Must specify an Item ID or Item Path.")
 
-        if (worksheet_name_or_id and table_name_or_id):
+        if worksheet_name_or_id and table_name_or_id:
             table_path = f"worksheets/{worksheet_name_or_id}/tables/{table_name_or_id}"
         elif table_name_or_id:
             table_path = f"tables/{table_name_or_id}"
@@ -268,14 +265,14 @@ class Table:
             "name": name,
             "showHeaders": show_headers,
             "showTotals": show_totals,
-            "style": style
+            "style": style,
         }
 
         content = self.graph_session.make_request(
             method="patch",
             json=body,
             additional_headers={"Content-type": "application/json"},
-            endpoint=endpoint
+            endpoint=endpoint,
         )
 
         return content

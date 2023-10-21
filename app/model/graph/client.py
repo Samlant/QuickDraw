@@ -9,17 +9,17 @@ import msal
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
 
-from model.api.ms_graph.users import Users
-from model.api.ms_graph.drives import Drives
-from model.api.ms_graph.groups import Groups
-from model.api.ms_graph.notes import Notes
-from model.api.ms_graph.session import GraphSession
-from model.api.ms_graph.drive_items import DriveItems
-from model.api.ms_graph.search import Search
-from model.api.ms_graph.personal_contacts import PersonalContacts
-from model.api.ms_graph.mail import Mail
-from model.api.ms_graph.workbooks_and_charts.workbook import Workbooks
-from model.api.ms_graph.workbooks_and_charts.range import Range
+from model.graph.users import Users
+from model.graph.drives import Drives
+from model.graph.groups import Groups
+from model.graph.notes import Notes
+from model.graph.session import GraphSession
+from model.graph.drive_items import DriveItems
+from model.graph.search import Search
+from model.graph.personal_contacts import PersonalContacts
+from model.graph.mail import Mail
+from model.graph.workbooks_and_charts.workbook import Workbooks
+from model.graph.workbooks_and_charts.range import Range
 
 
 class MicrosoftGraphClient:

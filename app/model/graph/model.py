@@ -6,7 +6,7 @@ import base64
 
 
 @dataclass
-class ClientInfo(Protocol):
+class CurrentSubmission(Protocol):
     def __init__(self) -> None:
         self.fname: str
         self.lname: str
@@ -51,7 +51,7 @@ class API:
     def __init__(self) -> None:
         pass
 
-    def create_excel_json(self, data: ClientInfo) -> dict[str, any]:
+    def create_excel_json(self, data: CurrentSubmission) -> dict[str, any]:
         """Uses input from the program and
         compiles it together to create the
         json payload, which will be used as

@@ -1,7 +1,7 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
-class Groups():
+class Groups:
 
     """
     ## Overview:
@@ -44,8 +44,7 @@ class Groups():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=self.collections_endpoint
+            method="get", endpoint=self.collections_endpoint
         )
 
         return content

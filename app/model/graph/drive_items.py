@@ -1,7 +1,7 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
-class DriveItems():
+class DriveItems:
 
     """
     ## Overview:
@@ -48,7 +48,7 @@ class DriveItems():
 
         content = self.graph_session.make_request(
             method="get",
-            endpoint=self.collections_endpoint + f"/{drive_id}/items/{item_id}"
+            endpoint=self.collections_endpoint + f"/{drive_id}/items/{item_id}",
         )
 
         return content
@@ -72,7 +72,7 @@ class DriveItems():
 
         content = self.graph_session.make_request(
             method="get",
-            endpoint=self.collections_endpoint + f"/{drive_id}/root:/{item_path}"
+            endpoint=self.collections_endpoint + f"/{drive_id}/root:/{item_path}",
         )
 
         return content
@@ -96,8 +96,7 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/groups/{group_id}/drive/items/{item_id}"
+            method="get", endpoint=f"/groups/{group_id}/drive/items/{item_id}"
         )
 
         return content
@@ -120,8 +119,7 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/groups/{group_id}/drive/root:/{item_path}"
+            method="get", endpoint=f"/groups/{group_id}/drive/root:/{item_path}"
         )
 
         return content
@@ -142,8 +140,7 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/me/drive/items/{item_id}"
+            method="get", endpoint=f"/me/drive/items/{item_id}"
         )
 
         return content
@@ -163,8 +160,7 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/me/drive/root:/{item_path}"
+            method="get", endpoint=f"/me/drive/root:/{item_path}"
         )
 
         return content
@@ -188,8 +184,7 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/sites/{site_id}/drive/items/{item_id}"
+            method="get", endpoint=f"/sites/{site_id}/drive/items/{item_id}"
         )
 
         return content
@@ -212,13 +207,14 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/sites/{site_id}/drive/root:/{item_path}"
+            method="get", endpoint=f"/sites/{site_id}/drive/root:/{item_path}"
         )
 
         return content
 
-    def get_site_drive_item_from_list(self, site_id: str, list_id: str, item_id: str) -> dict:
+    def get_site_drive_item_from_list(
+        self, site_id: str, list_id: str, item_id: str
+    ) -> dict:
         """Grab"s a DriveItem Resource using the Item ID and Drive ID.
 
         ### Parameters
@@ -241,7 +237,7 @@ class DriveItems():
 
         content = self.graph_session.make_request(
             method="get",
-            endpoint=f"/sites/{site_id}/lists/{list_id}/items/{item_id}/driveItem"
+            endpoint=f"/sites/{site_id}/lists/{list_id}/items/{item_id}/driveItem",
         )
 
         return content
@@ -265,8 +261,7 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/users/{user_id}/drive/items/{item_id}"
+            method="get", endpoint=f"/users/{user_id}/drive/items/{item_id}"
         )
 
         return content
@@ -289,8 +284,7 @@ class DriveItems():
         """
 
         content = self.graph_session.make_request(
-            method="get",
-            endpoint=f"/users/{user_id}/drive/root:/{item_path}"
+            method="get", endpoint=f"/users/{user_id}/drive/root:/{item_path}"
         )
 
         return content

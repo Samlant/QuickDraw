@@ -1,4 +1,4 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
 class Users:

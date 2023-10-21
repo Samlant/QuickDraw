@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from model.api.ms_graph.client import MicrosoftGraphClient
+from model.graph.client import MicrosoftGraphClient
 
 
 class MSGraphClient:
@@ -45,12 +45,8 @@ class MSGraphClient:
         self.tenant_id = connection_data.get("tenant_id").value
         self.client_secret = connection_data.get("client_secret").value
         self.redirect_uri = connection_data.get("redirect_uri").value
-        # self.user_id = connection_data.get("user_id").value
         self.group_id = connection_data.get("group_id").value
         self.quote_tracker_id = connection_data.get("quote_tracker_id").value
-        # self.quote_worksheet_id = connection_data.get("quote_worksheet_id").value
-        # self.quote_table_id = connection_data.get("quote_table_id").value
-        # self.service_tracker_id = connection_data.get("service_tracker_id").value
         pprint("set connection data successfully.")
 
     def run_excel_program(self, json_payload: dict[any, any]):
@@ -90,7 +86,7 @@ class MSGraphClient:
     def _init_workbooks_service(self):
         self.workbooks_service = self.graph_client.workbooks()
 
-    def _create_workbook(self):
+    def _create_workbook(self) -> str:
         print("creating workbook session.")
         session_response = self.workbooks_service.create_session(
             group_drive=self.group_id,
@@ -100,12 +96,6 @@ class MSGraphClient:
         print("The session ID for the API is:")
         pprint(session_response["id"])
         return session_response["id"]
-
-    # def _get_table_id(self):
-    #     tables_data = self.workbooks_service.list_tables_id(group_drive=self.group_id, item_id=self.quote_tracker_id,)
-    #     table_data = tables_data["value"].pop()
-    #     # Change from popping last element to popping the correct month's table id
-    #     self.quote_table_id = table_data["id"]
 
     def client_already_exists(self, quote_table_name: str) -> bool:
         try:
@@ -172,9 +162,9 @@ class MSGraphClient:
                 "toRecipients": json["recipients"],
             }
         }
-        pprint(message)
+        print(message)
         new_message_draft = self.mail_service.create_my_message(message=message)
-        pprint(new_message_draft)
+        print(new_message_draft)
         return new_message_draft, new_message_draft["id"]
 
     def send_message(self, message):
