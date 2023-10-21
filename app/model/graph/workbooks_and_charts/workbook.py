@@ -1,4 +1,4 @@
-from model.api.ms_graph.session import GraphSession
+from model.graph.session import GraphSession
 
 
 class Workbooks:
@@ -189,7 +189,8 @@ class Workbooks:
             path = "me"
         if item_id:
             content = self.graph_session.make_request(
-                method="get", endpoint=f"{path}/drive/items/{item_id}/workbook/tables?$select=id, name"
+                method="get",
+                endpoint=f"{path}/drive/items/{item_id}/workbook/tables?$select=id, name",
             )
         elif item_path:
             content = self.graph_session.make_request(
@@ -276,24 +277,9 @@ class Workbooks:
             )
 
         return content
-    def search_for_client(
-            self,
-            group_drive: str = None,
-            workbook_id: str = None,
-            workbook_path: str = None,
-            worksheet_id: str = None,
-            worksheet_path: str = None,
-            table_id: str = None,
-            table_path: str = None,
-            session_id: str = None, 
-            json_data=None,) -> bool:
-        name = json_data.get("values")[0][3]
-        vessel = json_data.get("values")[0][8]
-        table_row_obj = self.get_table_rows(
-            
-        )
 
-    def get_table_rows(self,
+    def search_for_client(
+        self,
         group_drive: str = None,
         workbook_id: str = None,
         workbook_path: str = None,
@@ -301,7 +287,24 @@ class Workbooks:
         worksheet_path: str = None,
         table_id: str = None,
         table_path: str = None,
-        session_id: str = None,) -> bool:
+        session_id: str = None,
+        json_data=None,
+    ) -> bool:
+        name = json_data.get("values")[0][3]
+        vessel = json_data.get("values")[0][8]
+        table_row_obj = self.get_table_rows()
+
+    def get_table_rows(
+        self,
+        group_drive: str = None,
+        workbook_id: str = None,
+        workbook_path: str = None,
+        worksheet_id: str = None,
+        worksheet_path: str = None,
+        table_id: str = None,
+        table_path: str = None,
+        session_id: str = None,
+    ) -> bool:
         if group_drive:
             path = f"groups/{group_drive}"
         else:

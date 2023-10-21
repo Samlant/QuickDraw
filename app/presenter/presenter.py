@@ -46,13 +46,13 @@ class BaseModel(Protocol):
 
 
 class ConfigWorker(Protocol):
-
     def get(
-            self,
-            section_name: str,
-            option: str,
+        self,
+        section_name: str,
+        option: str,
     ):
         ...
+
     def get_value(
         self,
         request: dict,
@@ -74,11 +74,13 @@ class ConfigWorker(Protocol):
 
     def check_if_using_default_carboncopies(self) -> bool:
         ...
+
     def set_multi_line_values_for_option(
-            self,
-            section_name,
-            option_name,
-            values,):
+        self,
+        section_name,
+        option_name,
+        values,
+    ):
         ...
 
 
@@ -180,6 +182,7 @@ class Submission(Protocol):
     address: str
     greeting: str
     body: str
+    outro: str
     salutation: str
     default_cc1: str
     default_cc2: str
@@ -295,9 +298,11 @@ class Presenter:
         self.current_submission = None
         self.only_view_msg: bool = None
         self.run_flag: bool = False
+        self.run_template_settings_flag: bool = False
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
         self.quoteform_detected: bool = False
+        self.new_file_path = None
 
     def setup_api(self) -> bool:
         graph_values = self.config_worker.get_section("graph_api")
@@ -370,20 +375,19 @@ class Presenter:
             next_month=next_month,
             second_month=second_month,
         )
-        self.dialog_new_file.root.attributes('-topmost', True)
+        self.dialog_new_file.root.attributes("-topmost", True)
         self.dialog_new_file.root.update()
-        self.dialog_new_file.root.attributes('-topmost', False)
+        self.dialog_new_file.root.attributes("-topmost", False)
         self.dialog_new_file.root.mainloop()
 
     def start_allocate_dialog(self):
         # start dialog_allocate_markets
         print("Starting dialog to allocate markets.")
         self.dialog_allocate_markets.initialize(self)
-        self.dialog_allocate_markets.root.attributes('-topmost', True)
+        self.dialog_allocate_markets.root.attributes("-topmost", True)
         self.dialog_allocate_markets.root.update()
-        self.dialog_allocate_markets.root.attributes('-topmost', False)
+        self.dialog_allocate_markets.root.attributes("-topmost", False)
         self.dialog_allocate_markets.root.mainloop()
-        
 
     def save_user_choices(self):
         print("Saving choices")
@@ -420,6 +424,9 @@ class Presenter:
             self.current_submission.original_file_path,
         )
         self.excel_table_name = self.dialog_new_file.selected_month
+        self.current_submission.vessel_year = self.dialog_new_file.year
+        self.current_submission.vessel = self.dialog_new_file.vessel
+        self.current_submission.referral = self.dialog_new_file.referral
         self.dialog_new_file.root.destroy()
         if choice == "track_allocate":
             self.start_allocate_dialog()
@@ -466,9 +473,9 @@ class Presenter:
             self.set_initial_placeholders()
         if specific_tab:
             self.submission.set_start_tab(specific_tab)
-        self.submission.root.attributes('-topmost', True)
+        self.submission.root.attributes("-topmost", True)
         self.submission.root.update()
-        self.submission.root.attributes('-topmost', False)
+        self.submission.root.attributes("-topmost", False)
         self.submission.root.mainloop()
 
     def set_dropdown_options(self) -> list:
@@ -742,7 +749,9 @@ class Presenter:
         self.quoteform_detected = False
 
     def send_email_api(self):
+        print("Sending email via MSGraph")
         self.api_client.send_message(message=self.json)
+        print("Email sent.")
 
     def get_signature_settings(self) -> dict[str, str]:
         print("Getting signature settings")
@@ -801,6 +810,7 @@ class Presenter:
         self.submission.greeting = section_obj.get("greeting").value
         del self.submission.body
         self.submission.body = section_obj.get("body").value
+        self.submission.outro = section_obj.get("outro").value
         self.submission.salutation = section_obj.get("salutation").value
 
     def _get_customize_tab_placeholders(self):
@@ -884,7 +894,7 @@ class Presenter:
                 section_name,
                 "body",
                 body,
-                )
+            )
         except:
             raise Exception("Couldn't save template_dict to config.")
 
@@ -903,6 +913,7 @@ class Presenter:
                 "address": self.submission.address,
                 "greeting": self.submission.greeting,
                 "body": self.submission.body,
+                "outro": self.submission.outro,
                 "salutation": self.submission.salutation,
             }
         except:

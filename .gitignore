@@ -83,6 +83,12 @@ target/
 profile_default/
 ipython_config.py
 
+# configurations
+*.ini
+**/*.ini
+*.jsonc
+**/*.jsonc
+
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
 #   intended to run in multiple environments; otherwise, check them in:
@@ -126,10 +132,7 @@ celerybeat.pid
 
 
 # Configurations Files
-.vs/
-.vs/ProjectSettings.json
-app/resources/*.jsonc
-app/resources/*.ini
+*.jsonc
 *.ini
 
 # Environments
@@ -173,3 +176,7 @@ cython_debug/
 #.idea/
 *.pyc
 *.vsidx
+
+# VS Code Editor
+.vs/
+.vscode/

@@ -31,7 +31,7 @@ class GraphSession:
             >>> graph_session = GraphSession()
         """
 
-        from model.api.ms_graph.client import MicrosoftGraphClient
+        from model.graph.client import MicrosoftGraphClient
 
         # We can also add custom formatting to our log messages.
         log_format = "%(asctime)-15s|%(filename)s|%(message)s"
@@ -165,7 +165,9 @@ class GraphSession:
         while not_successful:
             count += 1
             if count > 4:
-                print("Couldn't secure an 'OK' response from the API server.  Tried 4/4 times.  Please retry your action.")
+                print(
+                    "Couldn't secure an 'OK' response from the API server.  Tried 4/4 times.  Please retry your action."
+                )
                 return False
             # Send the request.
             response: requests.Response = request_session.send(request=request_request)
@@ -196,7 +198,7 @@ class GraphSession:
                     "response_method": response.request.method,
                 }
 
-            # Log the error.
+                # Log the error.
                 logging.error(msg=json_lib.dumps(obj=error_dict, indent=4))
                 error = error_dict["response_body"]["error"]
                 print(f"Code: {error['code']}")

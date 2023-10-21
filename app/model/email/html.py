@@ -1,6 +1,7 @@
 def organize_inputs(email_handler, carrier_section) -> tuple[dict, dict, str]:
     greeting = carrier_section.get("greeting").value
     body = carrier_section.get("body").value
+    outro = carrier_section.get("outro").value
     salutation = carrier_section.get("salutation").value
     sig_img = email_handler.img_sig_url
     styles: dict[str, str] = {
@@ -13,6 +14,7 @@ def organize_inputs(email_handler, carrier_section) -> tuple[dict, dict, str]:
     wordings: dict[str, str] = {
         "greeting": greeting,
         "body": body,
+        "outro": outro,
         "extra notes": email_handler.extra_notes,
         "salutation": salutation,
         "username": email_handler.username,
@@ -32,6 +34,7 @@ def make_body(
     # style_signature = styles["signature"] # not implemented yet
     greeting = wordings["greeting"]
     body = wordings["body"]
+    outro = wordings["outro"]
     extra_notes = wordings["extra notes"]
     salutation = wordings["salutation"]
     username = wordings["username"]
@@ -48,6 +51,7 @@ def make_body(
                 <p style={style_greeting}>{greeting}</p>
                 <p style={style_body}>{body}</p> 
                 <p style={style_body}>{extra_notes}</p>
+                <p style={style_body}>{outro}</p>
             </body>
             <footer>
             <p style={style_salutation}>{salutation}</p>
@@ -65,7 +69,6 @@ def make_signature(sig_img: str, signature_settings: dict[str, str]) -> str:
     office_street = signature_settings["office_street"]
     office_city_st_zip = signature_settings["office_city_st_zip"]
     signature = f"""
-        <img src='{sig_img}'>
         <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>NOVAMAR INSURANCE GROUP</p>
         <img src='{logo_img}'>
         <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Main:(800)-823-2798</p>
@@ -80,6 +83,8 @@ def make_signature(sig_img: str, signature_settings: dict[str, str]) -> str:
         <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Established in 1987 with offices in: Seattle | Newport Beach | San Diego | Sarasota | Jacksonville | Puerto Vallarta | Cancun | San Miguel de Allende</p>
         <p style='margin:0in;font-size:12px;font-family:Georgia Pro,serif;color:#1F3864;'>Please be advised that coverage is not bound, renewed, amended or in force unless confirmed in writing by a Novamar Insurance Group agent or by the represented company.</p>
         """
+    if sig_img != "":
+        signature = f"<img src='{sig_img}'>" + signature
     return signature
 
 
