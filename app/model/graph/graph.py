@@ -124,7 +124,7 @@ class MSGraphClient:
         return False
 
     def add_row(self, table_name: str = None) -> None:
-        "Creates the reques to add an excel row"
+        "Creates the request to add an excel row"
         if table_name:
             target_table_id = table_name
         else:

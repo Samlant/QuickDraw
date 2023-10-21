@@ -3,11 +3,7 @@ import threading
 import time
 from pathlib import Path
 
-<<<<<<< Updated upstream
 from model.graph.graph import MSGraphClient
-=======
-from model.graph.app import MSGraphClient
->>>>>>> Stashed changes
 from model.graph.model import API
 from model.base_model import BaseModel
 from model.config import ConfigWorker
@@ -103,7 +99,7 @@ def main():
     )
     thread2.start()
     while tray_icon.active is True:
-        if presenter.new_file_path != None:
+        if presenter.new_file_path is not None:
             try:
                 presenter.trigger_new_file(file=presenter.new_file_path)
             except:
