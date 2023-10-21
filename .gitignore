@@ -163,11 +163,8 @@ cython_debug/
 #.idea/
 *.pyc
 *.vsidx
-.vs/Mass-Quote-Submissions/FileContentIndex/read.lock
-.vs/VSWorkspaceState.json
-.vs/Mass-Quote-Submissions/v17/.wsuo
-.vs/slnx.sqlite
-.vs/ProjectSettings.json
+.vs/
+.vscode/
 ./resource_usage.png
 app/resources/ms_graph_state.jsonc
 *.ini
