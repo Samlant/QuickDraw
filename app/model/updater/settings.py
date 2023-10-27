@@ -13,12 +13,14 @@ APP_VERSION = "3.0.0"
 
 # Current module dir (when frozen this equals sys._MEIPASS)
 # https://pyinstaller.org/en/stable/runtime-information.html#using-file
-MODULE_DIR = Path(__file__).resolve().parent
+MODULE_DIR = Path(__file__).resolve().parent.parent
 
 # Are we running in a PyInstaller bundle?
 # https://pyinstaller.org/en/stable/runtime-information.html
 FROZEN = getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
-
+print("Are we frozen?")
+print(FROZEN)
+print(f"the module dir: {MODULE_DIR}")
 # For development
 DEV_DIR = MODULE_DIR.parent.parent / "repo"
 
@@ -51,3 +53,6 @@ if not FROZEN:
 
     TRUSTED_ROOT_SRC = REPO_DIR / "metadata" / "root.json"
 TRUSTED_ROOT_DST = METADATA_DIR / "root.json"
+
+print(f"the trusted root SRC dir: {TRUSTED_ROOT_SRC}")
+print(f"the trusted root DEST dir: {TRUSTED_ROOT_DST}")
