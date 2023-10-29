@@ -13,10 +13,10 @@ __version__ = settings.APP_VERSION
 
 def progress_hook(bytes_downloaded: int, bytes_expected: int):
     progress_percent = bytes_downloaded / bytes_expected * 100
-    print(f'\r{progress_percent:.1f}%', end='')
+    print(f"\r{progress_percent:.1f}%", end="")
     time.sleep(0.2)  # quick and dirty: simulate slow or large download
     if progress_percent >= 100:
-        print('')
+        print("")
 
 
 def update(pre: str):
@@ -51,7 +51,7 @@ def update(pre: str):
             # contain any unrelated content.
             purge_dst_dir=False,
             exclude_from_purge=None,
-            log_file_name='install.log',
+            log_file_name="install.log",
         )
 
 
@@ -69,7 +69,7 @@ def update_app(cmd_args):
     # file lists all trusted keys and TUF roles.
     if not settings.TRUSTED_ROOT_DST.exists():
         shutil.copy(src=settings.TRUSTED_ROOT_SRC, dst=settings.TRUSTED_ROOT_DST)
-        logger.info('Trusted root metadata copied to cache.')
+        logger.info("Trusted root metadata copied to cache.")
 
     # Download and apply any available updates
     update(pre=pre_release_channel)

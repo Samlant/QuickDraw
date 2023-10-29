@@ -3,8 +3,6 @@ import os
 from pathlib import Path
 import sys
 
-from tufup.utils.platform_specific import ON_WINDOWS
-
 logger = logging.getLogger(__name__)
 
 # App info
@@ -13,24 +11,22 @@ APP_VERSION = "3.0.0"
 
 # Current module dir (when frozen this equals sys._MEIPASS)
 # https://pyinstaller.org/en/stable/runtime-information.html#using-file
-MODULE_DIR = Path(__file__).resolve().parent.parent
+MODULE_DIR = Path(__file__).resolve().parent
 
 # Are we running in a PyInstaller bundle?
 # https://pyinstaller.org/en/stable/runtime-information.html
 FROZEN = getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
 print("Are we frozen?")
 print(FROZEN)
-print(f"the module dir: {MODULE_DIR}")
+print(f"The MODULE_DIR is: {MODULE_DIR}")
 # For development
-DEV_DIR = MODULE_DIR.parent.parent / "repo"
-
+DEV_DIR = MODULE_DIR.parent.parent.parent / "repo"
+print(f"The DEV_DIR is: {DEV_DIR}")
 # App directories
-if ON_WINDOWS:
-    # Windows per-user paths
-    PER_USER_DATA_DIR = Path(os.getenv("LOCALAPPDATA")) / "Work-Tools"
-    PER_USER_PROGRAMS_DIR = PER_USER_DATA_DIR / "QuickDraw"
-else:
-    raise NotImplementedError("Unsupported platform")
+
+PER_USER_DATA_DIR = Path(os.getenv("LOCALAPPDATA"))
+PER_USER_PROGRAMS_DIR = Path(os.getenv("LOCALAPPDATA")) / "Programs"
+
 
 PROGRAMS_DIR = PER_USER_PROGRAMS_DIR if FROZEN else DEV_DIR
 DATA_DIR = PER_USER_DATA_DIR if FROZEN else DEV_DIR
@@ -45,10 +41,10 @@ METADATA_BASE_URL = ""
 TARGET_BASE_URL = ""
 
 # Location of trusted root metadata file
-TRUSTED_ROOT_SRC = MODULE_DIR.parent / "root.json"
+TRUSTED_ROOT_SRC = MODULE_DIR / "_internal" / "root.json"
 if not FROZEN:
     # for development, get the root metadata directly from local repo
-    sys.path.insert(0, str(MODULE_DIR.parent.parent))
+    sys.path.insert(0, str(MODULE_DIR.parent.parent.parent))
     from repo_settings import REPO_DIR
 
     TRUSTED_ROOT_SRC = REPO_DIR / "metadata" / "root.json"
