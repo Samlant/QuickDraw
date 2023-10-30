@@ -726,26 +726,30 @@ class Presenter:
 
             self.json = self.api_model.create_email_json(email=self.email_handler)
             print("sending email message")
-        try:
-            thread_ol = threading.Thread(
-                daemon=False, target=self.send_email_api, name="Outlook API Call"
-            )
-            thread_ol.start()
-        except:
-            thread_ol = threading.Thread(
-                daemon=False, target=self.send_email_api, name="Outlook API Call"
-            )
-            thread_ol.start()
-        try:
-            thread_xl = threading.Thread(
-                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-            )
-            thread_xl.start()
-        except:
-            thread_xl = threading.Thread(
-                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-            )
-            thread_xl.start()
+            try:
+                thread_ol = threading.Thread(
+                    daemon=False, target=self.send_email_api, name="Outlook API Call"
+                )
+                thread_ol.start()
+            except:
+                thread_ol = threading.Thread(
+                    daemon=False, target=self.send_email_api, name="Outlook API Call"
+                )
+                thread_ol.start()
+            try:
+                thread_xl = threading.Thread(
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
+                thread_xl.start()
+            except:
+                thread_xl = threading.Thread(
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
+                thread_xl.start()
         self.quoteform_detected = False
 
     def send_email_api(self):
