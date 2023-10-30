@@ -11,6 +11,9 @@ __pycache__/
 build/
 dist/
 repo/
+repo/keystore/
+repo/repository/
+repo/dist/
 .tufup-repo-config
 repo*.py
 downloads/
@@ -183,3 +186,4 @@ cython_debug/
 # VS Code Editor
 .vs/
 .vscode/
+
