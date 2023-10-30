@@ -15,7 +15,6 @@ repo/keystore/
 repo/repository/
 repo/dist/
 .tufup-repo-config
-repo*.py
 downloads/
 develop-eggs/
 eggs/
