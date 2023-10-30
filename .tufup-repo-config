@@ -1,0 +1,33 @@
+{
+    "app_name": "QuickDraw",
+    "app_version_attr": "model.updater.__version__",
+    "encrypted_keys": [],
+    "expiration_days": {
+        "root": 365,
+        "snapshot": 7,
+        "targets": 7,
+        "timestamp": 1
+    },
+    "key_map": {
+        "root": [
+            "my_key"
+        ],
+        "snapshot": [
+            "my_key"
+        ],
+        "targets": [
+            "my_key"
+        ],
+        "timestamp": [
+            "my_key"
+        ]
+    },
+    "keys_dir": "E:\\My Stuff\\My Project Center\\Work\\QuickDraw\\source\\repo\\keystore",
+    "repo_dir": "E:\\My Stuff\\My Project Center\\Work\\QuickDraw\\source\\repo\\repository",
+    "thresholds": {
+        "root": 1,
+        "snapshot": 1,
+        "targets": 1,
+        "timestamp": 1
+    }
+}
