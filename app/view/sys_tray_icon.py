@@ -76,9 +76,10 @@ class TrayIcon:
             print(self.presenter.submission.root.state())
             self.presenter.submission.root.quit()
             # print(self.presenter.submission.state())
-        elif str(item) == "Run Surplus Lines Calculator":
+        elif str(item) == "Add Surplus Lines Stamp":
             print("Running Surplus Lines Calculator")
-            print("Not yet implemented!")
+            # Insert run code here (below should work)
+            self.presenter.run_SL_automator_flag = True
 
     def create_icon(self, src_icon):
         thread = threading.Thread(
@@ -88,7 +89,7 @@ class TrayIcon:
                 Image.open(src_icon),
                 menu=Menu(
                     MenuItem("Run QuickDraw", self._on_clicked),
-                    MenuItem("Run Surplus Lines Calculator", self._on_clicked),
+                    MenuItem("Add Surplus Lines Stamp", self._on_clicked),
                     MenuItem(
                         "Settings",
                         Menu(

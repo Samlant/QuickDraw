@@ -17,6 +17,7 @@ class CurrentSubmission(Protocol):
         self.extra_attachements: list
         self.markets: list[str]
         self.submit_tool: bool
+        self.username: str
 
 
 @dataclass
@@ -51,7 +52,7 @@ class API:
     def __init__(self) -> None:
         pass
 
-    def create_excel_json(self, data: CurrentSubmission) -> dict[str, any]:
+    def create_excel_json(self, data: CurrentSubmission, username: str) -> dict[str, any]:
         """Uses input from the program and
         compiles it together to create the
         json payload, which will be used as
@@ -70,13 +71,17 @@ class API:
         status = data.status
         referral = data.referral
 
+        if "jerry" in username.lower():
+            user = "JN"
+        else:
+            user = "SL"
         json = {
             "index": 1,
             "values": [
                 [
                     "",  # A
                     "",  # B
-                    "JN",  # C
+                    user,  # C
                     name,  # D
                     start_date,  # E
                     "",  # F

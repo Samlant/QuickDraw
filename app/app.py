@@ -118,6 +118,9 @@ def main():
         elif presenter.run_folder_settings_flag:
             presenter.start_submission_program(specific_tab="folder")
             presenter.run_folder_settings_flag = False
+        elif presenter.run_SL_automator_flag:
+            presenter.start_SL_automator()
+            presenter.run_SL_automator_flag = False
         else:
             pass
         time.sleep(2)

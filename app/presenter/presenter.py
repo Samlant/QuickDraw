@@ -301,6 +301,7 @@ class Presenter:
         self.run_template_settings_flag: bool = False
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
+        self.run_SL_automator_flag: bool = False
         self.quoteform_detected: bool = False
         self.new_file_path = None
 
@@ -399,7 +400,11 @@ class Presenter:
 
     def create_and_send_data_to_api(self):
         print("creating call to send to Microsoft API")
-        json = self.api_model.create_excel_json(self.current_submission)
+        username = self.config_worker.get_value({
+            "section_name": "General settings",
+            "key": "username",
+        })
+        json = self.api_model.create_excel_json(self.current_submission, username)
         self.api_client.run_excel_program(
             json_payload=json,
         )
@@ -1010,3 +1015,8 @@ class Presenter:
     ### End of Folder Settings Tab ###
     ############# END --Settings Tabs-- END #############
     ############# END --Submissions Program-- END #############
+
+    ############# --Surplus Lines Automator-- #############
+    def start_SL_automator(self):
+        print("Not yet implemented!")
+    ############# END --Surplus Lines Automator-- END #############
