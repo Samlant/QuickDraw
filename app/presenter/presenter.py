@@ -1056,8 +1056,6 @@ class Presenter:
         form_names = self.submission.reg_tv.get_all_names()
         user_form_name = f"Form_{self.submission.form_name}"
         if user_form_name in form_names:
-            import ctypes
-
             ctypes.windll.user32.MessageBoxW(
                 0,
                 "A form already exists with this name. Please change the form name to a unique name and try adding again.",
