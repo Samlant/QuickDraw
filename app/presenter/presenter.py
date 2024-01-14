@@ -1054,8 +1054,8 @@ class Presenter:
     ### Begin Quoteform Registrations Tab ###
     def add_qf_registration(self):
         form_names = self.submission.reg_tv.get_all_names()
-        name = self.qf_reg.standardize_name(self.submission.form_name)
-        if self.qf_reg.validate_name(form_names, name):
+        name = qf_reg.standardize_name(self.submission.form_name)
+        if qf_reg.validate_name(form_names, name):
             qf = Quoteform(
                 name=name,
                 fname=self.submission.fname,
@@ -1080,21 +1080,11 @@ class Presenter:
                 )
 
     def btn_save_registration_settings(self):
-        conf = self.config_worker._open_config()
-        # get and remove all existing form entries in config file
-        quoteform_names = [y for y in conf.sections() if "Form_" in y]
-        for name in quoteform_names:
-            conf.remove_section(name)
+        config = self.config_worker._open_config()
+        qf.reg.remove_all_sections(config)
+        # add treeview input into config  
         row_data = self.submission.reg_tv.get_all_rows()
-        for row in row_data:
-            print(row[0])
-            conf["Seawave"].add_before.section(row[0]).space(1)
-            conf[row[0]]["fname"] = row[1]
-            conf[row[0]]["lname"] = row[2]
-            conf[row[0]]["year"] = row[3]
-            conf[row[0]]["vessel"] = row[4]
-            conf[row[0]]["referral"] = row[5]
-            conf.update_file()
+        qf.reg.add_treeview_data_to_conf(config, row_data)
 
     def btn_revert_registration_settings(self):
         self.submission.reg_tv.delete(*self.submission.reg_tv.get_children())
