@@ -245,6 +245,7 @@ class MicrosoftGraphClient:
             return True
 
         # if the current access token is expired then try and refresh access token.
+
         elif self.refresh_token and self.grab_refresh_token():
             return True
 

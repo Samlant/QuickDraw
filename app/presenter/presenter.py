@@ -5,6 +5,7 @@ from typing import Protocol
 import threading
 from tkinter import TclError
 from ast import literal_eval
+import model.quoteform_registrations as qf_reg
 
 
 class API(Protocol):
@@ -119,13 +120,10 @@ class DirWatch(Protocol):
 
 
 class DocParser(Protocol):
-    def __init__(self) -> None:
-        self.keys: dict[str, str]
-
     def process_doc(
         self,
         file_path: Path,
-    ) -> dict:
+    ) -> dict[str, str]:
         ...
 
 
@@ -245,6 +243,43 @@ class ClientInfo:
     extra_attachements: list = None
     markets: list | str = ""
     submit_tool: bool = False
+
+
+@dataclass
+class Quoteform:
+    """Stores the characteristics of a specific PDF quoteform.
+
+    Attributes:
+        id : standardized name used to ID mapping in config.ini file
+        name : user-chosen name for the specific mapping
+        all other attrs : required fields from PDF
+    """
+
+    name: str
+    fname: str
+    lname: str
+    year: str
+    vessel: str
+    referral: str
+
+    def values(self) -> tuple[str]:
+        return (
+            self.name,
+            self.fname,
+            self.lname,
+            self.year,
+            self.vessel,
+            self.referral,
+        )
+
+    def data(self) -> dict[str, str]:
+        return {
+            "fname": self.fname,
+            "lname": self.lname,
+            "year": self.year,
+            "vessel": self.vessel,
+            "referral": self.referral,
+        }
 
 
 class Presenter:
@@ -400,10 +435,12 @@ class Presenter:
 
     def create_and_send_data_to_api(self):
         print("creating call to send to Microsoft API")
-        username = self.config_worker.get_value({
-            "section_name": "General settings",
-            "key": "username",
-        })
+        username = self.config_worker.get_value(
+            {
+                "section_name": "General settings",
+                "key": "username",
+            }
+        )
         json = self.api_model.create_excel_json(self.current_submission, username)
         self.api_client.run_excel_program(
             json_payload=json,
@@ -476,6 +513,7 @@ class Presenter:
             self.set_initial_placeholders(quote_path)
         else:
             self.set_initial_placeholders()
+        self.insert_qf_registration_placeholders()
         if specific_tab:
             self.submission.set_start_tab(specific_tab)
         self.submission.root.attributes("-topmost", True)
@@ -580,7 +618,7 @@ class Presenter:
             "Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again."
         )
         self.only_view_msg = True
-        raise NotImplementedError
+        print("Viewing templates has not yet been implemented!")
 
     def btn_send_envelopes(self) -> None:
         print("clicked send button")
@@ -983,9 +1021,9 @@ class Presenter:
         self.submission.new_biz_dir = section_obj.get("new_biz_dir").value
         self.submission.renewals_dir = section_obj.get("renewals_dir").value
         config_dirs = section_obj.get("custom_dirs").value
-        if config_dirs is not "":
+        if config_dirs != "":
             custom_dirs: list[str] = literal_eval(config_dirs)
-            self.submission.tree.delete(*self.submission.tree.get_children())
+            self.submission.tree_dir.delete(*self.submission.tree_dir.get_children())
             self.submission.set_data_into_treeview(data=custom_dirs)
         return True
 
@@ -1013,10 +1051,76 @@ class Presenter:
 
     ### End of Custom Dir Creation Settings ###
     ### End of Folder Settings Tab ###
+    ### Begin Quoteform Registrations Tab ###
+    def add_qf_registration(self):
+        form_names = self.submission.reg_tv.get_all_names()
+        user_form_name = f"Form_{self.submission.form_name}"
+        if user_form_name in form_names:
+            import ctypes
+
+            ctypes.windll.user32.MessageBoxW(
+                0,
+                "A form already exists with this name. Please change the form name to a unique name and try adding again.",
+                "Warning",
+                0x10 | 0x0,
+            )
+        else:
+            qf = Quoteform(
+                name=user_form_name,
+                fname=self.submission.fname,
+                lname=self.submission.lname,
+                year=self.submission.year,
+                vessel=self.submission.vessel,
+                referral=self.submission.referral,
+            )
+            self.submission.reg_tv.add_registration(qf)
+            del self.submission.form_name
+            del self.submission.fname
+            del self.submission.lname
+            del self.submission.year
+            del self.submission.vessel
+            del self.submission.referral
+
+    def btn_save_registration_settings(self):
+        conf = self.config_worker._open_config()
+        # get and remove all existing form entries in config file
+        quoteform_names = [y for y in conf.sections() if "Form_" in y]
+        for name in quoteform_names:
+            conf.remove_section(name)
+        row_data = self.submission.reg_tv.get_all_rows()
+        for row in row_data:
+            print(row[0])
+            conf["Seawave"].add_before.section(row[0]).space(1)
+            conf[row[0]]["fname"] = row[1]
+            conf[row[0]]["lname"] = row[2]
+            conf[row[0]]["year"] = row[3]
+            conf[row[0]]["vessel"] = row[4]
+            conf[row[0]]["referral"] = row[5]
+            conf.update_file()
+
+    def btn_revert_registration_settings(self):
+        self.submission.reg_tv.delete(*self.submission.reg_tv.get_children())
+        self.insert_qf_registration_placeholders()
+
+    def insert_qf_registration_placeholders(self):
+        config = self.config_worker._open_config()
+        quoteform_names = [y for y in config.sections() if "Form_" in y]
+        for name in quoteform_names:
+            section = config.get_section(name)
+            options = section.items()
+            form = Quoteform(
+                name,
+                options[0][1].value,
+                options[1][1].value,
+                options[2][1].value,
+                options[3][1].value,
+                options[4][1].value,
+            )
+            self.submission.reg_tv.add_registration(form)
+
+    ### End of Quoteform Registrations Tab ###
     ############# END --Settings Tabs-- END #############
     ############# END --Submissions Program-- END #############
 
     ############# --Surplus Lines Automator-- #############
-    def start_SL_automator(self):
-        print("Not yet implemented!")
     ############# END --Surplus Lines Automator-- END #############

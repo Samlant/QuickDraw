@@ -37,10 +37,8 @@ METADATA_DIR = UPDATE_CACHE_DIR / "metadata"
 TARGET_DIR = UPDATE_CACHE_DIR / "targets"
 
 # Update-server urls
-METADATA_BASE_URL = (
-    "https://raw.githubusercontent.com/Samlant/updater/blob/main/metadata"
-)
-TARGET_BASE_URL = "https://raw.githubusercontent.com/Samlant/updater/blob/main/targets"
+METADATA_BASE_URL = "https://raw.githubusercontent.com/Samlant/updater/main/metadata"
+TARGET_BASE_URL = "https://raw.githubusercontent.com/Samlant/updater/main/targets"
 
 # Location of trusted root metadata file
 TRUSTED_ROOT_SRC = MODULE_DIR / "root.json"

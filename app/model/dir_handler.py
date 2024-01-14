@@ -14,7 +14,7 @@ class Resources:
     ms_graph_state_path: Path = user_resources / "ms_graph_state.jsonc"
     config_path: Path = user_resources / "configurations.ini"
     # App resources
-    app_dir: Path = Path.home() / "AppData" / "Local" / "Programs" / "QuickDraw"
+    app_dir: Path = Path("C:/Program Files/QuickDraw")
     app_resources: Path = app_dir / "_internal" / "resources"
     app_icon: Path = app_resources / "img" / "app.ico"
     tray_icon: Path = app_resources / "img" / "sys_tray.ico"

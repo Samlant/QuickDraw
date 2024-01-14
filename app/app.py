@@ -11,6 +11,7 @@ from model.dir_handler import DirHandler, Resources
 from model.dir_watch import DirWatch
 from model.email.email import EmailHandler
 from model.pdf import DocParser
+from model.surplus_lines.app import SurplusLinesAutomator as surplus_lines
 from model.updater import update_app
 from presenter.presenter import Presenter
 from view.base_view import Submission
@@ -32,11 +33,22 @@ def initialize_modules() -> Presenter:
     """Creates and passes all models and views to the Presenter and
     returns the Presenter as an object."""
     # Models
-    api_client = MSGraphClient(
-        ms_graph_state_path=str(
-            PATHS.ms_graph_state_path,
+    try:
+        api_client = MSGraphClient(
+            ms_graph_state_path=str(
+                PATHS.ms_graph_state_path,
+            )
         )
-    )
+    except PermissionError as pe:
+        print("Couldn't login using existing credentials. Deleting and trying again.")
+        # Delete credential file
+        Path.unlink(PATHS.ms_graph_state_path)
+        # Retry login
+        api_client = MSGraphClient(
+            ms_graph_state_path=str(
+                PATHS.ms_graph_state_path,
+            )
+        )
     api_model = API()
     base_model = BaseModel(
         positive_value=POSITIVE_SUBMISSION_VALUE,
@@ -53,7 +65,7 @@ def initialize_modules() -> Presenter:
     dir_handler = DirHandler()
     dir_watch = DirWatch(path_to_watch=watch_dir)
     email_handler = EmailHandler()
-    pdf = DocParser()
+    pdf = DocParser(config_worker)
     # Views
     submission = Submission(
         positive_value=POSITIVE_SUBMISSION_VALUE,
@@ -119,7 +131,8 @@ def main():
             presenter.start_submission_program(specific_tab="folder")
             presenter.run_folder_settings_flag = False
         elif presenter.run_SL_automator_flag:
-            presenter.start_SL_automator()
+            sl = surplus_lines(config_worker)
+            sl.start()
             presenter.run_SL_automator_flag = False
         else:
             pass
