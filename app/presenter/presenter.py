@@ -1054,17 +1054,10 @@ class Presenter:
     ### Begin Quoteform Registrations Tab ###
     def add_qf_registration(self):
         form_names = self.submission.reg_tv.get_all_names()
-        user_form_name = f"Form_{self.submission.form_name}"
-        if user_form_name in form_names:
-            ctypes.windll.user32.MessageBoxW(
-                0,
-                "A form already exists with this name. Please change the form name to a unique name and try adding again.",
-                "Warning",
-                0x10 | 0x0,
-            )
-        else:
+        name = self.qf_reg.standardize_name(self.submission.form_name)
+        if self.qf_reg.validate_name(form_names, name):
             qf = Quoteform(
-                name=user_form_name,
+                name=name,
                 fname=self.submission.fname,
                 lname=self.submission.lname,
                 year=self.submission.year,
@@ -1078,6 +1071,13 @@ class Presenter:
             del self.submission.year
             del self.submission.vessel
             del self.submission.referral
+        else:
+            ctypes.windll.user32.MessageBoxW(
+                0,
+                "A form already exists with this name. Please change the form name to a unique name and try adding again.",
+                "Warning",
+                0x10 | 0x0,
+                )
 
     def btn_save_registration_settings(self):
         conf = self.config_worker._open_config()
