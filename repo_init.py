@@ -2,7 +2,7 @@ import logging
 
 from tufup.repo import Repository
 
-from model.updater.settings import APP_NAME
+from app.model.updater.settings import APP_NAME
 from repo_settings import (
     ENCRYPTED_KEYS,
     EXPIRATION_DAYS,
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # Create repository instance
     repo = Repository(
         app_name=APP_NAME,
-        app_version_attr="model.updater.__version__",
+        app_version_attr="app.model.updater.__version__",
         repo_dir=REPO_DIR,
         keys_dir=KEYS_DIR,
         key_map=KEY_MAP,

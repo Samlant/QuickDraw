@@ -1,6 +1,6 @@
 {
     "app_name": "QuickDraw",
-    "app_version_attr": "model.updater.__version__",
+    "app_version_attr": "app.model.updater.__version__",
     "encrypted_keys": [],
     "expiration_days": {
         "root": 365,

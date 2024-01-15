@@ -1,20 +1,20 @@
 {
  "signatures": [
   {
-   "keyid": "fed56cf79d232220acb7bf2f6f318bceab15992420deb9b0f109de114f6c71cd",
-   "sig": "8c338b8f9fa2980df106748460be810141c8196df87a84dc2607b6f1cd18bc509e22effc23252233963f1b0642a6d780500ab2d28541f44e20c34cb8a58bc307"
+   "keyid": "82690301cec8fd00c00823f58df36abc30af54295d455a7a3e6d68452197a0c3",
+   "sig": "551f507c05769e5efc330e69f2f3fbdecb7b3d6ef7241068a838978e324b885556cef479fe0822ff1f032149f3613d43e1974ecce73c6e1c09c4f115309aef07"
   }
  ],
  "signed": {
   "_type": "targets",
-  "expires": "2023-11-06T01:45:15Z",
+  "expires": "2024-01-21T05:09:59Z",
   "spec_version": "1.0.31",
   "targets": {
    "QuickDraw-3.0.0.tar.gz": {
     "hashes": {
-     "sha256": "485e98bc3c3470424e76bff415f80043fa48c2f9df19e1968116c0b67886df2b"
+     "sha256": "649869ef5afd7ec8a7db1f2a52643eb8722780ca391045ce25dd7a888bb9b5c7"
     },
-    "length": 43744764
+    "length": 44631604
    }
   },
   "version": 2
