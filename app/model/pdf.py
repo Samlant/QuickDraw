@@ -13,26 +13,28 @@ class QuoteDoc:
         self.vessel: str = None
         self.referral: str = None
         formatted = self._change_lists_to_str(quoteform)
-        
+
         self._assign_attr(formatted)
-        
+
     @property
     def fname(self):
         return self._fname
-      
+
     @fname.setter
     def fname(self, new_fname: str):
         self._fname = string.capwords(new_fname)
-    
+
     @property
     def lname(self):
         return self._lname
-      
+
     @fname.setter
     def lname(self, new_lname: str):
         self._lname = new_lname.upper()
-        
-    def change_lists_to_str(self, quoteform: dict[str, str|list[str]]) -> dict[str, str]:
+
+    def change_lists_to_str(
+        self, quoteform: dict[str, str | list[str]]
+    ) -> dict[str, str]:
         formatted = {}
         for key, value in quoteform.items():
             if "," in value:
@@ -41,7 +43,7 @@ class QuoteDoc:
             else:
                 formatted[key] = [value]
         return formatted
-      
+
     def _assign_attr(self, formatted: dict[str, str]) -> None:
         """Assign attributes to the class from a formatted dict of attr names & values."""
         for attr, vals in formatted.items():
@@ -89,10 +91,12 @@ class DocParser:
         counter = self._count_same_field_occurrences(forms, pdf_fields_values)
         doc = max(counter)
         return forms[doc]
-        
-    def _count_same_field_occurrences(self, forms: list[dict[str, str]], pdf_fields_values) -> dict[str, int]:
+
+    def _count_same_field_occurrences(
+        self, forms: list[dict[str, str]], pdf_fields_values
+    ) -> dict[str, int]:
         counter = {}
-        for quoteform in quoteforms:
+        for quoteform in forms:
             count = 0
             for desired_key, field_name in quoteform.items():
                 if "," in field_name:
@@ -105,21 +109,19 @@ class DocParser:
             counter[quoteform["name"]] = count
         return counter
 
-    def get_doc_values(
-        self, file_path, form
-    ) -> dict[str, str]:
+    def get_doc_values(self, file_path, form) -> dict[str, str]:
         pdf_fields_values = fillpdfs.get_form_fields(file_path)
         form_registry = self._extract_values(pdf_fields_values, form)
         return form_registry
-    
+
     def _extract_values(self, pdf_fields_values, form) -> dict[str, str]:
         form_registry = {}
         form_registry["name"] = form.pop("name")
         other_values = self.__loop_fields(pdf_fields_values, form)
-        # merge dicts
-        
-        
-    def __loop_fields(self, pdf_fields_values, form) -> dict(str, str)
+        return form_registry | other_values
+
+    def __loop_fields(self, pdf_fields_values, form) -> dict[str, str]:
+        form_registry = {}
         for prog_field_name, pdf_field in form.items():
             value = pdf_fields_values[pdf_field]
             if not isinstance(value, str):
@@ -132,10 +134,10 @@ class DocParser:
         form_names = self.__get_names_from_config(config)
         forms = self.__get_values_from_config(config, form_names)
         return forms
-        
+
     def __get_names_from_config(self, config) -> list[str]:
         return [x for x in config.sections() if "Form_" in x]
-        
+
     def __get_values_from_config(self, config, form_names) -> list[dict[str, str]]:
         forms = []
         for name in form_names:

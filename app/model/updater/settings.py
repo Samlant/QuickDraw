@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # App info
 APP_NAME = "QuickDraw"
-APP_VERSION = "3.0.0"
+APP_VERSION = "3.0.1"
 
 # Current module dir (when frozen this equals sys._MEIPASS)
 # https://pyinstaller.org/en/stable/runtime-information.html#using-file
