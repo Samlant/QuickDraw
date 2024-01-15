@@ -1,30 +1,36 @@
-def assign_registration_name(config) -> str:
-    counter = 1
-    name = "Form_"
-    test_name = f"{name}{counter}"
-    while config._validate_section(test_name):
-        counter += 1
-        test_name = f"{name}{counter}"
-    return test_name
+FORM_PREFIX = "Form_"
 
+def process_save(config, row_data):
+    config = _remove_all_sections(config)
+    _add_treeview_data_into_conf(config, row_data)
+    
+def _remove_all_sections(config):
+    names = __get_all_names_from_conf(config)
+    for name in names:
+        config.remove_section(name)
+    config.update_file()
+    return config
+        
 
-# def check_if_duplicate(quoteform, config):
-#     conf = config._open_config()
-#     quoteform_names = [y for y in conf.sections() if "Form_" in y]
+def __get_all_names_from_conf(config) -> list[str]:
+    return [y for y in config.sections() if FORM_PREFIX in y]
+    
+def add_treeview_data_into_conf(config, row_data):
+    for row in row_data:
+        config["Seawave"].add_before.section(row[0]).space(1)
+        config[row[0]]["fname"] = row[1]
+        config[row[0]]["lname"] = row[2]
+        config[row[0]]["year"] = row[3]
+        config[row[0]]["vessel"] = row[4]
+        config[row[0]]["referral"] = row[5]
+        config.update_file()
 
-#     quoteforms: list[dict[str, str]] = []
-
-#     for saved_quoteform in quoteform_names:
-#         new_dict = {}
-#         section = config.get_section(saved_quoteform)
-#         options = section.items()
-#         for x, y in options:
-#             new_dict[x] = y.value
-#         quoteforms.append(new_dict)
-
-#     for saved_quoteform in quoteforms:
-#         if quoteform == saved_quoteform:
-#             return True
-#         else:
-#             continue
-#     return False
+def standardize_name(name: str) -> str:
+    return f"{FORM_PREFIX}{name}"
+    
+def validate_name(existing_names: list[str], names: str):
+    if name in existing_names:
+        return False
+    else:
+        return True
+        

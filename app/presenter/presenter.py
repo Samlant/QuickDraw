@@ -1054,19 +1054,10 @@ class Presenter:
     ### Begin Quoteform Registrations Tab ###
     def add_qf_registration(self):
         form_names = self.submission.reg_tv.get_all_names()
-        user_form_name = f"Form_{self.submission.form_name}"
-        if user_form_name in form_names:
-            import ctypes
-
-            ctypes.windll.user32.MessageBoxW(
-                0,
-                "A form already exists with this name. Please change the form name to a unique name and try adding again.",
-                "Warning",
-                0x10 | 0x0,
-            )
-        else:
+        name = qf_reg.standardize_name(self.submission.form_name)
+        if qf_reg.validate_name(form_names, name):
             qf = Quoteform(
-                name=user_form_name,
+                name=name,
                 fname=self.submission.fname,
                 lname=self.submission.lname,
                 year=self.submission.year,
@@ -1080,23 +1071,18 @@ class Presenter:
             del self.submission.year
             del self.submission.vessel
             del self.submission.referral
+        else:
+            ctypes.windll.user32.MessageBoxW(
+                0,
+                "A form already exists with this name. Please change the form name to a unique name and try adding again.",
+                "Warning",
+                0x10 | 0x0,
+                )
 
     def btn_save_registration_settings(self):
-        conf = self.config_worker._open_config()
-        # get and remove all existing form entries in config file
-        quoteform_names = [y for y in conf.sections() if "Form_" in y]
-        for name in quoteform_names:
-            conf.remove_section(name)
         row_data = self.submission.reg_tv.get_all_rows()
-        for row in row_data:
-            print(row[0])
-            conf["Seawave"].add_before.section(row[0]).space(1)
-            conf[row[0]]["fname"] = row[1]
-            conf[row[0]]["lname"] = row[2]
-            conf[row[0]]["year"] = row[3]
-            conf[row[0]]["vessel"] = row[4]
-            conf[row[0]]["referral"] = row[5]
-            conf.update_file()
+        config = self.config_worker._open_config()
+        qf.process_save(config, row_data)
 
     def btn_revert_registration_settings(self):
         self.submission.reg_tv.delete(*self.submission.reg_tv.get_children())
