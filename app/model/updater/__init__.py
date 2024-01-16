@@ -4,7 +4,7 @@ import time
 
 from tufup.client import Client
 
-from app.model.updater import settings
+from model.updater import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,6 @@ def progress_hook(bytes_downloaded: int, bytes_expected: int):
 
 def update(pre: str):
     # Create update client
-    print("creating update client")
     client = Client(
         app_name=settings.APP_NAME,
         app_install_dir=settings.INSTALL_DIR,
@@ -34,7 +33,7 @@ def update(pre: str):
     )
 
     # Perform update
-    print("checking for update...")
+    print("checking for updates...")
     new_update = client.check_for_updates(pre=pre)
     if new_update:
         # At this point, the version info from `new_update` could be used to
@@ -42,9 +41,9 @@ def update(pre: str):
         # to proceed with the download (and installation). However, to keep
         # the example minimal, we simply rely on the built-in command-line
         # confirmation in download_and_apply_update().
-        print("performing update")
+        print("Found an update. Downloading and applying update.")
         client.download_and_apply_update(
-            skip_confirmation=False,
+            skip_confirmation=True,
             progress_hook=progress_hook,
             # WARNING: Be very careful with `purge_dst_dir=True`, because
             # this will *irreversibly* delete *EVERYTHING* inside the

@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # App info
 APP_NAME = "QuickDraw"
-APP_VERSION = "3.0.5"
+APP_VERSION = "3.2.0"
 
 # Current module dir (when frozen this equals sys._MEIPASS)
 MODULE_DIR = Path(__file__).resolve().parents[2]
