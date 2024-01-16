@@ -248,7 +248,6 @@ class API:
             "quote_table_id": section.get("quote_table_id").value,
             "service_tracker_id": section.get("service_tracker_id").value,
         }
-        print(connection_data)
         return connection_data
 
     def create_attachments_json(self, attachment_paths: list) -> list[dict[str, str]]:

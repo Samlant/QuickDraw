@@ -6,19 +6,16 @@ from fillpdf import fillpdfs
 
 class QuoteDoc:
     def __init__(self, quoteform: dict[str, str]):
-        self.name: str = None
-        self._fname: str = None
-        self._lname: str = None
-        self.year: str | int = None
-        self.vessel: str = None
-        self.referral: str = None
-        formatted = self._change_lists_to_str(quoteform)
-
-        self._assign_attr(formatted)
+        self.name: str = quoteform["name"]
+        self._fname: str = quoteform["fname"]
+        self._lname: str = quoteform["lname"]
+        self.year: str | int = quoteform["year"]
+        self.vessel: str = quoteform["vessel"]
+        self.referral: str = quoteform["referral"]
 
     @property
     def fname(self):
-        return self._fname
+        return string.capwords(self._fname)
 
     @fname.setter
     def fname(self, new_fname: str):
@@ -26,32 +23,11 @@ class QuoteDoc:
 
     @property
     def lname(self):
-        return self._lname
+        return self._lname.upper()
 
-    @fname.setter
+    @lname.setter
     def lname(self, new_lname: str):
         self._lname = new_lname.upper()
-
-    def change_lists_to_str(
-        self, quoteform: dict[str, str | list[str]]
-    ) -> dict[str, str]:
-        formatted = {}
-        for key, value in quoteform.items():
-            if "," in value:
-                new_value = value.split(",")
-                formatted[key] = new_value
-            else:
-                formatted[key] = [value]
-        return formatted
-
-    def _assign_attr(self, formatted: dict[str, str]) -> None:
-        """Assign attributes to the class from a formatted dict of attr names & values."""
-        for attr, vals in formatted.items():
-            if isinstance(vals, list) and len(vals) > 1:
-                value = " ".join(vals)
-            else:
-                value = vals
-            setattr(self, attr, value)
 
     def dict(self, file_path) -> dict[str, str]:
         output = {
@@ -90,8 +66,9 @@ class DocParser:
         pdf_fields_values = fillpdfs.get_form_fields(file_path)
         counter = self._count_same_field_occurrences(forms, pdf_fields_values)
         doc = max(counter)
-        return forms[doc]
-
+        for form in forms:
+            if form["name"] == doc:
+                return form
     def _count_same_field_occurrences(
         self, forms: list[dict[str, str]], pdf_fields_values
     ) -> dict[str, int]:
@@ -115,18 +92,29 @@ class DocParser:
         return form_registry
 
     def _extract_values(self, pdf_fields_values, form) -> dict[str, str]:
-        form_registry = {}
+        form_registry = self.__loop_fields(pdf_fields_values, form)
         form_registry["name"] = form.pop("name")
-        other_values = self.__loop_fields(pdf_fields_values, form)
-        return form_registry | other_values
+        return form_registry
 
     def __loop_fields(self, pdf_fields_values, form) -> dict[str, str]:
         form_registry = {}
         for prog_field_name, pdf_field in form.items():
-            value = pdf_fields_values[pdf_field]
-            if not isinstance(value, str):
-                value = str(value)
-            form_registry[prog_field_name] = value
+            if prog_field_name == "name":
+                pass
+            elif "," in pdf_field:
+                fields = pdf_field.split(",")
+                field_values = ""
+                for field in fields:
+                    value = pdf_fields_values[field.strip()]
+                    if not isinstance(value, str):
+                        value = str(value)
+                    field_values = field_values + " " + value
+                form_registry[prog_field_name] = field_values.strip()
+            else:
+                value = pdf_fields_values[pdf_field]
+                if not isinstance(value, str):
+                    value = str(value)
+                form_registry[prog_field_name] = value
         return form_registry
 
     def _get_all_quoteforms(self) -> list[dict[str, str]]:

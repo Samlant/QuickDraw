@@ -113,16 +113,17 @@ class ConceptBuilder(CarrierBuilder):
     def get_premiums(self) -> bool:
         "This is correct 12/7"
         if self.multiple_stamps_flag:
-            for i, block in enumerate(self.pages[0]):
+            for i, block in enumerate(self.pages[1]):
                 if "Insurance Provider" in block:
                     i += 1
                     if (
-                        "Accelerant Specialty" in self.pages[0][i]
-                        and "Texas Insurance" in self.pages[0][i]
-                        and "Lloyd's Syndicates" in self.pages[0][i]
+                        "Accelerant Specialty" in self.pages[1][i]
+                        and "Texas Insurance" in self.pages[1][i]
+                        and "Lloyd's Syndicates" in self.pages[1][i]
                     ):
-                        x = self.pages[0][i].partition(")")
-                        premium1 = x[0].rpartition("US$")[2].strip().replace(",", "")
+                        x = self.pages[1][i].partition(")")
+                        premium1_str = x[0].rpartition("US$")[2].strip().replace(",", "")
+                        premium1 = float(premium1_str)
                         premium1 += 35
                         premium2 = (
                             x[2]
@@ -134,7 +135,7 @@ class ConceptBuilder(CarrierBuilder):
 
                         for premium in [premium1, premium2]:
                             self.premiums.append(
-                                float(premium.strip().replace(",", "")),
+                                float(premium),
                             )
                     else:
                         raise exceptions.DocParseError(self)
@@ -177,10 +178,10 @@ class ConceptBuilder(CarrierBuilder):
         if self.multiple_stamps_flag:
             policy1 = self.pages[0][i].strip()
             self.policy_nums.append(policy1)
-            for block in self.pages[0]:
+            for block in self.pages[1]:
                 if "per cover note" in block:
                     x = block.partition("per cover note")[2]
-                    policy2 = x.partition(")")[0].strip()
+                    policy2 = x.partition(")")[0].partition("(")[0].strip()
                     self.policy_nums.append(policy2)
         else:
             self.policy_nums.append(self.pages[0][i].strip())

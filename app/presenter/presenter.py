@@ -1082,7 +1082,7 @@ class Presenter:
     def btn_save_registration_settings(self):
         row_data = self.submission.reg_tv.get_all_rows()
         config = self.config_worker._open_config()
-        qf.process_save(config, row_data)
+        qf_reg.process_save(config, row_data)
 
     def btn_revert_registration_settings(self):
         self.submission.reg_tv.delete(*self.submission.reg_tv.get_children())

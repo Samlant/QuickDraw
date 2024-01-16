@@ -45,7 +45,7 @@ class ConfigWorker:
         # section = section.to_dict()
         return section
 
-    def get(self, section: str, option: str):
+    def get(self, section: str, option: str) -> tuple[any, str]:
         config = self._open_config()
         return config, config.get(section, option)
 

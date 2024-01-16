@@ -255,6 +255,8 @@ class MicrosoftGraphClient:
     def login_browser(self, uri: str):
         options = Options()
         options.page_load_strategy = "normal"
+        options.add_argument("--disable-extensions")
+        options.add_argument("--enable-chrome-browser-cloud-management")
         driver = webdriver.Edge(options=options)
         driver.set_window_rect(
             width=575,
@@ -301,7 +303,8 @@ class MicrosoftGraphClient:
             try:
                 if self.grab_access_token():
                     return True
-            except KeyError:
+            except KeyError as ke:
+                print(str(ke))
                 try:
                     self._redirect_code = self.login_browser(
                         uri=url,

@@ -4,7 +4,7 @@ import time
 
 from tufup.client import Client
 
-from model.updater import settings
+from app.model.updater import settings
 
 logger = logging.getLogger(__name__)
 

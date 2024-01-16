@@ -107,7 +107,6 @@ class RegTreeView(ttk.Treeview):
         form_names = []
         items = self.get_children()
         if items:
-            print("yes")
             for item in items:
                 registration = self.item(item)["values"][0]
                 form_names.append(registration)

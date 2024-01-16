@@ -40,7 +40,6 @@ class MSGraphClient:
         return True
 
     def _set_connection_data(self, connection_data):
-        pprint(connection_data)
         self.client_id = connection_data.get("client_id").value
         self.tenant_id = connection_data.get("tenant_id").value
         self.client_secret = connection_data.get("client_secret").value
@@ -93,8 +92,6 @@ class MSGraphClient:
             item_id=self.quote_tracker_id,
         )
         print("created workbook session.")
-        print("The session ID for the API is:")
-        pprint(session_response["id"])
         return session_response["id"]
 
     def client_already_exists(self, quote_table_name: str) -> bool:

@@ -38,11 +38,14 @@ class Payload:
     premium: float
     eff_date: str
     transaction_type: int | str
-    # static vars below:
-    coverage_code: int | str = "3006"
-    tax_status: int | str = "0"
-    policy_fee: int = 0
-    uri: str = "https://www.fslso.com/tax-estimator"
+    
+
+    def __post_init__(self):
+        # static vars below:
+        self.coverage_code: int | str = "3006"
+        self.tax_status: int | str = "0"
+        self.policy_fee: int = 0
+        self.uri: str = "https://www.fslso.com/tax-estimator"
 
 
 class Automator:
@@ -51,14 +54,19 @@ class Automator:
         self.user_doc_path: Path = None
         self.payloads: list[Payload] = []
         self.form_data: dict[str, float | str] = None
-        self.exited: bool = True
+        self.exited: bool = False
         self.carrier_obj: Carrier = None
         self.stamps: list[Path] = []
         self.doc_filler: DocFiller = None
-        self.output_dir = config_worker.get(
-            "Surplus lines settings.",
+        self.config = config_worker
+    
+    @property
+    def output_dir(self):
+        return self.config.get(
+            "Surplus lines settings",
             "output_save_dir",
-        )
+        )[1].value
+
 
     def _save_user_doc_path(self, event):
         log.info(msg="Saving the PDF's path.")
@@ -91,9 +99,8 @@ class Automator:
             dir_path = filedialog.askdirectory(mustexist=True)
             self.output_path.delete("1.0", END)
             self.output_path.insert("1.0", dir_path)
-            config = ConfigWorker()
-            config.handle_save_contents(
-                "Surplus lines settings", {"output_save_dir", dir_path}
+            self.config.handle_save_contents(
+                "Surplus lines settings", {"output_save_dir": dir_path}
             )
             # set_key(ENV_PATH, "OUTPUT_DIR", dir_path)
         except AttributeError as e:
@@ -324,13 +331,13 @@ class Automator:
                         premium, policy_num
                     ),
                 )
-                self.payloads.append(
-                    Payload(
+                payload = Payload(
                         policy_num=policy_num,
                         premium=premium,
                         eff_date=self.carrier_obj.eff_date,
                         transaction_type=trans_type,
                     )
+                self.payloads.append(payload
                 )
             log.debug(
                 msg="The finalized payload object is: {0}".format(self.payloads),
@@ -396,12 +403,12 @@ class Automator:
                 stamp_num
             ),
         )
-        doc_filler = DocFiller()
+        doc_filler = DocFiller(self.output_dir)
         stamp_path = doc_filler.process_doc(form_data, stamp_num)
         return stamp_path
 
     def combine_docs(self, stamps: list[Path]):
-        doc_filler = DocFiller()
+        doc_filler = DocFiller(self.output_dir)
         log.debug(
             msg="Using these stamps: {0}, and inserting into page index: {1}, inside user doc path: {2}".format(
                 stamps, self.user_doc_path, self.carrier_obj.insert_page_index

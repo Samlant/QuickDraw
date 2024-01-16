@@ -152,7 +152,7 @@ class DocParser:
         log.debug(
             msg="Identified premiums: {0}".format(self.market.premiums),
         )
-        if self.market.user_doc_type == "cancel" or self.user_doc_type == "rp":
+        if self.market.user_doc_type == "cancel" or self.market.user_doc_type == "rp":
             premiums = []
             for premium in self.market.premiums:
                 premiums.append(-abs(premium))

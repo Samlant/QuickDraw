@@ -171,8 +171,6 @@ row_data = []
 for parent in a.tree_reg.get_children():
     reg = a.tree_reg.item(parent)["values"]
     row_data.append(reg)
-    print(f"Parent = {parent}, reg = {reg}")
-print(f"row data: {row_data}")
 
 
 a.root.mainloop()
@@ -185,7 +183,7 @@ config.read(file_path)
 #     if "Form_" in y:
 #         print(y)
 
-print("trying list comprehension!")
+
 quoteform_names = [y for y in config.sections() if "Form_" in y]
 quoteforms: list[dict[str, str]] = []
 for quoteform in quoteform_names:
