@@ -5,13 +5,14 @@ from fillpdf import fillpdfs
 
 
 class QuoteDoc:
-    def __init__(self, quoteform: dict[str, str]):
+    def __init__(self, quoteform: dict[str, str], file_path: Path):
         self.name: str = quoteform["name"]
         self._fname: str = quoteform["fname"]
         self._lname: str = quoteform["lname"]
         self.year: str | int = quoteform["year"]
         self.vessel: str = quoteform["vessel"]
         self.referral: str = quoteform["referral"]
+        self.file_path: Path = file_path
 
     @property
     def fname(self):
@@ -29,7 +30,7 @@ class QuoteDoc:
     def lname(self, new_lname: str):
         self._lname = new_lname.upper()
 
-    def dict(self, file_path) -> dict[str, str]:
+    def dict(self) -> dict[str, str]:
         output = {
             "fname": self.fname,
             "lname": self.lname,
@@ -37,7 +38,7 @@ class QuoteDoc:
             "vessel": self.vessel,
             "referral": self.referral,
             "status": "ALLOCATE AND SUBMIT TO MRKTS",
-            "original_file_path": file_path,
+            "original_file_path": self.file_path,
         }
         return output
 
@@ -58,8 +59,8 @@ class DocParser:
         """
         quoteform = self.identify_doc(file_path)
         form_extract = self.get_doc_values(file_path, quoteform)
-        quote_doc = QuoteDoc(form_extract)
-        return quote_doc.dict(file_path)
+        quote_doc = QuoteDoc(form_extract, file_path)
+        return quote_doc.dict()
 
     def identify_doc(self, file_path: Path):
         forms = self._get_all_quoteforms()
@@ -69,6 +70,7 @@ class DocParser:
         for form in forms:
             if form["name"] == doc:
                 return form
+            
     def _count_same_field_occurrences(
         self, forms: list[dict[str, str]], pdf_fields_values
     ) -> dict[str, int]:
