@@ -9,6 +9,7 @@ from tkinter import *
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
 from view.styling import BlueRose, create_style
+from view.reg_treeview import RegTreeView
 
 
 class Presenter(Protocol):
@@ -37,10 +38,19 @@ class Presenter(Protocol):
     def btn_save_folder_settings(self) -> None:
         ...
 
+    def add_qf_registration(self) -> None:
+        ...
+
+    def btn_save_registration_settings(self) -> None:
+        ...
+
     def btn_revert_email_settings(self, event) -> None:
         ...
 
     def btn_revert_folder_settings(self, event) -> None:
+        ...
+
+    def btn_revert_registration_settings(self, event) -> None:
         ...
 
     def set_dropdown_options(self) -> list:
@@ -69,6 +79,34 @@ class Presenter(Protocol):
 
 
 BR = BlueRose()
+
+
+@dataclass
+class RegColumn:
+    name: str
+    width: int
+
+
+class Quoteform(Protocol):
+    """Stores the characteristics of a specific PDF quoteform.
+
+    Attributes:
+        id : standardized name used to ID mapping in config.ini file
+        name : user-chosen name for the specific mapping
+        all other attrs : required fields from PDF
+
+    """
+
+    id: str
+    name: str
+    fname: str
+    lname: str
+    year: str
+    vessel: str
+    referral: str
+
+    def values(self) -> tuple[str]:
+        ...
 
 
 class Submission:
@@ -108,6 +146,14 @@ class Submission:
         self._renewals_dir = StringVar(name="renewals_dir", value="")
         self._custom_parent_dir = StringVar(name="custom_parent_dir", value="")
         self._custom_sub_dir = StringVar(name="custom_sub_dir", value="")
+        # registrations_tab vars
+        self._form_name = StringVar(name="form_name", value="")
+        self._fname = StringVar(name="fname", value="")
+        self._lname = StringVar(name="lname", value="")
+        self._year = StringVar(name="year", value="")
+        self._vessel = StringVar(name="vessel", value="")
+        self._referral = StringVar(name="referral", value="")
+        # self._quoteform_name = StringVar(name="quoteform_name", value="")
 
     # main_tab: getters/setters
     @property
@@ -374,6 +420,63 @@ class Submission:
     def custom_sub_dir(self):
         self._custom_sub_dir.set("")
 
+    # Quoteform Registrations Tab: getters/setters
+    @property
+    def form_name(self) -> str:
+        return self._form_name.get()
+
+    @form_name.deleter
+    def form_name(self):
+        self._form_name.set("")
+
+    @property
+    def fname(self) -> str:
+        return self._fname.get()
+
+    @fname.deleter
+    def fname(self):
+        self._fname.set("")
+
+    @property
+    def lname(self) -> str:
+        return self._lname.get()
+
+    @lname.deleter
+    def lname(self):
+        self._lname.set("")
+
+    @property
+    def year(self) -> str:
+        return self._year.get()
+
+    @year.deleter
+    def year(self):
+        self._year.set("")
+
+    @property
+    def vessel(self) -> str:
+        return self._vessel.get()
+
+    @vessel.deleter
+    def vessel(self):
+        self._vessel.set("")
+
+    @property
+    def referral(self) -> str:
+        return self._referral.get()
+
+    @referral.deleter
+    def referral(self):
+        self._referral.set("")
+
+    # @property
+    # def quoteform_name(self) -> str:
+    #     return self._quoteform_name.get()
+
+    # @quoteform_name.deleter
+    # def quoteform_name(self):
+    #     self._quoteform_name.set("")
+
     ### END of Getters/Setters ###
 
     def create_UI_obj(self, presenter: Presenter):
@@ -390,6 +493,7 @@ class Submission:
         self.create_customize_tab_widgets(presenter)
         self.create_email_settings_tab_widgets(presenter)
         self.create_folder_settings_tab_widgets(presenter)
+        self.create_quoteform_registrations_tab_widgets(presenter)
 
     def assign_window_traits(self):
         self.root.geometry("760x600")
@@ -408,10 +512,14 @@ class Submission:
         self.template_customization = ttk.Frame(self.root.tabControl)
         self.email_settings = ttk.Frame(self.root.tabControl)
         self.folder_settings = ttk.Frame(self.root.tabControl)
+        self.quoteform_registrations = ttk.Frame(self.root.tabControl)
         self.root.tabControl.add(self.home, text="Home - Outbox")
         self.root.tabControl.add(self.template_customization, text="Email Templates")
         self.root.tabControl.add(self.email_settings, text="Email Settings")
         self.root.tabControl.add(self.folder_settings, text="Folder Settings")
+        self.root.tabControl.add(
+            self.quoteform_registrations, text="Quoteform Registrations"
+        )
 
     def create_main_tab_widgets(self, presenter: Presenter):
         self.home.rowconfigure(2, minsize=100, pad=5)
@@ -1080,24 +1188,24 @@ class Submission:
             side="left",
         )
         ### Treeview Section ###
-        self.tree = ttk.Treeview(
+        self.tree_dir = ttk.Treeview(
             left_custom_dir_frame,
             columns=1,
         )
-        self.tree.column(
+        self.tree_dir.column(
             "#0",
             width=120,
             stretch=False,
         )
-        self.tree.column(
+        self.tree_dir.column(
             "#1",
             width=350,
             stretch=False,
         )
-        self.tree.heading("#0", text="Folder Structure", anchor="w")
-        self.tree.heading("#1", text="Folder Name", anchor="w")
-        # self.tree.pack(fill="both", expand=True, side="left")
-        self.tree.grid(column=0, row=0, pady=(5, 0))
+        self.tree_dir.heading("#0", text="Folder Structure", anchor="w")
+        self.tree_dir.heading("#1", text="Folder Name", anchor="w")
+        # self.tree_dir.pack(fill="both", expand=True, side="left")
+        self.tree_dir.grid(column=0, row=0, pady=(5, 0))
         ### END OF TREEVIEW SECTION ###
         ### END OF LEFT SECTION ###
         ### RIGHT SECTION ###
@@ -1253,9 +1361,219 @@ class Submission:
             padx=(5, 0),
         )
 
+    def create_quoteform_registrations_tab_widgets(self, presenter: Presenter):
+        ### START TITLE ###
+        title_frame = ttk.Frame(
+            self.quoteform_registrations,
+        )
+        title_frame.grid(column=0, row=0, sticky=NSEW)
+        ttk.Label(
+            title_frame, text="Quoteform Registrations", style="Header.TLabel"
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            padx=200,
+        )
+        # END OF TITLE
+        # START CONTENT
+        ### START Current Registrations TreeView ###
+        current_reg_lf = ttk.Labelframe(
+            self.quoteform_registrations,
+            text="Current Registrations",
+        )
+        current_reg_lf.grid(column=0, row=1, sticky=NSEW, pady=(5, 0), padx=10)
+        current_reg_lf.columnconfigure(0, minsize=500)
+        current_reg_lf.rowconfigure(0, minsize=155)
+        left_registration_frame = ttk.Frame(current_reg_lf)
+        left_registration_frame.grid(row=0, column=0)
+        ### Treeview Section ###
+        self.reg_tv = RegTreeView(left_registration_frame)
+        self.reg_tv.grid(columnspan=2, column=0, row=0, pady=5, padx=(5, 0))
+        right_registration_frame = ttk.Frame(current_reg_lf)
+        right_registration_frame.grid(row=0, column=1)
+        rm_registration_btn = ttk.Button(
+            right_registration_frame,
+            command=self.reg_tv.remove_registration,
+            text="Remove",
+        )
+        rm_registration_btn.pack(
+            fill="both",
+            expand=False,
+            side="left",
+            padx=5,
+            ipady=10,
+        )
+        ### END Current Registrations TreeView ###
+        ### START New Registration LF ###
+        register_lf = ttk.Labelframe(
+            self.quoteform_registrations,
+            text="Register a new Quoteform here",
+        )
+        register_lf.grid(column=0, row=2, sticky=NSEW, padx=10, pady=(10, 0))
+        ttk.Label(
+            register_lf,
+            text="You may register your own quoteform to be used by the program. You may also remove them if it's unused or changes.",
+        ).grid(column=0, row=0, pady=3, columnspan=5)
+        ttk.Label(
+            register_lf,
+            text="If your quoteform splits any of the below required fields into two or more fields, then separate each field with a comma",
+        ).grid(column=0, row=1, columnspan=5)
+        ttk.Label(
+            register_lf,
+            text="For example: if your form uses 'Make', 'Model' & 'Length' fields, list all under the Vessel field, separated by a comma.",
+        ).grid(column=0, row=2, columnspan=5, pady=(0, 5))
+
+        ttk.Label(
+            register_lf,
+            text="Form Name:",
+        ).grid(column=0, row=3, padx=(3, 0))
+        self.form_name_entry = ttk.Entry(
+            master=register_lf,
+            name="form_name",
+            textvariable=self._form_name,
+            width=35,
+        )
+        self.form_name_entry.grid(
+            column=1,
+            row=3,
+            sticky="ew",
+            ipady=5,
+            pady=1,
+        )
+
+        ttk.Label(
+            register_lf,
+            text="First Name:",
+        ).grid(column=0, row=4, padx=(3, 0))
+        self.fname_entry = ttk.Entry(
+            master=register_lf,
+            name="fname",
+            textvariable=self._fname,
+            width=35,
+        )
+        self.fname_entry.grid(
+            column=1,
+            row=4,
+            sticky="ew",
+            ipady=5,
+            pady=1,
+        )
+
+        ttk.Label(
+            register_lf,
+            text="Last Name:",
+        ).grid(column=0, row=5, padx=(3, 0))
+        self.lname_entry = ttk.Entry(
+            master=register_lf,
+            name="lname",
+            textvariable=self._lname,
+            width=35,
+        )
+        self.lname_entry.grid(
+            column=1,
+            row=5,
+            sticky="ew",
+            ipady=5,
+            pady=5,
+        )
+
+        ttk.Label(
+            register_lf,
+            text="Vessel Year:",
+        ).grid(column=2, row=3, padx=(3, 0))
+        self.year_entry = ttk.Entry(
+            master=register_lf,
+            name="year",
+            textvariable=self._year,
+            width=35,
+        )
+        self.year_entry.grid(
+            column=3,
+            row=3,
+            sticky="ew",
+            ipady=5,
+            pady=5,
+        )
+
+        ttk.Label(
+            register_lf,
+            text="Vessel:",
+        ).grid(column=2, row=4, padx=(3, 0))
+        self.vessel_entry = ttk.Entry(
+            master=register_lf,
+            name="vessel",
+            textvariable=self._vessel,
+            width=35,
+        )
+        self.vessel_entry.grid(
+            column=3,
+            row=4,
+            sticky="ew",
+            ipady=5,
+            pady=5,
+        )
+
+        ttk.Label(
+            register_lf,
+            text="Referral:",
+        ).grid(column=2, row=5, padx=(3, 0))
+        self.referral_entry = ttk.Entry(
+            master=register_lf,
+            name="referral",
+            textvariable=self._referral,
+            width=35,
+        )
+        self.referral_entry.grid(
+            column=3,
+            row=5,
+            sticky="ew",
+            ipady=5,
+            pady=5,
+        )
+
+        ttk.Button(
+            master=register_lf,
+            text="Register",
+            command=presenter.add_qf_registration,
+        ).grid(
+            rowspan=5,
+            column=4,
+            row=3,
+            sticky="ew",
+            padx=5,
+            pady=10,
+            ipady=40,
+        )
+        ### END New Registration LF ###
+        ### BUTTONS FRAME ###
+        buttons_box = ttk.Frame(
+            self.quoteform_registrations,
+        )
+        buttons_box.grid(column=0, row=3, sticky=NSEW, pady=(5, 0), padx=10)
+        ttk.Button(
+            master=buttons_box,
+            text="Revert Back",
+            command=presenter.btn_revert_registration_settings,
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+            padx=(0, 5),
+        )
+        ttk.Button(
+            master=buttons_box,
+            text="Save Settings",
+            command=presenter.btn_save_registration_settings,
+        ).pack(
+            fill=BOTH,
+            expand=True,
+            side="left",
+            padx=(5, 0),
+        )
+
     def create_quoteform_path_box(
         self,
-        parent: Frame,
+        parent: Frame | ttk.Frame,
         presenter=Presenter,
     ) -> None:
         """Creates the drag-n-drop box for the quoteform."""
@@ -1374,6 +1692,7 @@ class Submission:
     def _upload_img_btn(self):
         try:
             file_path = self.sig_image_path_box.get("1.0", END)
+            file_name = ""
             # send URL request to upload img to hosting site
             # insert received response url into text box
             self.sig_image_path_box.delete("1.0", END)
@@ -1412,10 +1731,10 @@ class Submission:
 
     def _add_custom_sub_dir(self):
         # Get selected row_id
-        current_selected_id = self.tree.selection()
-        parent_name = self.tree.set(current_selected_id)["1"]
+        current_selected_id = self.tree_dir.selection()
+        parent_name = self.tree_dir.set(current_selected_id)["1"]
         dir_name: str | int = self.custom_sub_dir
-        self.tree.insert(
+        self.tree_dir.insert(
             parent=current_selected_id,
             index="end",
             text=parent_name,
@@ -1437,7 +1756,7 @@ class Submission:
                 # find the next parent's row id by name & label != "Top Level"
                 sub_parent_id = self.__find_row_id_by_name(entry_list[1])
                 # create row under sub_parent row:
-                self.tree.insert(
+                self.tree_dir.insert(
                     parent=sub_parent_id,
                     index="end",
                     text=entry_list[1],
@@ -1446,7 +1765,7 @@ class Submission:
                 )
             else:
                 # create row under parent row:
-                self.tree.insert(
+                self.tree_dir.insert(
                     parent=parent_id,
                     index="end",
                     text=entry_list[0],
@@ -1458,7 +1777,7 @@ class Submission:
             # assign "Top Level" as label,
             # "name" as folder name, and
             # a unique row id
-            self.tree.insert(
+            self.tree_dir.insert(
                 parent="",
                 index="end",
                 text="----------------",
@@ -1468,11 +1787,11 @@ class Submission:
 
     def get_all_rows(self) -> list[str]:
         row_data = []
-        for parent in self.tree.get_children():
-            parent_dir = self.tree.item(parent)["values"]
+        for parent in self.tree_dir.get_children():
+            parent_dir = self.tree_dir.item(parent)["values"]
             row_data.append(parent_dir[0])
-            for child in self.tree.get_children(parent):
-                child_dir = self.tree.item(child)["values"]
+            for child in self.tree_dir.get_children(parent):
+                child_dir = self.tree_dir.item(child)["values"]
                 path = f"{parent_dir[0]}/{child_dir.pop()}"
                 row_data.append(path)
         return row_data
@@ -1485,15 +1804,15 @@ class Submission:
             self._insert_row(data)
 
     def _rm_custom_dir(self):
-        current_item = self.tree.selection()
-        self.tree.delete(current_item)
+        current_item = self.tree_dir.selection()
+        self.tree_dir.delete(current_item)
 
     def __find_row_id_by_name(self, name: str):
-        for parent in self.tree.get_children():
-            if name in str(self.tree.item(parent)["values"]):
+        for parent in self.tree_dir.get_children():
+            if name in str(self.tree_dir.item(parent)["values"]):
                 return parent
-            for child in self.tree.get_children(parent):
-                if name in self.tree.item(str(child))["values"]:
+            for child in self.tree_dir.get_children(parent):
+                if name in self.tree_dir.item(str(child))["values"]:
                     return child
 
     def set_start_tab(self, specific_tab: str) -> None:

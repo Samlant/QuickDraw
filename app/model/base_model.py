@@ -150,7 +150,6 @@ class BaseModel:
 
     def _del_whitespace_invalid_chars(self, input: str) -> str:
         x = input.translate({ord(i): None for i in r'"() ,:;<>[\]'})
-        print(x)
         return x
 
     ########## Dialog-related Functions Below ############

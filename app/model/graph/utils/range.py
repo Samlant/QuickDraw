@@ -25,10 +25,8 @@ def _to_dict(data_class_obj: Union[dataclass, dict]) -> dict:
     class_dict = {}
 
     if is_dataclass(data_class_obj):
-
         # Loop through each field and grab the value and key.
         for field in fields(data_class_obj):
-
             key = field.name
             value = getattr(data_class_obj, field.name)
 
@@ -46,9 +44,7 @@ def _to_dict(data_class_obj: Union[dataclass, dict]) -> dict:
                 class_dict[key] = value
 
     elif isinstance(data_class_obj, dict):
-
         for key, value in data_class_obj.items():
-
             # Handle values that could be Enums.
             if isinstance(value, Enum):
                 value = value.value
@@ -186,6 +182,7 @@ class RangeFormatProperties:
 
         return _to_dict(data_class_obj=self)
 
+
 @dataclass
 class RangeFillProperties:
 
@@ -218,6 +215,7 @@ class RangeFillProperties:
         """
 
         return _to_dict(data_class_obj=self)
+
 
 @dataclass
 class RangeFontProperties:
@@ -276,6 +274,7 @@ class RangeFontProperties:
 
         return _to_dict(data_class_obj=self)
 
+
 @dataclass
 class RangeBorderProperties:
 
@@ -321,6 +320,7 @@ class RangeBorderProperties:
         """
 
         return _to_dict(data_class_obj=self)
+
 
 @dataclass
 class RangeFormatProtectionProperties:

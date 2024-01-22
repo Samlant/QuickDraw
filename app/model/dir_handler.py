@@ -10,12 +10,12 @@ from string import capwords
 class Resources:
     test: bool
     # User resources
-    user_resources: Path = Path.home() / "AppData" / "Local" / "Work-Tools"
+    user_resources: Path = Path.home() / "AppData" / "Local" / "QuickDraw"
     ms_graph_state_path: Path = user_resources / "ms_graph_state.jsonc"
     config_path: Path = user_resources / "configurations.ini"
     # App resources
-    app_dir: Path = user_resources / "QuickDraw"
-    app_resources: Path = app_dir / "resources"
+    app_dir: Path = Path("C:/Program Files/QuickDraw")
+    app_resources: Path = app_dir / "_internal" / "resources"
     app_icon: Path = app_resources / "img" / "app.ico"
     tray_icon: Path = app_resources / "img" / "sys_tray.ico"
     readme: Path = app_resources / "docs" / "readme.html"
@@ -88,7 +88,9 @@ class DirHandler:
         for path in custom_dirs:
             filtered_dir_name = str(path).translate({ord(i): None for i in r'?<>:*|"'})
             if filtered_dir_name != path:
-                 print("Invalid characters removed from folder name because they're invalid for Windows systems.")
+                print(
+                    "Invalid characters removed from folder name because they're invalid for Windows systems."
+                )
             new_path = client_dir / str(filtered_dir_name)
             new_path.mkdir(exist_ok=True)
 
@@ -142,5 +144,7 @@ class DirHandler:
         dir_name = lname + " " + capwords(fname)
         filtered_dir_name = dir_name.translate({ord(i): None for i in r'/?<>\:*|"'})
         if filtered_dir_name != dir_name:
-                print("Invalid characters removed from folder name because they're invalid for Windows systems.")
+            print(
+                "Invalid characters removed from folder name because they're invalid for Windows systems."
+            )
         return parent_dir / filtered_dir_name

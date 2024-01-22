@@ -5,6 +5,7 @@ from typing import Protocol
 import threading
 from tkinter import TclError
 from ast import literal_eval
+import model.quoteform_registrations as qf_reg
 
 
 class API(Protocol):
@@ -119,13 +120,10 @@ class DirWatch(Protocol):
 
 
 class DocParser(Protocol):
-    def __init__(self) -> None:
-        self.keys: dict[str, str]
-
     def process_doc(
         self,
         file_path: Path,
-    ) -> dict:
+    ) -> dict[str, str]:
         ...
 
 
@@ -247,6 +245,43 @@ class ClientInfo:
     submit_tool: bool = False
 
 
+@dataclass
+class Quoteform:
+    """Stores the characteristics of a specific PDF quoteform.
+
+    Attributes:
+        id : standardized name used to ID mapping in config.ini file
+        name : user-chosen name for the specific mapping
+        all other attrs : required fields from PDF
+    """
+
+    name: str
+    fname: str
+    lname: str
+    year: str
+    vessel: str
+    referral: str
+
+    def values(self) -> tuple[str]:
+        return (
+            self.name,
+            self.fname,
+            self.lname,
+            self.year,
+            self.vessel,
+            self.referral,
+        )
+
+    def data(self) -> dict[str, str]:
+        return {
+            "fname": self.fname,
+            "lname": self.lname,
+            "year": self.year,
+            "vessel": self.vessel,
+            "referral": self.referral,
+        }
+
+
 class Presenter:
     """Responsible for communicating between the Models and
     Views, including all interactions between user input and
@@ -301,6 +336,7 @@ class Presenter:
         self.run_template_settings_flag: bool = False
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
+        self.run_SL_automator_flag: bool = False
         self.quoteform_detected: bool = False
         self.new_file_path = None
 
@@ -399,7 +435,13 @@ class Presenter:
 
     def create_and_send_data_to_api(self):
         print("creating call to send to Microsoft API")
-        json = self.api_model.create_excel_json(self.current_submission)
+        username = self.config_worker.get_value(
+            {
+                "section_name": "General settings",
+                "key": "username",
+            }
+        )
+        json = self.api_model.create_excel_json(self.current_submission, username)
         self.api_client.run_excel_program(
             json_payload=json,
         )
@@ -471,6 +513,7 @@ class Presenter:
             self.set_initial_placeholders(quote_path)
         else:
             self.set_initial_placeholders()
+        self.insert_qf_registration_placeholders()
         if specific_tab:
             self.submission.set_start_tab(specific_tab)
         self.submission.root.attributes("-topmost", True)
@@ -575,7 +618,7 @@ class Presenter:
             "Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again."
         )
         self.only_view_msg = True
-        raise NotImplementedError
+        print("Viewing templates has not yet been implemented!")
 
     def btn_send_envelopes(self) -> None:
         print("clicked send button")
@@ -726,26 +769,30 @@ class Presenter:
 
             self.json = self.api_model.create_email_json(email=self.email_handler)
             print("sending email message")
-        try:
-            thread_ol = threading.Thread(
-                daemon=False, target=self.send_email_api, name="Outlook API Call"
-            )
-            thread_ol.start()
-        except:
-            thread_ol = threading.Thread(
-                daemon=False, target=self.send_email_api, name="Outlook API Call"
-            )
-            thread_ol.start()
-        try:
-            thread_xl = threading.Thread(
-                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-            )
-            thread_xl.start()
-        except:
-            thread_xl = threading.Thread(
-                daemon=False, target=self._send_excel_api_call, name="Excel API Call"
-            )
-            thread_xl.start()
+            try:
+                thread_ol = threading.Thread(
+                    daemon=False, target=self.send_email_api, name="Outlook API Call"
+                )
+                thread_ol.start()
+            except:
+                thread_ol = threading.Thread(
+                    daemon=False, target=self.send_email_api, name="Outlook API Call"
+                )
+                thread_ol.start()
+            try:
+                thread_xl = threading.Thread(
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
+                thread_xl.start()
+            except:
+                thread_xl = threading.Thread(
+                    daemon=False,
+                    target=self._send_excel_api_call,
+                    name="Excel API Call",
+                )
+                thread_xl.start()
         self.quoteform_detected = False
 
     def send_email_api(self):
@@ -974,9 +1021,9 @@ class Presenter:
         self.submission.new_biz_dir = section_obj.get("new_biz_dir").value
         self.submission.renewals_dir = section_obj.get("renewals_dir").value
         config_dirs = section_obj.get("custom_dirs").value
-        if config_dirs is not "":
+        if config_dirs != "":
             custom_dirs: list[str] = literal_eval(config_dirs)
-            self.submission.tree.delete(*self.submission.tree.get_children())
+            self.submission.tree_dir.delete(*self.submission.tree_dir.get_children())
             self.submission.set_data_into_treeview(data=custom_dirs)
         return True
 
@@ -1004,5 +1051,62 @@ class Presenter:
 
     ### End of Custom Dir Creation Settings ###
     ### End of Folder Settings Tab ###
+    ### Begin Quoteform Registrations Tab ###
+    def add_qf_registration(self):
+        form_names = self.submission.reg_tv.get_all_names()
+        name = qf_reg.standardize_name(self.submission.form_name)
+        if qf_reg.validate_name(form_names, name):
+            qf = Quoteform(
+                name=name,
+                fname=self.submission.fname,
+                lname=self.submission.lname,
+                year=self.submission.year,
+                vessel=self.submission.vessel,
+                referral=self.submission.referral,
+            )
+            self.submission.reg_tv.add_registration(qf)
+            del self.submission.form_name
+            del self.submission.fname
+            del self.submission.lname
+            del self.submission.year
+            del self.submission.vessel
+            del self.submission.referral
+        else:
+            ctypes.windll.user32.MessageBoxW(
+                0,
+                "A form already exists with this name. Please change the form name to a unique name and try adding again.",
+                "Warning",
+                0x10 | 0x0,
+                )
+
+    def btn_save_registration_settings(self):
+        row_data = self.submission.reg_tv.get_all_rows()
+        config = self.config_worker._open_config()
+        qf_reg.process_save(config, row_data)
+
+    def btn_revert_registration_settings(self):
+        self.submission.reg_tv.delete(*self.submission.reg_tv.get_children())
+        self.insert_qf_registration_placeholders()
+
+    def insert_qf_registration_placeholders(self):
+        config = self.config_worker._open_config()
+        quoteform_names = [y for y in config.sections() if "Form_" in y]
+        for name in quoteform_names:
+            section = config.get_section(name)
+            options = section.items()
+            form = Quoteform(
+                name,
+                options[0][1].value,
+                options[1][1].value,
+                options[2][1].value,
+                options[3][1].value,
+                options[4][1].value,
+            )
+            self.submission.reg_tv.add_registration(form)
+
+    ### End of Quoteform Registrations Tab ###
     ############# END --Settings Tabs-- END #############
     ############# END --Submissions Program-- END #############
+
+    ############# --Surplus Lines Automator-- #############
+    ############# END --Surplus Lines Automator-- END #############

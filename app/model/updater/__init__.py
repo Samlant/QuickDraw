@@ -13,10 +13,10 @@ __version__ = settings.APP_VERSION
 
 def progress_hook(bytes_downloaded: int, bytes_expected: int):
     progress_percent = bytes_downloaded / bytes_expected * 100
-    print(f'\r{progress_percent:.1f}%', end='')
+    print(f"\r{progress_percent:.1f}%", end="")
     time.sleep(0.2)  # quick and dirty: simulate slow or large download
     if progress_percent >= 100:
-        print('')
+        print("")
 
 
 def update(pre: str):
@@ -33,6 +33,7 @@ def update(pre: str):
     )
 
     # Perform update
+    print("checking for updates...")
     new_update = client.check_for_updates(pre=pre)
     if new_update:
         # At this point, the version info from `new_update` could be used to
@@ -40,8 +41,9 @@ def update(pre: str):
         # to proceed with the download (and installation). However, to keep
         # the example minimal, we simply rely on the built-in command-line
         # confirmation in download_and_apply_update().
+        print("Found an update. Downloading and applying update.")
         client.download_and_apply_update(
-            skip_confirmation=False,
+            skip_confirmation=True,
             progress_hook=progress_hook,
             # WARNING: Be very careful with `purge_dst_dir=True`, because
             # this will *irreversibly* delete *EVERYTHING* inside the
@@ -51,7 +53,7 @@ def update(pre: str):
             # contain any unrelated content.
             purge_dst_dir=False,
             exclude_from_purge=None,
-            log_file_name='install.log',
+            log_file_name="install.log",
         )
 
 
@@ -69,7 +71,7 @@ def update_app(cmd_args):
     # file lists all trusted keys and TUF roles.
     if not settings.TRUSTED_ROOT_DST.exists():
         shutil.copy(src=settings.TRUSTED_ROOT_SRC, dst=settings.TRUSTED_ROOT_DST)
-        logger.info('Trusted root metadata copied to cache.')
+        logger.info("Trusted root metadata copied to cache.")
 
     # Download and apply any available updates
     update(pre=pre_release_channel)
