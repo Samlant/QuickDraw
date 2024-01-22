@@ -111,7 +111,7 @@ def main():
     )
     thread2.start()
     while tray_icon.active is True:
-        if presenter.new_file_path is not None:
+        if presenter.new_file_path != None:
             try:
                 presenter.trigger_new_file(file=presenter.new_file_path)
             except:

@@ -6,6 +6,7 @@ from typing import Protocol
 class Presenter(Protocol):
     def trigger_new_file(self):
         ...
+    
 
 
 class DirWatch:
