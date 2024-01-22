@@ -100,6 +100,7 @@ class ConceptBuilder(CarrierBuilder):
                 if "with effect from" in block:
                     break
         x = self.pages[0][i]
+        x = x.replace("00.01", "")
         dates = datefinder.find_dates(x)
         y = []
         for date in dates:
@@ -151,6 +152,7 @@ class ConceptBuilder(CarrierBuilder):
                 x = self.pages[0][i].partition("US$")[2].partition("cancelling")[0]
                 premium = x.strip().replace(",", "")
                 premium = float(premium)
+                premium += 35
             elif (
                 self.user_doc_type == "cancel"
                 or self.user_doc_type == "rp"
@@ -163,7 +165,6 @@ class ConceptBuilder(CarrierBuilder):
                         premium = float(premium)
             else:
                 raise ValueError
-            premium += 35
             self.premiums.append(premium)
         return True
 

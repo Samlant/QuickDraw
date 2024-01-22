@@ -20,13 +20,13 @@ class EmailHandler:
     username: Optional[str] = None
     img_sig_url: Optional[str] = None
     attachments_list: Optional[list] = None
-    greeting_style: str = "font-size=14px;color:#1F3864;"
-    body_style: str = "font-size=14px;color:#1F3864;"
+    greeting_style: str = "font-size:14px;color:#1F3864;"
+    body_style: str = "font-size:14px;color:#1F3864;"
     salutation_style: str = (
         "margin:0in;font-size:14px;font-family:Calibri,sans-serif;color:#1F3864;"
     )
     username_style: str = (
-        "margin:0in;font-size=14px;font-family:Calibri,sans-serif;color:#1F3864;"
+        "margin:0in;font-size:14px;font-family:Calibri,sans-serif;color:#1F3864;"
     )
 
     def view_letter(self) -> bool:
