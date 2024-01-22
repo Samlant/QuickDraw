@@ -25,11 +25,14 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+repo_*.py
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
+*.spec
+create_pyinstaller_bundle_win.bat
 
 # Installer logs
 pip-log.txt
@@ -81,7 +84,7 @@ target/
 profile_default/
 ipython_config.py
 
-# configurations
+# Configurations files
 *.ini
 **/*.ini
 *.jsonc
@@ -123,15 +126,6 @@ celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
-
-# Repo Files
-# *.py
-# *.bat
-
-
-# Configurations Files
-*.jsonc
-*.ini
 
 # Environments
 .env
