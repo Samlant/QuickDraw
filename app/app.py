@@ -40,7 +40,7 @@ def initialize_modules() -> Presenter:
             )
         )
     except PermissionError as pe:
-        print("Couldn't login using existing credentials. Deleting and trying again.")
+        print(f"Couldn't login using existing credentials. Deleting and trying again.\n {str(pe)}")
         # Delete credential file
         Path.unlink(PATHS.ms_graph_state_path)
         # Retry login
