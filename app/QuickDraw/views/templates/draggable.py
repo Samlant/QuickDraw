@@ -1,0 +1,1 @@
+# template for click and drag Tk.Text boxes

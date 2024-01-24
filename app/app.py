@@ -18,7 +18,7 @@ from view.base_view import Submission
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
 from view.sys_tray_icon import TrayIcon
 
-TEST = True
+TEST = False
 POSITIVE_SUBMISSION_VALUE = "yes"
 NEGATIVE_SUBMISSION_VALUE = "no"
 
@@ -40,7 +40,9 @@ def initialize_modules() -> Presenter:
             )
         )
     except PermissionError as pe:
-        print(f"Couldn't login using existing credentials. Deleting and trying again.\n {str(pe)}")
+        print(
+            f"Couldn't login using existing credentials. Deleting and trying again.\n {str(pe)}"
+        )
         # Delete credential file
         Path.unlink(PATHS.ms_graph_state_path)
         # Retry login
@@ -97,7 +99,6 @@ def initialize_modules() -> Presenter:
 
 def main():
     update_app(sys.argv[1:])
-    # user_data = assign_per_user_settings()
     presenter = initialize_modules()
     if not presenter.setup_api():
         sys.exit()
