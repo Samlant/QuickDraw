@@ -46,7 +46,7 @@ class RegColumns:
         self.names.append(name)
 
 
-class RegTreeView(ttk.Treeview):
+class CurrentRegistrations(ttk.Treeview):
     def __init__(self, parent):
         columns = RegColumns()
 

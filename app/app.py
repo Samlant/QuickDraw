@@ -18,11 +18,7 @@ from view.base_view import Submission
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
 from view.sys_tray_icon import TrayIcon
 
-TEST = False
-POSITIVE_SUBMISSION_VALUE = "yes"
-NEGATIVE_SUBMISSION_VALUE = "no"
 
-PATHS = Resources(TEST)
 
 config_worker = ConfigWorker(
     file_path=str(PATHS.config_path),
@@ -98,7 +94,7 @@ def initialize_modules() -> Presenter:
 
 
 def main():
-    update_app(sys.argv[1:])
+    update_app(sys.argv[1:]).
     presenter = initialize_modules()
     if not presenter.setup_api():
         sys.exit()

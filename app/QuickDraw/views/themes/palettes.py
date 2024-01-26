@@ -2,7 +2,25 @@ from dataclasses import dataclass
 
 
 @dataclass
-class BlueRose:
+class Palette:
+    base_bg_color: str
+    base_fg_color: str
+    alt_bg_color: str
+    alt_fg_color: str
+    dragdrop_bg_color: str
+    menuoption_bg_color: str
+    menuoption_fg_color: str
+    btn_base_bg: str
+    btn_active_bg: str
+    btn_pressed_bg: str
+    btn_fg: str
+    chck_btn_bg: str
+    chck_btn_fg: str
+    chck_btn_select_color: str
+
+
+@dataclass
+class BlueRose(Palette):
     base_bg_color = "#CFEBDF"
     base_fg_color = "#5F634F"  # black or grey
     alt_bg_color = "#5F634F"  # dark grey; for text inputs + chkbtns

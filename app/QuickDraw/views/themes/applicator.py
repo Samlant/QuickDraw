@@ -3,24 +3,18 @@ from tkinter import ttk
 from tkinter.ttk import Style
 
 
-
-from palettes import BlueRose
-
-
-palette = BlueRose()
-
-
-def create_style(master_object):
+def create_style(master_object, palette):
     s = Style(master_object)
+    p = palette
     s.theme_use("alt")
-    s = assign_default_static_colors(s)
-    s = map_default_dynamic_colors(s)
-    s = assign_custom_static_colors(s)
-    s = map_custom_dynamic_colors(s)
+    s = _assign_default_static_colors(s, p)
+    s = _map_default_dynamic_colors(s, p)
+    s = _assign_custom_static_colors(s, p)
+    s = _map_custom_dynamic_colors(s, p)
     return s
 
 
-def assign_default_static_colors(style_object):
+def _assign_default_static_colors(style_object, palette):
     s = style_object
     s.configure(
         "TNotebook",
@@ -96,7 +90,7 @@ def assign_default_static_colors(style_object):
     return s
 
 
-def map_default_dynamic_colors(style_obj):
+def _map_default_dynamic_colors(style_obj, palette):
     s = style_obj
     s.map(
         "TNotebook",
@@ -116,7 +110,7 @@ def map_default_dynamic_colors(style_obj):
     return s
 
 
-def assign_custom_static_colors(style_obj):
+def _assign_custom_static_colors(style_obj, palette):
     s = style_obj
     s.configure(
         "Header.TLabel",
@@ -125,6 +119,6 @@ def assign_custom_static_colors(style_obj):
     return s
 
 
-def map_custom_dynamic_colors(style_obj):
+def _map_custom_dynamic_colors(style_obj, palette):
     s = style_obj
     return s
