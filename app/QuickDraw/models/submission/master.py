@@ -1,6 +1,8 @@
 from typing import Protocol
 from dataclasses import dataclass
 
+from QuickDraw.helper import GREEN_LIGHT
+
 
 class ConfigWorker(Protocol):
     def get_value(self, request: dict) -> dict:
@@ -16,11 +18,7 @@ class ClientInfo(Protocol):
 class BaseModel:
     def __init__(
         self,
-        positive_value: str | int | bool,
-        negative_value: str | int | bool,
     ) -> None:
-        self.yes = positive_value
-        self.no = negative_value
         self.quoteform_path: str = None
         self.extra_attachments: list = []
 
@@ -53,7 +51,7 @@ class BaseModel:
     def filter_only_positive_submissions(self, raw_checkboxes: dict) -> list:
         market_list: list[str] = []
         for market, value in raw_checkboxes.items():
-            if value == self.yes:
+            if value == GREEN_LIGHT:
                 market_list.append(market)
         return market_list
 
@@ -120,6 +118,7 @@ class BaseModel:
             raise TypeError(
                 "email address is neither a string nor list. Please double-check."
             )
+
     def format_to_for_api(self, addresses: str) -> list[str]:
         list_of_strings: list[str] = []
         if ";" in addresses:
@@ -127,7 +126,9 @@ class BaseModel:
             for y in x:
                 if y.strip("; ") != "":
                     list_of_strings.append(y)
-            formatted_addresses = self._eliminate_whitespaces_invalid_chars(list_of_strings)
+            formatted_addresses = self._eliminate_whitespaces_invalid_chars(
+                list_of_strings
+            )
         else:
             formatted_addresses = self._del_whitespace_invalid_chars(addresses)
         return formatted_addresses

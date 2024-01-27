@@ -14,10 +14,9 @@ from model.pdf import DocParser
 from model.surplus_lines.app import SurplusLinesAutomator as surplus_lines
 from model.updater import update_app
 from presenter.presenter import Presenter
-from view.base_view import Submission
+from view.base_view import MainWindow
 from view.dialogs import DialogAllocateMarkets, DialogNewFile
 from view.sys_tray_icon import TrayIcon
-
 
 
 config_worker = ConfigWorker(
@@ -49,8 +48,8 @@ def initialize_modules() -> Presenter:
         )
     api_model = API()
     base_model = BaseModel(
-        positive_value=POSITIVE_SUBMISSION_VALUE,
-        negative_value=NEGATIVE_SUBMISSION_VALUE,
+        positive_value=GREEN_LIGHT,
+        negative_value=RED_LIGHT,
     )
     watch_dir: Path = Path(
         config_worker.get_value(
@@ -65,9 +64,9 @@ def initialize_modules() -> Presenter:
     email_handler = EmailHandler()
     pdf = DocParser(config_worker)
     # Views
-    submission = Submission(
-        positive_value=POSITIVE_SUBMISSION_VALUE,
-        negative_value=NEGATIVE_SUBMISSION_VALUE,
+    submission = MainWindow(
+        positive_value=GREEN_LIGHT,
+        negative_value=RED_LIGHT,
         icon_src=str(PATHS.app_icon),
     )
     dialog_new_file = DialogNewFile(
@@ -94,7 +93,7 @@ def initialize_modules() -> Presenter:
 
 
 def main():
-    update_app(sys.argv[1:]).
+    update_app(sys.argv[1:])
     presenter = initialize_modules()
     if not presenter.setup_api():
         sys.exit()

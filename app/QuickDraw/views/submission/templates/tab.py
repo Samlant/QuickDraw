@@ -7,10 +7,23 @@ from QuickDraw.views.themes.palettes import Palette
 
 
 class Presenter(Protocol):
-    ...
+    def btn_view_template(self) -> None:
+        ...
+
+    def btn_save_template(self) -> None:
+        ...
+
+    def on_change_template(self, *args, **kwargs) -> None:
+        ...
+
+    def on_focus_out(self, field_name: str, current_text: str) -> bool:
+        ...
+
+    def btn_reset_template(self) -> None:
+        ...
 
 
-def make_templates_widgets(view: base.Submission, presenter: Presenter, style: Palette):
+def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: Palette):
     view.tabs.templates.columnconfigure(0, minsize=740, pad=5)
     view.tabs.templates.rowconfigure(2, minsize=100, pad=5)
 
@@ -48,7 +61,7 @@ def make_templates_widgets(view: base.Submission, presenter: Presenter, style: P
         style=style,
     )
     view.dropdown_menu.pack(padx=15, ipady=5, fill="x", expand=True)
-    view._dropdown_menu_var.trace_add(
+    view._selected_template.trace_add(
         "write",
         presenter.on_change_template,
     )
@@ -107,7 +120,7 @@ def make_templates_widgets(view: base.Submission, presenter: Presenter, style: P
         text="Body of the email:",
     ).grid(column=0, row=3)
 
-    view._body_text = Text(
+    view._body = Text(
         customize_msg_lf,
         name="body",
         width=73,
@@ -119,13 +132,13 @@ def make_templates_widgets(view: base.Submission, presenter: Presenter, style: P
         selectbackground=style.alt_fg_color,
         selectforeground=style.alt_bg_color,
     )
-    view._body_text.grid(
+    view._body.grid(
         column=1,
         row=3,
         sticky="w",
         pady=5,
     )
-    view._body_text.bind(
+    view._body.bind(
         "<FocusOut>",
         presenter.on_focus_out,
     )

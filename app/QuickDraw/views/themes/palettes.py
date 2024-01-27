@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -21,17 +21,23 @@ class Palette:
 
 @dataclass
 class BlueRose(Palette):
-    base_bg_color = "#CFEBDF"
-    base_fg_color = "#5F634F"  # black or grey
-    alt_bg_color = "#5F634F"  # dark grey; for text inputs + chkbtns
-    alt_fg_color = "#FFCAB1"  # pink
-    dragdrop_bg_color = "#5F634F"  # temp: same as text inputs
-    menuoption_bg_color = "#5F634F"  # dark grey; same as text inputs
-    menuoption_fg_color = "#FFCAB1"  # pink
-    btn_base_bg = "#1D3461"
-    btn_active_bg = "#203b6f"
-    btn_pressed_bg = "#16294d"
-    btn_fg = "#CFEBDF"
-    chck_btn_bg = "#5F634F"
-    chck_btn_fg = "#FFCAB1"
-    chck_btn_select_color = "#000000"
+    base_bg_color: str = field(default="#CFEBDF", init=False)
+    base_fg_color: str = field(default="#5F634F", init=False)  # black or grey
+    alt_bg_color: str = field(
+        default="#5F634F", init=False
+    )  # dark grey; for text inputs + chkbtns
+    alt_fg_color: str = field(default="#FFCAB1", init=False)  # pink
+    dragdrop_bg_color: str = field(
+        default="#5F634F", init=False
+    )  # temp: same as text inputs
+    menuoption_bg_color: str = field(
+        default="#5F634F", init=False
+    )  # dark grey; same as text inputs
+    menuoption_fg_color: str = field(default="#FFCAB1", init=False)  # pink
+    btn_base_bg: str = field(default="#1D3461", init=False)
+    btn_active_bg: str = field(default="#203b6f", init=False)
+    btn_pressed_bg: str = field(default="#16294d", init=False)
+    btn_fg: str = field(default="#CFEBDF", init=False)
+    chck_btn_bg: str = field(default="#5F634F", init=False)
+    chck_btn_fg: str = field(default="#FFCAB1", init=False)
+    chck_btn_select_color: str = field(default="#000000", init=False)

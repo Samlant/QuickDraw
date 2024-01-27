@@ -1,15 +1,19 @@
 from tkinter import ttk
 from typing import Protocol
 
-from QuickDraw.views.themes.palettes import palette
+from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.submission import base
 
 
 class Presenter(Protocol):
-    ...
+    def btn_save_folder_settings(self) -> None:
+        ...
+
+    def btn_revert_folder_settings(self, event) -> None:
+        ...
 
 
-def make_dirs_widgets(view: base.Submission, presenter: Presenter, style=palette):
+def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palette):
     ### Start Watch Dir Settings ###
     view.tabs.dirs.rowconfigure(3, minsize=100, pad=5)
     ### START TITLE ###
@@ -251,7 +255,7 @@ def make_dirs_widgets(view: base.Submission, presenter: Presenter, style=palette
     ttk.Button(
         master=buttons_box,
         text="Save Settings",
-        command=presenter.btn_save_folder_settings,
+        command=view.btn_save_folder_settings,
     ).pack(
         fill="both",
         expand=True,

@@ -8,9 +8,6 @@ class Presenter(Protocol):
     def choice(self, choice: str):
         ...
 
-    def save_user_choices(self, event):
-        ...
-
 
 @dataclass
 class ClientInfo:
@@ -33,7 +30,7 @@ class DialogNewFile:
 
     @property
     def selected_month(self) -> str:
-        return self._dropdown_menu_var.get().lower()
+        return self._selected_template.get().lower()
 
     @property
     def vessel(self) -> str:
@@ -80,7 +77,7 @@ class DialogNewFile:
         self.root.text_frame.pack(fill=BOTH, expand=True)
         self.root.btn_frame = Frame(self.root, bg="#CFEBDF")
         self.root.btn_frame.pack(fill=BOTH, expand=True, ipady=2)
-        self._dropdown_menu_var = StringVar(value=current_month.capitalize())
+        self._selected_template = StringVar(value=current_month.capitalize())
         self._vessel = StringVar(name="vessel", value="")
         self._year = StringVar(name="year", value="")
         self._referral = StringVar(name="referral", value="")
@@ -161,7 +158,7 @@ class DialogNewFile:
                 second_month.capitalize(),
             ]
             dropdown_menu = OptionMenu(
-                self.root.text_frame, self._dropdown_menu_var, *options
+                self.root.text_frame, self._selected_template, *options
             )
             dropdown_menu.configure(
                 background="#1D3461",
@@ -216,4 +213,3 @@ class DialogNewFile:
             fg="#CFEBDF",
         )
         submit_btn.grid(row=2, column=0, padx=5, pady=(0, 5))
-

@@ -3,14 +3,21 @@ from typing import Protocol
 
 from tkinterdnd2 import DND_FILES
 
-from QuickDraw.views.themes.palettes import palette
+from QuickDraw.views.themes.palettes import Palette
 
 
 class Presenter(Protocol):
-    ...
+    def process_signature_image_path(self, drag_n_drop_event) -> None:
+        ...
+
+    def btn_revert_email_settings(self, event) -> None:
+        ...
+
+    def btn_save_email_settings(self) -> None:
+        ...
 
 
-def make_email_widgets(view: Presenter, presenter: Presenter, style: palette):
+def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     view.tabs.email.rowconfigure(3, minsize=100, pad=5)
     ### START TITLE ###
     title_frame = ttk.Frame(
@@ -116,7 +123,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: palette):
         signature_lf,
         text="Name image:",
     ).grid(row=1, column=0, padx=5, pady=(5, 0))
-    view.sig_image_path_box = Text(
+    view.sig_image_file_path = Text(
         signature_lf,
         name="sig_image_path_file",
         height=2,
@@ -127,7 +134,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: palette):
         selectbackground=style.alt_fg_color,
         selectforeground=style.alt_bg_color,
     )
-    view.sig_image_path_box.grid(
+    view.sig_image_file_path.grid(
         row=1,
         column=1,
         columnspan=2,
@@ -135,8 +142,8 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: palette):
         padx=(0, 1),
         sticky="ew",
     )
-    view.sig_image_path_box.drop_target_register(DND_FILES)
-    view.sig_image_path_box.dnd_bind(
+    view.sig_image_file_path.drop_target_register(DND_FILES)
+    view.sig_image_file_path.dnd_bind(
         "<<Drop>>",
         presenter.process_signature_image_path,
     )

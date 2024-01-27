@@ -5,9 +5,6 @@ from tkinter import *
 
 
 class Presenter(Protocol):
-    def choice(self, choice: str):
-        ...
-
     def save_user_choices(self, event):
         ...
 

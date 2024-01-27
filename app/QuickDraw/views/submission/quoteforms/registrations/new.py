@@ -6,14 +6,14 @@ from QuickDraw.views.submission import base
 
 
 class Presenter(Protocol):
-    def add_qf_registration() -> None:
+    def add_qf_registration(self) -> None:
         ...
 
 
 class NewRegistrations(ttk.LabelFrame):
     def __init__(
         self,
-        view: base.Submission,
+        view: base.MainWindow,
         presenter: Presenter,
         parent,
         text: str,

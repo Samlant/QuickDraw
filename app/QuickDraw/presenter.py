@@ -161,19 +161,24 @@ class MSGraphClient(Protocol):
         ...
 
 
-class Submission(Protocol):
+class MainWindow(Protocol):
     extra_notes: str
-    use_default_cc_addresses: bool
-    sw: str | int | bool | list
-    pt: str | int | bool | list
-    nh: str | int | bool | list
-    am: str | int | bool | list
-    km: str | int | bool | list
-    cp: str | int | bool | list
-    yi: str | int | bool | list
-    ce: str | int | bool | list
-    In: str | int | bool | list
-    tv: str | int | bool | list
+    use_CC_defaults: bool
+    seawave: str | int | bool | list
+    primetime: str | int | bool | list
+    newhampshire: str | int | bool | list
+    americanmodern: str | int | bool | list
+    kemah: str | int | bool | list
+    concept: str | int | bool | list
+    yachtinsure: str | int | bool | list
+    century: str | int | bool | list
+    intact: str | int | bool | list
+    travelers: str | int | bool | list
+    home_values: dict[str, str]
+    templates_values: dict[str, str]
+    email_values: dict[str, str]
+    dirs_values: dict[str, str]
+    quoteforms_values: dict[str, str]
     quoteform: str
     extra_attachments: str
     selected_template: str
@@ -185,7 +190,7 @@ class Submission(Protocol):
     default_cc1: str
     default_cc2: str
     username: str
-    sig_image_file: str
+    sig_image_file_path: str
     watch_dir: str
     new_biz_dir: str
     renewals_dir: str
@@ -314,7 +319,7 @@ class Presenter:
         dir_watch: DirWatch,
         email_handler: EmailHandler,
         pdf: DocParser,
-        submission: Submission,
+        submission: MainWindow,
         dialog_new_file: DialogNewFile,
         dialog_allocate_markets: DialogAllocateMarkets,
     ) -> None:
@@ -532,7 +537,7 @@ class Presenter:
         self.btn_revert_folder_settings()
         personal_settings_keys: list[str] = [
             "username",
-            "use_default_cc_addresses",
+            "use_CC_defaults",
             "default_cc1",
             "default_cc2",
         ]
@@ -600,7 +605,7 @@ class Presenter:
         print("saving signature image")
         raw_path: str = drag_n_drop_event.data
         path = self.base_model.filter_out_brackets(raw_path)
-        self.submission.sig_image_file = path
+        self.submission.sig_image_file_path = path
 
     ############# END --Main Tab-- END #############
 
@@ -827,7 +832,7 @@ class Presenter:
                 List -- returns a list of all desired CC adresses
         """
         list_of_cc = [self.submission.userinput_CC1, self.submission.userinput_CC2]
-        if self.submission.use_default_cc_addresses:
+        if self.submission.use_CC_defaults:
             if self.config_worker.check_if_using_default_carboncopies():
                 cc_from_config = [
                     self.config_worker.get_value(
@@ -977,7 +982,7 @@ class Presenter:
         self.submission.default_cc1 = section_obj.get("default_cc1").value
         self.submission.default_cc2 = section_obj.get("default_cc2").value
         self.submission.username = section_obj.get("username").value
-        self.submission.sig_image_file = section_obj.get("signature_image").value
+        self.submission.sig_image_file_path = section_obj.get("signature_image").value
         return True
 
     def btn_revert_email_settings(self) -> None:
@@ -1009,7 +1014,7 @@ class Presenter:
             "default_cc1": self.submission.default_cc1,
             "default_cc2": self.submission.default_cc2,
             "username": self.submission.username,
-            "signature_image": self.submission.sig_image_file,
+            "signature_image": self.submission.sig_image_file_path,
         }
         return settings_dict
 
@@ -1077,7 +1082,7 @@ class Presenter:
                 "A form already exists with this name. Please change the form name to a unique name and try adding again.",
                 "Warning",
                 0x10 | 0x0,
-                )
+            )
 
     def btn_save_registration_settings(self):
         row_data = self.submission.reg_tv.get_all_rows()

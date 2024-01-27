@@ -1,6 +1,9 @@
 from configupdater import ConfigUpdater
 
 
+### THIS IS OUTDATED!!!! MOVE ALL TO INDIVIDUAL MODULES ON AS-NEEDED BASIS ####
+
+
 class ConfigWorker:
     """This class handles all interactions between the python and config file. It utilizes open_config() as a helper to acces config, discerns the path of flowing information & then performs those queries on the config file."""
 
@@ -74,7 +77,7 @@ class ConfigWorker:
     def check_if_using_default_carboncopies(self) -> bool:
         """Checks if the user's setting is set to use default CC addresses or not"""
         section_name_value = "General settings"
-        key = "use_default_cc_addresses"
+        key = "use_CC_defaults"
         config = {"section_name": section_name_value, "key": key}
         try:
             result = self.get_value(config)

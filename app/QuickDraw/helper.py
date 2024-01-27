@@ -1,10 +1,12 @@
 from pathlib import Path
 
+from configupdater import ConfigUpdater
+
 # Insert config functions, PATHS constants, and TEST constant
 
 TEST = False
-POSITIVE_SUBMISSION_VALUE = "yes"
-NEGATIVE_SUBMISSION_VALUE = "no"
+GREEN_LIGHT = "yes"
+RED_LIGHT = "no"
 
 if TEST:
     APP_DIR = Path(__file__).parents[2]
@@ -27,3 +29,24 @@ else:
     APP_ICON: Path = app_resources / "img" / "app.ico"
     TRAY_ICON: Path = app_resources / "img" / "sys_tray.ico"
     README: Path = app_resources / "docs" / "readme.html"
+
+
+CARRIERS = [
+    "Seawave",
+    "Primetime",
+    "NewHampshire",
+    "AmericanModern",
+    "Kemah",
+    "Concept",
+    "Yachtinsure",
+    "Century",
+    "Intact",
+    "Travelers",
+]
+
+
+def open_config(self) -> None:  # GOOD
+    """This is a helper to read config when called using ConfigUpdater,  an improvement on configParser."""
+    open_read_update = ConfigUpdater(comment_prefixes=("^",))
+    open_read_update.read(self.file_path)
+    return open_read_update

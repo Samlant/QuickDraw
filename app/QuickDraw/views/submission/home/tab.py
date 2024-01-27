@@ -3,16 +3,27 @@ from typing import Protocol
 from operator import attrgetter
 from QuickDraw.views.submission import base
 from QuickDraw.views.submission.helper import make_drag_drop_txt_box, make_checkbutton
+from QuickDraw.helper import CARRIERS
 
 # from QuickDraw.views.submission.helper import create_button
-from QuickDraw.views.themes.palettes import palette
+from QuickDraw.views.themes.palettes import Palette
 
 
 class Presenter(Protocol):
-    ...
+    def process_quoteform_path(self, drag_n_drop_event) -> None:
+        ...
+
+    def process_attachments_path(self, drag_n_drop_event) -> None:
+        ...
+
+    def btn_clear_attachments(self) -> None:
+        ...
+
+    def btn_send_envelopes(self, autosend: bool | None) -> None:
+        ...
 
 
-def make_home_widgets(view: base.Submission, presenter: Presenter, style: palette):
+def make_home_widgets(view: base.MainWindow, presenter: Presenter, style: Palette):
     view.tabs.home.rowconfigure(2, minsize=100, pad=5)
     view.tabs.home.columnconfigure(0, pad=5)
     view.tabs.home.columnconfigure(1, pad=5)
@@ -33,13 +44,13 @@ def make_home_widgets(view: base.Submission, presenter: Presenter, style: palett
     )
     ### Quoteform DnD Labelframe ###
     labelframe_dd_qf.pack(fill="none", expand=False, side="top")
-    view.quoteform_path_box = make_drag_drop_txt_box(
+    view._quoteform = make_drag_drop_txt_box(
         labelframe_dd_qf,
         style,
         "raw_quoteform_path",
         presenter.process_quoteform_path,
     )
-    view.quoteform_path_box.pack(fill="both", expand=False, anchor="n")
+    view._quoteform.pack(fill="both", expand=False, anchor="n")
     ttk.Button(
         labelframe_dd_qf,
         text="Browse",
@@ -52,7 +63,7 @@ def make_home_widgets(view: base.Submission, presenter: Presenter, style: palett
         name="labelframe_dd_ea",
     )
     labelframe_dd_ea.pack(fill="none", expand=False, side="top", pady=(15, 0))
-    view.extra_attachments_path_box = make_drag_drop_txt_box(
+    view._extra_attachments = make_drag_drop_txt_box(
         labelframe_dd_ea,
         style,
         "raw_attachments_path_list",
@@ -83,7 +94,7 @@ def make_home_widgets(view: base.Submission, presenter: Presenter, style: palett
         text="Want to add any notes?",
     )
     labelframe_main1.pack(fill="both", expand=True, side="top")
-    view._extra_notes_text = Text(
+    view._extra_notes = Text(
         labelframe_main1,
         height=7,
         width=10,
@@ -94,8 +105,8 @@ def make_home_widgets(view: base.Submission, presenter: Presenter, style: palett
         selectbackground=style.alt_fg_color,
         selectforeground=style.alt_bg_color,
     )
-    view._extra_notes_text.focus_set()
-    view._extra_notes_text.pack(fill="both", expand=False, side="top")
+    view._extra_notes.focus_set()
+    view._extra_notes.pack(fill="both", expand=False, side="top")
     labelframe_cc = ttk.Labelframe(
         frame_middle,
         text="Want to CC Anyone?",
@@ -162,25 +173,13 @@ def make_home_widgets(view: base.Submission, presenter: Presenter, style: palett
         text="Choose Markets:",
     ).pack(fill="x", expand=True, side="left")
 
-    view.frame_right = ttk.Frame(view.tabs.home)
-    view.frame_right.grid(column=2, row=1, pady=(0, 5), sticky="n")
-    carriers = [
-        "Seawave",
-        "Primetime",
-        "NewHampshire",
-        "AmericanModern",
-        "Kemah",
-        "Concept",
-        "Yachtinsure",
-        "Century",
-        "Intact",
-        "Travelers",
-    ]
-    for carrier in carriers:
+    frame_right = ttk.Frame(view.tabs.home)
+    frame_right.grid(column=2, row=1, pady=(0, 5), sticky="n")
+    for carrier in CARRIERS:
         attr_name = f"_{carrier.lower()}"
         attr = attrgetter(attr_name)(view)
         make_checkbutton(
-            parent=view.frame_right,
+            parent=frame_right,
             text=carrier,
             int_variable=attr,
         )

@@ -16,7 +16,7 @@ class Presenter(Protocol):
         ...
 
 
-def make_quoteform_widgets(view: base.Submission, presenter: Presenter):
+def make_quoteform_widgets(view: base.MainWindow, presenter: Presenter):
     ### START TITLE ###
     title_frame = ttk.Frame(
         view.tabs.quoteforms,

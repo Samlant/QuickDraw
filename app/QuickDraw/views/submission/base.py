@@ -1,90 +1,11 @@
 from typing import Protocol
-from dataclasses import dataclass
-import tkinter as tk
-from tkinter import ttk, filedialog
-from tkinter.ttk import Notebook, Style, Treeview
+from tkinter import ttk, filedialog, StringVar, BooleanVar
+from tkinter.ttk import Notebook, Style
 
-from tkinter import *
-from tkinterdnd2 import DND_FILES, TkinterDnD
+from tkinterdnd2 import TkinterDnD
 
-from QuickDraw.views.submission.helper import BaseVars
-
-# from view.styling import BlueRose, create_style
-# from view.reg_treeview import RegTreeView
-
-
-class Presenter(Protocol):
-    """This enables us to call funtions from the Presenter
-    class, either to send/retrieve data.
-    """
-
-    def btn_send_envelopes(self, autosend: bool) -> None:
-        ...
-
-    def btn_clear_attachments(self) -> None:
-        ...
-
-    def btn_reset_template(self) -> None:
-        ...
-
-    def btn_view_template(self) -> None:
-        ...
-
-    def btn_save_template(self) -> None:
-        ...
-
-    def btn_save_email_settings(self) -> None:
-        ...
-
-    def btn_save_folder_settings(self) -> None:
-        ...
-
-    def add_qf_registration(self) -> None:
-        ...
-
-    def btn_save_registration_settings(self) -> None:
-        ...
-
-    def btn_revert_email_settings(self, event) -> None:
-        ...
-
-    def btn_revert_folder_settings(self, event) -> None:
-        ...
-
-    def btn_revert_registration_settings(self, event) -> None:
-        ...
-
-    def set_dropdown_options(self) -> list:
-        ...
-
-    def process_quoteform_path(self, drag_n_drop_event) -> None:
-        ...
-
-    def process_attachments_path(self, drag_n_drop_event) -> None:
-        ...
-
-    def process_signature_image_path(self, drag_n_drop_event) -> None:
-        ...
-
-    def _save_signature_image_path(self, path: str) -> None:
-        ...
-
-    def save_extra_notes(self, notes: str) -> None:
-        ...
-
-    def on_change_template(self, *args, **kwargs) -> None:
-        ...
-
-    def on_focus_out(self, field_name: str, current_text: str) -> bool:
-        ...
-
-
-# BR = BlueRose()
-
-
-class RegColumn(Protocol):
-    name: str
-    width: int
+from QuickDraw.helper import CARRIERS, GREEN_LIGHT, RED_LIGHT
+from QuickDraw.views.submission.helper import NON_TEXT_VARS, ALL_TABS
 
 
 class Quoteform(Protocol):
@@ -109,37 +30,155 @@ class Quoteform(Protocol):
         ...
 
 
-class Submission:
+class MainWindow:
     def __init__(
         self,
-        positive_value,
-        negative_value,
         icon_src: str,
-        style: Style,
     ) -> None:
-        self._yes = positive_value
-        self._no = negative_value
         self.icon = icon_src
-        self.style = style
         self.root = TkinterDnD.Tk()
+
+    def assign_style(self, style):
+        self.style = style
 
     def assign_private_string_bool_vars(self) -> None:
         """Assigns tkinter-specific attributes so that the getters /
         setters work and other modules do not need to need tkinter.
         """
-        vars = BaseVars()
-        for var in vars:
-            attr_name = f"_{var.__name__.lower()}"
-            setattr(self, attr_name, var)
+        for vars_and_types in ALL_TABS.values():
+            for var, type in vars_and_types.items():
+                if type == "text":
+                    continue
+                elif type == "str":
+                    setattr(
+                        self,
+                        "_" + var,
+                        StringVar(self.root, "", var),
+                    )
+                elif type == "bool":
+                    setattr(
+                        self,
+                        "_" + var,
+                        BooleanVar(self.root, RED_LIGHT, var),
+                    )
+
+        for carrier in CARRIERS:
+            setattr(
+                self,
+                "_" + carrier.lower(),
+                StringVar(self.root, RED_LIGHT, carrier),
+            )
 
     # main_tab: getters/setters
     @property
+    def home_values(self) -> dict[str, str]:
+        return {
+            "quoteform": self.quoteform,
+            "extra_attachments": self.extra_attachments,
+            "extra_notes": self.extra_notes,
+            "userinput_CC1": self.userinput_CC1,
+            "userinput_CC2": self.userinput_CC2,
+            "use_CC_defaults": self.use_CC_defaults,
+        }
+
+    @home_values.setter
+    def home_values(self, save_data: dict[str, str | bool]) -> None:
+        for attr_name, value in save_data.items():
+            setattr(self, attr_name, value)
+
+    @home_values.deleter
+    def home_values(self):
+        for attr in ALL_TABS["home"].keys():
+            delattr(self, attr)
+
+    @property
+    def template_values(self) -> dict[str, str]:
+        return {
+            "selected_template": self.selected_template,
+            "address": self.address,
+            "greeting": self.greeting,
+            "body": self.body,
+            "outro": self.outro,
+            "salutation": self.salutation,
+        }
+
+    @template_values.setter
+    def template_values(self, save_data: dict[str, str | bool]) -> None:
+        for attr_name, value in save_data.items():
+            setattr(self, attr_name, value)
+
+    @template_values.deleter
+    def template_values(self):
+        for attr in ALL_TABS["templates"].keys():
+            delattr(self, attr)
+
+    @property
+    def email_values(self) -> dict[str, str]:
+        return {
+            "default_cc1": self.default_cc1,
+            "default_cc2": self.default_cc2,
+            "username": self.username,
+            "sig_image_file_path": self.sig_image_file_path,
+        }
+
+    @email_values.setter
+    def email_values(self, save_data: dict[str, str | bool]) -> None:
+        for attr_name, value in save_data.items():
+            setattr(self, attr_name, value)
+
+    @email_values.deleter
+    def email_values(self):
+        for attr in ALL_TABS["email"].keys():
+            delattr(self, attr)
+
+    @property
+    def dirs_values(self) -> dict[str, str]:
+        return {
+            "watch_dir": self.watch_dir,
+            "new_biz_dir": self.new_biz_dir,
+            "renewals_dir": self.renewals_dir,
+            "custom_parent_dir": self.custom_parent_dir,
+            "custom_sub_dir": self.custom_sub_dir,
+        }
+
+    @dirs_values.setter
+    def dirs_values(self, save_data: dict[str, str | bool]) -> None:
+        for attr_name, value in save_data.items():
+            setattr(self, attr_name, value)
+
+    @dirs_values.deleter
+    def dirs_values(self):
+        for attr in ALL_TABS["dirs"].keys():
+            delattr(self, attr)
+
+    @property
+    def quoteforms_values(self) -> dict[str, str]:
+        return {
+            "form_name": self.form_name,
+            "fname": self.fname,
+            "lname": self.lname,
+            "year": self.year,
+            "vessel": self.vessel,
+            "referral": self.referral,
+        }
+
+    @quoteforms_values.setter
+    def quoteforms_values(self, save_data: dict[str, str | bool]) -> None:
+        for attr_name, value in save_data.items():
+            setattr(self, attr_name, value)
+
+    @quoteforms_values.deleter
+    def quoteforms_values(self):
+        for attr in ALL_TABS["quoteforms"].keys():
+            delattr(self, attr)
+
+    @property
     def extra_notes(self) -> str:
-        return self._extra_notes_text.get("1.0", "end-1c")
+        return self._extra_notes.get("1.0", "end-1c")
 
     @extra_notes.deleter
     def extra_notes(self):
-        self._extra_notes_text.delete("1.0")
+        self._extra_notes.delete("1.0")
 
     @property
     def userinput_CC1(self) -> str:
@@ -150,81 +189,81 @@ class Submission:
         return self._userinput_CC2.get("1.0", "end-1c")
 
     @property
-    def use_default_cc_addresses(self) -> bool:
+    def use_CC_defaults(self) -> bool:
         return self._use_CC_defaults.get()
 
-    @use_default_cc_addresses.setter
-    def use_default_cc_addresses(self, usage: bool) -> None:
+    @use_CC_defaults.setter
+    def use_CC_defaults(self, usage: bool) -> None:
         self._use_CC_defaults.set(usage)
 
     @property
-    def sw(self) -> str:
+    def seawave(self) -> str:
         return self._seawave.get()
 
     @property
-    def pt(self) -> str:
+    def primetime(self) -> str:
         return self._primetime.get()
 
     @property
-    def nh(self) -> str:
+    def newhampshire(self) -> str:
         return self._newhampshire.get()
 
     @property
-    def am(self) -> str:
+    def americanmodern(self) -> str:
         return self._americanmodern.get()
 
     @property
-    def km(self) -> str:
+    def kemah(self) -> str:
         return self._kemah.get()
 
     @property
-    def cp(self) -> str:
+    def concept(self) -> str:
         return self._concept.get()
 
     @property
-    def yi(self) -> str:
+    def yachtinsure(self) -> str:
         return self._yachtinsure.get()
 
     @property
-    def ce(self) -> str:
+    def century(self) -> str:
         return self._century.get()
 
     @property
-    def In(self) -> str:
+    def intact(self) -> str:
         return self._intact.get()
 
     @property
-    def tv(self) -> str:
+    def travelers(self) -> str:
         return self._travelers.get()
 
     @property
     def quoteform(self):
-        return self.quoteform_path_box.get("1.0", "end-1c")
+        return self._quoteform.get("1.0", "end-1c")
 
     @quoteform.setter
     def quoteform(self, new_attachment: str):
-        self.quoteform_path_box.insert("1.0", new_attachment)
+        self._quoteform.insert("1.0", new_attachment)
 
     @quoteform.deleter
     def quoteform(self):
-        self.quoteform_path_box.delete("1.0", END)
+        self._quoteform.delete("1.0", "end")
 
     @property
     def extra_attachments(self):
-        return self.extra_attachments_path_box.get("1.0", "end-1c")
+        return self._extra_attachments.get("1.0", "end-1c")
 
     @extra_attachments.setter
     def extra_attachments(self, new_attachment: str):
-        self.extra_attachments_path_box.insert("1.0", new_attachment + "\n")
+        self._extra_attachments.insert("1.0", new_attachment + "\n")
 
     @extra_attachments.deleter
     def extra_attachments(self):
-        self.extra_attachments_path_box.delete("1.0", END)
+        self._extra_attachments.delete("1.0", "end")
 
     # customize_tab: getters/setters
     @property
     def selected_template(self) -> str:
-        return self._dropdown_menu_var.get()
+        return self._selected_template.get()
 
     @property
     def address(self) -> str:
@@ -252,15 +291,15 @@ class Submission:
 
     @property
     def body(self) -> str:
-        return self._body_text.get("1.0", "end-1c")
+        return self._body.get("1.0", "end-1c")
 
     @body.setter
     def body(self, new_body: str) -> None:
-        self._body_text.insert("1.0", new_body)
+        self._body.insert("1.0", new_body)
 
     @body.deleter
     def body(self) -> None:
-        self._body_text.delete("1.0", "end-1c")
+        self._body.delete("1.0", "end-1c")
 
     @property
     def outro(self) -> str:
@@ -324,17 +363,17 @@ class Submission:
         self._username.set("")
 
     @property
-    def sig_image_file(self) -> str:
-        return self.sig_image_path_box.get("1.0", "end-1c")
+    def sig_image_file_path(self) -> str:
+        return self._sig_image_file_path.get("1.0", "end-1c")
 
-    @sig_image_file.setter
-    def sig_image_file(self, new_image_file: str):
-        self.sig_image_path_box.delete("1.0", END)
-        self.sig_image_path_box.insert("1.0", new_image_file)
+    @sig_image_file_path.setter
+    def sig_image_file_path(self, new_image_file: str):
+        self._sig_image_file_path.delete("1.0", "end")
+        self._sig_image_file_path.insert("1.0", new_image_file)
 
-    @sig_image_file.deleter
-    def sig_image_file(self):
-        self.sig_image_path_box.delete("1.0", END)
+    @sig_image_file_path.deleter
+    def sig_image_file_path(self):
+        self._sig_image_file_path.delete("1.0", "end")
 
     # Folder Settings Tab: getters/setters
     @property
@@ -446,33 +485,6 @@ class Submission:
     def referral(self):
         self._referral.set("")
 
-    # @property
-    # def quoteform_name(self) -> str:
-    #     return self._quoteform_name.get()
-
-    # @quoteform_name.deleter
-    # def quoteform_name(self):
-    #     self._quoteform_name.set("")
-
-    ### END of Getters/Setters ###
-
-    # Commented out below because it was moved to interface.py
-
-    # def create_UI_obj(self, presenter: Presenter):
-    #     """This creates the GUI root,  along with the main
-    #     functions to create the widgets.
-    #     """
-    #     self.root = TkinterDnD.Tk()
-    #     self.assign_private_string_bool_vars()
-    #     self.assign_window_traits()
-    #     self.create_notebook()
-    #     self.create_tabs()
-    #     self.create_main_tab_widgets(presenter)
-    #     self.create_customize_tab_widgets(presenter)
-    #     self.create_email_settings_tab_widgets(presenter)
-    #     self.create_folder_settings_tab_widgets(presenter)
-    #     self.create_quoteform_registrations_tab_widgets(presenter)
-
     def assign_window_traits(self):
         self.root.geometry("760x600")
         # self.root.configure(background="red")
@@ -497,11 +509,13 @@ class Submission:
         self.root.tabControl.add(self.tabs.dirs, text="Folder Settings")
         self.root.tabControl.add(self.tabs.quoteforms, text="Quoteform Registrations")
 
-    def _browse_qf_path(self):
+    def _browse_qf_path(self, event: None):
+        if event:
+            print(event.data)
         try:
             dir_name = filedialog.askopenfilename()
             if not dir_name == "":
-                self.quoteform_path_box = self.quoteform
+                self.quoteform = dir_name
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
 
@@ -509,7 +523,7 @@ class Submission:
         try:
             dir_name = filedialog.askopenfilename()
             if not dir_name == "":
-                self.extra_attachments_path_box = self.extra_attachments
+                self._extra_attachments = self.dir_name
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
 
@@ -519,20 +533,20 @@ class Submission:
     def _browse_name_img(self):
         try:
             file_name = filedialog.askopenfile().name
-            self.sig_image_path_box.delete("1.0", "end")
-            self.sig_image_path_box.insert("1.0", file_name)
+            self._sig_image_file_path.delete("1.0", "end")
+            self._sig_image_file_path.insert("1.0", file_name)
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
-        # del self.sig_image_file
+        # del self.sig_image_file_path
 
     def _upload_img_btn(self):
         try:
-            file_path = self.sig_image_path_box.get("1.0", END)
+            file_path = self._sig_image_file_path.get("1.0", "end")
             file_name = ""
             # send URL request to upload img to hosting site
             # insert received response url into text box
-            self.sig_image_path_box.delete("1.0", END)
-            self.sig_image_path_box.insert("1.0", file_name)
+            self._sig_image_file_path.delete("1.0", "end")
+            self._sig_image_file_path.insert("1.0", file_name)
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
 
@@ -650,11 +664,3 @@ class Submission:
             for child in self.tree_dir.get_children(parent):
                 if name in self.tree_dir.item(str(child))["values"]:
                     return child
-
-    def set_start_tab(self, specific_tab: str) -> None:
-        if specific_tab == "template":
-            self.root.tabControl.select(1)
-        elif specific_tab == "email":
-            self.root.tabControl.select(2)
-        elif specific_tab == "folder":
-            self.root.tabControl.select(3)
