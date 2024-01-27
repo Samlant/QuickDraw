@@ -1,5 +1,6 @@
 import string
 from pathlib import Path
+from dataclasses import dataclass, InitVar
 
 
 class QuoteDoc:
@@ -39,3 +40,13 @@ class QuoteDoc:
             "original_file_path": self.file_path,
         }
         return output
+
+
+@dataclass(kw_only=True)
+class Submission(Quoteform):
+    status: str
+    original_file_path: Path
+    new_file_path: Path = None
+    extra_attachements: list = None
+    markets: list | str = ""
+    submit_tool: bool = False

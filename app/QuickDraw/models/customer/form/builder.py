@@ -1,9 +1,9 @@
 from pathlib import Path
-from template import QuoteDoc
+from QuickDraw.models.customer import QuoteDoc
 from fillpdf import fillpdfs
 
 
-class DocParser:
+class FormBuilder:
     def __init__(self, config_worker) -> None:
         self.config_worker = config_worker
 
