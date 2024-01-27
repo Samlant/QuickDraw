@@ -77,7 +77,7 @@ def make_signature(sig_img: str, signature_settings: dict[str, str]) -> str:
         Main:(800)-823-2798
         <br>
         Office :{office_phone}
-        </p>
+        <br>
         Fax:(941)-328-3598
         <br>
         {office_street}
