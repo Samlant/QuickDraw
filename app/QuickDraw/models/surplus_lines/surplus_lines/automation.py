@@ -1,26 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 import logging
-from tkinter import (
-    BOTH,
-    TOP,
-    LEFT,
-    END,
-    Label,
-    Text,
-    Frame,
-    X,
-    Button,
-    filedialog,
-)
-from tkinterdnd2 import DND_FILES, TkinterDnD
 
-# from dotenv import set_key
-
-from model.config import ConfigWorker
+from Quickdraw.helper import open_config
 from model.surplus_lines.dev import exceptions
-
-# from model.surplus_lines.surplus_lines import OUTPUT_DIR, ENV_PATH
 from model.surplus_lines.surplus_lines.carriers.base import Carrier
 from model.surplus_lines.surplus_lines.doc.filler import DocFiller
 from model.surplus_lines.surplus_lines.doc.parser import DocParser
@@ -61,11 +44,14 @@ class Automator:
         self.config = config_worker
     
     @property
-    def output_dir(self):
-        return self.config.get(
+    def output_dir(self) -> str:
+        "TODO DOUBLE CHECK!"
+        config = open_config()
+        value = config.get(
             "Surplus lines settings",
             "output_save_dir",
-        )[1].value
+        )
+        return value[1].value
 
 
     def _save_user_doc_path(self, event):
