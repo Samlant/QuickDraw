@@ -41,7 +41,6 @@ class Automator:
         self.carrier_obj: Carrier = None
         self.stamps: list[Path] = []
         self.doc_filler: DocFiller = None
-        self.config = config_worker
     
     @property
     def output_dir(self) -> str:
