@@ -1,6 +1,4 @@
-from typing import Protocol
-
-from QuickDraw.views.submission import base
+from QuickDraw.views.submission.base.properties import ViewInterface
 from QuickDraw.views.submission.dirs.tab import make_dirs_widgets
 from QuickDraw.views.submission.email.tab import make_email_widgets
 from QuickDraw.views.submission.home.tab import make_home_widgets
@@ -8,6 +6,7 @@ from QuickDraw.views.submission.quoteforms.registrations.tab import (
     make_quoteform_widgets,
 )
 from QuickDraw.views.submission.templates.tab import make_templates_widgets
+from QuickDraw.views.submission.base.protocols import Presenter
 from QuickDraw.views.themes import palettes
 from QuickDraw.views.themes.applicator import create_style
 from QuickDraw.helper import open_config
@@ -16,11 +15,7 @@ from QuickDraw.helper import open_config
 PALETTE = palettes.BlueRose()
 
 
-class Presenter(Protocol):
-    ...
-
-
-class MainWindow(base.MainWindow):
+class MainWindow(ViewInterface):
     def __init__(self, icon_src: str):
         super().__init__(
             icon_src,

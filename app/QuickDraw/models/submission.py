@@ -1,52 +1,9 @@
-from typing import Protocol
-from dataclasses import dataclass
-
 from QuickDraw.helper import GREEN_LIGHT
 
 
-class ConfigWorker(Protocol):
-    def get_value(self, request: dict) -> dict:
-        ...
-
-
-@dataclass
-class ClientInfo(Protocol):
-    markets: list
-    status: str
-
-
-class BaseModel:
-    def __init__(
-        self,
-    ) -> None:
-        self.quoteform_path: str = None
-        self.extra_attachments: list = []
-
-    def save_path(self, path: str, is_quoteform: bool) -> None:
-        if is_quoteform:
-            self.quoteform_path = path
-        elif is_quoteform is False:
-            self.extra_attachments.append(path)
-        else:
-            raise Exception("Type of param:is_quoteform is wrong or empty.")
-
-    def get_dropdown_options(self) -> list:
-        return [
-            "Seawave",
-            "Prime Time",
-            "New Hampshire",
-            "American Modern",
-            "Kemah Marine",
-            "Concept Special Risks",
-            "Yachtinsure",
-            "Century",
-            "Intact",
-            "Travelers",
-            "Combination: Seawave + Prime Time + New Hampshire",
-            "Combination: Prime Time + New Hampshire",
-            "Combination: Seawave + New Hampshire",
-            "Combination: Seawave + Prime Time",
-        ]
+class SubmissionModel:
+    def __init__(self):
+        pass
 
     def filter_only_positive_submissions(self, raw_checkboxes: dict) -> list:
         market_list: list[str] = []
@@ -86,24 +43,8 @@ class BaseModel:
         string = " + ".join(redundancies)
         section_name = f"Combination: {string}"
         return section_name
-
-    def filter_out_brackets(self, path: str) -> str:
-        """Cleans up the path str by removing any brackets---if present."""
-        if "{" in path:
-            path = path.translate({ord(c): None for c in "{}"})
-        return path
-
-    def get_all_attachments(self) -> list:
-        attachments = []
-        attachments.append(self.quoteform_path)
-        if len(self.extra_attachments) >= 1:
-            for attachment in self.extra_attachments:
-                attachments.append(attachment)
-        else:
-            return attachments
-        return attachments
-
-    def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
+    
+     def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
         """Prepares list of CC addresses to be properly formatted for api call."""
         if isinstance(all_addresses, list):
             split_address = self._split_addresses(input_list=all_addresses)
@@ -152,16 +93,3 @@ class BaseModel:
     def _del_whitespace_invalid_chars(self, input: str) -> str:
         x = input.translate({ord(i): None for i in r'"() ,:;<>[\]'})
         return x
-
-    ########## Dialog-related Functions Below ############
-    def process_user_choice(self, all_options: dict[str, any], current_submission):
-        list_mrkts = []
-        for market, value in all_options.items():
-            if value == 1:
-                mrkt = market.upper()
-                list_mrkts.append(mrkt)
-            else:
-                pass
-        current_submission.status = "SUBMIT TO MRKTS"
-        current_submission.markets = list_mrkts
-        return current_submission

@@ -1,37 +1,104 @@
+import string
+from dataclasses import InitVar, dataclass
 from pathlib import Path
-from QuickDraw.models.customer import QuoteDoc
+
 from fillpdf import fillpdfs
 
 
-class FormBuilder:
-    def __init__(self, config_worker) -> None:
-        self.config_worker = config_worker
+@dataclass(kw_only=True)
+class Quoteform:
+    """Stores the characteristics of a specific PDF quoteform.
 
-    def process_doc(self, file_path: Path) -> dict[str, str]:
+    Attributes:
+        name : user-chosen name for the specific mapping of doc;
+        path: system path to the PDF file;
+        fname : first name of customer;
+        lname : last name of customer;
+        year : year of vessel;
+        vessel : brand of vessel;
+        referral : referral source of customer;
+
+    Usage:
+        Quoteform(
+            name="my_default",
+            path=Path.cwd(),
+            fname="sam",
+            lname="smith",
+            year="2023",
+            vessel="Regal 36 XO",
+            referral="Quality Boats",
+        )
+    """
+
+    path: InitVar[Path]
+    name: InitVar[str]
+    fname: str
+    lname: str
+    year: str
+    vessel: str
+    referral: str
+
+    def __post_init__(self, name, path):
+        self.name = name
+        self.path = path
+
+    def values(self) -> tuple[str]:
+        return (
+            self.name,
+            self.fname,
+            self.lname,
+            self.year,
+            self.vessel,
+            self.referral,
+        )
+
+    def data(self) -> dict[str, str]:
+        return {
+            "fname": self.fname,
+            "lname": self.lname,
+            "year": self.year,
+            "vessel": self.vessel,
+            "referral": self.referral,
+        }
+
+
+class FormBuilder:
+    def __init__(self) -> None:
+        pass
+
+    def make(self, file: Path) -> dict[str, str]:
         """Extracts pdf form field data, filters them and
         returns key:value pairs within a dict.
 
         Arguments:
-            file_path -- expects a str of the file location of the pdf
+            file -- expects a str of the file location of the pdf
 
         Returns:
             dict -- returns only keys identified within self.keys
         """
-        quoteform = self.identify_doc(file_path)
-        form_extract = self.get_doc_values(file_path, quoteform)
-        quote_doc = QuoteDoc(form_extract, file_path)
-        return quote_doc.dict()
+        form_field_names = self._identify_doc(file)
+        form_extract = self._get_doc_values(file, form_field_names)
+        quoteform = Quoteform(
+            path=file,
+            name=form_extract["name"],
+            fname=form_extract["fname"],
+            lname=form_extract["lname"],
+            year=form_extract["year"],
+            vessel=form_extract["vessel"],
+            referral=form_extract["referral"],
+        )
+        return quoteform
 
-    def identify_doc(self, file_path: Path):
-        forms = self._get_all_quoteforms()
+    def _identify_doc(self, file_path: Path):
+        forms = self.__get_all_quoteforms()
         pdf_fields_values = fillpdfs.get_form_fields(file_path)
-        counter = self._count_same_field_occurrences(forms, pdf_fields_values)
+        counter = self.__count_same_field_occurrences(forms, pdf_fields_values)
         doc = max(counter)
         for form in forms:
             if form["name"] == doc:
                 return form
 
-    def _count_same_field_occurrences(
+    def __count_same_field_occurrences(
         self, forms: list[dict[str, str]], pdf_fields_values
     ) -> dict[str, int]:
         counter = {}
@@ -48,7 +115,7 @@ class FormBuilder:
             counter[quoteform["name"]] = count
         return counter
 
-    def get_doc_values(self, file_path, form) -> dict[str, str]:
+    def _get_doc_values(self, file_path, form) -> dict[str, str]:
         pdf_fields_values = fillpdfs.get_form_fields(file_path)
         form_registry = self._extract_values(pdf_fields_values, form)
         return form_registry
@@ -79,7 +146,7 @@ class FormBuilder:
                 form_registry[prog_field_name] = value
         return form_registry
 
-    def _get_all_quoteforms(self) -> list[dict[str, str]]:
+    def __get_all_quoteforms(self) -> list[dict[str, str]]:
         config = self.config_worker._open_config()
         form_names = self.__get_names_from_config(config)
         forms = self.__get_values_from_config(config, form_names)

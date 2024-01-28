@@ -1,7 +1,6 @@
 from tkinter import Text, Frame, StringVar, BooleanVar, IntVar, Checkbutton
 from tkinter.ttk import OptionMenu
 from typing import Protocol
-from dataclasses import dataclass
 
 from tkinterdnd2 import DND_FILES
 
@@ -20,13 +19,19 @@ class MyStringVars(StringVar):
         super().__init__(*args, **kwargs)
 
 
-def set_start_tab(self, specific_tab: str) -> None:
+def set_start_tab(obj, specific_tab: str) -> None:
     if specific_tab == "template":
-        self.root.tabControl.select(1)
+        obj.root.tabControl.select(1)
     elif specific_tab == "email":
-        self.root.tabControl.select(2)
+        obj.root.tabControl.select(2)
     elif specific_tab == "folder":
-        self.root.tabControl.select(3)
+        obj.root.tabControl.select(3)
+    elif specific_tab == "forms":
+        obj.root.tabControl.select(4)
+    obj.root.attributes("-topmost", True)
+    obj.root.update()
+    obj.root.attributes("-topmost", False)
+    obj.root.mainloop()
 
 
 def make_draggable_txt_box(

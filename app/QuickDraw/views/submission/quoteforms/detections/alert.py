@@ -1,7 +1,8 @@
 from typing import Protocol
-from dataclasses import dataclass
-
-from tkinter import *
+from pathlib import Path
+import tkinter as tk
+from tkinter import StringVar
+from tkinter.ttk import Frame, Label, Entry, OptionMenu, Button
 
 
 class Presenter(Protocol):
@@ -9,22 +10,32 @@ class Presenter(Protocol):
         ...
 
 
-@dataclass
-class ClientInfo:
+class Quoteform(Protocol):
+    path: Path
+    name: str
     fname: str
     lname: str
+    year: str
     vessel: str
-    vessel_year: int
     referral: str
 
 
-class DialogNewFile:
+class Submission(Protocol):
+    quoteform: Quoteform
+    new_path: Path | None
+    status: str
+    attachments: list | None
+    markets: list[str] | None
+    submit_tool: bool
+
+
+class NewFileAlert:
     def __init__(
         self,
         icon_src,
     ) -> None:
-        self.submission_info = None
-        self.root: Tk = None
+        self.submission_info: Submission = None
+        self.root: tk.Tk = None
         self.presenter: Presenter = None
         self.icon_path = icon_src
 
@@ -59,24 +70,26 @@ class DialogNewFile:
     def initialize(
         self,
         presenter: Presenter,
-        submission_info: ClientInfo,
-        current_month: str,
-        next_month: str,
-        second_month: str,
+        submission_info: Submission,
+        months: list[str],
     ) -> str:
         self.presenter = presenter
-        self._setup_window(current_month)
-        self._create_widgets(submission_info, current_month, next_month, second_month)
+        self._setup_window(months[0])
+        self._create_widgets(submission_info, months)
+        self.root.mainloop()
 
     def _setup_window(self, current_month: str):
-        self.root = Tk()
+        self.root = tk.Tk()
         self.root.geometry("300x400")
         self.root.title("Next Steps")
+        self.root.attributes("-topmost", True)
+        self.root.update()
+        self.root.attributes("-topmost", False)
         self.root.iconbitmap(self.icon_path)
         self.root.text_frame = Frame(self.root, bg="#CFEBDF")
-        self.root.text_frame.pack(fill=BOTH, expand=True)
+        self.root.text_frame.pack(fill="both", expand=True)
         self.root.btn_frame = Frame(self.root, bg="#CFEBDF")
-        self.root.btn_frame.pack(fill=BOTH, expand=True, ipady=2)
+        self.root.btn_frame.pack(fill="both", expand=True, ipady=2)
         self._selected_template = StringVar(value=current_month.capitalize())
         self._vessel = StringVar(name="vessel", value="")
         self._year = StringVar(name="year", value="")
@@ -84,10 +97,8 @@ class DialogNewFile:
 
     def _create_widgets(
         self,
-        submission_info,
-        current_month: str,
-        next_month: str,
-        second_month: str,
+        submission_info: Submission,
+        months: list[str],
     ):
         client_name = " ".join(
             [
@@ -103,7 +114,12 @@ class DialogNewFile:
             column=0, row=0, pady=(3, 0)
         )
         name_entry = Entry(
-            self.root.text_frame, width=30, justify="center", bg="#5F634F", fg="#FFCAB1"
+            self.root.text_frame,
+            width=30,
+            justify="center",
+            bg="#5F634F",
+            fg="#FFCAB1",
+            state="inactive",
         )
         name_entry.insert(0, client_name)
         name_entry.grid(column=0, row=1, pady=(0, 8))
@@ -145,17 +161,17 @@ class DialogNewFile:
             bg="#5F634F",
             fg="#FFCAB1",
         )
-        self.referral = submission_info.referral
+        self.referral = submission_info.quoteform.referral
         referral_entry.grid(column=0, row=7, pady=(0, 7))
-        if submission_info.referral.lower() == "renewal":
+        if submission_info.quoteform.referral.lower() == "renewal":
             Label(self.root.text_frame, text="Add Client to Month:", bg="#CFEBDF").grid(
                 column=0, row=8
             )
             self.root.geometry("300x448")
             options: list[str] = [
-                current_month.capitalize(),
-                next_month.capitalize(),
-                second_month.capitalize(),
+                months[0].capitalize(),
+                months[1].capitalize(),
+                months[2].capitalize(),
             ]
             dropdown_menu = OptionMenu(
                 self.root.text_frame, self._selected_template, *options
@@ -184,7 +200,7 @@ class DialogNewFile:
             width=36,
             height=3,
             command=lambda: self.presenter.choice("track_create"),
-            default=ACTIVE,
+            default="active",
             bg="#1D3461",
             fg="#CFEBDF",
         )
@@ -196,7 +212,7 @@ class DialogNewFile:
             width=36,
             height=3,
             command=lambda: self.presenter.choice("track_allocate"),
-            default=ACTIVE,
+            default="active",
             bg="#1D3461",
             fg="#CFEBDF",
         )
@@ -208,7 +224,7 @@ class DialogNewFile:
             width=36,
             height=3,
             command=lambda: self.presenter.choice("track_submit"),
-            default=ACTIVE,
+            default="active",
             bg="#1D3461",
             fg="#CFEBDF",
         )

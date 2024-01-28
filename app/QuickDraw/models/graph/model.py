@@ -20,18 +20,6 @@ class CurrentSubmission(Protocol):
         self.username: str
 
 
-@dataclass
-class EmailHandler(Protocol):
-    def __init__(self) -> None:
-        subject: str
-        cc: str
-        to: str
-        body: str
-        extra_notes: str
-        username: str
-        img_sig_url: str
-        attachments_list: list
-
 months: dict[int, str] = {
     1: "January",
     2: "February",
@@ -52,7 +40,9 @@ class API:
     def __init__(self) -> None:
         pass
 
-    def create_excel_json(self, data: CurrentSubmission, username: str) -> dict[str, any]:
+    def create_excel_json(
+        self, data: CurrentSubmission, username: str
+    ) -> dict[str, any]:
         """Uses input from the program and
         compiles it together to create the
         json payload, which will be used as
@@ -115,7 +105,7 @@ class API:
         mrkt = ", ".join(mrkt)
         print(mrkt)
         return mrkt
-    
+
     def __get_submitted_markets(self, markets: list[str]) -> list:
         mrkt = []
         if "Seawave" in markets:
@@ -141,7 +131,7 @@ class API:
         else:
             return []
         return mrkt
-    
+
     def __assign_empty_str_markets(self) -> dict[str, str]:
         mrkt_status = {}
         mrkt_status["AM"] = ""
@@ -152,7 +142,7 @@ class API:
         mrkt_status["IN"] = ""
         mrkt_status["TV"] = ""
         return mrkt_status
-    
+
     def __format_markets_from_submission_tool(
         self, markets: list[str]
     ) -> dict[str, str]:
@@ -218,7 +208,7 @@ class API:
         current_month = datetime.now().month
         return months[current_month].lower()
 
-    def get_future_two_months(self):
+    def get_next_months(self):
         current_month = datetime.now().month
         next_month = current_month + 1
         if next_month > 12:
@@ -226,12 +216,12 @@ class API:
         second_month = current_month + 2
         if second_month > 12:
             second_month -= 12
-            print(current_month, next_month, second_month)
-        next_month = months[next_month].lower()
-        second_month = months[second_month].lower()
-        return next_month, second_month
-    
-
+        month_values = [
+            months[current_month].lower(),
+            next_month.lower(),
+            second_month.lower(),
+        ]
+        return month_values
 
     def get_connection_data(self, config_) -> dict[str, any]:
         config = config_
@@ -298,7 +288,9 @@ class API:
             json["message"]["ccRecipients"] = self.__create_address_list(email.cc)
         return json
 
-    def __create_address_list(self, addresses: list[str]) -> list[dict[str, dict[str, str]]]:
+    def __create_address_list(
+        self, addresses: list[str]
+    ) -> list[dict[str, dict[str, str]]]:
         output: list[dict[str, dict[str, str]]] = []
         if not addresses:
             addresses = [""]

@@ -69,7 +69,7 @@ def initialize_modules() -> Presenter:
         negative_value=RED_LIGHT,
         icon_src=str(PATHS.app_icon),
     )
-    dialog_new_file = DialogNewFile(
+    new_alert = DialogNewFile(
         icon_src=str(PATHS.app_icon),
     )
     dialog_allocate_markets = DialogAllocateMarkets(
@@ -86,7 +86,7 @@ def initialize_modules() -> Presenter:
         email_handler=email_handler,
         pdf=pdf,
         submission=submission,
-        dialog_new_file=dialog_new_file,
+        new_alert=new_alert,
         dialog_allocate_markets=dialog_allocate_markets,
     )
     return presenter

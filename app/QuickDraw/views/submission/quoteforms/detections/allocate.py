@@ -1,7 +1,7 @@
 from typing import Protocol
 from dataclasses import dataclass
 
-from tkinter import *
+from tkinter import Tk, IntVar, Checkbutton, ttk
 
 
 class Presenter(Protocol):
@@ -30,30 +30,34 @@ class DialogAllocateMarkets:
         self.root = Tk()
         self.root.geometry("260x560")
         self.root.title("Allocate Markets")
+        self.root.attributes("-topmost", True)
+        self.root.update()
+        self.root.attributes("-topmost", False)
         self.root.iconbitmap(self.icon_path)
-        self.root.frame = Frame(self.root, bg="#CFEBDF")
-        self.root.frame.pack(fill=BOTH, expand=False)
-        self.ch_checkbtn = IntVar(self.root.frame)
-        self.mk_checkbtn = IntVar(self.root.frame)
-        self.ai_checkbtn = IntVar(self.root.frame)
-        self.am_checkbtn = IntVar(self.root.frame)
-        self.pg_checkbtn = IntVar(self.root.frame)
-        self.sw_checkbtn = IntVar(self.root.frame)
-        self.km_checkbtn = IntVar(self.root.frame)
-        self.cp_checkbtn = IntVar(self.root.frame)
-        self.nh_checkbtn = IntVar(self.root.frame)
-        self.In_checkbtn = IntVar(self.root.frame)
-        self.tv_checkbtn = IntVar(self.root.frame)
+        self.root.frame = ttk.Frame(self.root, bg="#CFEBDF")
+        self.root.frame.pack(fill="both", expand=False)
+        self.ch_checkbtn = IntVar(self.root)
+        self.mk_checkbtn = IntVar(self.root)
+        self.ai_checkbtn = IntVar(self.root)
+        self.am_checkbtn = IntVar(self.root)
+        self.pg_checkbtn = IntVar(self.root)
+        self.sw_checkbtn = IntVar(self.root)
+        self.km_checkbtn = IntVar(self.root)
+        self.cp_checkbtn = IntVar(self.root)
+        self.nh_checkbtn = IntVar(self.root)
+        self.In_checkbtn = IntVar(self.root)
+        self.tv_checkbtn = IntVar(self.root)
         self._create_widgets()
+        self.root.mainloop()
 
     def _create_widgets(self):
-        Label(
+        ttk.Label(
             self.root.frame,
             text="ALLOCATE MARKETS",
             justify="center",
             bg="#CFEBDF",
             fg="#5F634F",
-        ).pack(fill=X, ipady=6)
+        ).pack(fill="x", ipady=6)
         self.__create_button("Chubb", self.ch_checkbtn)
         self.__create_button("Markel", self.mk_checkbtn)
         self.__create_button("American Integrity", self.ai_checkbtn)
@@ -70,7 +74,7 @@ class DialogAllocateMarkets:
         self.__create_button("Intact", self.In_checkbtn)
         self.__create_button("Travelers", self.tv_checkbtn)
 
-        allocate_btn = Button(
+        allocate_btn = ttk.Button(
             master=self.root.frame,
             text="ALLOCATE",
             width=30,
@@ -81,7 +85,7 @@ class DialogAllocateMarkets:
             command=self.presenter.save_user_choices,
         )
         allocate_btn.pack(
-            fill=X,
+            fill="x",
             expand=False,
             pady=5,
             padx=10,
@@ -89,30 +93,31 @@ class DialogAllocateMarkets:
             ipadx=10,
         )
 
-    def __create_button(self, text: str, int_variable: IntVar):
+    def __create_button(self, text: str, var: IntVar):
         x = Checkbutton(
             self.root.frame,
             text=text,
-            variable=int_variable,
+            variable=var,
             relief="raised",
             # font=("helvetica", 10, "bold"),
-            justify=CENTER,
-            anchor=W,
+            justify="center",
+            anchor="w",
             fg="#FFCAB1",
             bg="#5F634F",
             selectcolor="#000000",
         )
         x.pack(
-            fill=X,
+            fill="x",
             expand=False,
             ipady=6,
             ipadx=10,
             pady=3,
             padx=10,
-            anchor=NW,
+            anchor="nw",
         )
 
-    def get_markets(self) -> dict[str, any]:
+    @property
+    def markets(self) -> dict[str, any]:
         """Retrieves all market options and
         whether the user wants to submit to
         those markets within a dict."""

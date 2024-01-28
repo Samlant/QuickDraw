@@ -10,10 +10,12 @@ from QuickDraw.views.themes.palettes import Palette
 
 
 class Presenter(Protocol):
-    def process_quoteform_path(self, drag_n_drop_event) -> None:
-        ...
-
-    def process_attachments_path(self, drag_n_drop_event) -> None:
+    def process_file_path(
+        self,
+        event,
+        is_quoteform: bool,
+        quote_path: str = None,
+    ) -> None:
         ...
 
     def btn_clear_attachments(self) -> None:
@@ -48,13 +50,13 @@ def make_home_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
         labelframe_dd_qf,
         style,
         "raw_quoteform_path",
-        presenter.process_quoteform_path,
+        lambda: presenter.process_file_path(is_quoteform=True),
     )
     view._quoteform.pack(fill="both", expand=False, anchor="n")
     ttk.Button(
         labelframe_dd_qf,
         text="Browse",
-        command=view._browse_qf_path,
+        command=lambda: presenter.browse_file_path(is_quoteform=True),
     ).pack(fill="none", pady=5, expand=False, side="top")
     ### Extra Attachments DnD Labelframe ###
     labelframe_dd_ea = ttk.Labelframe(
@@ -67,12 +69,12 @@ def make_home_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
         labelframe_dd_ea,
         style,
         "raw_attachments_path_list",
-        presenter.process_attachments_path,
+        lambda: presenter.process_file_path(is_quoteform=False),
     )
     ttk.Button(
         labelframe_dd_ea,
         text="Browse",
-        command=view._browse_extra_file_path,
+        command=lambda: presenter.browse_file_path(is_quoteform=False),
     ).pack(fill="none", pady=5, expand=False, side="top")
     ttk.Button(
         view.tabs.home,
@@ -162,7 +164,7 @@ def make_home_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ttk.Button(
         view.tabs.home,
         text="View Each Before Sending!",
-        command=lambda: presenter.btn_send_envelopes(autosend=False),
+        command=lambda: presenter.btn_send_envelopes(view_first=True),
     ).grid(column=1, row=2, sticky="nsew", padx=(10), pady=10)
     # .pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
     right_header_frame = ttk.Frame(view.tabs.home)
