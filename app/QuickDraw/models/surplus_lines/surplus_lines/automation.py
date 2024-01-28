@@ -33,7 +33,6 @@ class Payload:
 
 class Automator:
     def __init__(self, config_worker):
-        self.root: TkinterDnD.Tk = None
         self.user_doc_path: Path = None
         self.payloads: list[Payload] = []
         self.form_data: dict[str, float | str] = None
