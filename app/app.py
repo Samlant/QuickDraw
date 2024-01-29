@@ -11,7 +11,7 @@ from model.email.email import EmailHandler
 
 # NOTE These are likely OKAY!
 # PRESENTER
-from QuickDraw.presenter import Presenter
+from QuickDraw.presenter.presenter import Presenter
 
 # MODELS
 # from QuickDraw.models.windows.dirs import

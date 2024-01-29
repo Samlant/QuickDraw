@@ -1,8 +1,10 @@
 from dataclasses import InitVar, dataclass
 from pathlib import Path
+import ctypes
 
 from fillpdf import fillpdfs
 
+from QuickDraw.models.customer.info import Submission
 
 @dataclass(kw_only=True)
 class Quoteform:
@@ -65,7 +67,33 @@ class FormBuilder:
     def __init__(self) -> None:
         pass
 
-    def make(self, file: Path) -> dict[str, str]:
+    def make(self, file: Path) -> Submission | bool:
+        """Wrapper function for processing a PDF form and creating a Quoteform obj from it."""
+        print("Processing/Parsing PDF document.")
+        count = 0
+        successful = False
+        while not successful and count < 4:
+            count += 1
+            try:
+                quoteform = self._process_document(file)
+                current_submission = Submission(
+                    quoteform=quoteform,
+                    status="PROCESSED",
+                )
+            except Exception as e:
+                print(e)
+                ctypes.windll.user32.MessageBoxW(
+                    0,
+                    "Please exit out of the PDF file so that the program can delete the original file.",
+                    "Warning: Exit the PDF",
+                    1,
+                )
+            else:
+                successful = True
+                return current_submission
+        return False
+
+    def _process_document(self, file: Path) -> Quoteform:
         """Extracts pdf form field data, filters them and
         returns key:value pairs within a dict.
 

@@ -44,7 +44,7 @@ class SubmissionModel:
         section_name = f"Combination: {string}"
         return section_name
     
-     def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
+    def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
         """Prepares list of CC addresses to be properly formatted for api call."""
         if isinstance(all_addresses, list):
             split_address = self._split_addresses(input_list=all_addresses)

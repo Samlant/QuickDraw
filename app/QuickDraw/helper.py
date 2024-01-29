@@ -15,23 +15,23 @@ _view_backend.withdraw()
 VIEW_INTERPRETER = _view_backend
 
 if TEST:
-    APP_DIR = Path(__file__).parents[2]
+    app_dir = Path(__file__).parents[2]
     # User resources
-    RESOURCE_PATH = APP_DIR / "app" / "resources"
-    CONFIG_PATH = RESOURCE_PATH / "configurations.ini"
-    MS_GRAPH_STATE_PATH = RESOURCE_PATH / "ms_graph_state.jsonc"
+    resource_path = app_dir / "app" / "resources"
+    CONFIG_PATH = resource_path / "configurations.ini"
+    MS_GRAPH_STATE_PATH = resource_path / "ms_graph_state.jsonc"
     # App resources
-    APP_ICON = RESOURCE_PATH / "img" / "app.ico"
-    TRAY_ICON = RESOURCE_PATH / "img" / "sys_tray.ico"
-    README = APP_DIR / "docs" / "site" / "index.html"
+    APP_ICON = resource_path / "img" / "app.ico"
+    TRAY_ICON = resource_path / "img" / "sys_tray.ico"
+    README = app_dir / "docs" / "site" / "index.html"
 else:
     # User resources
     user_resources: Path = Path.home() / "AppData" / "Local" / "QuickDraw"
     MS_GRAPH_STATE_PATH: Path = user_resources / "ms_graph_state.jsonc"
     CONFIG_PATH: Path = user_resources / "configurations.ini"
     # App resources
-    APP_DIR: Path = Path("C:/Program Files/QuickDraw")
-    app_resources: Path = APP_DIR / "_internal" / "resources"
+    app_dir: Path = Path("C:/Program Files/QuickDraw")
+    app_resources: Path = app_dir / "_internal" / "resources"
     APP_ICON: Path = app_resources / "img" / "app.ico"
     TRAY_ICON: Path = app_resources / "img" / "sys_tray.ico"
     README: Path = app_resources / "docs" / "readme.html"
@@ -51,8 +51,8 @@ CARRIERS = [
 ]
 
 
-def open_config(self) -> ConfigUpdater:  # GOOD
+def open_config() -> ConfigUpdater:  # GOOD
     """This is a helper to read config when called using ConfigUpdater,  an improvement on configParser."""
     open_read_update = ConfigUpdater(comment_prefixes=("^",))
-    open_read_update.read(self.file_path)
+    open_read_update.read(CONFIG_PATH)
     return open_read_update

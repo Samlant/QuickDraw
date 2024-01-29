@@ -11,7 +11,7 @@ from QuickDraw.helper import open_config, VIEW_INTERPRETER
 from QuickDraw.views.submission.helper import set_start_tab
 from QuickDraw.models.customer.form import Quoteform
 from QuickDraw.models.customer.info import Submission
-import QuickDraw.protocols as protocols
+import QuickDraw.presenter.protocols as protocols
 
 
 class Presenter:
@@ -115,8 +115,8 @@ class Presenter:
         self.model_dir_watcher.begin_watch()
 
     def trigger_new_file(self, file: Path):
-        self._process_document(file=file)
         print("Detected new Quoteform")
+        self.current_submission = self.model_form_builder.make(file=file)
         print(f"the current client is: {self.current_submission.__repr__}")
         months = self.model_api.get_next_months()
         self.view_new_file_alert.initialize(
@@ -126,30 +126,6 @@ class Presenter:
             submission_info=self.current_submission,
             months=months,
         )
-
-    def _process_document(self, file: Path) -> bool:
-        print("Processing/Parsing PDF document.")
-        count = 0
-        successful = False
-        while not successful and count < 3:
-            count += 1
-            try:
-                self.quoteform = self.model_form_builder.make(file)
-                self.current_submission = Submission(
-                    quoteform=self.quoteform,
-                    status="PROCESSED",
-                )
-            except Exception as e:
-                print(e)
-                ctypes.windll.user32.MessageBoxW(
-                    0,
-                    "Please exit out of the PDF file so that the program can delete the original file.",
-                    "Warning: Exit the PDF",
-                    1,
-                )
-            else:
-                successful = True
-        return True
 
     def allocate_markets(self):
         self.view_allocate.initialize(
@@ -208,7 +184,7 @@ class Presenter:
         else:
             self._start_thread_for_excel()
 
-    def _start_thread_for_excel(self):
+    def _start_thread_for_excel(self) -> bool:
         count = 0
         successful = False
         while not successful and count < 3:
@@ -221,6 +197,9 @@ class Presenter:
                 thread_xl.start()
             except Exception as e:
                 print(f"API call to Excel failed. {e}")
+            else:
+                return True
+        return False
 
     def _refresh_quoteform_with_user_input(self) -> bool:
         self.excel_table_name = self.view_new_file_alert.selected_month
@@ -247,7 +226,7 @@ class Presenter:
 
     def set_dropdown_options(self) -> list:
         "Submission (View) calls this value upon creation."
-        return self.templates_model_model.names()
+        return self.model_tab_templates.names()
 
     ############# Establish Main Tab #############
 
@@ -323,7 +302,9 @@ class Presenter:
 
     def btn_view_template(self) -> None:
         print(
-            "Sorry,  viewing is not yet implemented.  Try sending a message to yourself using the settings tab to assign your email address, then try again."
+            """Sorry,  viewing is not yet implemented.  Try sending a message
+            to yourself using the settings tab to assign your email address, 
+            then try again."""
         )
         self.only_view_msg = True
         print("Viewing templates has not yet been implemented!")
@@ -553,33 +534,32 @@ class Presenter:
         return list_of_cc
 
     ############# END --Sending Envelopes-- END #############
+    ########## BEGIN --PLACEHOLDERS FUNCS-- BEGIN ##########
+    ################# LOOKS GOOD 1/29/2024 #################
+    def _set_tab_placeholders(self, tab_name: str):
+        tab_placeholders = self.__get_tab_placeholders(tab_name)
+        self.__assign_placeholders(tab_placeholders)
 
-    ############# Establish Custimze Tab #############
+    def __get_tab_placeholders(self, tab_name) -> dict[str, str]:
+        config = open_config()
+        section_obj = config.get_section(tab_name)
+        tab_placeholders = section_obj.to_dict()
+        return tab_placeholders
 
-    def _set_customize_tab_placeholders(self, section_obj) -> None:
-        """Sets the placeholders for the customizations_tab"""
-
-        self.view_main.address = section_obj.get("address").value
-        self.view_main.greeting = section_obj.get("greeting").value
-        del self.view_main.body
-        self.view_main.body = section_obj.get("body").value
-        self.view_main.outro = section_obj.get("outro").value
-        self.view_main.salutation = section_obj.get("salutation").value
-
-    def _get_customize_tab_placeholders(self):
-        current_selection = self.view_main.selected_template
-        return self.config_worker.get_section(current_selection)
-
-    # Complete if necessary - 02.09.2023
+    def __assign_placeholders(self, tab_placeholders: dict[str, str]) -> None:
+        """Sets the placeholders inside desired tab"""
+        for attr_name, value in tab_placeholders.items():
+            if attr_name == "body":
+                del self.view_main.body
+            setattr(self.view_main, attr_name, value)
+    
     def on_change_template(self, *args, **kwargs) -> None:
-        """Updates the placeholders on customize_tab when dropdown changes
+        """Updates template tab view when user changes template."""
+        self._set_tab_placeholders(self.view_main.selected_template)
 
-        Returns:
-                Bool -- returns a bool for success & for testing
-        """
-        selected_template = self.view_main.selected_template
-        placeholders_dict = self.config_worker.get_section(selected_template)
-        self._set_customize_tab_placeholders(placeholders_dict)
+    ############ END --PLACEHOLDERS FUNCS-- END ############
+    ################ Establish Customize Tab ###############
+
 
     def on_focus_out(self, event) -> bool | None:
         carrier = self.view_main.selected_template
