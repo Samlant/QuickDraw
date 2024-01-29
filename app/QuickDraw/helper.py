@@ -1,4 +1,6 @@
 from pathlib import Path
+from tkinterdnd2 import TkinterDnD
+
 
 from configupdater import ConfigUpdater
 
@@ -7,6 +9,10 @@ from configupdater import ConfigUpdater
 TEST = False
 GREEN_LIGHT = "yes"
 RED_LIGHT = "no"
+
+_view_backend = TkinterDnD.Tk()
+_view_backend.withdraw()
+VIEW_INTERPRETER = _view_backend
 
 if TEST:
     APP_DIR = Path(__file__).parents[2]

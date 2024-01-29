@@ -1,9 +1,7 @@
-from tkinter import *
-from tkinter import ttk
 from tkinter.ttk import Style
 
 
-def create_style(master_object, palette):
+def create_style(master_object, palette) -> Style:
     s = Style(master_object)
     p = palette
     s.theme_use("alt")

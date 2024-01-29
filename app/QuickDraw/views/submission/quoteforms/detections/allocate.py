@@ -1,7 +1,9 @@
 from typing import Protocol
 from dataclasses import dataclass
 
-from tkinter import Tk, IntVar, Checkbutton, ttk
+from tkinter import Tk, IntVar, Checkbutton, ttk, Toplevel
+
+from QuickDraw.views.themes.applicator import create_style
 
 
 class Presenter(Protocol):
@@ -18,24 +20,40 @@ class ClientInfo(Protocol):
     referral: str
 
 
-class DialogAllocateMarkets:
+class AllocateView:
     def __init__(self, icon_src) -> None:
         self.icon_path: str = icon_src
         self.market_info: dict[str, any] = None
         self.root: Tk = None
         self.presenter: Presenter = None
 
-    def initialize(self, presenter: Presenter):
+    def initialize(
+        self,
+        presenter: Presenter,
+        view_interpreter: Tk,
+        view_palette,
+    ):
+        self.root: Toplevel = Toplevel(
+            master=view_interpreter,
+            background=view_palette.base_bg_color,
+        )
+        self.style = create_style(self.root, view_palette)
+        self.palette = view_palette
         self.presenter = presenter
-        self.root = Tk()
+        self.assign_window_traits()
+        self.assign_vars()
+        self._create_widgets()
+        self.root.mainloop()
+
+    def assign_window_traits(self):
+        self.root.iconbitmap(self.icon_path)
         self.root.geometry("260x560")
         self.root.title("Allocate Markets")
         self.root.attributes("-topmost", True)
         self.root.update()
         self.root.attributes("-topmost", False)
-        self.root.iconbitmap(self.icon_path)
-        self.root.frame = ttk.Frame(self.root, bg="#CFEBDF")
-        self.root.frame.pack(fill="both", expand=False)
+
+    def assign_vars(self):
         self.ch_checkbtn = IntVar(self.root)
         self.mk_checkbtn = IntVar(self.root)
         self.ai_checkbtn = IntVar(self.root)
@@ -47,16 +65,14 @@ class DialogAllocateMarkets:
         self.nh_checkbtn = IntVar(self.root)
         self.In_checkbtn = IntVar(self.root)
         self.tv_checkbtn = IntVar(self.root)
-        self._create_widgets()
-        self.root.mainloop()
 
     def _create_widgets(self):
+        self.root.frame = ttk.Frame(self.root, bg="#CFEBDF")
+        self.root.frame.pack(fill="both", expand=False)
         ttk.Label(
             self.root.frame,
             text="ALLOCATE MARKETS",
             justify="center",
-            bg="#CFEBDF",
-            fg="#5F634F",
         ).pack(fill="x", ipady=6)
         self.__create_button("Chubb", self.ch_checkbtn)
         self.__create_button("Markel", self.mk_checkbtn)
@@ -79,9 +95,6 @@ class DialogAllocateMarkets:
             text="ALLOCATE",
             width=30,
             height=10,
-            # font=("helvetica", 14, "bold"),
-            bg="#1D3461",
-            fg="#CFEBDF",
             command=self.presenter.save_user_choices,
         )
         allocate_btn.pack(
@@ -99,11 +112,10 @@ class DialogAllocateMarkets:
             text=text,
             variable=var,
             relief="raised",
-            # font=("helvetica", 10, "bold"),
             justify="center",
             anchor="w",
-            fg="#FFCAB1",
-            bg="#5F634F",
+            background=self.palette.alt_bg_color,
+            foreground=self.palette.alt_fg_color,
             selectcolor="#000000",
         )
         x.pack(

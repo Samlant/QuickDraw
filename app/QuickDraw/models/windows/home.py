@@ -43,9 +43,8 @@ class HomeModel:
         if is_quoteform:
             path: str = filedialog.askopenfilename(filetypes=[("Quoteforms", "*.pdf")])
         else:
-            path: list[str] = filedialog.askopenfilenames(
-                filetypes=[("Quoteforms", "*.pdf")]
-            )
+            path: list[str] = filedialog.askopenfilenames()
+
         if self._validate_path(path):
             self.save_path(path, is_quoteform)
             return path

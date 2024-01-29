@@ -2,7 +2,7 @@ import fitz
 from pathlib import Path
 import logging
 
-from model.surplus_lines.surplus_lines import FSL_DOC_PATH
+from QuickDraw.models.surplus_lines.helper import FSL_DOC_PATH
 
 
 log = logging.getLogger(__name__)

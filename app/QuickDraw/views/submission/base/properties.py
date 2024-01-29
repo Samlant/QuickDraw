@@ -3,8 +3,13 @@ from QuickDraw.views.submission.base.window import Window
 
 
 class ViewInterface(Window):
-    def __init__(self):
-        super().__init__()
+    def __init__(
+        self,
+        icon_path: str,
+    ):
+        super().__init__(
+            icon_path,
+        )
 
     # main_tab: getters/setters
     @property

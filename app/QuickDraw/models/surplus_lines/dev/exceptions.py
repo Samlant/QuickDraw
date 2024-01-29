@@ -1,6 +1,6 @@
 import ctypes
 from pathlib import Path
-from model.surplus_lines.surplus_lines.carriers.base import Carrier, CarrierBuilder
+from QuickDraw.models.surplus_lines.carriers.base import Carrier, CarrierBuilder
 
 
 class DocException(Exception):

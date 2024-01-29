@@ -1,9 +1,84 @@
 from typing import Protocol
 from pathlib import Path
+from tkinterdnd2 import TkinterDnD
+from tkinter.ttk import Style
+
+
+####################################################
+####################    OBJs    ####################
+####################################################
+
+
+class Quoteform(Protocol):
+    path: Path
+    name: str
+    fname: str
+    lname: str
+    year: str
+    vessel: str
+    referral: str
+
+
+class Submission(Protocol):
+    quoteform: Quoteform
+    new_path: Path = None
+    status: str
+    attachments: list = None
+    markets: list[str] = ""
+    submit_tool: bool = False
+
+
+####################################################
+##################    MODELS    ####################
+####################################################
 
 
 class API(Protocol):
     def create_excel_json(self, data) -> dict[str, any]:
+        ...
+
+
+class DirHandler(Protocol):
+    def process_dirs(
+        self,
+        submission_info,
+        section_obj,
+    ) -> Submission:
+        ...
+
+
+class DirsModel(Protocol):
+    ...
+
+
+class DirWatch(Protocol):
+    def begin_watch(self) -> None:
+        ...
+
+
+class EmailOptionsModel(Protocol):
+    ...
+
+
+class EmailHandler(Protocol):
+    subject: str
+    cc: str
+    to: str
+    body: str
+    extra_notes: str
+    username: str
+    img_sig_url: str
+    attachments_list: str
+
+    def view_letter(self) -> bool:
+        raise NotImplementedError
+
+    def stringify_subject(self, formatted_values: dict[str, str]) -> str:
+        ...
+
+
+class FormBuilder(Protocol):
+    def make(self, file: Path) -> dict[str, str]:
         ...
 
 
@@ -40,49 +115,6 @@ class HomeModel(Protocol):
         ...
 
 
-class RegistrationsModel(Protocol):
-    ...
-
-
-class DirsModel(Protocol):
-    ...
-
-
-class EmailOptionsModel(Protocol):
-    ...
-
-
-class TemplatesModel(Protocol):
-    ...
-
-
-class DialogAllocateMarkets(Protocol):
-    def initialize(self, presenter) -> str:
-        ...
-
-
-class DirWatch(Protocol):
-    def begin_watch(self) -> None:
-        ...
-
-
-class EmailHandler(Protocol):
-    subject: str
-    cc: str
-    to: str
-    body: str
-    extra_notes: str
-    username: str
-    img_sig_url: str
-    attachments_list: str
-
-    def view_letter(self) -> bool:
-        raise NotImplementedError
-
-    def stringify_subject(self, formatted_values: dict[str, str]) -> str:
-        ...
-
-
 class MSGraphClient(Protocol):
     def run_excel_program(self, json_payload: dict) -> None:
         ...
@@ -100,23 +132,32 @@ class MSGraphClient(Protocol):
         ...
 
 
-class Quoteform(Protocol):
-    path: Path
-    name: str
-    fname: str
-    lname: str
-    year: str
-    vessel: str
-    referral: str
+class RegistrationsModel(Protocol):
+    ...
 
 
-class Submission(Protocol):
-    quoteform: Quoteform
-    new_path: Path = None
-    status: str
-    attachments: list = None
-    markets: list[str] = ""
-    submit_tool: bool = False
+class TemplatesModel(Protocol):
+    ...
+
+
+class SurplusLinesAutomator(Protocol):
+    def start(self) -> None:
+        ...
+
+
+####################################################
+###################    VIEWS    ####################
+####################################################
+
+
+class AllocateView(Protocol):
+    def initialize(
+        self,
+        presenter,
+        view_interpreter: TkinterDnD.Tk,
+        view_palette: Style,
+    ) -> str:
+        ...
 
 
 class MainWindow(Protocol):
@@ -165,6 +206,8 @@ class MainWindow(Protocol):
     def create_UI_obj(
         self,
         presenter,
+        view_interpreter: TkinterDnD.Tk,
+        view_palette: Style,
     ) -> None:
         ...
 
@@ -191,24 +234,27 @@ class MainWindow(Protocol):
 
 
 class NewFileAlert(Protocol):
+    submission_info: Submission
+
     def initialize(
         self,
         presenter,
+        view_interpreter: TkinterDnD.Tk,
+        view_palette: Style,
         submission_info: Submission,
         months: list[str],
     ) -> str:
         ...
 
 
-class Dirhandler(Protocol):
-    def process_dirs(
+class SurplusLinesView(Protocol):
+    output_dir: str
+    doc_path: str
+
+    def show_view(
         self,
-        submission_info,
-        section_obj,
-    ) -> Submission:
-        ...
-
-
-class FormBuilder(Protocol):
-    def make(self, file: Path) -> dict[str, str]:
+        presenter,
+        view_interpreter: TkinterDnD.Tk,
+        view_palette: Style,
+    ):
         ...

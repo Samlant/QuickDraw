@@ -105,18 +105,3 @@ class TrayIcon:
             name="Sys Tray Icon",
         )
         return thread
-
-    # def use_image(self):
-    #     if self.icon:
-    #         Image.open(self.icon)
-    #     else:
-    #         self.create_image("black", "white")
-
-    # def create_image(self, color1, color2, width=64, height=64):
-    #     if not self.icon:
-    #         image = Image.new("RGB", (width, height), color1)
-    #         dc = ImageDraw.Draw(image)
-
-    #         dc.rectangle((width // 2, 0, width, height // 2), fill=color2)
-    #         dc.rectangle((0, height // 2, width // 2, height), fill=color2)
-    #         return image

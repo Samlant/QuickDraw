@@ -25,7 +25,11 @@ class Presenter(Protocol):
         ...
 
 
-def make_home_widgets(view: base.MainWindow, presenter: Presenter, style: Palette):
+def make_home_widgets(
+    view: base.MainWindow,
+    presenter: Presenter,
+    style: Palette,
+):
     view.tabs.home.rowconfigure(2, minsize=100, pad=5)
     view.tabs.home.columnconfigure(0, pad=5)
     view.tabs.home.columnconfigure(1, pad=5)

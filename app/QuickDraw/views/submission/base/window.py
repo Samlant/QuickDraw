@@ -1,21 +1,30 @@
-from tkinter import ttk, filedialog, StringVar, BooleanVar
+from tkinter import ttk, filedialog, StringVar, BooleanVar, Toplevel
 
 from tkinterdnd2 import TkinterDnD
 
 from QuickDraw.helper import CARRIERS, RED_LIGHT
 from QuickDraw.views.submission.helper import ALL_TABS
+from QuickDraw.views.themes.applicator import create_style
 
 
 class Window:
     def __init__(
         self,
-        icon_src: str,
+        icon_path: str,
     ) -> None:
-        self.icon = icon_src
-        self.root = TkinterDnD.Tk()
+        self.icon = icon_path
 
-    def assign_style(self, style):
-        self.style = style
+    def assign_interpreter(
+        self,
+        view_interpreter: TkinterDnD.Tk,
+        view_palette,
+    ):
+        self.root: Toplevel = Toplevel(
+            master=view_interpreter,
+            background=view_palette.base_bg_color,
+        )
+        self.style = create_style(self.root, view_palette)
+        self.palette = view_palette
 
     def assign_private_string_bool_vars(self) -> None:
         """Assigns tkinter-specific attributes so that the getters /

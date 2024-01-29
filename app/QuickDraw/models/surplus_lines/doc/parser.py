@@ -4,11 +4,11 @@ import logging
 
 import fitz
 
-from model.surplus_lines.dev import exceptions
-from model.surplus_lines.surplus_lines.carriers.base import CarrierBuilder
-from model.surplus_lines.surplus_lines.carriers.builders.concept import ConceptBuilder
-from model.surplus_lines.surplus_lines.carriers.builders.kemah import KemahBuilder
-from model.surplus_lines.surplus_lines.carriers.builders.yachtinsure import (
+from QuickDraw.models.surplus_lines.dev import exceptions
+from QuickDraw.models.surplus_lines.carriers.base import CarrierBuilder
+from QuickDraw.models.surplus_lines.carriers.builders.concept import ConceptBuilder
+from QuickDraw.models.surplus_lines.carriers.builders.kemah import KemahBuilder
+from QuickDraw.models.surplus_lines.carriers.builders.yachtinsure import (
     YachtinsureBuilder,
 )
 

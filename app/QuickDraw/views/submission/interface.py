@@ -7,37 +7,38 @@ from QuickDraw.views.submission.quoteforms.registrations.tab import (
 )
 from QuickDraw.views.submission.templates.tab import make_templates_widgets
 from QuickDraw.views.submission.base.protocols import Presenter
-from QuickDraw.views.themes import palettes
-from QuickDraw.views.themes.applicator import create_style
-from QuickDraw.helper import open_config
-
-# Create a style for the application using the selected palette
-PALETTE = palettes.BlueRose()
 
 
 class MainWindow(ViewInterface):
-    def __init__(self, icon_src: str):
+    def __init__(
+        self,
+        icon_path: str,
+    ):
         super().__init__(
-            icon_src,
+            icon_path,
         )
 
-    def create_UI_obj(self, presenter: Presenter):
+    def create_UI_obj(
+        self,
+        presenter: Presenter,
+        view_interpreter,
+        view_palette,
+    ):
         """This creates the GUI root,  along with the main
         functions to create the widgets.
         """
-        style = create_style(self.root, PALETTE)
-        self.assign_style(style)
+        self.assign_interpreter(view_interpreter, view_palette)
         self.assign_private_string_bool_vars()
         self.assign_window_traits()
         self.create_notebook()
         # Can we loop this next method?
         self.create_tabs()
         # Separate each tab into their respective module
-        make_home_widgets(self, presenter, PALETTE)
-        make_templates_widgets(self, presenter, PALETTE)
-        make_email_widgets(self, presenter, PALETTE)
-        make_dirs_widgets(self, presenter, PALETTE)
-        make_quoteform_widgets(self, presenter, PALETTE)
+        make_home_widgets(self, presenter, self.palette)
+        make_templates_widgets(self, presenter, self.palette)
+        make_email_widgets(self, presenter, self.palette)
+        make_dirs_widgets(self, presenter, self.palette)
+        make_quoteform_widgets(self, presenter, self.palette)
 
     def save_settings(self, page: str, data: dict[str, any]):
         if page == "dirs":
