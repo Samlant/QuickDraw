@@ -54,7 +54,7 @@ def make_home_widgets(
         labelframe_dd_qf,
         style,
         "raw_quoteform_path",
-        lambda: presenter.process_file_path(is_quoteform=True),
+        lambda: presenter.process_file_path(path_purpose="quoteform"),
     )
     view._quoteform.pack(fill="both", expand=False, anchor="n")
     ttk.Button(
@@ -73,7 +73,7 @@ def make_home_widgets(
         labelframe_dd_ea,
         style,
         "raw_attachments_path_list",
-        lambda: presenter.process_file_path(is_quoteform=False),
+        lambda: presenter.process_file_path(path_purpose="extra_attachments"),
     )
     ttk.Button(
         labelframe_dd_ea,
