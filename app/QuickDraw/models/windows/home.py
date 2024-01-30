@@ -62,15 +62,11 @@ class HomeModel:
             return False
         return True
 
-    def save_path(self, path: str, is_quoteform: bool) -> None:
-        if is_quoteform:
+    def save_path(self, path: str, path_purpose: str) -> None:
+        if path_purpose == "quoteform":
             self.quoteform_path = path
-        elif is_quoteform is False:
-            self.attachments.append(path)
         else:
-            raise TypeError(
-                f"Type of param:is_quoteform is wrong or empty.  Type={isinstance(is_quoteform, bool)}, value={is_quoteform}"
-            )
+            self.attachments.append(path)
 
     def filter_out_brackets(self, path: str) -> str:
         """Cleans up the path str by removing any brackets---if present."""
