@@ -6,9 +6,9 @@ from tkinter import TclError
 
 from configupdater import ConfigUpdater
 
-import model.quoteform_registrations as qf_reg
+import QuickDraw.models.windows.registrations as qf_reg
 from QuickDraw.helper import open_config, VIEW_INTERPRETER
-from QuickDraw.views.submission.helper import set_start_tab
+from QuickDraw.views.submission.helper import set_start_tab, ALL_TABS
 from QuickDraw.models.customer.form import Quoteform
 from QuickDraw.models.customer.info import Submission
 import QuickDraw.presenter.protocols as protocols
@@ -59,6 +59,7 @@ class Presenter:
         view_palette: protocols.Palette,
     ) -> None:
         # Models
+        self.model_allocate = model_allocate
         self.model_api_client = model_api_client
         self.model_api = model_api
         self.model_dir_handler = model_dir_handler
@@ -187,7 +188,7 @@ class Presenter:
 
     def save_user_choices(self) -> None:
         print("Saving choices")
-        self.alert_model.process_user_choice(
+        self.model_allocate.process_user_choice(
             self.view_allocate.markets,
             self.current_submission,
         )
@@ -219,7 +220,7 @@ class Presenter:
     #######################################################
     ############# Start Submissions Program #############
     #######################################################
-    def start_submission_program(self, specific_tab: str | None = None, quote_path: str = None) -> None:  # type: ignore
+    def start_submission_program(self, specific_tab: str = None, quote_path: str = None) -> None:
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
         This also sets the default mail application.
@@ -227,10 +228,9 @@ class Presenter:
         print("starting email submission program")
         self.view_main.create_UI_obj(self, VIEW_INTERPRETER, self.view_palette)
         if quote_path:
-            self.set_initial_placeholders(quote_path)
+            self._set_initial_placeholders(quote_path)
         else:
-            self.set_initial_placeholders()
-        self.insert_qf_registration_placeholders()
+            self._set_initial_placeholders()
         if specific_tab:
             set_start_tab(self.view_main, specific_tab)
 
@@ -280,26 +280,23 @@ class Presenter:
     ########################################################
     ########## BEGIN --PLACEHOLDERS FUNCS-- BEGIN ##########
     ################# LOOKS GOOD 1/29/2024 #################
+    def _set_initial_placeholders(self, quote_path: str = None) -> None:
+        """Sets initial texts for all tabs, if applicable"""
+        for tab in ALL_TABS:
+            self.btn_revert_view_tab(tab)
+        if quote_path:
+            self.process_file_path(event=None, path_purpose="quoteform", quote_path=quote_path)
+        else:
+            pass
+
     def btn_revert_view_tab(self, tab_name: str) -> bool:
         if tab_name == "quoteforms":
             self.view_main.reg_tv.delete(*self.view_main.reg_tv.get_children())
-            config = open_config()
-            quoteform_names = [y for y in config.sections() if "Form_" in y]
-            for name in quoteform_names:
-                section = config.get_section(name)
-                options = section.items()
-                form = Quoteform(
-                    name,
-                    options[0][1].value,
-                    options[1][1].value,
-                    options[2][1].value,
-                    options[3][1].value,
-                    options[4][1].value,
-                )
-                self.view_main.reg_tv.add_registration(form)
-                return True
-        elif tab_name=="template":
-            tab_name == self.view_main.selected_template
+            forms = qf_reg.process_retrieval()
+            self.view_main.reg_tv.add_registration(forms)
+            return True
+        elif tab_name =="template":
+            tab_name = self.view_main.selected_template
         return self._set_tab_placeholders(tab_name=tab_name)
         
     def _set_tab_placeholders(self, tab_name: str) -> bool:
@@ -335,15 +332,16 @@ class Presenter:
         """Updates template tab view when user changes template."""
         self._set_tab_placeholders(self.view_main.selected_template)
 
-    def btn_save_view_tab(self, tab_name: str):
+    def btn_save_view_tab(self, tab_name: str) -> bool:
         """Save current state of a given view tab to the config file."""
         config = open_config()
         if tab_name == "surplus lines":
             x = self.view_surplus_lines.output_path
             config.set(tab_name, "output_save_dir", x)
+            return True
         elif tab_name == "quoteforms":
             row_data = self.view_main.reg_tv.get_all_rows()
-            qf_reg.process_save(config=config, row_data=row_data,)
+            return qf_reg.process_save(row_data=row_data,)
         else:
             x: dict[str, str] = getattr(self.view_main, tab_name)
             if "selected_template" in x:
@@ -359,7 +357,6 @@ class Presenter:
                         option.set_values(values=values)
                     else:
                         config.set(section=tab_name, option=key, value=x[key])
-                    if key ++""
 
     ##############################################################
     #################   NEED TO REFACTOR BELOW   #################
@@ -369,25 +366,6 @@ class Presenter:
         "Submission (View) calls this value upon creation."
         return self.model_tab_templates.names()
 
-    def set_initial_placeholders(self, quote_path: str = None) -> None:
-        """Sets initial texts for the main/home tab, if applicable"""
-        self.btn_revert_folder_settings()
-        personal_settings_keys: list[str] = [
-            "username",
-            "use_CC_defaults",
-            "default_cc1",
-            "default_cc2",
-        ]
-        config: ConfigUpdater = open_config()
-        for key in personal_settings_keys:
-            new_value = config.get("General settings", key)
-            setattr(self.view_main, key, new_value)
-        self._set_customize_tab_placeholders(config.get_section("Initial placeholders"))
-
-        if quote_path:
-            self.process_quoteform_path(quote_path=quote_path)
-        else:
-            pass
 
     def _assign_single_placeholder(self, carrier: str, widget_name: str) -> bool:
         config = open_config()

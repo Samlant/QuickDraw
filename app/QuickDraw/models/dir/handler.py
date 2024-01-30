@@ -110,7 +110,7 @@ class DirHandler:
             str(copied_file),
             str(new_file_path),
         )
-        self._delete_original(origin_file)
+        self.__delete_original(origin_file)
         return new_file_path
 
     def __create_copy(self, origin_file: Path) -> Path:
@@ -128,7 +128,7 @@ class DirHandler:
             "Warning: Exit the PDF",
             1,
         )
-        self._create_copy(origin_file=origin_file)
+        self.__create_copy(origin_file=origin_file)
         return new_file
 
     def __delete_original(self, origin_file: Path):

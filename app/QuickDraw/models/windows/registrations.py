@@ -1,11 +1,33 @@
+from QuickDraw.helper import open_config
+from QuickDraw.models.customer.form import Quoteform
+
 FORM_PREFIX = "Form_"
 
 
-def process_save(config, row_data):
+def process_save(row_data) -> bool:
     "Clear's exisiting quoteforms that are saved in the config file,  then saves all rows within treeview into the config file."
+    config = open_config()
     config = _remove_all_sections(config)
     _add_treeview_data_into_conf(config, row_data)
+    return True
 
+def process_retrieval() -> list[Quoteform]:
+    config = open_config()
+    quoteform_names = __get_all_names_from_conf(config)
+    forms: list[Quoteform] = []
+    for name in quoteform_names:
+        section = config.get_section(name)
+        options = section.items()
+        form = Quoteform(
+                    name,
+                    options[0][1].value,
+                    options[1][1].value,
+                    options[2][1].value,
+                    options[3][1].value,
+                    options[4][1].value,
+                )
+        forms.append(form)
+    return forms
 
 def _remove_all_sections(config):
     "Removes all existing quoteforms within config to start with a clean slate."
