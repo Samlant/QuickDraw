@@ -245,7 +245,7 @@ class Presenter:
     def process_file_path(
         self,
         event,
-        is_quoteform: bool = False,
+        path_purpose: str,
         quote_path: str = None,
     ) -> None:
         """Sends the raw path of attachment/quoteform to model for processing and saving."""
@@ -253,12 +253,11 @@ class Presenter:
             path = quote_path
         else:
             path = Path(self.model_tab_home.filter_out_brackets(event.data))
-        if is_quoteform:
-            del self.view_main.quoteform
-            self.view_main.quoteform = path.name
+        setattr(self.view_main, path_purpose, path.name)
+        if path_purpose != "sig_image_file_path":
+            return self.model_tab_home.save_path(path, path_purpose)
         else:
-            self.view_main.attachments = path.name
-        return self.model_tab_home.save_path(path, is_quoteform)
+            return True
 
     def process_signature_image_path(self, drag_n_drop_event) -> None:
         """Saves the signature image file onto the Settings page, but
@@ -294,12 +293,10 @@ class Presenter:
     ########################################################
     ########## BEGIN --PLACEHOLDERS FUNCS-- BEGIN ##########
     ################# LOOKS GOOD 1/29/2024 #################
-    def btn_revert_view_tab(self, tab_name: str):
-        config = open_config()
-        if tab_name=="template":
-            tab_name == self.view_main.selected_template
-        elif tab_name == "quoteforms":
+    def btn_revert_view_tab(self, tab_name: str) -> bool:
+        if tab_name == "quoteforms":
             self.view_main.reg_tv.delete(*self.view_main.reg_tv.get_children())
+            config = open_config()
             quoteform_names = [y for y in config.sections() if "Form_" in y]
             for name in quoteform_names:
                 section = config.get_section(name)
@@ -313,36 +310,39 @@ class Presenter:
                     options[4][1].value,
                 )
                 self.view_main.reg_tv.add_registration(form)
-        placeholders = config.get_section(tab_name).to_dict()
-        for key, value in placeholders.items():
-            if tab_name == "surplus lines":
-                setattr(self.view_surplus_lines, key, value)
-            elif tab_name == "dirs" and key =="custom_dirs":
-                if value != "":
-                    custom_dirs: list[str] = literal_eval(config_dirs)
-                    self.view_main.tree_dir.delete(*self.view_main.tree_dir.get_children())
-                    self.view_main.set_data_into_treeview(data=custom_dirs)
-            else:
-                if isinstance(value, list):
-                    value = "\n".join(value)
-                setattr(self.view_main, key, value)
-    
-    def _set_tab_placeholders(self, tab_name: str):
+                return True
+        elif tab_name=="template":
+            tab_name == self.view_main.selected_template
+        return self._set_tab_placeholders(tab_name=tab_name)
+        
+    def _set_tab_placeholders(self, tab_name: str) -> bool:
         tab_placeholders = self.__get_tab_placeholders(tab_name)
-        self.__assign_placeholders(tab_placeholders)
-
+        self.__assign_placeholders(tab_placeholders=tab_placeholders, tab_name=tab_name)
+        return True
+        
     def __get_tab_placeholders(self, tab_name) -> dict[str, str]:
         config = open_config()
         section_obj = config.get_section(tab_name)
         tab_placeholders = section_obj.to_dict()
         return tab_placeholders
 
-    def __assign_placeholders(self, tab_placeholders: dict[str, str]) -> None:
+    def __assign_placeholders(self, tab_placeholders: dict[str, str], tab_name: str) -> bool:
         """Sets the placeholders inside desired tab"""
-        for attr_name, value in tab_placeholders.items():
-            if attr_name == "body":
-                del self.view_main.body
-            setattr(self.view_main, attr_name, value)
+        for key, value in tab_placeholders.items():
+            if tab_name == "surplus lines":
+                setattr(self.view_surplus_lines, key, value)
+            elif tab_name == "dirs" and key =="custom_dirs":
+                if value != "":
+                    custom_dirs: list[str] = literal_eval(value)
+                    self.view_main.tree_dir.delete(*self.view_main.tree_dir.get_children())
+                    self.view_main.set_data_into_treeview(data=custom_dirs)
+            else:
+                if isinstance(value, list):
+                    value = "\n".join(value)
+                if key == "body":
+                    del self.view_main.body
+                setattr(self.view_main, key, value)
+        return True
 
     def on_change_template(self, *args, **kwargs) -> None:
         """Updates template tab view when user changes template."""
