@@ -4,17 +4,7 @@ from typing import Protocol
 from tkinterdnd2 import DND_FILES
 
 from QuickDraw.views.themes.palettes import Palette
-
-
-class Presenter(Protocol):
-    def process_signature_image_path(self, drag_n_drop_event) -> None:
-        ...
-
-    def btn_revert_email_settings(self, event) -> None:
-        ...
-
-    def btn_save_email_settings(self) -> None:
-        ...
+from QuickDraw.views.submission.base.protocols import Presenter
 
 
 def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
@@ -179,7 +169,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     ttk.Button(
         master=buttons_frame,
         text="Revert Back",
-        command=presenter.btn_revert_email_settings,
+        command=lambda: presenter.btn_revert_view_tab("email"),
     ).pack(
         fill="both",
         expand=True,
@@ -190,7 +180,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     ttk.Button(
         master=buttons_frame,
         text="Save Settings",
-        command=presenter.btn_save_email_settings,
+        command=lambda: presenter.btn_save_view_tab("email"),
     ).pack(
         fill="both",
         expand=True,

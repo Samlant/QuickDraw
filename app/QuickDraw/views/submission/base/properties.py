@@ -1,5 +1,6 @@
 from QuickDraw.views.submission.helper import ALL_TABS
 from QuickDraw.views.submission.base.window import Window
+from QuickDraw.views.submission.base.protocols import Quoteform
 
 
 class ViewInterface(Window):
@@ -13,7 +14,7 @@ class ViewInterface(Window):
 
     # main_tab: getters/setters
     @property
-    def home_values(self) -> dict[str, str]:
+    def home(self) -> dict[str, str]:
         return {
             "quoteform": self.quoteform,
             "extra_attachments": self.extra_attachments,
@@ -23,18 +24,18 @@ class ViewInterface(Window):
             "use_CC_defaults": self.use_CC_defaults,
         }
 
-    @home_values.setter
-    def home_values(self, save_data: dict[str, str | bool]) -> None:
+    @home.setter
+    def home(self, save_data: dict[str, str | bool]) -> None:
         for attr_name, value in save_data.items():
             setattr(self, attr_name, value)
 
-    @home_values.deleter
-    def home_values(self):
+    @home.deleter
+    def home(self):
         for attr in ALL_TABS["home"].keys():
             delattr(self, attr)
 
     @property
-    def template_values(self) -> dict[str, str]:
+    def template(self) -> dict[str, str]:
         return {
             "selected_template": self.selected_template,
             "address": self.address,
@@ -44,18 +45,18 @@ class ViewInterface(Window):
             "salutation": self.salutation,
         }
 
-    @template_values.setter
-    def template_values(self, save_data: dict[str, str | bool]) -> None:
+    @template.setter
+    def template(self, save_data: dict[str, str | bool]) -> None:
         for attr_name, value in save_data.items():
             setattr(self, attr_name, value)
 
-    @template_values.deleter
-    def template_values(self):
+    @template.deleter
+    def template(self):
         for attr in ALL_TABS["templates"].keys():
             delattr(self, attr)
 
     @property
-    def email_values(self) -> dict[str, str]:
+    def email(self) -> dict[str, str]:
         return {
             "default_cc1": self.default_cc1,
             "default_cc2": self.default_cc2,
@@ -63,38 +64,49 @@ class ViewInterface(Window):
             "sig_image_file_path": self.sig_image_file_path,
         }
 
-    @email_values.setter
-    def email_values(self, save_data: dict[str, str | bool]) -> None:
+    @email.setter
+    def email(self, save_data: dict[str, str | bool]) -> None:
         for attr_name, value in save_data.items():
             setattr(self, attr_name, value)
 
-    @email_values.deleter
-    def email_values(self):
+    @email.deleter
+    def email(self):
         for attr in ALL_TABS["email"].keys():
             delattr(self, attr)
 
     @property
-    def dirs_values(self) -> dict[str, str]:
+    def dirs(self) -> dict[str, str]:
         return {
             "watch_dir": self.watch_dir,
             "new_biz_dir": self.new_biz_dir,
             "renewals_dir": self.renewals_dir,
-            "custom_parent_dir": self.custom_parent_dir,
-            "custom_sub_dir": self.custom_sub_dir,
+            "custom_dirs": self.custom_dirs,
         }
 
-    @dirs_values.setter
-    def dirs_values(self, save_data: dict[str, str | bool]) -> None:
+    @dirs.setter
+    def dirs(self, save_data: dict[str, str | bool]) -> None:
         for attr_name, value in save_data.items():
             setattr(self, attr_name, value)
 
-    @dirs_values.deleter
-    def dirs_values(self):
+    @dirs.deleter
+    def dirs(self):
         for attr in ALL_TABS["dirs"].keys():
             delattr(self, attr)
 
     @property
-    def quoteforms_values(self) -> dict[str, str]:
+    def custom_dirs(self) -> list[str]:
+        row_data = []
+        for parent in self.tree_dir.get_children():
+            parent_dir = self.tree_dir.item(parent)["values"]
+            row_data.append(parent_dir[0])
+            for child in self.tree_dir.get_children(parent):
+                child_dir = self.tree_dir.item(child)["values"]
+                path = f"{parent_dir[0]}/{child_dir.pop()}"
+                row_data.append(path)
+        return row_data
+
+    @property
+    def quoteforms(self) -> dict[str, str]:
         return {
             "form_name": self.form_name,
             "fname": self.fname,
@@ -104,13 +116,13 @@ class ViewInterface(Window):
             "referral": self.referral,
         }
 
-    @quoteforms_values.setter
-    def quoteforms_values(self, save_data: dict[str, str | bool]) -> None:
+    @quoteforms.setter
+    def quoteforms(self, save_data: dict[str, str | bool]) -> None:
         for attr_name, value in save_data.items():
             setattr(self, attr_name, value)
 
-    @quoteforms_values.deleter
-    def quoteforms_values(self):
+    @quoteforms.deleter
+    def quoteforms(self):
         for attr in ALL_TABS["quoteforms"].keys():
             delattr(self, attr)
 
@@ -184,6 +196,7 @@ class ViewInterface(Window):
 
     @quoteform.setter
     def quoteform(self, new_attachment: str):
+        del self.quoteform
         self._quoteform.insert("1.0", new_attachment)
 
     @quoteform.deleter

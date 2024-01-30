@@ -21,7 +21,7 @@ class Presenter(Protocol):
     def btn_clear_attachments(self) -> None:
         ...
 
-    def btn_send_envelopes(self, autosend: bool | None) -> None:
+    def btn_process_envelopes(self, autosend: bool | None) -> None:
         ...
 
 
@@ -168,7 +168,7 @@ def make_home_widgets(
     ttk.Button(
         view.tabs.home,
         text="View Each Before Sending!",
-        command=lambda: presenter.btn_send_envelopes(view_first=True),
+        command=lambda: presenter.btn_process_envelopes(view_first=True),
     ).grid(column=1, row=2, sticky="nsew", padx=(10), pady=10)
     # .pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
     right_header_frame = ttk.Frame(view.tabs.home)
@@ -195,5 +195,5 @@ def make_home_widgets(
     ttk.Button(
         view.tabs.home,
         text="Submit & auto-send all",
-        command=presenter.btn_send_envelopes,
+        command=presenter.btn_process_envelopes,
     ).grid(column=2, row=2, sticky="nsew", padx=5, pady=10)

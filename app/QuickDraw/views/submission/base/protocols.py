@@ -11,7 +11,7 @@ class Quoteform(Protocol):
 
     """
 
-    id: str
+    path: str
     name: str
     fname: str
     lname: str
@@ -25,4 +25,19 @@ class Quoteform(Protocol):
 
 class Presenter(Protocol):
     def browse_file_path(is_quoteform):
+        ...
+
+    def btn_save_view_tab(self, tab_name: str):
+        ...
+
+    def on_change_template(self, *args, **kwargs) -> None:
+        ...
+
+    def process_signature_image_path(self, drag_n_drop_event) -> None:
+        ...
+
+    def on_focus_out(self, field_name: str, current_text: str) -> bool:
+        ...
+
+    def btn_revert_view_tab(self, tab_name: str):
         ...

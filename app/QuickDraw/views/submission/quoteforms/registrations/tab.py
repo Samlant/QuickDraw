@@ -6,14 +6,7 @@ from QuickDraw.views.submission.quoteforms.registrations.current import (
     CurrentRegistrations,
 )
 from QuickDraw.views.submission.quoteforms.registrations.new import NewRegistrations
-
-
-class Presenter(Protocol):
-    def btn_revert_registration_settings() -> None:
-        ...
-
-    def btn_save_registration_settings() -> None:
-        ...
+from QuickDraw.views.submission.base.protocols import Presenter
 
 
 def make_quoteform_widgets(view: base.MainWindow, presenter: Presenter):
@@ -77,7 +70,7 @@ def make_quoteform_widgets(view: base.MainWindow, presenter: Presenter):
     ttk.Button(
         master=buttons_box,
         text="Revert Back",
-        command=presenter.btn_revert_registration_settings,
+        command=lambda: presenter.btn_revert_view_tab("quoteforms"),
     ).pack(
         fill="both",
         expand=True,
@@ -87,7 +80,7 @@ def make_quoteform_widgets(view: base.MainWindow, presenter: Presenter):
     ttk.Button(
         master=buttons_box,
         text="Save Settings",
-        command=presenter.btn_save_registration_settings,
+        command=lambda: presenter.btn_save_view_tab("quoteforms"),
     ).pack(
         fill="both",
         expand=True,

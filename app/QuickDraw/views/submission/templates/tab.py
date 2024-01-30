@@ -4,23 +4,7 @@ from typing import Protocol
 from QuickDraw.views.submission import base
 from QuickDraw.views.submission.helper import create_dropdown
 from QuickDraw.views.themes.palettes import Palette
-
-
-class Presenter(Protocol):
-    def btn_view_template(self) -> None:
-        ...
-
-    def btn_save_template(self) -> None:
-        ...
-
-    def on_change_template(self, *args, **kwargs) -> None:
-        ...
-
-    def on_focus_out(self, field_name: str, current_text: str) -> bool:
-        ...
-
-    def btn_reset_template(self) -> None:
-        ...
+from QuickDraw.views.submission.base.protocols import Presenter
 
 
 def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: Palette):
@@ -191,7 +175,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
         buttons_frame,
         name="btnResetTemplate",
         text="Revert Back",
-        command=presenter.btn_reset_template,
+        command=lambda: presenter.btn_revert_view_tab("templates"),
     ).pack(
         padx=10,
         pady=10,
@@ -219,7 +203,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
         name="btnSaveTemplate",
         text="Save",
         width=20,
-        command=presenter.btn_save_template,
+        command=presenter.btn_save_view_tab("templates"),
     ).pack(
         padx=10,
         pady=10,

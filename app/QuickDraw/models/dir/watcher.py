@@ -6,7 +6,6 @@ from typing import Protocol
 class Presenter(Protocol):
     def trigger_new_file(self):
         ...
-    
 
 
 class DirWatch:
@@ -14,7 +13,7 @@ class DirWatch:
 
     def __init__(self, path_to_watch: Path) -> None:
         self.path: Path = path_to_watch
-        self.presenter = None
+        self.presenter: Presenter = None
 
     def assign_presenter(self, presenter: Presenter) -> None:
         self.presenter = presenter
@@ -22,10 +21,11 @@ class DirWatch:
     def begin_watch(self) -> None:
         before = dict([(f, None) for f in self.path.iterdir()])
         while 1:
-            time.sleep(2)
+            first_path = self.path
+            time.sleep(3)
             after = dict([(f, None) for f in self.path.iterdir()])
             added = [f for f in after if not f in before]
-            if added:
+            if added and first_path == self.path:
                 new_file = added[0]
                 if new_file.suffix == ".pdf":
                     print("New file detected.")

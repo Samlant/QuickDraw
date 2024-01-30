@@ -3,14 +3,7 @@ from typing import Protocol
 
 from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.submission import base
-
-
-class Presenter(Protocol):
-    def btn_save_folder_settings(self) -> None:
-        ...
-
-    def btn_revert_folder_settings(self, event) -> None:
-        ...
+from QuickDraw.views.submission.base.protocols import Presenter
 
 
 def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palette):
@@ -245,7 +238,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ttk.Button(
         master=buttons_box,
         text="Revert Back",
-        command=presenter.btn_revert_folder_settings,
+        command=lambda: presenter.btn_revert_view_tab("dirs"),
     ).pack(
         fill="both",
         expand=True,
@@ -255,7 +248,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ttk.Button(
         master=buttons_box,
         text="Save Settings",
-        command=view.btn_save_folder_settings,
+        command=lambda: presenter.btn_save_view_tab("dirs"),
     ).pack(
         fill="both",
         expand=True,
