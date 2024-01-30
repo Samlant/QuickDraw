@@ -259,19 +259,6 @@ class Presenter:
         else:
             return True
 
-    def process_signature_image_path(self, drag_n_drop_event) -> None:
-        """Saves the signature image file onto the Settings page, but
-        does not save it to the config file yet;  the Save button writes
-        this to the config file.
-
-        Arguments:
-            raw_path {str} -- the raw str of full path of the file
-        """
-        print("saving signature image")
-        raw_path: str = drag_n_drop_event.data
-        path = self.model_tab_home.filter_out_brackets(raw_path)
-        self.view_main.sig_image_file_path = path
-
     def btn_clear_attachments(self) -> None:
         self.model_tab_home.attachments: list = []
         self.model_tab_home.quoteform_path: str = ""
