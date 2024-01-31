@@ -136,9 +136,8 @@ class FormBuilder:
                             count += 1
                 elif field_name in pdf_fields_values.keys():
                     count += 1
-            if quoteform["name"] not in counter:
-                counter[quoteform["name"]] = ""
-            counter[quoteform["name"]] = count
+            form_name = quoteform["name"]
+            counter[form_name] = count
         return counter
 
     def _get_doc_values(self, file_path, form) -> dict[str, str]:
