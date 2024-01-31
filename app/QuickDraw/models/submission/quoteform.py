@@ -6,6 +6,7 @@ from fillpdf import fillpdfs
 
 from QuickDraw.models.customer.info import Submission
 
+
 @dataclass(kw_only=True)
 class Quoteform:
     """Stores the characteristics of a specific PDF quoteform.
@@ -67,7 +68,7 @@ class FormBuilder:
     def __init__(self) -> None:
         pass
 
-    def make(self, file: Path) -> Submission | bool:
+    def make(self, quoteform: Path) -> Submission | bool:
         """Wrapper function for processing a PDF form and creating a Quoteform obj from it."""
         print("Processing/Parsing PDF document.")
         count = 0
@@ -76,10 +77,6 @@ class FormBuilder:
             count += 1
             try:
                 quoteform = self._process_document(file)
-                current_submission = Submission(
-                    quoteform=quoteform,
-                    status="PROCESSED",
-                )
             except Exception as e:
                 print(e)
                 ctypes.windll.user32.MessageBoxW(
@@ -90,7 +87,7 @@ class FormBuilder:
                 )
             else:
                 successful = True
-                return current_submission
+                return quoteform
         return False
 
     def _process_document(self, file: Path) -> Quoteform:

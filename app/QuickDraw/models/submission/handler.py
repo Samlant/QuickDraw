@@ -1,9 +1,30 @@
+from pathlib import Path
+
 from QuickDraw.helper import GREEN_LIGHT
+from QuickDraw.models.submission.quoteform import FormBuilder
+from QuickDraw.models.submission.submission import Submission
+from QuickDraw.models.submission.customer import Customer
+from QuickDraw.models.submission.markets import Market, Markets
+from QuickDraw.models.submission.quoteform import Quoteform
+from QuickDraw.models.submission.vessel import Vessel
 
 
 class SubmissionModel:
     def __init__(self):
         pass
+
+    def process_quoteform(self, quoteform_path: Path) -> Submission:
+        _ = FormBuilder()
+        quoteform = _.make(quoteform=quoteform_path)
+        customer: Customer = ""
+        vessel: Vessel = ""
+        submission: Submission = Submission(
+            quoteform=quoteform,
+            customer=customer,
+            vessel=vessel,
+            status="PROCESSED",
+        )
+        return submission
 
     def filter_only_positive_submissions(self, raw_checkboxes: dict) -> list:
         market_list: list[str] = []

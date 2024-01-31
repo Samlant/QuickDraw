@@ -170,7 +170,9 @@ class Presenter:
 
     def trigger_new_file(self, file: Path):
         print("Detected new Quoteform ")
-        self.current_submission = self.model_form_builder.make(file=file)
+        self.current_submission = self.model_submission.process_quoteform(
+            quoteform=file
+        )
         print(f"the current client is: {self.current_submission.__repr__}")
         months = self.model_api.get_next_months()
         self.view_new_file_alert.initialize(
