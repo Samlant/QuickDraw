@@ -2,16 +2,20 @@ import string
 from pathlib import Path
 from dataclasses import dataclass
 
-from QuickDraw.models.customer.form import Quoteform
+from QuickDraw.models.submission.customer import Customer
+from QuickDraw.models.submission.markets import Market, Markets
+from QuickDraw.models.submission.quoteform import Quoteform
+from QuickDraw.models.submission.vessel import Vessel
 
 
 @dataclass
 class Submission:
     quoteform: Quoteform
-    new_path: Path = None
+    customer: Customer
+    vessel: Vessel
     status: str
+    markets: list[Market | Markets] = []
     attachments: list = None
-    markets: list[str] = ""
     submit_tool: bool = False
 
 

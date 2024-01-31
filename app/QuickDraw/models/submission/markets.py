@@ -25,8 +25,11 @@ b = Carriers(
 """
 
 
+# Make meta class to track all carriers created?
+
+
 @dataclass
-class Carrier:
+class Market:
     _ids = itertools.count(0)
     name: str
     id: str
@@ -49,7 +52,7 @@ class Carrier:
 
 
 @dataclass(kw_only=True)
-class Carriers(Carrier):
+class Markets(Market):
     num_of_carriers: int = field(init=False)
     names: list[str] = field(init=False)
 

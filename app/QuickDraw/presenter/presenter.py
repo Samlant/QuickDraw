@@ -3,11 +3,12 @@ import threading
 from ast import literal_eval
 from pathlib import Path
 from tkinter import TclError
+import itertools
 
 from configupdater import ConfigUpdater
 
 import QuickDraw.models.windows.registrations as qf_reg
-from QuickDraw.helper import open_config, VIEW_INTERPRETER
+from QuickDraw.helper import open_config, VIEW_INTERPRETER, AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import set_start_tab, ALL_TABS
 from QuickDraw.models.customer.form import Quoteform
 from QuickDraw.models.customer.info import Submission
@@ -45,13 +46,13 @@ class Presenter:
         model_dir_watcher: protocols.DirWatch,
         model_email_handler: protocols.EmailHandler,
         model_email_options: protocols.EmailOptionsModel,
+        model_form_builder: protocols.FormBuilder,
         model_new_alert: protocols.AlertModel,
         model_surplus_lines: protocols.SurplusLinesAutomator,
         model_tab_dirs: protocols.DirsModel,
         model_tab_home: protocols.HomeModel,
         model_tab_registrations: protocols.RegistrationsModel,
         model_tab_templates: protocols.TemplatesModel,
-        model_form_builder: protocols.FormBuilder,
         view_allocate: protocols.AllocateView,
         view_main: protocols.MainWindow,
         view_new_file_alert: protocols.NewFileAlert,
@@ -142,6 +143,7 @@ class Presenter:
 
         ####################################
         ####################################
+
     def _start_thread_for_excel(self) -> bool:
         count = 0
         successful = False
@@ -220,7 +222,9 @@ class Presenter:
     #######################################################
     ############# Start Submissions Program #############
     #######################################################
-    def start_submission_program(self, specific_tab: str = None, quote_path: str = None) -> None:
+    def start_submission_program(
+        self, specific_tab: str = None, quote_path: str = None
+    ) -> None:
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
         This also sets the default mail application.
@@ -269,6 +273,9 @@ class Presenter:
     def btn_process_envelopes(self, view_first: bool = False) -> None:
         """TODO REFACTOR BELOW USING SUBMISSION & EMAIL MODELS!"""
         print("clicked send button")
+        # Get fields from view_main
+        # send to submission model for processing
+
         self.only_view_msg = view_first
         self.current_submission = self.model_form_builder.make(
             self.model_tab_home.quoteform_path
@@ -285,7 +292,9 @@ class Presenter:
         for tab in ALL_TABS:
             self.btn_revert_view_tab(tab)
         if quote_path:
-            self.process_file_path(event=None, path_purpose="quoteform", quote_path=quote_path)
+            self.process_file_path(
+                event=None, path_purpose="quoteform", quote_path=quote_path
+            )
         else:
             pass
 
@@ -295,30 +304,34 @@ class Presenter:
             forms = qf_reg.process_retrieval()
             self.view_main.reg_tv.add_registration(forms)
             return True
-        elif tab_name =="template":
+        elif tab_name == "template":
             tab_name = self.view_main.selected_template
         return self._set_tab_placeholders(tab_name=tab_name)
-        
+
     def _set_tab_placeholders(self, tab_name: str) -> bool:
         tab_placeholders = self.__get_tab_placeholders(tab_name)
         self.__assign_placeholders(tab_placeholders=tab_placeholders, tab_name=tab_name)
         return True
-        
+
     def __get_tab_placeholders(self, tab_name) -> dict[str, str]:
         config = open_config()
         section_obj = config.get_section(tab_name)
         tab_placeholders = section_obj.to_dict()
         return tab_placeholders
 
-    def __assign_placeholders(self, tab_placeholders: dict[str, str], tab_name: str) -> bool:
+    def __assign_placeholders(
+        self, tab_placeholders: dict[str, str], tab_name: str
+    ) -> bool:
         """Sets the placeholders inside desired tab"""
         for key, value in tab_placeholders.items():
             if tab_name == "surplus lines":
                 setattr(self.view_surplus_lines, key, value)
-            elif tab_name == "dirs" and key =="custom_dirs":
+            elif tab_name == "dirs" and key == "custom_dirs":
                 if value != "":
                     custom_dirs: list[str] = literal_eval(value)
-                    self.view_main.tree_dir.delete(*self.view_main.tree_dir.get_children())
+                    self.view_main.tree_dir.delete(
+                        *self.view_main.tree_dir.get_children()
+                    )
                     self.view_main.set_data_into_treeview(data=custom_dirs)
             else:
                 if isinstance(value, list):
@@ -327,6 +340,24 @@ class Presenter:
                     del self.view_main.body
                 setattr(self.view_main, key, value)
         return True
+
+    def set_dropdown_options(self) -> list[str]:
+        "Submission (View) calls this value upon creation."
+        options: list[str] = []
+        redundancies: dict[int, list[str]] = {}
+        for carrier in AVAILABLE_CARRIERS:
+            options.append(carrier.name)
+            if carrier.redundancy_group != 0:
+                if carrier.redundancy_group not in redundancies:
+                    redundancies[carrier.redundancy_group] = []
+                redundancies[carrier.redundancy_group].append(carrier.name)
+        for group, carriers in redundancies.items():
+            count = len(carriers)
+            while count > 1:
+                for combo in itertools.combinations(carriers, count):
+                    options.append(f'Combination: {" + ".join(combo)}')
+                count -= 1
+        return options
 
     def on_change_template(self, *args, **kwargs) -> None:
         """Updates template tab view when user changes template."""
@@ -341,7 +372,9 @@ class Presenter:
             return True
         elif tab_name == "quoteforms":
             row_data = self.view_main.reg_tv.get_all_rows()
-            return qf_reg.process_save(row_data=row_data,)
+            return qf_reg.process_save(
+                row_data=row_data,
+            )
         else:
             x: dict[str, str] = getattr(self.view_main, tab_name)
             if "selected_template" in x:
@@ -358,14 +391,34 @@ class Presenter:
                     else:
                         config.set(section=tab_name, option=key, value=x[key])
 
-    ##############################################################
-    #################   NEED TO REFACTOR BELOW   #################
-    ##############################################################
+    def on_focus_out(self, event) -> bool | None:
+        """Replaces blank text on template tab with prior saved data from config. This is done because templates should never be blank."""
+        carrier = self.view_main.selected_template
+        widget_name = event.widget.winfo_name()
+        widget_type = event.widget.widgetName
 
-    def set_dropdown_options(self) -> list:
-        "Submission (View) calls this value upon creation."
-        return self.model_tab_templates.names()
+        if carrier == "Select Market(s)":
+            return True
+        else:
+            if (
+                widget_type == "text"
+                and self.check_text_from_textbox(event)
+                and widget_name == "body"
+            ):
+                del self.view_main.body
+                self._assign_single_placeholder(carrier, widget_name)
+            elif widget_type == "entry" and self.check_text_from_entrybox(event):
+                self._assign_single_placeholder(carrier, widget_name)
+            else:
+                pass
 
+    def check_text_from_textbox(self, event) -> bool | None:
+        if event.widget.get("1.0", "end-1c") == "":
+            return True
+
+    def check_text_from_entrybox(self, event) -> bool | None:
+        if event.widget.get() == "":
+            return True
 
     def _assign_single_placeholder(self, carrier: str, widget_name: str) -> bool:
         config = open_config()
@@ -375,6 +428,10 @@ class Presenter:
             placeholder,
         )
         return True
+
+    ##############################################################
+    #################   NEED TO REFACTOR BELOW   #################
+    ##############################################################
 
     ############ END --PLACEHOLDERS FUNCS-- END ############
     ################ Establish Templates Tab ###############
@@ -416,34 +473,3 @@ class Presenter:
     ############# END --Surplus Lines Automator-- END #############
 
     ################ LOOK AT THE END #########################
-
-    def on_focus_out(self, event) -> bool | None:
-        """Looks like it's only applicable to templates tab.
-        TODO: Verify if applicable to other tabs.
-        """
-        carrier = self.view_main.selected_template
-        widget_name = event.widget.winfo_name()
-        widget_type = event.widget.widgetName
-
-        if carrier == "Select Market(s)":
-            return True
-        else:
-            if (
-                widget_type == "text"
-                and self.check_text_from_textbox(event)
-                and widget_name == "body"
-            ):
-                del self.view_main.body
-                self._assign_single_placeholder(carrier, widget_name)
-            elif widget_type == "entry" and self.check_text_from_entrybox(event):
-                self._assign_single_placeholder(carrier, widget_name)
-            else:
-                pass
-
-    def check_text_from_textbox(self, event) -> bool | None:
-        if event.widget.get("1.0", "end-1c") == "":
-            return True
-
-    def check_text_from_entrybox(self, event) -> bool | None:
-        if event.widget.get() == "":
-            return True

@@ -1,7 +1,7 @@
 from pathlib import Path
+from typing import NamedTuple
+
 from tkinterdnd2 import TkinterDnD
-
-
 from configupdater import ConfigUpdater
 
 # Insert config functions, PATHS constants, and TEST constant
@@ -37,17 +37,24 @@ else:
     README: Path = app_resources / "docs" / "readme.html"
 
 
-CARRIERS = [
-    "Seawave",
-    "Primetime",
-    "NewHampshire",
-    "AmericanModern",
-    "Kemah",
-    "Concept",
-    "Yachtinsure",
-    "Century",
-    "Intact",
-    "Travelers",
+class Carrier(NamedTuple):
+    name: str
+    id: str
+    redundancies: int = 0
+    redundancy_group: int = 0
+
+
+AVAILABLE_CARRIERS = [
+    Carrier("Seawave", "SW", 3, 1),
+    Carrier("Primetime", "PT", 3, 1),
+    Carrier("NewHampshire", "NH", 3, 1),
+    Carrier("AmericanModern", "AM"),
+    Carrier("Kemah", "KM"),
+    Carrier("Concept", "CP"),
+    Carrier("Yachtinsure", "YI"),
+    Carrier("Century", "CE"),
+    Carrier("Intact", "IN"),
+    Carrier("Travelers", "TV"),
 ]
 
 

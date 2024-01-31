@@ -44,6 +44,10 @@ class SubmissionModel:
         section_name = f"Combination: {string}"
         return section_name
 
+    #######################################################
+    #############  MS GRAPH API MODEL  ####################
+    #######################################################
+
     def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
         """Prepares list of CC addresses to be properly formatted for api call."""
         if isinstance(all_addresses, list):
@@ -93,6 +97,10 @@ class SubmissionModel:
     def _del_whitespace_invalid_chars(self, input: str) -> str:
         x = input.translate({ord(i): None for i in r'"() ,:;<>[\]'})
         return x
+
+    #######################################################
+    #############  MS GRAPH API MODEL  ####################
+    #######################################################
 
     #######################################################
     ################  FROM THE PRESENTER  #################

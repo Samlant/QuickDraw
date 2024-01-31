@@ -3,7 +3,7 @@ from typing import Protocol
 from operator import attrgetter
 from QuickDraw.views.submission import base
 from QuickDraw.views.submission.helper import make_drag_drop_txt_box, make_checkbutton
-from QuickDraw.helper import CARRIERS
+from QuickDraw.helper import AVAILABLE_CARRIERS
 
 # from QuickDraw.views.submission.helper import create_button
 from QuickDraw.views.themes.palettes import Palette
@@ -181,12 +181,12 @@ def make_home_widgets(
 
     frame_right = ttk.Frame(view.tabs.home)
     frame_right.grid(column=2, row=1, pady=(0, 5), sticky="n")
-    for carrier in CARRIERS:
-        attr_name = f"_{carrier.lower()}"
+    for carrier in AVAILABLE_CARRIERS:
+        attr_name = f"_{carrier.name.lower()}"
         attr = attrgetter(attr_name)(view)
         make_checkbutton(
             parent=frame_right,
-            text=carrier,
+            text=carrier.name,
             int_variable=attr,
         )
         # attr used to be view._<carrier_name>

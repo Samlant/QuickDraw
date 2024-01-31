@@ -4,7 +4,7 @@ from typing import Protocol
 
 from tkinterdnd2 import DND_FILES
 
-from QuickDraw.helper import GREEN_LIGHT, RED_LIGHT
+from QuickDraw.helper import GREEN_LIGHT, RED_LIGHT, AVAILABLE_CARRIERS
 from QuickDraw.views.submission import base
 from QuickDraw.views.themes.palettes import Palette
 
