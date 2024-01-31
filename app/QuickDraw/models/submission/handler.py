@@ -16,8 +16,8 @@ class SubmissionModel:
     def process_quoteform(self, quoteform_path: Path) -> Submission:
         _ = FormBuilder()
         quoteform = _.make(quoteform=quoteform_path)
-        customer: Customer = ""
-        vessel: Vessel = ""
+        customer: Customer = Customer(fname=quoteform.fname,lname=quoteform.lname, referral=quoteform.referral)
+        vessel: Vessel = Vessel(year=quoteform.year, make=quoteform.vessel)
         submission: Submission = Submission(
             quoteform=quoteform,
             customer=customer,
