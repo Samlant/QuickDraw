@@ -10,8 +10,8 @@ from configupdater import ConfigUpdater
 import QuickDraw.models.windows.registrations as qf_reg
 from QuickDraw.helper import open_config, VIEW_INTERPRETER, AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import set_start_tab, ALL_TABS
-from QuickDraw.models.customer.form import Quoteform
-from QuickDraw.models.customer.info import Submission
+from QuickDraw.models.submission.quoteform import Quoteform
+from QuickDraw.models.submission.submission import Submission
 import QuickDraw.presenter.protocols as protocols
 
 
@@ -49,6 +49,7 @@ class Presenter:
         model_form_builder: protocols.FormBuilder,
         model_new_alert: protocols.AlertModel,
         model_surplus_lines: protocols.SurplusLinesAutomator,
+        model_submission: protocols.SubmissionModel,
         model_tab_dirs: protocols.DirsModel,
         model_tab_home: protocols.HomeModel,
         model_tab_registrations: protocols.RegistrationsModel,
@@ -59,7 +60,6 @@ class Presenter:
         view_surplus_lines: protocols.SurplusLinesView,
         view_palette: protocols.Palette,
     ) -> None:
-        # Models
         self.model_allocate = model_allocate
         self.model_api_client = model_api_client
         self.model_api = model_api
@@ -69,6 +69,7 @@ class Presenter:
         self.model_email_options = model_email_options
         self.model_form_builder = model_form_builder
         self.model_new_alert = model_new_alert
+        self.model_submission = model_submission
         self.model_surplus_lines = model_surplus_lines
         self.model_tab_dirs = model_tab_dirs
         self.model_tab_home = model_tab_home
@@ -275,13 +276,23 @@ class Presenter:
     def btn_process_envelopes(self, view_first: bool = False) -> None:
         """TODO REFACTOR BELOW USING SUBMISSION & EMAIL MODELS!"""
         print("clicked send button")
-        # Get fields from view_main
-        # send to submission model for processing
-
+        # Check if user only wants to view the msg prior to sending...
         self.only_view_msg = view_first
-        self.current_submission = self.model_form_builder.make(
-            self.model_tab_home.quoteform_path
+        # Get fields from view_main
+        submission_request = self.view_main.submission_request
+        # send to submission model for processing
+        self.current_submission = self.model_submission.process_request(
+            submission_request=submission_request
         )
+        # extract above to be reused in other function for dialog windows...
+        # once verified above,  then move on...
+        # Check if markets exist... dialog may fail this check so that's why we're doing it now.
+        # Either way, send API call at this point and include mrkts if present...
+        # Ensure to check if entry already exists; if so, update it (status & mrkts if applicable)
+        # IF MOVING FORWARD TO SUBMITTING:
+        # Continue to prep the submission for an outlook email API call
+        # Send the API call to send emails
+        # Once sent,  make another API call to update Excel tracker entry.
         self.current_submission.markets = self.gather_active_markets()
         self.current_submission.submit_tool = True
         self.loop_through_envelopes()

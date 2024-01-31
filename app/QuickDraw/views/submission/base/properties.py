@@ -1,4 +1,5 @@
 from QuickDraw.views.submission.helper import ALL_TABS
+from QuickDraw.helper import AVAILABLE_CARRIERS
 from QuickDraw.views.submission.base.window import Window
 from QuickDraw.views.submission.base.protocols import Quoteform
 
@@ -12,7 +13,20 @@ class ViewInterface(Window):
             icon_path,
         )
 
-    # main_tab: getters/setters
+    # Submission Request getter
+    @property
+    def submission_request(self) -> dict:
+        submission_request = {}
+        for carrier in AVAILABLE_CARRIERS:
+            value = getattr(self, carrier.name.lower())
+            submission_request[carrier.name] = value
+        for key, value in self.home.items():
+            if key == "use_CC_defaults":
+                continue
+            submission_request[key] = value
+        return submission_request
+
+    # ALL TABS getters/setters
     @property
     def home(self) -> dict[str, str]:
         return {
@@ -125,7 +139,7 @@ class ViewInterface(Window):
     def quoteforms(self):
         for attr in ALL_TABS["quoteforms"].keys():
             delattr(self, attr)
-
+    # main_tab: getters/setters
     @property
     def extra_notes(self) -> str:
         return self._extra_notes.get("1.0", "end-1c")

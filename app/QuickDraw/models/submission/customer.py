@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from string import capwords
 
 
-@dataclass
+@dataclass(frozen=True)
 class Customer:
     fname: str
     lname: str

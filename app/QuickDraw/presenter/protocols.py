@@ -77,8 +77,8 @@ class EmailHandler(Protocol):
         ...
 
 
-class FormBuilder(Protocol):
-    def make(self, file: Path) -> dict[str, str]:
+class SubmissionModel(Protocol):
+    def process_request(self, submission_request: dict[str, str | bool | list[str]]) -> Submission:
         ...
 
 

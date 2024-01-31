@@ -4,7 +4,7 @@ import ctypes
 
 from fillpdf import fillpdfs
 
-from QuickDraw.models.customer.info import Submission
+from QuickDraw.models.submission.submission import Submission
 
 
 @dataclass(kw_only=True)
@@ -76,7 +76,7 @@ class FormBuilder:
         while not successful and count < 4:
             count += 1
             try:
-                quoteform = self._process_document(file)
+                parsed_form = self._process_document(quoteform)
             except Exception as e:
                 print(e)
                 ctypes.windll.user32.MessageBoxW(
@@ -87,23 +87,23 @@ class FormBuilder:
                 )
             else:
                 successful = True
-                return quoteform
+                return parsed_form
         return False
 
-    def _process_document(self, file: Path) -> Quoteform:
+    def _process_document(self, quoteform: Path) -> Quoteform:
         """Extracts pdf form field data, filters them and
         returns key:value pairs within a dict.
 
         Arguments:
-            file -- expects a str of the file location of the pdf
+            quoteform -- expects a str of the quoteform location of the pdf
 
         Returns:
             dict -- returns only keys identified within self.keys
         """
-        form_field_names = self._identify_doc(file)
-        form_extract = self._get_doc_values(file, form_field_names)
+        form_field_names = self._identify_doc(quoteform)
+        form_extract = self._get_doc_values(quoteform, form_field_names)
         quoteform = Quoteform(
-            path=file,
+            path=quoteform,
             name=form_extract["name"],
             fname=form_extract["fname"],
             lname=form_extract["lname"],
@@ -113,9 +113,9 @@ class FormBuilder:
         )
         return quoteform
 
-    def _identify_doc(self, file_path: Path):
+    def _identify_doc(self, quoteform: Path):
         forms = self.__get_all_quoteforms()
-        pdf_fields_values = fillpdfs.get_form_fields(file_path)
+        pdf_fields_values = fillpdfs.get_form_fields(quoteform)
         counter = self.__count_same_field_occurrences(forms, pdf_fields_values)
         doc = max(counter)
         for form in forms:
@@ -140,8 +140,8 @@ class FormBuilder:
             counter[form_name] = count
         return counter
 
-    def _get_doc_values(self, file_path, form) -> dict[str, str]:
-        pdf_fields_values = fillpdfs.get_form_fields(file_path)
+    def _get_doc_values(self, quoteform, form) -> dict[str, str]:
+        pdf_fields_values = fillpdfs.get_form_fields(quoteform)
         form_registry = self._extract_values(pdf_fields_values, form)
         return form_registry
 
