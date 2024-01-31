@@ -136,6 +136,8 @@ class FormBuilder:
                             count += 1
                 elif field_name in pdf_fields_values.keys():
                     count += 1
+            if quoteform["name"] not in counter:
+                counter[quoteform["name"]] = ""
             counter[quoteform["name"]] = count
         return counter
 
