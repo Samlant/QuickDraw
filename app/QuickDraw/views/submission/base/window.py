@@ -31,16 +31,16 @@ class Window:
         setters work and other modules do not need to need tkinter.
         """
         for vars_and_types in ALL_TABS.values():
-            for var, type in vars_and_types.items():
-                if type == "text":
+            for var, var_type in vars_and_types.items():
+                if var_type == "text":
                     continue
-                elif type == "str":
+                elif var_type == "str":
                     setattr(
                         self,
                         "_" + var,
                         StringVar(self.root, "", var),
                     )
-                elif type == "bool":
+                elif var_type == "bool":
                     setattr(
                         self,
                         "_" + var,
@@ -51,9 +51,9 @@ class Window:
             var = BooleanVar(
                 self.root,
                 False,
-                carrier,
+                carrier.name,
             )
-            setattr(self, "_" + carrier.name.lower(), var),
+            setattr(self, "_" + carrier.name, var),
 
     def assign_window_traits(self):
         self.root.geometry("760x600")
@@ -64,20 +64,20 @@ class Window:
         self.root.iconbitmap(self.icon)
 
     def create_notebook(self):
-        self.root.tabControl = ttk.Notebook(master=self.root)
-        self.root.tabControl.pack(fill="both", pady=0, expand=True)
+        self.tabs = ttk.Notebook(master=self.root)
+        self.tabs.pack(fill="both", pady=0, expand=True)
 
     def create_tabs(self):
-        self.tabs.home = ttk.Frame(self.root.tabControl)
-        self.tabs.templates = ttk.Frame(self.root.tabControl)
-        self.tabs.email = ttk.Frame(self.root.tabControl)
-        self.tabs.dirs = ttk.Frame(self.root.tabControl)
-        self.tabs.quoteforms = ttk.Frame(self.root.tabControl)
-        self.root.tabControl.add(self.tabs.home, text="Home - Outbox")
-        self.root.tabControl.add(self.tabs.templates, text="Email Templates")
-        self.root.tabControl.add(self.tabs.email, text="Email Settings")
-        self.root.tabControl.add(self.tabs.dirs, text="Folder Settings")
-        self.root.tabControl.add(self.tabs.quoteforms, text="Quoteform Registrations")
+        self.tabs.home = ttk.Frame(self.tabs)
+        self.tabs.templates = ttk.Frame(self.tabs)
+        self.tabs.email = ttk.Frame(self.tabs)
+        self.tabs.dirs = ttk.Frame(self.tabs)
+        self.tabs.quoteforms = ttk.Frame(self.tabs)
+        self.tabs.add(self.tabs.home, text="Home - Outbox")
+        self.tabs.add(self.tabs.templates, text="Email Templates")
+        self.tabs.add(self.tabs.email, text="Email Settings")
+        self.tabs.add(self.tabs.dirs, text="Folder Settings")
+        self.tabs.add(self.tabs.quoteforms, text="Quoteform Registrations")
 
     def _browse_qf_path(self, event: None):
         if event:

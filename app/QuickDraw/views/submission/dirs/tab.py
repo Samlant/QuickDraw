@@ -11,74 +11,74 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     view.tabs.dirs.rowconfigure(3, minsize=100, pad=5)
     ### START TITLE ###
     title_frame = ttk.Frame(
-        view.tabs.dirs,
+        view.tabs.dirs, style="TFrame",
     )
     title_frame.grid(column=0, row=0, sticky="nsew")
     ttk.Label(title_frame, text="Folder Settings Page", style="Header.TLabel").pack(
         fill="both",
         expand=True,
-        padx=200,
+        padx=200, style="TLabel",
     )
     # END OF TITLE
     # START CONTENT
     watch_dir_lf = ttk.Labelframe(
         view.tabs.dirs,
-        text="Watch Folder Options",
+        text="Watch Folder Options", style="TLabelframe",
     )
     watch_dir_lf.grid(column=0, row=1, sticky="nsew", padx=10, pady=(5, 0))
     ttk.Label(
         watch_dir_lf,
-        text="Current Watch Folder:",
+        text="Current Watch Folder:", style="TLabel",
     ).grid(column=0, row=0, ipady=3, pady=6)
     view.watch_dir_entry = ttk.Entry(
         watch_dir_lf,
-        textvariable=view._watch_dir,
+        textvariable=view._watch_dir, style="TEntry",
     )
     view.watch_dir_entry.grid(column=1, row=0, padx=5, pady=6, ipady=3, ipadx=149)
     watch_dir_btn = ttk.Button(
         watch_dir_lf,
         command=view._browse_watch_dir,
-        text="Browse to change",
+        text="Browse to change", style="TButton",
     )
     watch_dir_btn.grid(column=2, row=0, padx=5, pady=6, ipady=3, ipadx=4)
     ttk.Label(
         watch_dir_lf,
-        text="New Biz Client Folder:",
+        text="New Biz Client Folder:", style="TLabel",
     ).grid(column=0, row=1, ipady=3, padx=0)
     view.new_biz_dir_entry = ttk.Entry(
         watch_dir_lf,
-        textvariable=view._new_biz_dir,
+        textvariable=view._new_biz_dir, style="TEntry",
     )
     view.new_biz_dir_entry.grid(column=1, row=1, padx=5, pady=0, ipady=3, ipadx=149)
     new_biz_dir_btn = ttk.Button(
         watch_dir_lf,
         command=view._browse_new_biz_dir,
-        text="Browse to change",
+        text="Browse to change", style="TButton",
     )
     new_biz_dir_btn.grid(column=2, row=1, padx=5, pady=0, ipady=3, ipadx=4)
     ttk.Label(
         watch_dir_lf,
-        text="Renewals Client Folder:",
+        text="Renewals Client Folder:", style="TLabel",
     ).grid(column=0, row=2, ipady=3, padx=0)
     view.renewals_dir_entry = ttk.Entry(
         watch_dir_lf,
-        textvariable=view._renewals_dir,
+        textvariable=view._renewals_dir, style="TEntry",
     )
     view.renewals_dir_entry.grid(column=1, row=2, padx=5, pady=6, ipady=3, ipadx=149)
     renewals_dir_btn = ttk.Button(
         watch_dir_lf,
         command=view._browse_renewals_dir,
-        text="Browse to change",
+        text="Browse to change", style="TButton",
     )
     renewals_dir_btn.grid(column=2, row=2, padx=5, pady=6, ipady=3, ipadx=4)
     custom_dir_lf = ttk.Labelframe(
         view.tabs.dirs,
-        text="Create additional folders when a client folder is created",
+        text="Create additional folders when a client folder is created", style="TLabelframe",
     )
     ### START Custom Dir Structure Label Frame ###
     custom_dir_lf.grid(column=0, row=2, sticky="nsew", pady=(5, 0), padx=10)
     ### LEFT SECTION ###
-    left_custom_dir_frame = ttk.Frame(custom_dir_lf)
+    left_custom_dir_frame = ttk.Frame(custom_dir_lf, style="TFrame",)
     left_custom_dir_frame.pack(
         fill="x",
         expand=False,
@@ -87,7 +87,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ### Treeview Section ###
     view.tree_dir = ttk.Treeview(
         left_custom_dir_frame,
-        columns=1,
+        columns=1, style="Treeview",
     )
     view.tree_dir.column(
         "#0",
@@ -106,7 +106,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ### END OF TREEVIEW SECTION ###
     ### END OF LEFT SECTION ###
     ### RIGHT SECTION ###
-    right_custom_dir_frame = ttk.Frame(custom_dir_lf)
+    right_custom_dir_frame = ttk.Frame(custom_dir_lf, style="TFrame",)
     right_custom_dir_frame.pack(
         fill="both",
         expand=True,
@@ -116,7 +116,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     )
     ### TOP SECTION ###
     top_custom_dir_frame = ttk.Frame(
-        right_custom_dir_frame,
+        right_custom_dir_frame, style="TFrame",
     )
     top_custom_dir_frame.pack(
         fill="both",
@@ -126,7 +126,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     # top_custom_dir_frame.grid(column=0, row=0, padx=(10, 0), pady=(5,0), columnspan=2)
     ### Top Left ###
     top_left_custom_dir_frame = ttk.Frame(
-        top_custom_dir_frame,
+        top_custom_dir_frame, style="TFrame",
     )
     top_left_custom_dir_frame.pack(
         fill="both",
@@ -137,7 +137,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ttk.Label(
         top_left_custom_dir_frame,
         text="Add a Parent folder:",
-        justify="left",
+        justify="left", style="TLabel",
     ).pack(
         fill="both",
         expand=True,
@@ -145,14 +145,14 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     )
     view.top_left_custom_dir_entry = ttk.Entry(
         top_left_custom_dir_frame,
-        textvariable=view._custom_parent_dir,
+        textvariable=view._custom_parent_dir, style="TEntry",
     )
     view.top_left_custom_dir_entry.pack(
         fill="x", expand=True, side="top", ipady=3, anchor="n"
     )
     ### Top Right ###
     top_right_custom_dir_frame = ttk.Frame(
-        top_custom_dir_frame,
+        top_custom_dir_frame, style="TFrame",
     )
     top_right_custom_dir_frame.pack(
         fill="both",
@@ -162,13 +162,13 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     custom_parent_dir_btn = ttk.Button(
         top_right_custom_dir_frame,
         command=view._add_custom_parent_dir,
-        text="Add",
+        text="Add", style="TButton",
     )
     custom_parent_dir_btn.pack(
         fill="both", expand=True, side="left", pady=6, padx=(5, 0)
     )
     ### MIDDLE SECTION ###
-    middle_custom_dir_frame = ttk.Frame(right_custom_dir_frame)
+    middle_custom_dir_frame = ttk.Frame(right_custom_dir_frame, style="TFrame",)
     middle_custom_dir_frame.pack(
         fill="both",
         expand=True,
@@ -178,7 +178,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     # middle_custom_dir_frame.grid(column=0, row=1, padx=(10, 0), pady=(20,20), columnspan=2)
 
     ### Middle Left ###
-    middle_left_custom_dir_frame = ttk.Frame(middle_custom_dir_frame)
+    middle_left_custom_dir_frame = ttk.Frame(middle_custom_dir_frame, style="TFrame",)
     middle_left_custom_dir_frame.pack(
         fill="both",
         expand=True,
@@ -188,17 +188,17 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
         middle_left_custom_dir_frame,
         text="Add a sub-folder:",
         font=("helvetica", 10, "normal"),
-        justify="left",
+        justify="left", style="TEntry",
     ).pack(fill="both", expand=True, side="top", anchor="s")
     view.middle_left_custom_dir_entry = ttk.Entry(
         middle_left_custom_dir_frame,
-        textvariable=view._custom_sub_dir,
+        textvariable=view._custom_sub_dir, style="TEntry",
     )
     view.middle_left_custom_dir_entry.pack(
         fill="x", expand=True, side="top", ipady=3, anchor="n"
     )
     ### Middle Right ###
-    middle_right_custom_dir_frame = ttk.Frame(middle_custom_dir_frame)
+    middle_right_custom_dir_frame = ttk.Frame(middle_custom_dir_frame, style="TFrame",)
     middle_right_custom_dir_frame.pack(
         fill="both",
         expand=True,
@@ -207,11 +207,11 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     custom_sub_dir_btn = ttk.Button(
         middle_right_custom_dir_frame,
         command=view._add_custom_sub_dir,
-        text="Add",
+        text="Add", style="TButton",
     )
     custom_sub_dir_btn.pack(fill="both", expand=True, side="left", pady=6, padx=(5, 0))
     ### BOTTOM SECTION ###
-    bottom_custom_dir_frame = ttk.Frame(right_custom_dir_frame)
+    bottom_custom_dir_frame = ttk.Frame(right_custom_dir_frame, style="TFrame",)
     bottom_custom_dir_frame.pack(
         fill="both",
         expand=True,
@@ -222,7 +222,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     custom_rm_dir_btn = ttk.Button(
         bottom_custom_dir_frame,
         command=view._rm_custom_dir,
-        text="Remove selected folder",
+        text="Remove selected folder", style="TButton",
     )
     custom_rm_dir_btn.pack(
         fill="both",
@@ -232,13 +232,13 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ### END OF CUSTOM DIR STRUCTURE SECTION ###
     ### BUTTONS FRAME ###
     buttons_box = ttk.Frame(
-        view.tabs.dirs,
+        view.tabs.dirs, style="TFrame",
     )
     buttons_box.grid(column=0, row=3, sticky="nsew", pady=(10, 0), padx=10)
     ttk.Button(
         master=buttons_box,
         text="Revert Back",
-        command=lambda: presenter.btn_revert_view_tab("dirs"),
+        command=lambda: presenter.btn_revert_view_tab("dirs"), style="TButton",
     ).pack(
         fill="both",
         expand=True,
@@ -248,7 +248,7 @@ def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, style: Palett
     ttk.Button(
         master=buttons_box,
         text="Save Settings",
-        command=lambda: presenter.btn_save_view_tab("dirs"),
+        command=lambda: presenter.btn_save_view_tab("dirs"), style="TButton",
     ).pack(
         fill="both",
         expand=True,

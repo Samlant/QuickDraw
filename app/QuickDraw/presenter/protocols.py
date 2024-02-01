@@ -79,10 +79,19 @@ class EmailHandler(Protocol):
 
 class SubmissionModel(Protocol):
     def process_request(
-        self, submission_request: dict[str, str | bool | list[str]]
+        self,
+        view_results: dict[str, str | list[str]],
+        carriers: dict[str, bool] = None,
     ) -> Submission:
         ...
-
+    def process_quoteform(
+        self,
+        _quoteform_path: str,
+        carriers: dict[str, bool] = None,
+        not_validated: bool = True
+    ) -> Submission:
+        ...
+        
 
 class HomeModel(Protocol):
     def save_path(

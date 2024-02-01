@@ -172,7 +172,7 @@ class Presenter:
     def trigger_new_file(self, file: Path):
         print("Detected new Quoteform ")
         self.current_submission = self.model_submission.process_quoteform(
-            quoteform=file
+            _quoteform_path=file, carriers=None, not_validated=True,
         )
         print(f"the current client is: {self.current_submission.__repr__}")
         months = self.model_api.get_next_months()
@@ -182,20 +182,6 @@ class Presenter:
             view_palette=self.view_palette,
             submission_info=self.current_submission,
             months=months,
-        )
-
-    def allocate_markets(self):
-        self.view_allocate.initialize(
-            self,
-            VIEW_INTERPRETER,
-            self.view_palette,
-        )
-
-    def save_user_choices(self) -> None:
-        print("Saving choices")
-        self.model_allocate.process_user_choice(
-            self.view_allocate.markets,
-            self.current_submission,
         )
 
     def choice(self, choice: str):
@@ -221,6 +207,21 @@ class Presenter:
         qf.vessel = self.view_new_file_alert.vessel
         qf.referral = self.view_new_file_alert.referral
         return True
+    
+    def allocate_markets(self):
+        self.view_allocate.initialize(
+            self,
+            VIEW_INTERPRETER,
+            self.view_palette,
+        )
+
+    def save_allocated_markets(self) -> None:
+        print("Saving choices")
+        self.model_allocate.process_user_choice(
+            self.view_allocate.markets,
+            self.current_submission,
+        )
+
 
     #######################################################
     ############# Start Submissions Program #############
@@ -294,17 +295,15 @@ class Presenter:
         """TODO REFACTOR BELOW USING SUBMISSION & EMAIL MODELS!"""
         print("clicked send button")
         # Check if user only wants to view the msg prior to sending...
+        ########## IS THIS NECESSARY? SUMBIT TOOL FLAG? #############
+        self.current_submission.submit_tool = True
+        #############################################################
         self.only_view_msg = view_first
-        # Get fields from view_main
+        # Get fields from view_main & send to submission model for processing
         carriers = self.__get_carrier_results()
-        self.model_submission.process_request(
+        self.submission = self.model_submission.process_request(
             view_results=self.view_main.home,
             carriers=carriers,
-        )
-        submission_request = self.view_main.submission_request
-        # send to submission model for processing
-        self.current_submission = self.model_submission.process_request(
-            submission_request=submission_request
         )
         # extract above to be reused in other function for dialog windows...
         # once verified above,  then move on...
@@ -315,8 +314,6 @@ class Presenter:
         # Continue to prep the submission for an outlook email API call
         # Send the API call to send emails
         # Once sent,  make another API call to update Excel tracker entry.
-        self.current_submission.markets = self.gather_active_markets()
-        self.current_submission.submit_tool = True
         self.loop_through_envelopes()
 
     ########################################################

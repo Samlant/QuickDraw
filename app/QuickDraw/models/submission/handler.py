@@ -34,32 +34,40 @@ class SubmissionModel:
             view_results["attachments"].append(valid_path)
         # combine CC addresses into a single string if necessary.
         view_results["user_CC"] = self.process_user_CC(
-            view_results["user_CC1"], view_results["user_CC2"]
+            cc_1=view_results["user_CC1"], cc_2=view_results["user_CC2"],
         )
         assert isinstance(
             view_results["user_CC"], list[str]
         ), f"CC addresses are not strings within a list:\n{view_results['user_CC']}"
 
         submission = self._process_quoteform(
-            quoteform_path=quoteform_path, carriers=carriers
+            _quoteform_path=quoteform_path, carriers=carriers, not_validated=False,
         )
         return submission
 
-    def process_user_CC(cc_1: str, cc_2: str) -> str:
+    def process_user_CC(self, cc_1: str, cc_2: str,) -> str:
         cc_1_list = [x.strip() for x in cc_1.split(";")]
         cc_2_list = [x.strip() for x in cc_2.split(";")]
         cc = list(set(cc_1_list + cc_2_list))
+        validated_cc = []
         for email in cc:
-            if not validate_email(email):
-                raise ValueError(f"Invalid email address:\n{email}")
-        return ";".join(cc)
+            try:
+                email_info = validate_email(email, check_deliverability=False)
+                email = email_info.normalized
+            except EmailNotValidError as e:
+                print(str(e))
+            else:
+                validated_cc.append(email)
+        return ";".join(validated_cc)
 
     def _process_quoteform(
         self,
         _quoteform_path: str,
         carriers: dict[str, bool] = None,
+        not_validated: bool = True
     ) -> Submission:
-        quoteform_path = self.validate_paths(paths=_quoteform_path)
+        if not_validated:
+            quoteform_path = validate_path(paths=_quoteform_path)
         _ = FormBuilder()
         quoteform = _.make(quoteform=quoteform_path)
         customer: Customer = Customer(
@@ -128,34 +136,6 @@ class SubmissionModel:
     def _del_whitespace_invalid_chars(self, input: str) -> str:
         x = input.translate({ord(i): None for i in r'"() ,:;<>[\]'})
         return x
-
-    def _handle_getting_CC_addresses(self) -> list:
-        """Gets userinput of all CC addresses and adds the to a list. It then
-        checks if it should ignore the default CC addresses set in config file
-        or add them intothe list as well
-
-        Returns:
-                List -- returns a list of all desired CC adresses
-        """
-        list_of_cc = [self.view_main.user_CC1, self.view_main.user_CC2]
-        if self.view_main.use_CC_defaults:
-            if self.config_worker.check_if_using_default_carboncopies():
-                cc_from_config = [
-                    self.config_worker.get_value(
-                        {
-                            "section_name": "General settings",
-                            "key": "default_cc1",
-                        }
-                    ),
-                    self.config_worker.get_value(
-                        {
-                            "section_name": "General settings",
-                            "key": "default_cc2",
-                        }
-                    ),
-                ]
-                list_of_cc = list_of_cc + cc_from_config
-        return list_of_cc
 
     #######################################################
     #############  MS GRAPH API MODEL  ####################

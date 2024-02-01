@@ -40,6 +40,7 @@ else:
 
 
 class Carrier(NamedTuple):
+    friendly_name: str
     name: str
     id: str
     redundancies: int = 0
@@ -47,16 +48,16 @@ class Carrier(NamedTuple):
 
 
 AVAILABLE_CARRIERS = [
-    Carrier("Seawave", "SW", 3, 1),
-    Carrier("Primetime", "PT", 3, 1),
-    Carrier("NewHampshire", "NH", 3, 1),
-    Carrier("AmericanModern", "AM"),
-    Carrier("Kemah", "KM"),
-    Carrier("Concept", "CP"),
-    Carrier("Yachtinsure", "YI"),
-    Carrier("Century", "CE"),
-    Carrier("Intact", "IN"),
-    Carrier("Travelers", "TV"),
+    Carrier("Seawave", "Seawave", "SW", 3, 1),
+    Carrier("Primetime", "Primetime", "PT", 3, 1),
+    Carrier("New Hampshire", "NewHampshire", "NH", 3, 1),
+    Carrier("American Modern", "AmericanModern", "AM"),
+    Carrier("Kemah", "Kemah", "KM"),
+    Carrier("Concept", "Concept", "CP"),
+    Carrier("Yachtinsure", "Yachtinsure", "YI"),
+    Carrier("Century", "Century", "CE"),
+    Carrier("Intact", "Intact", "IN"),
+    Carrier("Travelers", "Travelers", "TV"),
 ]
 
 
@@ -78,11 +79,14 @@ Windows-specific error code indicating an invalid pathname.
 """
 
 
-def validate_path(pathname: str) -> Path:
-    if _is_path_exists_or_creatable_portable(pathname):
-        return Path(pathname).resolve()
-    else:
-        raise OSError
+def validate_paths(pathnames: list[str] | str) -> Path:
+    if isinstance(pathnames, str):
+        pathnames = [pathnames]
+    for path in pathnames:
+        if _is_path_exists_or_creatable_portable(path):
+            return Path(path).resolve()
+        else:
+            raise OSError
 
 
 def _is_path_exists_or_creatable_portable(pathname: str) -> bool:

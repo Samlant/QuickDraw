@@ -7,7 +7,7 @@ from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.submission.base.protocols import Presenter
 
 
-def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
+def make_email_widgets(view: Presenter, presenter: Presenter, palette: Palette):
     view.tabs.email.rowconfigure(3, minsize=100, pad=5)
     ### START TITLE ###
     title_frame = ttk.Frame(
@@ -28,13 +28,13 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     # BEGIN CC SETTINGS
     default_cc_lf = ttk.Labelframe(
         view.tabs.email,
-        text="""Want to CC specific groups of people by default?""",
+        text="""Want to CC specific groups of people by default?""", style="TLabelframe",
     )
     default_cc_lf.grid(column=0, row=1, sticky="nsew", padx=10)
     default_cc_lf.columnconfigure(1, minsize=660)
     ttk.Label(
         master=default_cc_lf,
-        text="CC Group 1:",
+        text="CC Group 1:", style="TLabel",
     ).grid(
         column=0,
         row=0,
@@ -46,7 +46,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
         default_cc_lf,
         textvariable=view._default_cc1,
         name="default_cc1",
-        font=1,
+        font=1, style="TEntry",
     )
     cc1.grid(
         column=1,
@@ -63,13 +63,13 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
         column=0,
         row=1,
         pady=6,
-        padx=(0, 5),
+        padx=(0, 5), style="TLabel",
     )
     cc2 = ttk.Entry(
         default_cc_lf,
         textvariable=view._default_cc2,
         name="default_cc2",
-        font=1,
+        font=1, style="TEntry",
     )
     cc2.grid(
         column=1,
@@ -84,19 +84,19 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     # BEGIN SIGNATURE SETTINGS
     signature_lf = ttk.Labelframe(
         view.tabs.email,
-        text="Email Signature Settings",
+        text="Email Signature Settings", style="TLabelframe",
     )
     signature_lf.grid(column=0, row=2, sticky="nsew", padx=10, pady=(15, 0))
     signature_lf.columnconfigure(2, minsize=170)
 
     ttk.Label(
         signature_lf,
-        text="Your name:",
+        text="Your name:", style="TLabel",
     ).grid(row=0, column=0, padx=(0, 5), pady=(5, 0))
     username_entry = ttk.Entry(
         master=signature_lf,
         textvariable=view._username,
-        font=1,
+        font=1, style="TEntry",
     )
     username_entry.grid(
         row=0,
@@ -108,21 +108,21 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
         ipady=3,
         sticky="w",
     )
-    ttk.Frame(signature_lf).grid(row=0, column=2, columnspan=3)
+    ttk.Frame(signature_lf, style="TFrame",).grid(row=0, column=2, columnspan=3)
     ttk.Label(
         signature_lf,
-        text="Name image:",
+        text="Name image:", style="TLabel",
     ).grid(row=1, column=0, padx=5, pady=(5, 0))
     view.sig_image_file_path = Text(
         signature_lf,
         name="sig_image_path_file",
         height=2,
         width=45,
-        foreground=style.alt_fg_color,
-        background=style.alt_bg_color,
-        highlightcolor=style.alt_bg_color,
-        selectbackground=style.alt_fg_color,
-        selectforeground=style.alt_bg_color,
+        foreground=palette.alt_fg_color,
+        background=palette.alt_bg_color,
+        highlightcolor=palette.alt_bg_color,
+        selectbackground=palette.alt_fg_color,
+        selectforeground=palette.alt_bg_color,
     )
     view.sig_image_file_path.grid(
         row=1,
@@ -140,7 +140,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     view.sig_image_btn = ttk.Button(
         signature_lf,
         command=view._browse_name_img,
-        text="Browse",
+        text="Browse", style="TButton",
     )
     view.sig_image_btn.grid(
         row=1,
@@ -152,7 +152,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     view.sig_upload_btn = ttk.Button(
         signature_lf,
         command=view._upload_img_btn,
-        text="Upload",
+        text="Upload", style="TButton",
     )
     view.sig_upload_btn.grid(
         row=1,
@@ -163,13 +163,13 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     )
     ### BUTTONS FRAME ###
     buttons_frame = ttk.Frame(
-        view.tabs.email,
+        view.tabs.email, style="TFrame",
     )
     buttons_frame.grid(column=0, row=3, sticky="nsew", padx=10, pady=5)
     ttk.Button(
         master=buttons_frame,
         text="Revert Back",
-        command=lambda: presenter.btn_revert_view_tab("email"),
+        command=lambda: presenter.btn_revert_view_tab("email"), style="TButton",
     ).pack(
         fill="both",
         expand=True,
@@ -180,7 +180,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, style: Palette):
     ttk.Button(
         master=buttons_frame,
         text="Save Settings",
-        command=lambda: presenter.btn_save_view_tab("email"),
+        command=lambda: presenter.btn_save_view_tab("email"), style="TButton",
     ).pack(
         fill="both",
         expand=True,

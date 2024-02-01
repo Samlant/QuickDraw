@@ -7,19 +7,19 @@ from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.submission.base.protocols import Presenter
 
 
-def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: Palette):
+def make_templates_widgets(view: base.MainWindow, presenter: Presenter, palette: Palette):
     view.tabs.templates.columnconfigure(0, minsize=740, pad=5)
     view.tabs.templates.rowconfigure(2, minsize=100, pad=5)
 
     title_frame = ttk.Frame(
         view.tabs.templates,
-        height=5,
+        height=5, style="TFrame",
     )
     title_frame.grid(column=0, row=0, pady=(0, 5), padx=10, sticky="n")
     ttk.Label(
         title_frame,
         text="Customize Email Templates for Each Underwriter",
-        style="Header.TLabel",
+        style="Header.TLabel", style="TLabel",
     ).pack(
         fill="x",
         expand=True,
@@ -28,12 +28,12 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
     )
     customize_msg_lf = ttk.Labelframe(
         view.tabs.templates,
-        text="Don't forget to save!",
+        text="Don't forget to save", style="TLabelframe",
     )
     customize_msg_lf.grid(column=0, row=1, padx=10, sticky="nsew")
 
     template_select_frame = ttk.Frame(
-        customize_msg_lf,
+        customize_msg_lf, style="TFrame",
     )
     template_select_frame.grid(
         column=0, row=0, padx=15, pady=10, sticky="nsew", columnspan=2
@@ -42,7 +42,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
         view,
         parent=template_select_frame,
         presenter=presenter,
-        style=style,
+        style=palette,
     )
     view.dropdown_menu.pack(padx=15, ipady=5, fill="x", expand=True)
     view._selected_template.trace_add(
@@ -59,7 +59,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
         master=customize_msg_lf,
         name="address",
         textvariable=view._address,
-        width=89,
+        width=89, style="TEntry",
         # validate="focusout",
         # validatecommand=presenter.on_focus_out,
     )
@@ -77,7 +77,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
 
     ttk.Label(
         customize_msg_lf,
-        text="Greeting:",
+        text="Greeting:", style="TLabel",
     ).grid(column=0, row=2)
 
     view.greet_entry = ttk.Entry(
@@ -101,7 +101,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
 
     ttk.Label(
         customize_msg_lf,
-        text="Body of the email:",
+        text="Body of the email:", style="TLabel",
     ).grid(column=0, row=3)
 
     view._body = Text(
@@ -110,11 +110,11 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
         width=73,
         height=5,
         wrap="word",
-        foreground=style.alt_fg_color,
-        background=style.alt_bg_color,
-        highlightcolor=style.alt_bg_color,
-        selectbackground=style.alt_fg_color,
-        selectforeground=style.alt_bg_color,
+        foreground=palette.alt_fg_color,
+        background=palette.alt_bg_color,
+        highlightcolor=palette.alt_bg_color,
+        selectbackground=palette.alt_fg_color,
+        selectforeground=palette.alt_bg_color,
     )
     view._body.grid(
         column=1,
@@ -129,14 +129,14 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
 
     ttk.Label(
         customize_msg_lf,
-        text="Outro:",
+        text="Outro:", style="TLabel",
     ).grid(column=0, row=4)
 
     view.outro_entry = ttk.Entry(
         customize_msg_lf,
         name="outro",
         textvariable=view._outro,
-        width=89,
+        width=89, style="TEntry",
     )
     view.outro_entry.grid(
         column=1,
@@ -149,14 +149,14 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
 
     ttk.Label(
         customize_msg_lf,
-        text="Salutation:",
+        text="Salutation:", style="TLabel",
     ).grid(column=0, row=5)
 
     view.sal_entry = ttk.Entry(
         customize_msg_lf,
         name="salutation",
         textvariable=view._salutation,
-        width=89,
+        width=89, style="TEntry",
     )
     view.sal_entry.grid(
         column=1,
@@ -168,14 +168,14 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
     view.sal_entry.bind("<FocusOut>", presenter.on_focus_out)
 
     buttons_frame = ttk.Frame(
-        view.tabs.templates,
+        view.tabs.templates, style="TFrame",
     )
     buttons_frame.grid(column=0, row=2, padx=10, sticky="nsew")
     ttk.Button(
         buttons_frame,
         name="btnResetTemplate",
         text="Revert Back",
-        command=lambda: presenter.btn_revert_view_tab("templates"),
+        command=lambda: presenter.btn_revert_view_tab("templates"), style="TButton",
     ).pack(
         padx=10,
         pady=10,
@@ -189,7 +189,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
         name="btnViewTemplate",
         text="View Current Example",
         width=20,
-        command=presenter.btn_view_template,
+        command=presenter.btn_view_template, style="TButton",
     ).pack(
         padx=4,
         pady=10,
@@ -203,7 +203,7 @@ def make_templates_widgets(view: base.MainWindow, presenter: Presenter, style: P
         name="btnSaveTemplate",
         text="Save",
         width=20,
-        command=presenter.btn_save_view_tab("templates"),
+        command=presenter.btn_save_view_tab("templates"), style="TButton",
     ).pack(
         padx=10,
         pady=10,
