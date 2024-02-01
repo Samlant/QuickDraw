@@ -21,8 +21,6 @@ class ViewInterface(Window):
             value = getattr(self, carrier.name.lower())
             submission_request[carrier.name] = value
         for key, value in self.home.items():
-            if key == "use_CC_defaults":
-                continue
             submission_request[key] = value
         return submission_request
 
@@ -31,10 +29,10 @@ class ViewInterface(Window):
     def home(self) -> dict[str, str]:
         return {
             "quoteform": self.quoteform,
-            "extra_attachments": self.extra_attachments,
+            "attachments": self.attachments,
             "extra_notes": self.extra_notes,
-            "userinput_CC1": self.userinput_CC1,
-            "userinput_CC2": self.userinput_CC2,
+            "user_CC1": self.user_CC1,
+            "user_CC2": self.user_CC2,
             "use_CC_defaults": self.use_CC_defaults,
         }
 
@@ -139,6 +137,7 @@ class ViewInterface(Window):
     def quoteforms(self):
         for attr in ALL_TABS["quoteforms"].keys():
             delattr(self, attr)
+
     # main_tab: getters/setters
     @property
     def extra_notes(self) -> str:
@@ -149,12 +148,12 @@ class ViewInterface(Window):
         self._extra_notes.delete("1.0")
 
     @property
-    def userinput_CC1(self) -> str:
-        return self._userinput_CC1.get("1.0", "end-1c")
+    def user_CC1(self) -> str:
+        return self._user_CC1.get("1.0", "end-1c")
 
     @property
-    def userinput_CC2(self) -> str:
-        return self._userinput_CC2.get("1.0", "end-1c")
+    def user_CC2(self) -> str:
+        return self._user_CC2.get("1.0", "end-1c")
 
     @property
     def use_CC_defaults(self) -> bool:
@@ -218,16 +217,16 @@ class ViewInterface(Window):
         self._quoteform.delete("1.0", "end")
 
     @property
-    def extra_attachments(self):
-        return self._extra_attachments.get("1.0", "end-1c")
+    def attachments(self):
+        return self._attachments.get("1.0", "end-1c")
 
-    @extra_attachments.setter
-    def extra_attachments(self, new_attachment: str):
-        self._extra_attachments.insert("1.0", new_attachment + "\n")
+    @attachments.setter
+    def attachments(self, new_attachment: str):
+        self._attachments.insert("1.0", new_attachment + "\n")
 
-    @extra_attachments.deleter
-    def extra_attachments(self):
-        self._extra_attachments.delete("1.0", "end")
+    @attachments.deleter
+    def attachments(self):
+        self._attachments.delete("1.0", "end")
 
     # customize_tab: getters/setters
     @property
@@ -268,7 +267,7 @@ class ViewInterface(Window):
 
     @body.deleter
     def body(self) -> None:
-        self._body.delete("1.0", "end-1c")
+        self._body.delete("1.0", "end")
 
     @property
     def outro(self) -> str:
@@ -337,7 +336,7 @@ class ViewInterface(Window):
 
     @sig_image_file_path.setter
     def sig_image_file_path(self, new_image_file: str):
-        self._sig_image_file_path.delete("1.0", "end")
+        del self._sig_image_file_path
         self._sig_image_file_path.insert("1.0", new_image_file)
 
     @sig_image_file_path.deleter

@@ -2,7 +2,7 @@ from tkinter import ttk, filedialog, StringVar, BooleanVar, Toplevel
 
 from tkinterdnd2 import TkinterDnD
 
-from QuickDraw.helper import CARRIERS, RED_LIGHT
+from QuickDraw.helper import AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import ALL_TABS
 from QuickDraw.views.themes.applicator import create_style
 
@@ -44,15 +44,16 @@ class Window:
                     setattr(
                         self,
                         "_" + var,
-                        BooleanVar(self.root, RED_LIGHT, var),
+                        BooleanVar(self.root, False, var),
                     )
 
-        for carrier in CARRIERS:
-            setattr(
-                self,
-                "_" + carrier.lower(),
-                StringVar(self.root, RED_LIGHT, carrier),
+        for carrier in AVAILABLE_CARRIERS:
+            var = BooleanVar(
+                self.root,
+                False,
+                carrier,
             )
+            setattr(self, "_" + carrier.name.lower(), var),
 
     def assign_window_traits(self):
         self.root.geometry("760x600")
@@ -102,20 +103,22 @@ class Window:
     def _browse_name_img(self):
         try:
             file_name = filedialog.askopenfile().name
-            self._sig_image_file_path.delete("1.0", "end")
-            self._sig_image_file_path.insert("1.0", file_name)
+            del self._sig_image_file_path
+            self._sig_image_file_path = file_name
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
         # del self.sig_image_file_path
 
     def _upload_img_btn(self):
         try:
-            file_path = self._sig_image_file_path.get("1.0", "end")
-            file_name = ""
+            file_path = self._sig_image_file_path
             # send URL request to upload img to hosting site
+            # save uri
+            uri = ""
+            # delete existing entry
+            # del self._sig_image_file_path
             # insert received response url into text box
-            self._sig_image_file_path.delete("1.0", "end")
-            self._sig_image_file_path.insert("1.0", file_name)
+            # self._sig_image_file_path = uri
         except AttributeError as e:
             print(f"caught {e}. Continuing on.")
 

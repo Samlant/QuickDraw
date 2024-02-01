@@ -40,8 +40,6 @@ from QuickDraw.views.themes import palettes
 
 from QuickDraw.helper import (
     MS_GRAPH_STATE_PATH,
-    GREEN_LIGHT,
-    RED_LIGHT,
     TRAY_ICON,
     APP_ICON,
     README,
@@ -102,10 +100,7 @@ def initialize_modules() -> Presenter:
     )
     model_submission = SubmissionModel()
     model_surplus_lines = SurplusLinesAutomator()
-    model_tab_home = HomeModel(
-        positive_value=GREEN_LIGHT,
-        negative_value=RED_LIGHT,
-    )
+    model_tab_home = HomeModel()
     model_tab_templates = TemplatesModel()
     # Views
     theme = get_theme()

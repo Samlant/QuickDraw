@@ -247,7 +247,7 @@ class Presenter:
             del self.view_main.quoteform
             self.view_main.quoteform = path
         else:
-            self.view_main.extra_attachments = path
+            self.view_main.attachments = path
 
     def process_file_path(
         self,
@@ -273,12 +273,34 @@ class Presenter:
         del self.view_main.attachments
         print("cleared attachments.")
 
+    def __get_carrier_results(self) -> dict[str, str | int | bool]:
+        carriers = []
+        for carrier in AVAILABLE_CARRIERS:
+            value = getattr(self.view_main, carrier.name.lower())
+            if value:
+                carriers.append(carrier.name)
+        return carriers
+
+    def __get_view_results(self) -> dict[str, str]:
+        submission_request = {}
+        for key, value in self.view_main.home.items():
+            submission_request[key] = value
+        return submission_request
+
+    def _get_view_submission_results(self):
+        view_results = self.__get_view_results()
+
     def btn_process_envelopes(self, view_first: bool = False) -> None:
         """TODO REFACTOR BELOW USING SUBMISSION & EMAIL MODELS!"""
         print("clicked send button")
         # Check if user only wants to view the msg prior to sending...
         self.only_view_msg = view_first
         # Get fields from view_main
+        carriers = self.__get_carrier_results()
+        self.model_submission.process_request(
+            view_results=self.view_main.home,
+            carriers=carriers,
+        )
         submission_request = self.view_main.submission_request
         # send to submission model for processing
         self.current_submission = self.model_submission.process_request(

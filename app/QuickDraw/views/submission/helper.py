@@ -4,7 +4,6 @@ from typing import Protocol
 
 from tkinterdnd2 import DND_FILES
 
-from QuickDraw.helper import GREEN_LIGHT, RED_LIGHT, AVAILABLE_CARRIERS
 from QuickDraw.views.submission import base
 from QuickDraw.views.themes.palettes import Palette
 
@@ -81,14 +80,14 @@ def make_drag_drop_txt_box(
     return box
 
 
-def make_checkbutton(parent, text: str, var: StringVar | IntVar | BooleanVar):
+def make_checkbutton(parent, text: str, var: BooleanVar):
     x = Checkbutton(
         parent=parent,
         name=text.lower(),
         text=text,
         variable=var,
-        onvalue=GREEN_LIGHT,
-        offvalue=RED_LIGHT,
+        onvalue=True,
+        offvalue=False,
         relief="raised",
         # font=("helvetica", 10, "bold"),
         justify="center",
@@ -127,10 +126,10 @@ def create_dropdown(view, parent, presenter: Presenter, style: Palette) -> Optio
 ALL_TABS = {
     "home": {
         "quoteform": "text",
-        "extra_attachments": "text",
+        "attachments": "text",
         "extra_notes": "text",
-        "userinput_CC1": "text",
-        "userinput_CC2": "text",
+        "user_CC1": "text",
+        "user_CC2": "text",
         "use_CC_defaults": "bool",
     },
     "templates": {

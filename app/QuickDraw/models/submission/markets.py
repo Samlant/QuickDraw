@@ -9,8 +9,9 @@ a = Carrier(
     id="1234567890",
     address="123 Main St.",
     greeting="Dear valued customer,\n\n",
-    body="We are pleased to inform you that your package has been delivered on ",
-    outro="Sincerely,\nThe FedEx Team",
+    body="We are pleased to inform you that your 
+        package has been delivered on ",
+        outro="Sincerely,\nThe FedEx Team",
     salutation="Best Regards",
 )
 b = Carriers(

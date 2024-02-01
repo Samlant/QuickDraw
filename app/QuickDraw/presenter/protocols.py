@@ -78,7 +78,9 @@ class EmailHandler(Protocol):
 
 
 class SubmissionModel(Protocol):
-    def process_request(self, submission_request: dict[str, str | bool | list[str]]) -> Submission:
+    def process_request(
+        self, submission_request: dict[str, str | bool | list[str]]
+    ) -> Submission:
         ...
 
 
@@ -179,7 +181,7 @@ class MainWindow(Protocol):
     dirs_values: dict[str, str]
     quoteforms_values: dict[str, str]
     quoteform: str
-    extra_attachments: str
+    attachments: str
     selected_template: str
     address: str
     greeting: str

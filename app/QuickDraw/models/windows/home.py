@@ -1,7 +1,6 @@
 from typing import Protocol
 from dataclasses import dataclass
 from pathlib import Path
-from QuickDraw.helper import GREEN_LIGHT
 
 from QuickDraw.helper import open_config
 from tkinter import filedialog

@@ -73,7 +73,7 @@ def make_home_widgets(
         labelframe_dd_ea,
         style,
         "raw_attachments_path_list",
-        lambda: presenter.process_file_path(path_purpose="extra_attachments"),
+        lambda: presenter.process_file_path(path_purpose="attachments"),
     )
     ttk.Button(
         labelframe_dd_ea,
@@ -137,7 +137,7 @@ def make_home_widgets(
         labelframe_cc,
         text="Add emails here to copy them:",
     ).pack(fill="x", expand=False, side="top")
-    view._userinput_CC1 = Text(
+    view._user_CC1 = Text(
         labelframe_cc,
         height=1,
         width=30,
@@ -147,14 +147,12 @@ def make_home_widgets(
         selectbackground=style.alt_fg_color,
         selectforeground=style.alt_bg_color,
     )
-    view._userinput_CC1.pack(
-        pady=2, ipady=4, anchor="n", fill="x", expand=False, side="top"
-    )
+    view._user_CC1.pack(pady=2, ipady=4, anchor="n", fill="x", expand=False, side="top")
     ttk.Label(
         labelframe_cc,
         text="2nd Optional list to copy:",
     ).pack(fill="x", expand=False, side="top")
-    view._userinput_CC2 = Text(
+    view._user_CC2 = Text(
         labelframe_cc,
         height=1,
         width=30,
@@ -164,7 +162,7 @@ def make_home_widgets(
         selectbackground=style.alt_fg_color,
         selectforeground=style.alt_bg_color,
     )
-    view._userinput_CC2.pack(ipady=4, anchor="n", fill="x", expand=False, side="top")
+    view._user_CC2.pack(ipady=4, anchor="n", fill="x", expand=False, side="top")
     ttk.Button(
         view.tabs.home,
         text="View Each Before Sending!",
@@ -183,14 +181,12 @@ def make_home_widgets(
     frame_right.grid(column=2, row=1, pady=(0, 5), sticky="n")
     for carrier in AVAILABLE_CARRIERS:
         attr_name = f"_{carrier.name.lower()}"
-        attr = attrgetter(attr_name)(view)
+        var = attrgetter(attr_name)(view)
         make_checkbutton(
             parent=frame_right,
             text=carrier.name,
-            int_variable=attr,
+            var=var,
         )
-        # attr used to be view._<carrier_name>
-        # we are trying to get the IntVar from view...
 
     ttk.Button(
         view.tabs.home,

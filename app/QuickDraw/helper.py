@@ -1,5 +1,9 @@
 from pathlib import Path
 from typing import NamedTuple
+import errno
+import os
+import sys
+import tempfile
 
 from tkinterdnd2 import TkinterDnD
 from configupdater import ConfigUpdater
@@ -7,8 +11,6 @@ from configupdater import ConfigUpdater
 # Insert config functions, PATHS constants, and TEST constant
 
 TEST = False
-GREEN_LIGHT = "yes"
-RED_LIGHT = "no"
 
 _view_backend = TkinterDnD.Tk()
 _view_backend.withdraw()
@@ -63,3 +65,91 @@ def open_config() -> ConfigUpdater:  # GOOD
     open_read_update = ConfigUpdater(comment_prefixes=("^",))
     open_read_update.read(CONFIG_PATH)
     return open_read_update
+
+
+#######################################################
+#######################################################
+################   PATH VALIDATION   ##################
+#######################################################
+#######################################################
+ERROR_INVALID_NAME = 123
+"""
+Windows-specific error code indicating an invalid pathname.
+"""
+
+
+def validate_path(pathname: str) -> Path:
+    if _is_path_exists_or_creatable_portable(pathname):
+        return Path(pathname).resolve()
+    else:
+        raise OSError
+
+
+def _is_path_exists_or_creatable_portable(pathname: str) -> bool:
+    """
+    `True` if the passed pathname is a valid pathname on the current OS _and_
+    either currently exists or is hypothetically creatable in a cross-platform
+    manner optimized for POSIX-unfriendly filesystems; `False` otherwise.
+
+    This function is guaranteed to _never_ raise exceptions.
+    """
+    try:
+        # To prevent "os" module calls from raising undesirable exceptions on
+        # invalid pathnames, __is_pathname_valid() is explicitly called first.
+        return __is_pathname_valid(pathname) and (
+            os.path.exists(pathname) or __is_path_sibling_creatable(pathname)
+        )
+    # Report failure on non-fatal filesystem complaints (e.g., connection
+    # timeouts, permissions issues) implying this path to be inaccessible. All
+    # other exceptions are unrelated fatal issues and should not be caught here.
+    except OSError:
+        return False
+
+
+def __is_pathname_valid(pathname: str) -> bool:
+    """
+    `True` if the passed pathname is a valid pathname for the current OS;
+    `False` otherwise.
+    """
+    try:
+        if not isinstance(pathname, str) or not pathname:
+            return False
+        _, pathname = os.path.splitdrive(pathname)
+
+        root_dirname = (
+            os.environ.get("HOMEDRIVE", "C:")
+            if sys.platform == "win32"
+            else os.path.sep
+        )
+        assert os.path.isdir(root_dirname)  # ...Murphy and her ironclad Law
+
+        root_dirname = root_dirname.rstrip(os.path.sep) + os.path.sep
+
+        for pathname_part in pathname.split(os.path.sep):
+            try:
+                os.lstat(root_dirname + pathname_part)
+            except OSError as exc:
+                if hasattr(exc, "winerror"):
+                    if exc.winerror == ERROR_INVALID_NAME:
+                        return False
+                elif exc.errno in {errno.ENAMETOOLONG, errno.ERANGE}:
+                    return False
+    except TypeError as exc:
+        return False
+    else:
+        return True
+
+
+def __is_path_sibling_creatable(pathname: str) -> bool:
+    """
+    `True` if the current user has sufficient permissions to create **siblings**
+    (i.e., arbitrary files in the parent directory) of the passed pathname;
+    `False` otherwise.
+    """
+    dirname = os.path.dirname(pathname) or os.getcwd()
+    try:
+        with tempfile.TemporaryFile(dir=dirname):
+            pass
+        return True
+    except EnvironmentError:
+        return False

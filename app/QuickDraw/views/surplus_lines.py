@@ -21,21 +21,29 @@ class SurplusLinesView:
 
     @property
     def output_dir(self) -> str:
-        self._output_dir.get("1.0", "end")
+        self._output_dir.get("1.0", "end-1c")
 
     @output_dir.setter
     def output_dir(self, new_output_dir) -> None:
-        self._output_dir.delete("1.0", "end")
+        del self._output_dir
         self._output_dir.insert("1.0", new_output_dir)
+
+    @output_dir.deleter
+    def output_dir(self) -> None:
+        self._output_dir.delete("1.0", "end")
 
     @property
     def doc_path(self) -> str:
-        self._doc_path.get("1.0", "end")
+        self._doc_path.get("1.0", "end-1c")
 
     @doc_path.setter
     def doc_path(self, new_doc_path) -> None:
-        self._doc_path.delete("1.0", "end")
+        del self._doc_path
         self._doc_path.insert("1.0", new_doc_path)
+
+    @doc_path.deleter
+    def doc_path(self) -> None:
+        self._doc_path.delete("1.0", "end")
 
     def show_view(
         self,
