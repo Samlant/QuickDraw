@@ -196,6 +196,8 @@ class Presenter:
             self._start_thread_for_excel()
 
         elif choice == "track_submit":
+            # SEND EXCEL API (in case submission prog crashes...)
+            self._start_thread_for_excel()
             self.start_submission_program(quote_path=self.submission.new_path)
         else:
             self._start_thread_for_excel()
@@ -216,9 +218,14 @@ class Presenter:
         )
 
     def save_allocated_markets(self) -> None:
+        "Save market choices"
         print("Saving choices")
         carriers = self.__get_carrier_results(self.view_allocate)
-        carrier_combos = self.get_carrier_combos(carrier_list=carriers)
+        # What does the below do? What do we need to do now? 
+        # Just send to excel API!!
+        # Send the Carrier classes to the excel call (containing the
+        # `carrier.id` for the call...)
+        # We only need the QF, customer, vessel & carrier.ids
         self.model_allocate.process_user_choice(
             carriers,
             self.submission,
@@ -257,7 +264,8 @@ class Presenter:
         path_purpose: str,
         quote_path: str = None,
     ) -> None:
-        """Sends the raw path of attachment/quoteform to model for processing and saving."""
+        """Sends the raw path of attachment/quoteform to model for 
+        processing and saving."""
         if quote_path:
             path = quote_path
         else:
@@ -286,16 +294,6 @@ class Presenter:
                 carriers.append(carrier)
         return carriers
 
-    def __get_view_results(self) -> dict[str, str]:
-        submission_request = {}
-        for key, value in self.view_main.home.items():
-            submission_request[key] = value
-        return submission_request
-
-    def _get_view_submission_results(self):
-        "TODO delete this function if necessary"
-        view_results = self.__get_view_results()
-
     def btn_process_envelopes(self, view_first: bool = False) -> None:
         """TODO REFACTOR BELOW USING SUBMISSION & EMAIL MODELS!"""
         print("clicked send button")
@@ -307,7 +305,9 @@ class Presenter:
         # Get fields from view_main & send to submission model for processing
         carriers = self.__get_carrier_results(self.view_main)
         carrier_combos = self.get_carrier_combos(carrier_list=carriers)
-
+        view_results = self.view_main.home_values
+        # turn carriers into markets, then insert into submission...
+        submission = self.model_submission.process_quoteform()
         self.submission = self.model_submission.process_request(
             view_results=self.view_main.home,
             carriers=carriers,
@@ -349,7 +349,7 @@ class Presenter:
 
     def _set_tab_placeholders(self, tab_name: str) -> bool:
         tab_placeholders = self.__get_tab_placeholders(tab_name)
-        self.__assign_placeholders(tab_placeholders=tab_placeholders, tab_name=tab_name)
+        self.__assign_placeholders(tab_placeholders=tab_placeholders, tab_name=tab_name,)
         return True
 
     def __get_tab_placeholders(self, tab_name) -> dict[str, str]:
@@ -387,17 +387,14 @@ class Presenter:
         """Get all combinations of carriers given a list of carriers (which
         may contain redundant carriers)."""
         combos: list[tuple[protocols.Carrier, str]] = []
-        redundancies: dict[int, list[tuple[protocols.Carrier, str]]] = {}
+        redundancies: dict[int, list[str]] = {}
         for carrier in carrier_list:
-            combos.append((carrier, carrier.name))
+            combos.append(carrier.name)
             if carrier.redundancy_group != 0:
                 if carrier.redundancy_group not in redundancies:
                     redundancies[carrier.redundancy_group] = []
                 redundancies[carrier.redundancy_group].append(
-                    (
-                        carrier,
                         carrier.name,
-                    )
                 )
         for carriers in redundancies.values():
             count = len(carriers)
@@ -440,7 +437,8 @@ class Presenter:
                         config.set(section=tab_name, option=key, value=x[key])
 
     def on_focus_out(self, event) -> bool | None:
-        """Replaces blank text on template tab with prior saved data from config. This is done because templates should never be blank."""
+        """Replaces blank text on template tab with prior saved data 
+        from config. This is done because templates should never be blank."""
         carrier = self.view_main.selected_template
         widget_name = event.widget.winfo_name()
         widget_type = event.widget.widgetName

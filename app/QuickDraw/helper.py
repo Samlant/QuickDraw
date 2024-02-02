@@ -85,7 +85,7 @@ def validate_paths(pathnames: str | list[str]) -> Path | list[Path]:
             return Path(path).resolve()
         else:
             raise OSError
-    else;
+    else:
         validated_paths = []
         for path in pathnames:
             if _is_path_exists_or_creatable_portable(path):

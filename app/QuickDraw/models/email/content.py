@@ -19,7 +19,7 @@ class EmailContent:
         conf = open_config()
         try:
             for var in vars:
-                setattr(self, var, config.get(self.carrier.name, var).value)
+                setattr(self, var, conf.get(self.carrier.name, var).value)
         except TypeError as te:
             print(f"Check template settings to ensure all required parts have something assigned to them!\nparts needed: {vars}\n{e}")
     

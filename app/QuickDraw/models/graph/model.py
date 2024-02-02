@@ -4,20 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import base64
 
-
-@dataclass
-class CurrentSubmission(Protocol):
-    def __init__(self) -> None:
-        self.fname: str
-        self.lname: str
-        self.vessel: str
-        self.vessel_year: int
-        self.referral: str
-        self.status: str
-        self.extra_attachements: list
-        self.markets: list[str]
-        self.submit_tool: bool
-        self.username: str
+from QuickDraw.presenter.protocols import Submission, Quoteform
 
 
 months: dict[int, str] = {

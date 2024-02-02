@@ -1,7 +1,8 @@
 from typing import Protocol
 from pathlib import Path
 from tkinter import StringVar, Tk, Toplevel, ttk
-
+from tkinter.ttk import Style
+from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.themes.applicator import create_style
 
 
@@ -34,9 +35,12 @@ class NewFileAlert:
         self,
         icon_src,
     ) -> None:
+        self.icon_path = icon_src
         self.submission_info: Submission = None
         self.presenter: Presenter = None
-        self.icon_path = icon_src
+        self.root: Toplevel = None
+        self.style: Style = None
+        self.palette: Palette = None
 
     @property
     def selected_month(self) -> str:
@@ -86,14 +90,10 @@ class NewFileAlert:
         current_month: str,
     ):
         self.__assign_window_attributes(view_interpreter, view_palette)
-        self.root.text_frame = ttk.Frame(self.root, bg="#CFEBDF")
-        self.root.text_frame.pack(fill="both", expand=True)
-        self.root.btn_frame = ttk.Frame(self.root, bg="#CFEBDF")
-        self.root.btn_frame.pack(fill="both", expand=True, ipady=2)
-        self._selected_template = StringVar(value=current_month.capitalize())
-        self._vessel = StringVar(name="vessel", value="")
-        self._year = StringVar(name="year", value="")
-        self._referral = StringVar(name="referral", value="")
+        self._selected_template = StringVar(master=self.root, value=current_month.capitalize())
+        self._vessel = StringVar(master=self.root, value="", name="vessel",)
+        self._year = StringVar(master=self.root, value="", name="year",)
+        self._referral = StringVar(master=self.root, value="", name="referral",)
 
     def __assign_window_attributes(self, view_interpreter: Tk, view_palette):
         self.root: Toplevel = Toplevel(
@@ -120,53 +120,62 @@ class NewFileAlert:
             ]
         )
 
-        self.root.text_frame.grid_columnconfigure(0, weight=1)
-        self.root.btn_frame.grid_columnconfigure(0, weight=1)
+        text_frame = ttk.Frame(master=self.root, style="TFrame",)
+        text_frame.pack(fill="both", expand=True)
+        btn_frame = ttk.Frame(master=self.root, style="TFrame",)
+        btn_frame.pack(fill="both", expand=True, ipady=2)
+        text_frame.grid_columnconfigure(0, weight=1)
+        btn_frame.grid_columnconfigure(0, weight=1)
 
-        ttk.Label(self.root.text_frame, text="Client name: ").grid(
+        ttk.Label(text_frame, text="Client name: ", style="TLabel",).grid(
             column=0, row=0, pady=(3, 0)
         )
         name_entry = ttk.Entry(
-            self.root.text_frame,
+            text_frame,
             width=30,
             justify="center",
+            style="TEntry"
         )
         name_entry.insert(0, client_name)
         name_entry.configure(state="readonly")
         name_entry.grid(column=0, row=1, pady=(0, 8))
 
-        ttk.Label(self.root.text_frame, text="Vessel: ").grid(column=0, row=2)
+        ttk.Label(text_frame, text="Vessel: ", style="TLabel",).grid(column=0, row=2)
         vessel_entry = ttk.Entry(
-            self.root.text_frame,
+            text_frame,
             textvariable=self._vessel,
             width=30,
             justify="center",
+            style="TEntry",
         )
         self.vessel = submission_info.vessel
         vessel_entry.grid(column=0, row=3, pady=(0, 8))
 
-        ttk.Label(self.root.text_frame, text="Vessel year: ").grid(column=0, row=4)
+        ttk.Label(text_frame, text="Vessel year: ", style="TLabel",).grid(column=0, row=4)
         year_entry = ttk.Entry(
-            self.root.text_frame,
+            text_frame,
             textvariable=self._year,
             width=10,
             justify="center",
+            style="TEntry",
         )
         self.year = submission_info.vessel_year
         year_entry.grid(column=0, row=5, pady=(0, 8))
 
-        ttk.Label(self.root.text_frame, text="Referral: ").grid(column=0, row=6)
+        ttk.Label(text_frame, text="Referral: ", style="TLabel",
+                  ).grid(column=0, row=6)
         referral_entry = ttk.Entry(
-            self.root.text_frame,
+            text_frame,
             textvariable=self._referral,
             width=30,
             justify="center",
+            style="TEntry",
         )
         self.referral = submission_info.quoteform.referral
         referral_entry.grid(column=0, row=7, pady=(0, 7))
         if submission_info.quoteform.referral.lower() == "renewal":
-            ttk.Label(self.root.text_frame, text="Add Client to Month:").grid(
-                column=0, row=8
+            ttk.Label(text_frame, text="Add Client to Month:", style="TLabel",).grid(
+                column=0, row=8,
             )
             self.root.geometry("300x448")
             options: list[str] = [
@@ -175,7 +184,7 @@ class NewFileAlert:
                 months[2].capitalize(),
             ]
             dropdown_menu = ttk.OptionMenu(
-                self.root.text_frame, self._selected_template, *options
+                text_frame, self._selected_template, *options
             )
             dropdown_menu.configure(
                 background=self.palette.btn_base_bg,
@@ -196,31 +205,34 @@ class NewFileAlert:
             dropdown_menu.grid(column=0, row=9, pady=(0, 7))
 
         create_folder_only_btn = ttk.Button(
-            self.root.btn_frame,
+            btn_frame,
             text="Create Folder & Track Client",
             width=36,
             height=3,
             command=lambda: self.presenter.choice("track_create"),
             default="active",
+            style="TButton",
         )
         create_folder_only_btn.grid(row=0, column=0, padx=5, pady=(0, 0))
 
         allocate_btn = ttk.Button(
-            self.root.btn_frame,
+            btn_frame,
             text="Create & Track Client + Allocate Markets",
             width=36,
             height=3,
             command=lambda: self.presenter.choice("track_allocate"),
             default="active",
+            style="TButton",
         )
         allocate_btn.grid(row=1, column=0, padx=5, pady=(3, 3))
 
         submit_btn = ttk.Button(
-            self.root.btn_frame,
+            btn_frame,
             text="Create & Track Client + SUBMIT to Markets",
             width=36,
             height=3,
             command=lambda: self.presenter.choice("track_submit"),
             default="active",
+            style="TButton",
         )
         submit_btn.grid(row=2, column=0, padx=5, pady=(0, 5))

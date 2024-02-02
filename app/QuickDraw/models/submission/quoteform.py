@@ -68,7 +68,7 @@ class FormBuilder:
     def __init__(self) -> None:
         pass
 
-    def make(self, quoteform: Path) -> Submission | bool:
+    def make(self, quoteform: Path) -> Quoteform | bool:
         """Wrapper function for processing a PDF form and creating a Quoteform obj from it."""
         print("Processing/Parsing PDF document.")
         count = 0

@@ -34,7 +34,7 @@ def set_start_tab(obj, specific_tab: str) -> None:
 
 def make_drag_drop_txt_box(
     parent: Frame,
-    style: Palette,
+    palette: Palette,
     name: str,
     command,
 ) -> Text:
@@ -44,11 +44,11 @@ def make_drag_drop_txt_box(
         name=name,
         height=8,
         width=10,
-        foreground=style.alt_fg_color,
-        background=style.alt_bg_color,
-        highlightcolor=style.alt_bg_color,
-        selectbackground=style.alt_fg_color,
-        selectforeground=style.alt_bg_color,
+        foreground=palette.alt_fg_color,
+        background=palette.alt_bg_color,
+        highlightcolor=palette.alt_bg_color,
+        selectbackground=palette.alt_fg_color,
+        selectforeground=palette.alt_bg_color,
     )
     box.drop_target_register(DND_FILES)
     box.dnd_bind("<<Drop>>", command)
@@ -58,7 +58,7 @@ def make_drag_drop_txt_box(
 def make_checkbutton(parent, text: str, var: BooleanVar):
     x = Checkbutton(
         parent=parent,
-        name=text.lower(),
+        name=text,
         text=text,
         variable=var,
         onvalue=True,
@@ -71,27 +71,28 @@ def make_checkbutton(parent, text: str, var: BooleanVar):
         bg="#5F634F",
         selectcolor="#000000",
     )
+    return x
 
 
-def create_dropdown(view, parent, presenter: Presenter, style: Palette) -> OptionMenu:
+def create_dropdown(view, parent, presenter: Presenter, palette: Palette) -> OptionMenu:
     """Creates the OptionMenu widget separately for less coupling."""
     options: list[str] = presenter.get_carrier_combos()
     menu = OptionMenu(parent, view._selected_template, *options)
     menu.configure(
-        background=style.btn_base_bg,
-        foreground=style.btn_fg,
-        activebackground=style.btn_active_bg,
-        activeforeground=style.btn_fg,
-        highlightbackground=style.alt_bg_color,
+        background=palette.btn_base_bg,
+        foreground=palette.btn_fg,
+        activebackground=palette.btn_active_bg,
+        activeforeground=palette.btn_fg,
+        highlightbackground=palette.alt_bg_color,
         highlightcolor="red",
         font=("helvetica", 14, "normal"),
         width=54,
     )
     menu["menu"].configure(
-        background=style.menuoption_bg_color,
-        foreground=style.menuoption_fg_color,
-        activebackground=style.menuoption_fg_color,
-        activeforeground=style.menuoption_bg_color,
+        background=palette.menuoption_bg_color,
+        foreground=palette.menuoption_fg_color,
+        activebackground=palette.menuoption_fg_color,
+        activeforeground=palette.menuoption_bg_color,
         selectcolor="red",
     )
     return menu

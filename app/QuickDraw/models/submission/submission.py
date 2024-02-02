@@ -1,5 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass
+from typing import Literal
 
 from QuickDraw.models.submission.customer import Customer
 from QuickDraw.models.submission.markets import Market, Markets
@@ -12,9 +13,13 @@ class Submission:
     quoteform: Quoteform
     customer: Customer
     vessel: Vessel
-    status: str
-    markets: list[Market | Markets]
-    attachments: list[Path]
+    status: Literal[
+        "ALLOCATE AND SUBMIT TO MRKTS",
+        "SUBMIT TO MRKTS",
+        "PENDING WITH UW",
+        ] = "ALLOCATE AND SUBMIT TO MRKTS"
+    markets: list[Market | Markets] = []
+    attachments: list[Path] = []
     submit_tool: bool = False
 
 

@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Literal
 from pathlib import Path
 from tkinterdnd2 import TkinterDnD
 from tkinter.ttk import Style
@@ -8,6 +8,21 @@ from tkinter.ttk import Style
 ####################    OBJs    ####################
 ####################################################
 
+class Carrier(Protocol):
+    friendly_name: str
+    name: str
+    id: str
+    redundancies: int
+    redundancy_group: int
+
+class Customer(Protocol):
+    fname: str
+    lname: str
+    referral: str
+
+class Vessel(Protocol):
+    year: str
+    make: str
 
 class Quoteform(Protocol):
     path: Path
@@ -18,14 +33,40 @@ class Quoteform(Protocol):
     vessel: str
     referral: str
 
+class Market(Protocol):
+    _ids: int
+    name: str
+    id: str
+    address: str
+    greeting: str
+    body: str
+    outro: str
+    salutation: str
+
+class Markets(Protocol):
+    num_of_carriers: int
+    names: list[str]
+    _ids: int
+    name: str
+    id: str
+    address: str
+    greeting: str
+    body: str
+    outro: str
+    salutation: str
 
 class Submission(Protocol):
     quoteform: Quoteform
-    new_path: Path = None
-    status: str
-    attachments: list = None
-    markets: list[str] = ""
-    submit_tool: bool = False
+    customer: Customer
+    vessel: Vessel
+    status: Literal[
+        "ALLOCATE AND SUBMIT TO MRKTS",
+        "SUBMIT TO MRKTS",
+        "PENDING WITH UW",
+        ]
+    markets: list[Market | Markets]
+    attachments: list[Path]
+    submit_tool: bool
 
 
 ####################################################
@@ -272,9 +313,3 @@ class SurplusLinesView(Protocol):
         ...
 
 
-class Carrier(Protocol):
-    friendly_name: str
-    name: str
-    id: str
-    redundancies: int
-    redundancy_group: int
