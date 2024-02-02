@@ -52,8 +52,8 @@ AVAILABLE_CARRIERS = [
     Carrier("Primetime", "Primetime", "PT", 3, 1),
     Carrier("New Hampshire", "NewHampshire", "NH", 3, 1),
     Carrier("American Modern", "AmericanModern", "AM"),
-    Carrier("Kemah", "Kemah", "KM"),
-    Carrier("Concept", "Concept", "CP"),
+    Carrier("Kemah Marine", "Kemah", "KM"),
+    Carrier("Concept Special Risks", "Concept", "CP"),
     Carrier("Yachtinsure", "Yachtinsure", "YI"),
     Carrier("Century", "Century", "CE"),
     Carrier("Intact", "Intact", "IN"),
@@ -79,14 +79,20 @@ Windows-specific error code indicating an invalid pathname.
 """
 
 
-def validate_paths(pathnames: list[str] | str) -> Path:
+def validate_paths(pathnames: str | list[str]) -> Path | list[Path]:
     if isinstance(pathnames, str):
-        pathnames = [pathnames]
-    for path in pathnames:
-        if _is_path_exists_or_creatable_portable(path):
+        if _is_path_exists_or_creatable_portable(pathnames):
             return Path(path).resolve()
         else:
             raise OSError
+    else;
+        validated_paths = []
+        for path in pathnames:
+            if _is_path_exists_or_creatable_portable(path):
+                validated_paths.append(Path(path).resolve())
+            else:
+                raise OSError
+        return validated_paths
 
 
 def _is_path_exists_or_creatable_portable(pathname: str) -> bool:

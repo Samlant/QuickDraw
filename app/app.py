@@ -94,7 +94,6 @@ def initialize_modules() -> Presenter:
     )
     model_dir_watcher = DirWatch(path_to_watch=watch_dir)
     model_email_handler = EmailHandler()
-    model_form_builder = FormBuilder()
     model_new_alert = AlertModel(
         icon_src=str(APP_ICON),
     )
@@ -120,7 +119,6 @@ def initialize_modules() -> Presenter:
         model_dir_handler=model_dir_handler,
         model_dir_watcher=model_dir_watcher,
         model_email_handler=model_email_handler,
-        model_form_builder=model_form_builder,
         model_new_alert=model_new_alert,
         model_submission=model_submission,
         model_surplus_lines=model_surplus_lines,

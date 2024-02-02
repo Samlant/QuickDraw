@@ -84,14 +84,15 @@ class SubmissionModel(Protocol):
         carriers: dict[str, bool] = None,
     ) -> Submission:
         ...
+
     def process_quoteform(
         self,
         _quoteform_path: str,
         carriers: dict[str, bool] = None,
-        not_validated: bool = True
+        not_validated: bool = True,
     ) -> Submission:
         ...
-        
+
 
 class HomeModel(Protocol):
     def save_path(
@@ -174,16 +175,16 @@ class AllocateView(Protocol):
 class MainWindow(Protocol):
     extra_notes: str
     use_CC_defaults: bool
-    seawave: str | int | bool | list
-    primetime: str | int | bool | list
-    newhampshire: str | int | bool | list
-    americanmodern: str | int | bool | list
-    kemah: str | int | bool | list
-    concept: str | int | bool | list
-    yachtinsure: str | int | bool | list
-    century: str | int | bool | list
-    intact: str | int | bool | list
-    travelers: str | int | bool | list
+    Seawave: bool
+    Primetime: bool
+    NewHampshire: bool
+    AmericanModern: bool
+    Kemah: bool
+    Concept: bool
+    Yachtinsure: bool
+    Century: bool
+    Intact: bool
+    Travelers: bool
     home_values: dict[str, str]
     templates_values: dict[str, str]
     email_values: dict[str, str]
@@ -269,3 +270,11 @@ class SurplusLinesView(Protocol):
         view_palette: Style,
     ):
         ...
+
+
+class Carrier(Protocol):
+    friendly_name: str
+    name: str
+    id: str
+    redundancies: int
+    redundancy_group: int

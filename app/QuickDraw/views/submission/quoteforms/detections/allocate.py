@@ -22,28 +22,45 @@ class AllocateView:
         self.presenter: Presenter = None
 
     @property
-    def markets(self) -> dict[str, any]:
-        """Retrieves all market options and
-        whether the user wants to submit to
-        those markets within a dict."""
-        dict_of_markets = {
-            "ch": self.ch_checkbtn.get(),
-            "mk": self.mk_checkbtn.get(),
-            "ai": self.ai_checkbtn.get(),
-            "am": self.am_checkbtn.get(),
-            "pg": self.pg_checkbtn.get(),
-            "sw": self.sw_checkbtn.get(),
-            "km": self.km_checkbtn.get(),
-            "cp": self.cp_checkbtn.get(),
-            # "yi": self.yi_checkbtn.get(),
-            "nh": self.nh_checkbtn.get(),
-            # "sf": self.sf_checkbtn.get(),
-            "In": self.In_checkbtn.get(),
-            "tv": self.tv_checkbtn.get(),
-        }
-        self.root.destroy()
-        return dict_of_markets
-    
+    def Seawave(self) -> str:
+        return self._Seawave.get()
+
+    @property
+    def Primetime(self) -> str:
+        return self._Primetime.get()
+
+    @property
+    def NewHampshire(self) -> str:
+        return self._NewHampshire.get()
+
+    @property
+    def AmericanModern(self) -> str:
+        return self._AmericanModern.get()
+
+    @property
+    def Kemah(self) -> str:
+        return self._Kemah.get()
+
+    @property
+    def Concept(self) -> str:
+        return self._Concept.get()
+
+    @property
+    def Yachtinsure(self) -> str:
+        return self._Yachtinsure.get()
+
+    @property
+    def Century(self) -> str:
+        return self._Century.get()
+
+    @property
+    def Intact(self) -> str:
+        return self._Intact.get()
+
+    @property
+    def Travelers(self) -> str:
+        return self._Travelers.get()
+
     def initialize(
         self,
         presenter: Presenter,
@@ -120,28 +137,3 @@ class AllocateView:
             ipady=6,
             ipadx=10,
         )
-
-    def __create_button(self, text: str, var: BooleanVar):
-        x = Checkbutton(
-            parent=frame,
-            text=text,
-            variable=var,
-            onvalue=True,
-            offvalue=False,
-            relief="raised",
-            justify="center",
-            anchor="w",
-            background=self.palette.alt_bg_color,
-            foreground=self.palette.alt_fg_color,
-            selectcolor="#000000",
-        )
-        x.pack(
-            fill="x",
-            expand=False,
-            ipady=6,
-            ipadx=10,
-            pady=3,
-            padx=10,
-            anchor="nw",
-        )
-

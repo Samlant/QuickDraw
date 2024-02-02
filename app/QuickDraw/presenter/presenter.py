@@ -46,7 +46,6 @@ class Presenter:
         model_dir_watcher: protocols.DirWatch,
         model_email_handler: protocols.EmailHandler,
         model_email_options: protocols.EmailOptionsModel,
-        model_form_builder: protocols.FormBuilder,
         model_new_alert: protocols.AlertModel,
         model_surplus_lines: protocols.SurplusLinesAutomator,
         model_submission: protocols.SubmissionModel,
@@ -67,7 +66,6 @@ class Presenter:
         self.model_dir_watcher = model_dir_watcher
         self.model_email_handler = model_email_handler
         self.model_email_options = model_email_options
-        self.model_form_builder = model_form_builder
         self.model_new_alert = model_new_alert
         self.model_submission = model_submission
         self.model_surplus_lines = model_surplus_lines
@@ -81,7 +79,7 @@ class Presenter:
         self.view_palette = view_palette
         self.view_surplus_lines = view_surplus_lines
         self.quoteform: Quoteform = None
-        self.current_submission = None
+        self.submission = None
         self.only_view_msg: bool = None
         self.run_flag: bool = False
         self.run_template_settings_flag: bool = False
@@ -121,7 +119,7 @@ class Presenter:
         print("creating call to send to Microsoft API")
         config = open_config()
         username = config.get("General settings", "username")
-        json = self.model_api.create_excel_json(self.current_submission, username)
+        json = self.model_api.create_excel_json(self.submission, username)
         self.model_api_client.run_excel_program(
             json_payload=json,
         )
@@ -171,23 +169,25 @@ class Presenter:
 
     def trigger_new_file(self, file: Path):
         print("Detected new Quoteform ")
-        self.current_submission = self.model_submission.process_quoteform(
-            _quoteform_path=file, carriers=None, not_validated=True,
+        self.submission = self.model_submission.process_quoteform(
+            _quoteform_path=file,
+            carriers=None,
+            not_validated=True,
         )
-        print(f"the current client is: {self.current_submission.__repr__}")
+        print(f"the current client is: {self.submission.__repr__}")
         months = self.model_api.get_next_months()
         self.view_new_file_alert.initialize(
             presenter=self,
             view_interpreter=VIEW_INTERPRETER,
             view_palette=self.view_palette,
-            submission_info=self.current_submission,
+            submission_info=self.submission,
             months=months,
         )
 
     def choice(self, choice: str):
         self.quoteform_detected = True
         self.model_dir_handler.process_dirs(
-            self.current_submission,
+            self.submission,
         )
         self._refresh_quoteform_with_user_input()
         self.view_new_file_alert.root.destroy()
@@ -196,18 +196,18 @@ class Presenter:
             self._start_thread_for_excel()
 
         elif choice == "track_submit":
-            self.start_submission_program(quote_path=self.current_submission.new_path)
+            self.start_submission_program(quote_path=self.submission.new_path)
         else:
             self._start_thread_for_excel()
 
     def _refresh_quoteform_with_user_input(self) -> bool:
         self.excel_table_name = self.view_new_file_alert.selected_month
-        qf = self.current_submission.quoteform
+        qf = self.submission.quoteform
         qf.vessel_year = self.view_new_file_alert.year
         qf.vessel = self.view_new_file_alert.vessel
         qf.referral = self.view_new_file_alert.referral
         return True
-    
+
     def allocate_markets(self):
         self.view_allocate.initialize(
             self,
@@ -217,11 +217,12 @@ class Presenter:
 
     def save_allocated_markets(self) -> None:
         print("Saving choices")
+        carriers = self.__get_carrier_results(self.view_allocate)
+        carrier_combos = self.get_carrier_combos(carrier_list=carriers)
         self.model_allocate.process_user_choice(
-            self.view_allocate.markets,
-            self.current_submission,
+            carriers,
+            self.submission,
         )
-
 
     #######################################################
     ############# Start Submissions Program #############
@@ -274,12 +275,15 @@ class Presenter:
         del self.view_main.attachments
         print("cleared attachments.")
 
-    def __get_carrier_results(self) -> dict[str, str | int | bool]:
+    def __get_carrier_results(
+        self,
+        view: protocols.AllocateView | protocols.MainWindow,
+    ) -> list[protocols.Carrier]:
         carriers = []
         for carrier in AVAILABLE_CARRIERS:
-            value = getattr(self.view_main, carrier.name.lower())
+            value = getattr(view, carrier.name)
             if value:
-                carriers.append(carrier.name)
+                carriers.append(carrier)
         return carriers
 
     def __get_view_results(self) -> dict[str, str]:
@@ -289,6 +293,7 @@ class Presenter:
         return submission_request
 
     def _get_view_submission_results(self):
+        "TODO delete this function if necessary"
         view_results = self.__get_view_results()
 
     def btn_process_envelopes(self, view_first: bool = False) -> None:
@@ -296,11 +301,13 @@ class Presenter:
         print("clicked send button")
         # Check if user only wants to view the msg prior to sending...
         ########## IS THIS NECESSARY? SUMBIT TOOL FLAG? #############
-        self.current_submission.submit_tool = True
+        self.submission.submit_tool = True
         #############################################################
         self.only_view_msg = view_first
         # Get fields from view_main & send to submission model for processing
-        carriers = self.__get_carrier_results()
+        carriers = self.__get_carrier_results(self.view_main)
+        carrier_combos = self.get_carrier_combos(carrier_list=carriers)
+
         self.submission = self.model_submission.process_request(
             view_results=self.view_main.home,
             carriers=carriers,
@@ -373,23 +380,32 @@ class Presenter:
                 setattr(self.view_main, key, value)
         return True
 
-    def set_dropdown_options(self) -> list[str]:
-        "Submission (View) calls this value upon creation."
-        options: list[str] = []
-        redundancies: dict[int, list[str]] = {}
-        for carrier in AVAILABLE_CARRIERS:
-            options.append(carrier.name)
+    def get_carrier_combos(
+        self,
+        carrier_list: list[protocols.Carrier] = AVAILABLE_CARRIERS,
+    ) -> list[str]:
+        """Get all combinations of carriers given a list of carriers (which
+        may contain redundant carriers)."""
+        combos: list[tuple[protocols.Carrier, str]] = []
+        redundancies: dict[int, list[tuple[protocols.Carrier, str]]] = {}
+        for carrier in carrier_list:
+            combos.append((carrier, carrier.name))
             if carrier.redundancy_group != 0:
                 if carrier.redundancy_group not in redundancies:
                     redundancies[carrier.redundancy_group] = []
-                redundancies[carrier.redundancy_group].append(carrier.name)
-        for group, carriers in redundancies.items():
+                redundancies[carrier.redundancy_group].append(
+                    (
+                        carrier,
+                        carrier.name,
+                    )
+                )
+        for carriers in redundancies.values():
             count = len(carriers)
             while count > 1:
                 for combo in itertools.combinations(carriers, count):
-                    options.append(f'Combination: {" + ".join(combo)}')
+                    combos.append(f'Combination: {" + ".join(combo)}')
                 count -= 1
-        return options
+        return combos
 
     def on_change_template(self, *args, **kwargs) -> None:
         """Updates template tab view when user changes template."""

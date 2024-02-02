@@ -164,44 +164,44 @@ class ViewInterface(Window):
         self._use_CC_defaults.set(usage)
 
     @property
-    def seawave(self) -> str:
-        return self._seawave.get()
+    def Seawave(self) -> str:
+        return self._Seawave.get()
 
     @property
-    def primetime(self) -> str:
-        return self._primetime.get()
+    def Primetime(self) -> str:
+        return self._Primetime.get()
 
     @property
-    def newhampshire(self) -> str:
-        return self._newhampshire.get()
+    def NewHampshire(self) -> str:
+        return self._NewHampshire.get()
 
     @property
-    def americanmodern(self) -> str:
-        return self._americanmodern.get()
+    def AmericanModern(self) -> str:
+        return self._AmericanModern.get()
 
     @property
-    def kemah(self) -> str:
-        return self._kemah.get()
+    def Kemah(self) -> str:
+        return self._Kemah.get()
 
     @property
-    def concept(self) -> str:
-        return self._concept.get()
+    def Concept(self) -> str:
+        return self._Concept.get()
 
     @property
-    def yachtinsure(self) -> str:
-        return self._yachtinsure.get()
+    def Yachtinsure(self) -> str:
+        return self._Yachtinsure.get()
 
     @property
-    def century(self) -> str:
-        return self._century.get()
+    def Century(self) -> str:
+        return self._Century.get()
 
     @property
-    def intact(self) -> str:
-        return self._intact.get()
+    def Intact(self) -> str:
+        return self._Intact.get()
 
     @property
-    def travelers(self) -> str:
-        return self._travelers.get()
+    def Travelers(self) -> str:
+        return self._Travelers.get()
 
     @property
     def quoteform(self):

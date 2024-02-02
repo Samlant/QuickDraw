@@ -2,7 +2,7 @@ from typing import Protocol
 from dataclasses import dataclass
 from pathlib import Path
 
-from QuickDraw.helper import open_config
+from QuickDraw.helper import open_config, validate_paths
 from tkinter import filedialog
 
 
@@ -44,13 +44,13 @@ class HomeModel:
         else:
             path: list[str] = filedialog.askopenfilenames()
 
-        if self._validate_path(path):
+        if self._validate_paths(path):
             self.save_path(path, is_quoteform)
             return path
         else:
             raise ValueError(f"Invalid file path. Path={path}")
 
-    def _validate_path(self, path: str | list[str]) -> bool:
+    def _validate_paths(self, path: str | list[str]) -> bool:
         if isinstance(path, list):
             if path == []:
                 return False

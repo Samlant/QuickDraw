@@ -2,7 +2,7 @@ from pathlib import Path
 
 from email_validator import validate_email, EmailNotValidError
 
-from QuickDraw.helper import validate_path
+from QuickDraw.helper import Carrier, open_config, validate_paths
 from QuickDraw.models.submission.quoteform import FormBuilder
 from QuickDraw.models.submission.submission import Submission
 from QuickDraw.models.submission.customer import Customer
@@ -20,32 +20,47 @@ class SubmissionModel:
         view_results: dict[str, str | list[str]],
         carriers: dict[str, bool] = None,
     ) -> Submission:
-        # validate quoteform path and ensure it's permissible/readable.
-        quoteform_path = validate_path(
-            paths=view_results.pop("quoteform"),
-        )
-        assert quoteform_path.exists(), f"File not found:\n{quoteform_path}"
         # validate all attachment paths and ensure they're permissible/readable.
         attachments = view_results["attachments"].copy()
         view_results["attachments"] = []
-        for path in attachments:
-            valid_path = validate_path(pathname=path)
-            assert path.exists(), f"Path not found.\n{path}"
-            view_results["attachments"].append(valid_path)
+        valid_path = validate_paths(pathname=attachments)
+        view_results["attachments"].append(valid_path)
         # combine CC addresses into a single string if necessary.
         view_results["user_CC"] = self.process_user_CC(
-            cc_1=view_results["user_CC1"], cc_2=view_results["user_CC2"],
+            cc_1=view_results["user_CC1"],
+            cc_2=view_results["user_CC2"],
         )
         assert isinstance(
             view_results["user_CC"], list[str]
         ), f"CC addresses are not strings within a list:\n{view_results['user_CC']}"
 
-        submission = self._process_quoteform(
-            _quoteform_path=quoteform_path, carriers=carriers, not_validated=False,
-        )
-        return submission
+        return True
 
-    def process_user_CC(self, cc_1: str, cc_2: str,) -> str:
+    def process_attachments(self, attachments: list[str]):
+        pass
+
+    def process_markets(self, market_names: list[str]) -> list[Market | Markets]:
+        config = open_config()
+        mrkts = []
+        for carrier_config_name in market_names:
+            section = config.get_section(carrier.name).to_dict()
+            mrkt = Market(
+                name=carrier.name,
+                id=carrier.id,
+                address=section["address"],
+                greeting=section["greeting"],
+                body=section["body"],
+                outro=section["outro"],
+                salutation=section["salutation"],
+            )
+            mrkts.append(mrkt)
+        return mrkts
+
+    def process_user_CC(
+        self,
+        cc_1: str,
+        cc_2: str,
+    ) -> str:
         cc_1_list = [x.strip() for x in cc_1.split(";")]
         cc_2_list = [x.strip() for x in cc_2.split(";")]
         cc = list(set(cc_1_list + cc_2_list))
@@ -60,14 +75,14 @@ class SubmissionModel:
                 validated_cc.append(email)
         return ";".join(validated_cc)
 
-    def _process_quoteform(
+    def process_quoteform(
         self,
         _quoteform_path: str,
         carriers: dict[str, bool] = None,
-        not_validated: bool = True
+        not_validated: bool = True,
     ) -> Submission:
         if not_validated:
-            quoteform_path = validate_path(paths=_quoteform_path)
+            quoteform_path = validate_paths(pathnames=_quoteform_path)
         _ = FormBuilder()
         quoteform = _.make(quoteform=quoteform_path)
         customer: Customer = Customer(
@@ -79,7 +94,7 @@ class SubmissionModel:
             customer=customer,
             vessel=vessel,
             markets=[],
-            status="PROCESSED",
+            status="ALLOCATE MRKTS AND SUBMIT",
         )
         return submission
 
@@ -155,7 +170,7 @@ class SubmissionModel:
         """
         print("looping through envelopes for all carriers selected")
         self.model_email_handler.subject = self.model_email_handler.stringify_subject(
-            self.current_submission,
+            self.submission,
         )
 
         unformatted_cc = self._handle_getting_CC_addresses()
@@ -181,7 +196,7 @@ class SubmissionModel:
                 "key": "signature_image",
             }
         )
-        for carrier in self.current_submission.markets:
+        for carrier in self.submission.markets:
             carrier_section = self.config_worker.get_section(carrier)
             unformatted_to = carrier_section.get("address").value
             self.model_email_handler.to = self.model_tab_home.format_to_for_api(

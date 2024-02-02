@@ -13,8 +13,8 @@ class Submission:
     customer: Customer
     vessel: Vessel
     status: str
-    markets: list[Market | Markets] = []
-    attachments: list = None
+    markets: list[Market | Markets]
+    attachments: list[Path]
     submit_tool: bool = False
 
 

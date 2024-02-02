@@ -1,15 +1,14 @@
-from tkinter import Text, Frame, StringVar, BooleanVar, IntVar, Checkbutton
+from tkinter import Text, Frame, StringVar, BooleanVar, Checkbutton
 from tkinter.ttk import OptionMenu
 from typing import Protocol
 
 from tkinterdnd2 import DND_FILES
 
-from QuickDraw.views.submission import base
 from QuickDraw.views.themes.palettes import Palette
 
 
 class Presenter(Protocol):
-    def set_dropdown_options(self) -> list:
+    def get_carrier_combos(self) -> list:
         ...
 
 
@@ -31,30 +30,6 @@ def set_start_tab(obj, specific_tab: str) -> None:
     obj.root.update()
     obj.root.attributes("-topmost", False)
     obj.root.mainloop()
-
-
-def make_draggable_txt_box(
-    parent,
-    name: str,
-    height: int,
-    width: int,
-    palette: Palette,
-    command,
-):
-    box = Text(
-        parent,
-        name=name,
-        height=height,
-        width=width,
-        foreground=palette.alt_fg_color,
-        background=palette.alt_bg_color,
-        highlightcolor=palette.alt_bg_color,
-        selectbackground=palette.alt_fg_color,
-        selectforeground=palette.alt_bg_color,
-    )
-    box.drop_target_register(DND_FILES)
-    box.dnd_bind("<<Drop>>", command)
-    return box
 
 
 def make_drag_drop_txt_box(
@@ -96,12 +71,11 @@ def make_checkbutton(parent, text: str, var: BooleanVar):
         bg="#5F634F",
         selectcolor="#000000",
     )
-    x.pack(fill="both", expand=True, ipady=3, ipadx=40, pady=(0, 3))
 
 
 def create_dropdown(view, parent, presenter: Presenter, style: Palette) -> OptionMenu:
     """Creates the OptionMenu widget separately for less coupling."""
-    options: list[str] = presenter.set_dropdown_options()
+    options: list[str] = presenter.get_carrier_combos()
     menu = OptionMenu(parent, view._selected_template, *options)
     menu.configure(
         background=style.btn_base_bg,
