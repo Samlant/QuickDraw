@@ -143,6 +143,10 @@ class HomeModel(Protocol):
     def get_all_attachments(self) -> list: ...
 
 
+class Interface(Protocol):
+    def send_graph_call(self, service: Literal["excel", "outlook"]) -> bool: ...
+
+
 class MSGraphClient(Protocol):
     def run_excel_program(self, json_payload: dict) -> None: ...
 

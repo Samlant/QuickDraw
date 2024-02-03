@@ -1,36 +1,54 @@
 from pprint import pprint
+from dataclasses import dataclass, field
+from pathlib import Path
 
-from model.graph.client import MicrosoftGraphClient
+
+from Quickdraw.models.graph.client import MicrosoftGraphClient
+from Quickdraw.models.graph.accessories import (
+    ConnectionData,
+    Services,
+    make_connect_data,
+)
+from QuickDraw.models.graph.excel import ExcelManager
+from QuickDraw.models.graph.outlook import OutlookManager
 
 
-class MSGraphClient:
+class GraphAPI:
     """Responsible for creating a connection with Microsoft's Graph API and establishing authorization.  This module is able to read/write data to and from Microsoft services and has been tailored for Business-use."""
 
-    def __init__(self, ms_graph_state_path: str):
-        self.scopes = [
-            "Files.ReadWrite.All",
-            "Mail.ReadWrite",
-            "Mail.Send",
-            "User.Read",
-        ]
+    def __init__(self):
+        # DO WE NEED JSON DATA LIKE THIS? Could be passed as arg...
+        # Correct,  it will be passed to excel/outlook model. DELETE!
         self.json_data: dict[any, any] = None
+        ####################################################
         self.graph_client = None
-        self.workbooks_service = None
-        self.mail_service = None
-        self.user_service = None
-        self.client_id: str = None
-        self.tenant_id: str = None
-        self.client_secret: str = None
-        self.redirect_uri: str = None
-        self.user_id: str = None
-        self.group_id: str = None
-        self.quote_tracker_id: str = None
-        self.quote_worksheet_id: str = None
-        self.quote_table_id: str = None
-        self.service_tracker_id: str = None
-        self.credentials = ms_graph_state_path
-        self.session_id = None
+        self.services: Services = Services()
+        self.connection_data: ConnectionData = None
 
+    ########################################################
+    ################   Preferred Methods   #################
+    ########################################################
+
+    def setup(self):
+        self.connection_data = make_connect_data()
+        self.graph_client = MicrosoftGraphClient(self.connection_data)
+        self.graph_client.login()
+        self.services.make(self.graph_client)
+
+    def run_excel_api(self, submission):
+        manager = ExcelManager(
+            service=self.services.workbooks,
+            group_id=self.connection_data.group_id,
+            quote_tracker_id=self.connection_data.quote_tracker_id,
+            submission=submission,
+        )
+
+    def run_outlook_api(self):
+        pass
+
+    ########################################################
+    ############   END Preferred Methods END   #############
+    ########################################################
     def setup_api(self, connection_data) -> bool:
         self._set_connection_data(connection_data)
         if not self._init_graph_client():
@@ -39,14 +57,9 @@ class MSGraphClient:
         self._init_user_service()
         return True
 
-    def _set_connection_data(self, connection_data):
-        self.client_id = connection_data.get("client_id").value
-        self.tenant_id = connection_data.get("tenant_id").value
-        self.client_secret = connection_data.get("client_secret").value
-        self.redirect_uri = connection_data.get("redirect_uri").value
-        self.group_id = connection_data.get("group_id").value
-        self.quote_tracker_id = connection_data.get("quote_tracker_id").value
-        pprint("set connection data successfully.")
+    def _set_connection_data(self):
+        print("set connection data successfully.")
+        pass
 
     def run_excel_program(self, json_payload: dict[any, any]):
         self.json_data = json_payload
@@ -82,17 +95,6 @@ class MSGraphClient:
     ###############################################
     ################ EXCEL SERVICES ###############
     ###############################################
-    def _init_workbooks_service(self):
-        self.workbooks_service = self.graph_client.workbooks()
-
-    def _create_workbook(self) -> str:
-        print("creating workbook session.")
-        session_response = self.workbooks_service.create_session(
-            group_drive=self.group_id,
-            item_id=self.quote_tracker_id,
-        )
-        print("created workbook session.")
-        return session_response["id"]
 
     def client_already_exists(self, quote_table_name: str) -> bool:
         try:

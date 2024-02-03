@@ -55,13 +55,15 @@ class SubmissionModel:
         else:
             return paths
 
-    def make_markets(self, market_names: list[str]) -> list[Market]:
+    def make_markets(self, market_tuples: list[tuple[str, list[str]]]) -> list[Market]:
         config = open_config()
         mrkts = []
-        for name in market_names:
-            section = config.get_section(name).to_dict()
+        for carrier_tuple in market_tuples:
+            section = config.get_section(carrier_tuple[0]).to_dict()
             mrkt = Market(
-                name=name,
+                name=carrier_tuple[0],
+                ids=carrier_tuple[1],
+                status="",
                 address=section["address"],
                 greeting=section["greeting"],
                 body=section["body"],

@@ -4,6 +4,10 @@ from ast import literal_eval
 from pathlib import Path
 from tkinter import TclError
 import itertools
+from typing import Literal
+
+# from multiprocessing import p
+
 
 import QuickDraw.models.windows.registrations as qf_reg
 from QuickDraw.helper import open_config, VIEW_INTERPRETER, AVAILABLE_CARRIERS
@@ -37,8 +41,7 @@ class Presenter:
     def __init__(
         self,
         model_allocate: protocols.AllocateModel,
-        model_api_client: protocols.MSGraphClient,
-        model_api: protocols.API,
+        model_graph_api: protocols.GraphAPI,
         model_dir_handler: protocols.Dirhandler,
         model_dir_watcher: protocols.DirWatch,
         model_email_handler: protocols.EmailHandler,
@@ -57,8 +60,7 @@ class Presenter:
         view_palette: protocols.Palette,
     ) -> None:
         self.model_allocate = model_allocate
-        self.model_api_client = model_api_client
-        self.model_api = model_api
+        self.model_graph_api = model_graph_api
         self.model_dir_handler = model_dir_handler
         self.model_dir_watcher = model_dir_watcher
         self.model_email_handler = model_email_handler
@@ -76,7 +78,7 @@ class Presenter:
         self.view_palette = view_palette
         self.view_surplus_lines = view_surplus_lines
         self.quoteform: protocols.Quoteform = None
-        self.submission = None
+        self.submission: protocols.Submission = None
         self.only_view_msg: bool = None
         self.run_flag: bool = False
         self.run_template_settings_flag: bool = False
@@ -89,55 +91,15 @@ class Presenter:
     ########### Refactor within API Models #################
     ########################################################
     def setup_api(self) -> bool:
-        graph_values = self.config_worker.get_section("graph_api")
-        if not self.model_api_client.setup_api(connection_data=graph_values):
-            return False
-        if self.config_worker.has_value("graph_api", "user_id"):
-            str_count = len(
-                self.config_worker.get_value(
-                    {
-                        "section_name": "graph_api",
-                        "key": "user_id",
-                    }
-                )
-            )
-            if str_count < 10:
-                user_id = self.model_api_client.get_user_id()["id"]
-                self.config_worker.handle_save_contents(
-                    "graph_api",
-                    save_contents={
-                        "user_id": user_id,
-                    },
-                )
-        return True
+        if self.model_graph_api.setup():
+            return True
 
-    def create_and_send_data_to_api(self):
-        print("creating call to send to Microsoft API")
-        config = open_config()
-        username = config.get("General settings", "username")
-        json = self.model_api.create_excel_json(self.submission, username)
-        self.model_api_client.run_excel_program(
-            json_payload=json,
-        )
+    def start_api_calls(self, service: Literal["excel", "outlook"]):
+        if service == "excel":
+            self.model_graph_api.run_excel_api()
 
-    def _send_excel_api_call(self):
-        self.create_and_send_data_to_api()
-        print("Adding excel row via API")
-        ####################################
-        ####################################
-        """TODO: Abstract code into excel's api model."""
-        ####################################
-        ####################################
-        if not self.quoteform_detected:
-            self.excel_table_name = self.model_new_alert.get_current_month()
-        if not self.model_api_client.client_already_exists(self.excel_table_name):
-            self.model_api_client.add_row(self.excel_table_name)
-        else:
-            print("Client already exists on tracker,  skipping adding to the tracker.")
-        self.model_api_client.close_workbook_session()
-
-        ####################################
-        ####################################
+        elif service == "outlook":
+            self.model_graph_api.run_outlook_api()
 
     ###################### END #############################
     ########### Refactor within API Models #################
@@ -200,7 +162,8 @@ class Presenter:
     def save_allocated_markets(self) -> list[protocols.Carrier]:
         carriers = self.__get_carrier_results(self.view_allocate)
         self.view_allocate.root.destroy()
-        self._start_thread_for_excel(carriers)
+        self.submission.carriers = carriers
+        self._start_thread_for_excel()
         self.submission = None
 
     #######################################################
@@ -274,9 +237,12 @@ class Presenter:
         # Save carriers
         carriers = self.__get_carrier_results(self.view_main)
         # Make markets from carriers
-        carrier_combos = self.get_carrier_combos(carrier_list=carriers)
+        carrier_combos = self.get_carrier_combos(
+            all=False,
+            carrier_list=carriers,
+        )
         markets = self.model_submission.make_markets(
-            maket_names=carrier_combos,
+            maket_tuples=(carrier_combos),
         )
         # get results from the home view (QF + attachments + extra notes + CC)
         view_results = self.view_main.home
@@ -361,24 +327,51 @@ class Presenter:
 
     def get_carrier_combos(
         self,
+        all: bool,
         carrier_list: list[protocols.Carrier] = AVAILABLE_CARRIERS,
-    ) -> list[str]:
-        """Get all combinations of carriers given a list of carriers (which
-        may contain redundant carriers)."""
-        combos: list[tuple[protocols.Carrier, str]] = []
+    ) -> list[str] | list[tuple[str, list[str]]]:
+        """
+        SUMMARY: Gets either all combinations of available carriers within a list of strings, OR gets the correct string listing all redundant carriers for each and every redundant carrier group that are present in the provided carrier_list.
+
+        ARGUMENTS:
+            all: bool --
+                get all carrier combinations or only the largest list within each provided group. All should be set to True for providing all carrier options in the settings tab of the view.
+
+            carrier_list: list[Carrier] --
+                list of the carriers to loop through
+
+        TODO: Possibly extract into an appropriate model and split up into separate methods for testability.
+        """
+        combos: list[tuple[str, list[str]]] = []
         redundancies: dict[int, list[str]] = {}
         for carrier in carrier_list:
-            combos.append(carrier.name)
+            if carrier.redundancy_group == 0:
+                if all:
+                    combos.append(carrier.name)
+                else:
+                    combos.append((carrier.name, [carrier.id]))
             if carrier.redundancy_group != 0:
                 if carrier.redundancy_group not in redundancies:
                     redundancies[carrier.redundancy_group] = []
-                redundancies[carrier.redundancy_group].append(carrier.name)
+                redundancies[carrier.redundancy_group].append(carrier)
         for carriers in redundancies.values():
-            count = len(carriers)
-            while count > 1:
-                for combo in itertools.combinations(carriers, count):
-                    combos.append(f'Combination: {" + ".join(combo)}')
-                count -= 1
+            ids = []
+            _names = []
+            for carrier in carriers:
+                ids.append(carrier.id)
+                _names.append(carrier.name)
+            if all:
+                count = len(_names)
+                while count > 1:
+                    for combo in itertools.combinations(_names, count):
+                        sorted_combo = sorted(combo, reverse=True)
+                        combos.append(
+                            f'Combination: {" + ".join(sorted_combo)}',
+                        )
+                    count -= 1
+            else:
+                names = sorted(_names, reverse=True)
+                combos.append((f'Combination: {" + ".join(names)}', ids))
         return combos
 
     def on_change_template(self, *args, **kwargs) -> None:

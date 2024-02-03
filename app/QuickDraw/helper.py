@@ -7,7 +7,7 @@ import tempfile
 from tkinterdnd2 import TkinterDnD
 from configupdater import ConfigUpdater
 
-# Insert config functions, PATHS constants, and TEST constant
+from QuickDraw.models.submission.underwriting import Carrier
 
 TEST = False
 

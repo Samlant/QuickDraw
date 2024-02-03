@@ -10,7 +10,6 @@ import requests
 
 
 class GraphSession:
-
     """Serves as the Session for the Current Microsoft
     Graph API."""
 
@@ -31,7 +30,7 @@ class GraphSession:
             >>> graph_session = GraphSession()
         """
 
-        from model.graph.client import MicrosoftGraphClient
+        from QuickDraw.models.graph.client import MicrosoftGraphClient
 
         # We can also add custom formatting to our log messages.
         log_format = "%(asctime)-15s|%(filename)s|%(message)s"

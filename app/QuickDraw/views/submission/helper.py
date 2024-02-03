@@ -8,8 +8,7 @@ from QuickDraw.views.themes.palettes import Palette
 
 
 class Presenter(Protocol):
-    def get_carrier_combos(self) -> list:
-        ...
+    def get_carrier_combos(self, all: bool) -> list: ...
 
 
 class MyStringVars(StringVar):
@@ -76,7 +75,7 @@ def make_checkbutton(parent, text: str, var: BooleanVar):
 
 def create_dropdown(view, parent, presenter: Presenter, palette: Palette) -> OptionMenu:
     """Creates the OptionMenu widget separately for less coupling."""
-    options: list[str] = presenter.get_carrier_combos()
+    options: list[str] = presenter.get_carrier_combos(all=True)
     menu = OptionMenu(parent, view._selected_template, *options)
     menu.configure(
         background=palette.btn_base_bg,

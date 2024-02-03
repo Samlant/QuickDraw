@@ -9,21 +9,20 @@ import msal
 from selenium import webdriver
 from selenium.webdriver.edge.options import Options
 
-from model.graph.users import Users
-from model.graph.drives import Drives
-from model.graph.groups import Groups
-from model.graph.notes import Notes
-from model.graph.session import GraphSession
-from model.graph.drive_items import DriveItems
-from model.graph.search import Search
-from model.graph.personal_contacts import PersonalContacts
-from model.graph.mail import Mail
-from model.graph.workbooks_and_charts.workbook import Workbooks
-from model.graph.workbooks_and_charts.range import Range
+from QuickDraw.models.graph.services.users import Users
+from QuickDraw.models.graph.services.drives import Drives
+from QuickDraw.models.graph.services.groups import Groups
+from QuickDraw.models.graph.services.notes import Notes
+from QuickDraw.models.graph.services.drive_items import DriveItems
+from QuickDraw.models.graph.services.search import Search
+from QuickDraw.models.graph.services.personal_contacts import PersonalContacts
+from QuickDraw.models.graph.services.mail import Mail
+from QuickDraw.models.graph.services.workbooks_and_charts.workbook import Workbooks
+from QuickDraw.models.graph.services.workbooks_and_charts.range import Range
+from QuickDraw.models.graph.session import GraphSession
 
 
 class MicrosoftGraphClient:
-
     """
     ### Overview:
     ----
@@ -43,14 +42,9 @@ class MicrosoftGraphClient:
 
     def __init__(
         self,
-        client_id: str,
-        tenant_id: str,
-        client_secret: str,
-        redirect_uri: str,
-        scope: list[str],
+        connection_data,
         account_type: str = "consumers",  # by default this was used instead of tenant_id
         office365: bool = False,
-        credentials: str = None,
     ):
         """Initializes the Graph Client.
 
@@ -82,17 +76,17 @@ class MicrosoftGraphClient:
         # printing lowercase
         letters = string.ascii_lowercase
 
-        self.credentials = credentials
+        self.credentials = connection_data.credentials
         self.token_dict = None
 
-        self.client_id = client_id
-        self.tenant_id = tenant_id
-        self.client_secret = client_secret
+        self.client_id = connection_data.client_id
+        self.tenant_id = connection_data.tenant_id
+        self.client_secret = connection_data.client_secret
         self.api_version = "v1.0"
-        self.account_type = tenant_id
-        self.redirect_uri = redirect_uri
+        self.account_type = connection_data.tenant_id
+        self.redirect_uri = connection_data.redirect_uri
 
-        self.scope = scope
+        self.scope = connection_data.scope
         self.state = "".join(random.choice(letters) for i in range(10))
 
         self.access_token = None
@@ -252,7 +246,7 @@ class MicrosoftGraphClient:
         # More than likely a first time login, so can"t do silent authenticaiton.
         return False
 
-    def login_browser(self, uri: str):
+    def get_redirect_code_via_browser(self, uri: str):
         options = Options()
         options.page_load_strategy = "normal"
         options.add_argument("--disable-extensions")
@@ -287,7 +281,7 @@ class MicrosoftGraphClient:
         else:
             # Build the URL.
             url = self.authorization_url()
-            self._redirect_code = self.login_browser(uri=url)
+            self._redirect_code = self.get_redirect_code_via_browser(uri=url)
             # aks the user to go to the URL provided, they will be prompted
             # to authenticate themsevles.
             # print(f"Please go to URL provided authorize your account: {url}")
@@ -306,7 +300,7 @@ class MicrosoftGraphClient:
             except KeyError as ke:
                 print(str(ke))
                 try:
-                    self._redirect_code = self.login_browser(
+                    self._redirect_code = self.get_redirect_code_via_browser(
                         uri=url,
                     )
                     if self.grab_access_token():

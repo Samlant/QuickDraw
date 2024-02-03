@@ -9,10 +9,10 @@ class Customer:
     referral: str
 
     @property
-    def name(self):
+    def name(self) -> str:
         return capwords(self.fname) + " " + capwords(self.lname)
 
     @property
-    def lfname(self):
+    def lfname(self) -> str:
         "Provides name in LAST First format"
         return self.lname.upper() + " " + capwords(self.fname)

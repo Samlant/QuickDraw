@@ -13,11 +13,14 @@ class Carrier(NamedTuple):
     id: str
     redundancies: int = 0
     redundancy_group: int = 0
+    status: str = ""
 
 
 @dataclass
 class Market:
     name: str
+    ids: list[str]
+    status: Literal["", "P"]
     address: str
     greeting: str
     body: str
