@@ -4,7 +4,7 @@ import ctypes
 
 from fillpdf import fillpdfs
 
-from QuickDraw.models.submission.submission import Submission
+from QuickDraw.models.submission.underwriting import Submission
 
 
 @dataclass(kw_only=True)

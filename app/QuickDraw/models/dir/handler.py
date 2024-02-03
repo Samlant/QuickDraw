@@ -24,34 +24,33 @@ class Submission(Protocol):
     status: str
     attachments: list[str | Path]
     markets: list[str]
-    submit_tool: bool
 
 
 class DirHandler:
     def __init__(self) -> None:
         pass
 
-    def process_dirs(self, submission_info: Submission):
+    def process_dirs(self, submission: Submission):
         client_dir = self._create_dirs(
-            submission_info,
+            submission,
         )
-        submission_info.new_path = self._move_file(
+        submission.new_path = self._move_file(
             client_dir,
-            submission_info.quoteform.path,
+            submission.quoteform.path,
         )
 
-    def _create_dirs(self, submission_info) -> Path:
+    def _create_dirs(self, submission) -> Path:
         """Creates the client folder and moves the .PDF file to it.
         This includes validating and renaming the dir until there's
         no collision with existing dirs.
 
         Returns:  Path obj of the new path of the .PDF file itself.
         """
-        fname = submission_info.fname
-        lname = submission_info.lname
+        fname = submission.fname
+        lname = submission.lname
         config = open_config()
         section_obj = config.get_section("Folder settings")
-        parent_dir = self.assign_parent_dir(submission_info.referral, section_obj)
+        parent_dir = self.assign_parent_dir(submission.referral, section_obj)
         client_dir = self.__create_client_dir(
             parent_dir=parent_dir,
             fname=fname,

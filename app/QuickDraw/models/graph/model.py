@@ -1,6 +1,5 @@
 from typing import Protocol
 from datetime import datetime
-from dataclasses import dataclass
 from pathlib import Path
 import base64
 
@@ -39,12 +38,6 @@ class API:
         start_date = self.__get_current_date()
         vessel = data.vessel
         vessel_year = data.vessel_year
-        if data.submit_tool:
-            markets = self.__get_submitted_markets(data.markets)
-            market_status = self.__format_markets_from_submission_tool(data.markets)
-        else:
-            markets = self.__get_allocated_markets(data.markets)
-            market_status = self.__assign_empty_str_markets()
         status = data.status
         referral = data.referral
 
@@ -87,128 +80,11 @@ class API:
         }
         return json
 
-    def __get_allocated_markets(self, markets: list[str]) -> list:
-        mrkt: list[str] = [mrkt for mrkt in markets]
-        mrkt = ", ".join(mrkt)
-        print(mrkt)
-        return mrkt
-
-    def __get_submitted_markets(self, markets: list[str]) -> list:
-        mrkt = []
-        if "Seawave" in markets:
-            mrkt.append("SW")
-        elif "New hampshire" in markets:
-            mrkt.append("NH")
-        elif "Prime Time" in markets:
-            mrkt.append("PT")
-        elif "American Modern" in markets:
-            mrkt.append("AM")
-        elif "Kemah Marine" in markets:
-            mrkt.append("KM")
-        elif "Concept Special Risks" in markets:
-            mrkt.append("CP")
-        elif "Yachtinsure" in markets:
-            mrkt.append("YI")
-        elif "Travelers" in markets:
-            mrkt.append("TV")
-        elif "Intact" in markets:
-            mrkt.append("IN")
-        elif "Century" in markets:
-            mrkt.append("CE")
-        else:
-            return []
-        return mrkt
-
-    def __assign_empty_str_markets(self) -> dict[str, str]:
-        mrkt_status = {}
-        mrkt_status["AM"] = ""
-        mrkt_status["SW"] = ""
-        mrkt_status["KM"] = ""
-        mrkt_status["CP"] = ""
-        mrkt_status["NH"] = ""
-        mrkt_status["IN"] = ""
-        mrkt_status["TV"] = ""
-        return mrkt_status
-
-    def __format_markets_from_submission_tool(
-        self, markets: list[str]
-    ) -> dict[str, str]:
-        submitted: dict[str, str] = {}
-        if len(markets) >= 1:
-            if "Seawave" in markets:
-                submitted["SW"] = "P"
-            else:
-                submitted["SW"] = ""
-            if "Hampshire" in markets:
-                submitted["NH"] = "P"
-            else:
-                submitted["NH"] = ""
-            if "PT" in markets:
-                submitted["PT"] = "P"
-            else:
-                submitted["PT"] = ""
-            if "AM" in markets:
-                submitted["AM"] = "P"
-            else:
-                submitted["AM"] = ""
-            if "KM" in markets:
-                submitted["KM"] = "P"
-            else:
-                submitted["KM"] = ""
-            if "CP" in markets:
-                submitted["CP"] = "P"
-            else:
-                submitted["CP"] = ""
-            if "YI" in markets:
-                submitted["YI"] = "P"
-            else:
-                submitted["YI"] = ""
-            if "TV" in markets:
-                submitted["TV"] = "P"
-            else:
-                submitted["TV"] = ""
-            if "IN" in markets:
-                submitted["IN"] = "P"
-            else:
-                submitted["IN"] = ""
-        else:
-            submitted = {
-                "SW": "",
-                "NH": "",
-                "PT": "",
-                "AM": "",
-                "KM": "",
-                "CP": "",
-                "YI": "",
-                "TV": "",
-                "IN": "",
-            }
-        return submitted
-
     def __get_current_date(self) -> str:
         "Gets todays date and formats it (mm-dd)."
         current_date = datetime.now()
         current_date = f"{current_date.month}-{current_date.day}"
         return current_date
-
-    def get_current_month(self):
-        current_month = datetime.now().month
-        return months[current_month].lower()
-
-    def get_next_months(self):
-        current_month = datetime.now().month
-        next_month = current_month + 1
-        if next_month > 12:
-            next_month -= 12
-        second_month = current_month + 2
-        if second_month > 12:
-            second_month -= 12
-        month_values = [
-            months[current_month].lower(),
-            next_month.lower(),
-            second_month.lower(),
-        ]
-        return month_values
 
     def get_connection_data(self, config_) -> dict[str, any]:
         config = config_

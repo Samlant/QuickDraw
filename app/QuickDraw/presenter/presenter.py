@@ -5,13 +5,10 @@ from pathlib import Path
 from tkinter import TclError
 import itertools
 
-from configupdater import ConfigUpdater
-
 import QuickDraw.models.windows.registrations as qf_reg
 from QuickDraw.helper import open_config, VIEW_INTERPRETER, AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import set_start_tab, ALL_TABS
 from QuickDraw.models.submission.quoteform import Quoteform
-from QuickDraw.models.submission.submission import Submission
 import QuickDraw.presenter.protocols as protocols
 
 
@@ -78,7 +75,7 @@ class Presenter:
         self.view_new_file_alert = view_new_file_alert
         self.view_palette = view_palette
         self.view_surplus_lines = view_surplus_lines
-        self.quoteform: Quoteform = None
+        self.quoteform: protocols.Quoteform = None
         self.submission = None
         self.only_view_msg: bool = None
         self.run_flag: bool = False
@@ -86,7 +83,6 @@ class Presenter:
         self.run_email_settings_flag: bool = False
         self.run_folder_settings_flag: bool = False
         self.run_SL_automator_flag: bool = False
-        self.quoteform_detected: bool = False
         self.new_file_path = None
 
     ########################################################
@@ -133,7 +129,7 @@ class Presenter:
         ####################################
         ####################################
         if not self.quoteform_detected:
-            self.excel_table_name = self.model_api.get_current_month()
+            self.excel_table_name = self.model_new_alert.get_current_month()
         if not self.model_api_client.client_already_exists(self.excel_table_name):
             self.model_api_client.add_row(self.excel_table_name)
         else:
@@ -143,24 +139,7 @@ class Presenter:
         ####################################
         ####################################
 
-    def _start_thread_for_excel(self) -> bool:
-        count = 0
-        successful = False
-        while not successful and count < 3:
-            try:
-                thread_xl = threading.Thread(
-                    daemon=True,
-                    target=self._send_excel_api_call,
-                    name="Excel API Call",
-                )
-                thread_xl.start()
-            except Exception as e:
-                print(f"API call to Excel failed. {e}")
-            else:
-                return True
-        return False
-
-    ########################################################
+    ###################### END #############################
     ########### Refactor within API Models #################
     ########################################################
     def start_program(self):
@@ -171,43 +150,44 @@ class Presenter:
         print("Detected new Quoteform ")
         self.submission = self.model_submission.process_quoteform(
             _quoteform_path=file,
-            carriers=None,
-            not_validated=True,
         )
         print(f"the current client is: {self.submission.__repr__}")
-        months = self.model_api.get_next_months()
+        months = self.model_new_alert.get_next_months()
         self.view_new_file_alert.initialize(
             presenter=self,
             view_interpreter=VIEW_INTERPRETER,
             view_palette=self.view_palette,
-            submission_info=self.submission,
+            submission=self.submission,
             months=months,
         )
 
     def choice(self, choice: str):
-        self.quoteform_detected = True
         self.model_dir_handler.process_dirs(
             self.submission,
         )
-        self._refresh_quoteform_with_user_input()
+        self._refresh_submission_with_user_input()
         self.view_new_file_alert.root.destroy()
         if choice == "track_allocate":
             self.allocate_markets()
-            self._start_thread_for_excel()
 
         elif choice == "track_submit":
             # SEND EXCEL API (in case submission prog crashes...)
             self._start_thread_for_excel()
-            self.start_submission_program(quote_path=self.submission.new_path)
+            quoteform_path = self.submission.quoteform.path
+            tracker_month = self.submission.tracker_month
+            self.submission = None
+            self.start_submission_program(
+                quoteform=quoteform_path, tracker_month=tracker_month
+            )
         else:
             self._start_thread_for_excel()
+            self.submission = None
 
-    def _refresh_quoteform_with_user_input(self) -> bool:
-        self.excel_table_name = self.view_new_file_alert.selected_month
-        qf = self.submission.quoteform
-        qf.vessel_year = self.view_new_file_alert.year
-        qf.vessel = self.view_new_file_alert.vessel
-        qf.referral = self.view_new_file_alert.referral
+    def _refresh_submission_with_user_input(self) -> bool:
+        self.submission.tracker_month = self.view_new_file_alert.selected_month
+        self.submission.vessel.year = self.view_new_file_alert.year
+        self.submission.vessel.make = self.view_new_file_alert.vessel
+        self.submission.customer.referral = self.view_new_file_alert.referral
         return True
 
     def allocate_markets(self):
@@ -217,25 +197,17 @@ class Presenter:
             self.view_palette,
         )
 
-    def save_allocated_markets(self) -> None:
-        "Save market choices"
-        print("Saving choices")
+    def save_allocated_markets(self) -> list[protocols.Carrier]:
         carriers = self.__get_carrier_results(self.view_allocate)
-        # What does the below do? What do we need to do now? 
-        # Just send to excel API!!
-        # Send the Carrier classes to the excel call (containing the
-        # `carrier.id` for the call...)
-        # We only need the QF, customer, vessel & carrier.ids
-        self.model_allocate.process_user_choice(
-            carriers,
-            self.submission,
-        )
+        self.view_allocate.root.destroy()
+        self._start_thread_for_excel(carriers)
+        self.submission = None
 
     #######################################################
     ############# Start Submissions Program #############
     #######################################################
     def start_submission_program(
-        self, specific_tab: str = None, quote_path: str = None
+        self, specific_tab: str = None, quoteform: Path = None
     ) -> None:
         """Starts the program by creating GUI object,
         configuring initial values,  then running it
@@ -243,8 +215,8 @@ class Presenter:
         """
         print("starting email submission program")
         self.view_main.create_UI_obj(self, VIEW_INTERPRETER, self.view_palette)
-        if quote_path:
-            self._set_initial_placeholders(quote_path)
+        if quoteform:
+            self._set_initial_placeholders(quoteform)
         else:
             self._set_initial_placeholders()
         if specific_tab:
@@ -262,12 +234,12 @@ class Presenter:
         self,
         event,
         path_purpose: str,
-        quote_path: str = None,
+        quoteform: Path = None,
     ) -> None:
-        """Sends the raw path of attachment/quoteform to model for 
+        """Sends the raw path of attachment/quoteform to model for
         processing and saving."""
-        if quote_path:
-            path = quote_path
+        if quoteform:
+            path = quoteform
         else:
             path = Path(self.model_tab_home.filter_out_brackets(event.data))
         setattr(self.view_main, path_purpose, path.name)
@@ -297,28 +269,30 @@ class Presenter:
     def btn_process_envelopes(self, view_first: bool = False) -> None:
         """TODO REFACTOR BELOW USING SUBMISSION & EMAIL MODELS!"""
         print("clicked send button")
-        # Check if user only wants to view the msg prior to sending...
-        ########## IS THIS NECESSARY? SUMBIT TOOL FLAG? #############
-        self.submission.submit_tool = True
-        #############################################################
+        # Check if user only wants to view the msg prior to sending
         self.only_view_msg = view_first
-        # Get fields from view_main & send to submission model for processing
+        # Save carriers
         carriers = self.__get_carrier_results(self.view_main)
+        # Make markets from carriers
         carrier_combos = self.get_carrier_combos(carrier_list=carriers)
-        view_results = self.view_main.home_values
-        # turn carriers into markets, then insert into submission...
-        submission = self.model_submission.process_quoteform()
-        self.submission = self.model_submission.process_request(
-            view_results=self.view_main.home,
-            carriers=carriers,
+        markets = self.model_submission.make_markets(
+            maket_names=carrier_combos,
         )
-        # extract above to be reused in other function for dialog windows...
-        # once verified above,  then move on...
-        # Check if markets exist... dialog may fail this check so that's why we're doing it now.
-        # Either way, send API call at this point and include mrkts if present...
-        # Ensure to check if entry already exists; if so, update it (status & mrkts if applicable)
-        # IF MOVING FORWARD TO SUBMITTING:
-        # Continue to prep the submission for an outlook email API call
+        # get results from the home view (QF + attachments + extra notes + CC)
+        view_results = self.view_main.home
+        # Make Submission from quoteform, carriers and markets
+        self.submission = self.model_submission.process_quoteform(
+            _quoteform_path=view_results["quoteform"],
+            carriers=carriers,
+            markets=markets,
+            status="SUBMIT TO MRKTS",
+        )
+        self.submission.attachments = self.model_submission.validate_attachments(
+            attachments=view_results["attachments"],
+        )
+        # Send a preliminary Excel API call just in case Outlook call fails.
+
+        # Prep the submission for an outlook email API call
         # Send the API call to send emails
         # Once sent,  make another API call to update Excel tracker entry.
         self.loop_through_envelopes()
@@ -326,13 +300,15 @@ class Presenter:
     ########################################################
     ########## BEGIN --PLACEHOLDERS FUNCS-- BEGIN ##########
     ################# LOOKS GOOD 1/29/2024 #################
-    def _set_initial_placeholders(self, quote_path: str = None) -> None:
+    def _set_initial_placeholders(self, quoteform: Path = None) -> None:
         """Sets initial texts for all tabs, if applicable"""
         for tab in ALL_TABS:
             self.btn_revert_view_tab(tab)
-        if quote_path:
+        if quoteform:
             self.process_file_path(
-                event=None, path_purpose="quoteform", quote_path=quote_path
+                event=None,
+                path_purpose="quoteform",
+                quoteform=quoteform,
             )
         else:
             pass
@@ -349,7 +325,10 @@ class Presenter:
 
     def _set_tab_placeholders(self, tab_name: str) -> bool:
         tab_placeholders = self.__get_tab_placeholders(tab_name)
-        self.__assign_placeholders(tab_placeholders=tab_placeholders, tab_name=tab_name,)
+        self.__assign_placeholders(
+            tab_placeholders=tab_placeholders,
+            tab_name=tab_name,
+        )
         return True
 
     def __get_tab_placeholders(self, tab_name) -> dict[str, str]:
@@ -393,9 +372,7 @@ class Presenter:
             if carrier.redundancy_group != 0:
                 if carrier.redundancy_group not in redundancies:
                     redundancies[carrier.redundancy_group] = []
-                redundancies[carrier.redundancy_group].append(
-                        carrier.name,
-                )
+                redundancies[carrier.redundancy_group].append(carrier.name)
         for carriers in redundancies.values():
             count = len(carriers)
             while count > 1:
@@ -437,7 +414,7 @@ class Presenter:
                         config.set(section=tab_name, option=key, value=x[key])
 
     def on_focus_out(self, event) -> bool | None:
-        """Replaces blank text on template tab with prior saved data 
+        """Replaces blank text on template tab with prior saved data
         from config. This is done because templates should never be blank."""
         carrier = self.view_main.selected_template
         widget_name = event.widget.winfo_name()
@@ -514,7 +491,7 @@ class Presenter:
 
     ############# --Surplus Lines Automator-- #############
     def run_surplus_lines(self):
-        self.model_surplus_lines.start_view(VIEW_INTERPRETER, self.view_palette)
+        self.model_surplus_lines.start_view(VIEW_INTERPRETER, self.view_palette)  #
 
     ############# END --Surplus Lines Automator-- END #############
 

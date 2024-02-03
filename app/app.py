@@ -19,10 +19,9 @@ from QuickDraw.presenter.presenter import Presenter
 # from QuickDraw.models.windows.email_options import
 from QuickDraw.models.dir.handler import DirHandler
 from QuickDraw.models.dir.watcher import DirWatch
-from QuickDraw.models.customer.form import FormBuilder
 from QuickDraw.models.surplus_lines.interface import SurplusLinesAutomator
 from QuickDraw.models.updater import update_app
-from QuickDraw.models.submission import SubmissionModel
+from QuickDraw.models.submission.handler import SubmissionModel
 from QuickDraw.models.windows.alert import AlertModel
 from QuickDraw.models.windows.allocate import AllocateModel
 from QuickDraw.models.windows.templates import TemplatesModel

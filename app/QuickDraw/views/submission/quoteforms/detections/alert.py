@@ -7,8 +7,7 @@ from QuickDraw.views.themes.applicator import create_style
 
 
 class Presenter(Protocol):
-    def choice(self, choice: str):
-        ...
+    def choice(self, choice: str): ...
 
 
 class Quoteform(Protocol):
@@ -23,11 +22,6 @@ class Quoteform(Protocol):
 
 class Submission(Protocol):
     quoteform: Quoteform
-    new_path: Path | None
-    status: str
-    attachments: list | None
-    markets: list[str] | None
-    submit_tool: bool
 
 
 class NewFileAlert:
@@ -36,7 +30,7 @@ class NewFileAlert:
         icon_src,
     ) -> None:
         self.icon_path = icon_src
-        self.submission_info: Submission = None
+        self.submission: Submission = None
         self.presenter: Presenter = None
         self.root: Toplevel = None
         self.style: Style = None
@@ -75,12 +69,12 @@ class NewFileAlert:
         presenter: Presenter,
         view_interpreter: Tk,
         view_palette,
-        submission_info: Submission,
+        submission: Submission,
         months: list[str],
     ) -> str:
         self.presenter = presenter
         self._setup_window(view_interpreter, view_palette, months[0])
-        self._create_widgets(submission_info, months)
+        self._create_widgets(submission, months)
         self.root.mainloop()
 
     def _setup_window(
@@ -90,10 +84,24 @@ class NewFileAlert:
         current_month: str,
     ):
         self.__assign_window_attributes(view_interpreter, view_palette)
-        self._selected_template = StringVar(master=self.root, value=current_month.capitalize())
-        self._vessel = StringVar(master=self.root, value="", name="vessel",)
-        self._year = StringVar(master=self.root, value="", name="year",)
-        self._referral = StringVar(master=self.root, value="", name="referral",)
+        self._selected_template = StringVar(
+            master=self.root, value=current_month.capitalize()
+        )
+        self._vessel = StringVar(
+            master=self.root,
+            value="",
+            name="vessel",
+        )
+        self._year = StringVar(
+            master=self.root,
+            value="",
+            name="year",
+        )
+        self._referral = StringVar(
+            master=self.root,
+            value="",
+            name="referral",
+        )
 
     def __assign_window_attributes(self, view_interpreter: Tk, view_palette):
         self.root: Toplevel = Toplevel(
@@ -110,37 +118,44 @@ class NewFileAlert:
 
     def _create_widgets(
         self,
-        submission_info: Submission,
+        submission: Submission,
         months: list[str],
     ):
         client_name = " ".join(
             [
-                submission_info.fname,
-                submission_info.lname,
+                submission.quoteform.fname,
+                submission.quoteform.lname,
             ]
         )
 
-        text_frame = ttk.Frame(master=self.root, style="TFrame",)
+        text_frame = ttk.Frame(
+            master=self.root,
+            style="TFrame",
+        )
         text_frame.pack(fill="both", expand=True)
-        btn_frame = ttk.Frame(master=self.root, style="TFrame",)
+        btn_frame = ttk.Frame(
+            master=self.root,
+            style="TFrame",
+        )
         btn_frame.pack(fill="both", expand=True, ipady=2)
         text_frame.grid_columnconfigure(0, weight=1)
         btn_frame.grid_columnconfigure(0, weight=1)
 
-        ttk.Label(text_frame, text="Client name: ", style="TLabel",).grid(
-            column=0, row=0, pady=(3, 0)
-        )
-        name_entry = ttk.Entry(
+        ttk.Label(
             text_frame,
-            width=30,
-            justify="center",
-            style="TEntry"
-        )
+            text="Client name: ",
+            style="TLabel",
+        ).grid(column=0, row=0, pady=(3, 0))
+        name_entry = ttk.Entry(text_frame, width=30, justify="center", style="TEntry")
         name_entry.insert(0, client_name)
         name_entry.configure(state="readonly")
         name_entry.grid(column=0, row=1, pady=(0, 8))
 
-        ttk.Label(text_frame, text="Vessel: ", style="TLabel",).grid(column=0, row=2)
+        ttk.Label(
+            text_frame,
+            text="Vessel: ",
+            style="TLabel",
+        ).grid(column=0, row=2)
         vessel_entry = ttk.Entry(
             text_frame,
             textvariable=self._vessel,
@@ -148,10 +163,14 @@ class NewFileAlert:
             justify="center",
             style="TEntry",
         )
-        self.vessel = submission_info.vessel
+        self.vessel = submission.quoteform.vessel
         vessel_entry.grid(column=0, row=3, pady=(0, 8))
 
-        ttk.Label(text_frame, text="Vessel year: ", style="TLabel",).grid(column=0, row=4)
+        ttk.Label(
+            text_frame,
+            text="Vessel year: ",
+            style="TLabel",
+        ).grid(column=0, row=4)
         year_entry = ttk.Entry(
             text_frame,
             textvariable=self._year,
@@ -159,11 +178,14 @@ class NewFileAlert:
             justify="center",
             style="TEntry",
         )
-        self.year = submission_info.vessel_year
+        self.year = submission.quoteform.vessel_year
         year_entry.grid(column=0, row=5, pady=(0, 8))
 
-        ttk.Label(text_frame, text="Referral: ", style="TLabel",
-                  ).grid(column=0, row=6)
+        ttk.Label(
+            text_frame,
+            text="Referral: ",
+            style="TLabel",
+        ).grid(column=0, row=6)
         referral_entry = ttk.Entry(
             text_frame,
             textvariable=self._referral,
@@ -171,11 +193,16 @@ class NewFileAlert:
             justify="center",
             style="TEntry",
         )
-        self.referral = submission_info.quoteform.referral
+        self.referral = submission.quoteform.referral
         referral_entry.grid(column=0, row=7, pady=(0, 7))
-        if submission_info.quoteform.referral.lower() == "renewal":
-            ttk.Label(text_frame, text="Add Client to Month:", style="TLabel",).grid(
-                column=0, row=8,
+        if submission.quoteform.referral.lower() == "renewal":
+            ttk.Label(
+                text_frame,
+                text="Add Client to Month:",
+                style="TLabel",
+            ).grid(
+                column=0,
+                row=8,
             )
             self.root.geometry("300x448")
             options: list[str] = [

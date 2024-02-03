@@ -13,26 +13,20 @@ class Presenter(Protocol):
     """
 
     @property
-    def run_flag(self) -> bool:
-        ...
+    def run_flag(self) -> bool: ...
 
     @property
-    def run_template_settings_flag(self) -> bool:
-        ...
+    def run_template_settings_flag(self) -> bool: ...
 
     @property
-    def run_email_settings_flag(self) -> bool:
-        ...
+    def run_email_settings_flag(self) -> bool: ...
 
     @property
-    def run_folder_settings_flag(self) -> bool:
-        ...
+    def run_folder_settings_flag(self) -> bool: ...
 
-    def start_program(self) -> None:
-        ...
+    def start_program(self) -> None: ...
 
-    def start_submission_program(self) -> None:
-        ...
+    def start_submission_program(self) -> None: ...
 
 
 class TrayIcon:
@@ -72,13 +66,9 @@ class TrayIcon:
             icon.stop()
             self.active = False
             self.presenter.run_flag = False
-            # self.presenter.submission.withdraw()
-            print(self.presenter.submission.root.state())
-            self.presenter.submission.root.quit()
-            # print(self.presenter.submission.state())
+            self.presenter.view_main.root.quit()
         elif str(item) == "Add Surplus Lines Stamp":
             print("Running Surplus Lines Calculator")
-            # Insert run code here (below should work)
             self.presenter.run_SL_automator_flag = True
 
     def create_icon(self, src_icon):

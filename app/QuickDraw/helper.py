@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import NamedTuple
 import errno
 import os
 import sys
@@ -39,14 +38,6 @@ else:
     README: Path = app_resources / "docs" / "readme.html"
 
 
-class Carrier(NamedTuple):
-    friendly_name: str
-    name: str
-    id: str
-    redundancies: int = 0
-    redundancy_group: int = 0
-
-
 AVAILABLE_CARRIERS = [
     Carrier("Seawave", "Seawave", "SW", 3, 1),
     Carrier("Primetime", "Primetime", "PT", 3, 1),
@@ -82,7 +73,7 @@ Windows-specific error code indicating an invalid pathname.
 def validate_paths(pathnames: str | list[str]) -> Path | list[Path]:
     if isinstance(pathnames, str):
         if _is_path_exists_or_creatable_portable(pathnames):
-            return Path(path).resolve()
+            return Path(pathnames).resolve()
         else:
             raise OSError
     else:

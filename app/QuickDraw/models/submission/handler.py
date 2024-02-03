@@ -1,13 +1,12 @@
 from pathlib import Path
+from typing import Literal
 
 from email_validator import validate_email, EmailNotValidError
 
-from QuickDraw.helper import Carrier, open_config, validate_paths
+from QuickDraw.helper import open_config, validate_paths
 from QuickDraw.models.submission.quoteform import FormBuilder
-from QuickDraw.models.submission.submission import Submission
+from QuickDraw.models.submission.underwriting import Submission, Market, Carrier
 from QuickDraw.models.submission.customer import Customer
-from QuickDraw.models.submission.markets import Market, Markets
-from QuickDraw.models.submission.quoteform import Quoteform
 from QuickDraw.models.submission.vessel import Vessel
 
 
@@ -15,38 +14,54 @@ class SubmissionModel:
     def __init__(self):
         pass
 
-    def process_request(
+    def process_quoteform(
         self,
-        view_results: dict[str, str | list[str]],
-        carriers: dict[str, bool] = None,
+        _quoteform_path: str,
+        carriers: list[Carrier] = [],
+        markets: list[Market] = [],
+        status: Literal[
+            "ALLOCATE MRKTS AND SUBMIT",
+            "SUBMIT TO MRKTS",
+        ] = "ALLOCATE MRKTS AND SUBMIT",
     ) -> Submission:
-        # validate all attachment paths and ensure they're permissible/readable.
-        attachments = view_results["attachments"].copy()
-        view_results["attachments"] = []
-        valid_path = validate_paths(pathname=attachments)
-        view_results["attachments"].append(valid_path)
-        # combine CC addresses into a single string if necessary.
-        view_results["user_CC"] = self.process_user_CC(
-            cc_1=view_results["user_CC1"],
-            cc_2=view_results["user_CC2"],
+        quoteform_path = validate_paths(pathnames=_quoteform_path)
+        _ = FormBuilder()
+        quoteform = _.make(quoteform=quoteform_path)
+        customer: Customer = Customer(
+            fname=quoteform.fname,
+            lname=quoteform.lname,
+            referral=quoteform.referral,
         )
-        assert isinstance(
-            view_results["user_CC"], list[str]
-        ), f"CC addresses are not strings within a list:\n{view_results['user_CC']}"
+        vessel: Vessel = Vessel(
+            year=quoteform.year,
+            make=quoteform.vessel,
+        )
+        submission: Submission = Submission(
+            quoteform=quoteform,
+            customer=customer,
+            vessel=vessel,
+            carriers=carriers,
+            markets=markets,
+            status=status,
+        )
+        return submission
 
-        return True
+    def validate_attachments(self, attachments: list[str]) -> list[Path]:
+        "TODO: make the error handling USEFUL!"
+        try:
+            paths = validate_paths(pathnames=attachments)
+        except OSError as ose:
+            print(str(ose))
+        else:
+            return paths
 
-    def process_attachments(self, attachments: list[str]):
-        pass
-
-    def process_markets(self, market_names: list[str]) -> list[Market | Markets]:
+    def make_markets(self, market_names: list[str]) -> list[Market]:
         config = open_config()
         mrkts = []
-        for carrier_config_name in market_names:
-            section = config.get_section(carrier.name).to_dict()
+        for name in market_names:
+            section = config.get_section(name).to_dict()
             mrkt = Market(
-                name=carrier.name,
-                id=carrier.id,
+                name=name,
                 address=section["address"],
                 greeting=section["greeting"],
                 body=section["body"],
@@ -56,11 +71,15 @@ class SubmissionModel:
             mrkts.append(mrkt)
         return mrkts
 
+    #######################################################
+    #############  MS GRAPH API MODEL  ####################
+    #######################################################
     def process_user_CC(
         self,
         cc_1: str,
         cc_2: str,
     ) -> str:
+        "TODO: EXTRACT TO EMAIL MODEL"
         cc_1_list = [x.strip() for x in cc_1.split(";")]
         cc_2_list = [x.strip() for x in cc_2.split(";")]
         cc = list(set(cc_1_list + cc_2_list))
@@ -74,33 +93,6 @@ class SubmissionModel:
             else:
                 validated_cc.append(email)
         return ";".join(validated_cc)
-
-    def process_quoteform(
-        self,
-        _quoteform_path: str,
-        carriers: dict[str, bool] = None,
-        not_validated: bool = True,
-    ) -> Submission:
-        if not_validated:
-            quoteform_path = validate_paths(pathnames=_quoteform_path)
-        _ = FormBuilder()
-        quoteform = _.make(quoteform=quoteform_path)
-        customer: Customer = Customer(
-            fname=quoteform.fname, lname=quoteform.lname, referral=quoteform.referral
-        )
-        vessel: Vessel = Vessel(year=quoteform.year, make=quoteform.vessel)
-        submission: Submission = Submission(
-            quoteform=quoteform,
-            customer=customer,
-            vessel=vessel,
-            markets=[],
-            status="ALLOCATE MRKTS AND SUBMIT",
-        )
-        return submission
-
-    #######################################################
-    #############  MS GRAPH API MODEL  ####################
-    #######################################################
 
     def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
         """Prepares list of CC addresses to be properly formatted for api call."""
@@ -234,7 +226,6 @@ class SubmissionModel:
                     thread_xl.start()
                 except Exception as e:
                     print(f"Excel API call failed. {e}")
-        self.quoteform_detected = False
 
     def send_email_api(self):
         print("Sending email via MSGraph")
