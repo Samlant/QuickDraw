@@ -58,17 +58,10 @@ class Services:
 
 
 class JsonBuilder:
-    def __init__(
-        self,
-        service: Literal["excel", "outlook"],
-        submission: Submission,
-    ):
-        if service == "excel":
-            return self.make_excel(submission)
-        elif service == "outlook":
-            pass
+    def __init__(self):
+        pass
 
-    def make_excel(
+    def make_excel_row_entry(
         self,
         submission: Submission,
         initials: str,

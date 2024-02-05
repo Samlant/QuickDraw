@@ -312,12 +312,12 @@ class Workbooks:
         if workbook_id and table_id:
             content = self.graph_session.make_request(
                 method="get",
-                endpoint=f"{path}/drive/items/{workbook_id}/workbook/tables/{table_id}/rows",
+                endpoint=f"{path}/drive/items/{workbook_id}/workbook/tables/{table_id}/rows?$select=values",
             )
         elif workbook_path and table_path and worksheet_path:
             content = self.graph_session.make_request(
                 method="get",
-                endpoint=f"{path}/drive/items/{workbook_path}/workbook/worksheets/{worksheet_path}/tables/{table_path}/rows",
+                endpoint=f"{path}/drive/items/{workbook_path}/workbook/worksheets/{worksheet_path}/tables/{table_path}/rows?$select=values",
             )
         else:
             print("Add functionality to accommodate mixing paths & id's in endpoint!")

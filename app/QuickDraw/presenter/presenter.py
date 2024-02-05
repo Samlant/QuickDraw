@@ -134,7 +134,7 @@ class Presenter:
 
         elif choice == "track_submit":
             # SEND EXCEL API (in case submission prog crashes...)
-            self._start_thread_for_excel()
+            
             quoteform_path = self.submission.quoteform.path
             tracker_month = self.submission.tracker_month
             self.submission = None
@@ -256,10 +256,16 @@ class Presenter:
         self.submission.attachments = self.model_submission.validate_attachments(
             attachments=view_results["attachments"],
         )
-        # Send a preliminary Excel API call just in case Outlook call fails.
-
+        # Send a preliminary Excel API call just in case
+        # the Outlook call fails.
+        # NOTE: this will be handled internally within the API module...
         # Prep the submission for an outlook email API call
+        self.model_email_handler.PROCESS(self.submission)
         # Send the API call to send emails
+        self.model_graph_api.run_graph_calls(
+            submission=self.submission,
+            outlook=True,
+        )
         # Once sent,  make another API call to update Excel tracker entry.
         self.loop_through_envelopes()
 

@@ -12,7 +12,6 @@ from Quickdraw.models.graph.accessories import (
 from QuickDraw.models.graph.excel import ExcelManager
 from QuickDraw.models.graph.outlook import OutlookManager
 
-
 class GraphAPI:
     """Responsible for creating a connection with Microsoft's Graph API and establishing authorization.  This module is able to read/write data to and from Microsoft services and has been tailored for Business-use."""
 
@@ -35,16 +34,15 @@ class GraphAPI:
         self.graph_client.login()
         self.services.make(self.graph_client)
 
-    def run_excel_api(self, submission):
+    def run_graph_calls(self, submission, outlook: bool = False, *args, **kwargs,):
+        if outlook:
+            pass
         manager = ExcelManager(
             service=self.services.workbooks,
             group_id=self.connection_data.group_id,
             quote_tracker_id=self.connection_data.quote_tracker_id,
             submission=submission,
         )
-
-    def run_outlook_api(self):
-        pass
 
     ########################################################
     ############   END Preferred Methods END   #############
