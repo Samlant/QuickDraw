@@ -24,7 +24,9 @@ class SubmissionModel:
             "SUBMIT TO MRKTS",
         ] = "ALLOCATE MRKTS AND SUBMIT",
     ) -> Submission:
-        quoteform_path = validate_paths(pathnames=_quoteform_path)
+        quoteform_path = self.validate_attachments(
+            attachments=_quoteform_path
+            )
         _ = FormBuilder()
         quoteform = _.make(quoteform=quoteform_path)
         customer: Customer = Customer(
@@ -46,8 +48,9 @@ class SubmissionModel:
         )
         return submission
 
-    def validate_attachments(self, attachments: list[str]) -> list[Path]:
+    def validate_attachments(self, attachments: str | list[str]) -> list[Path]:
         "TODO: make the error handling USEFUL!"
+        "TODO: PUT INTO LIST THEN PROCESS WITH VALIDATE_PATHS!"
         try:
             paths = validate_paths(pathnames=attachments)
         except OSError as ose:
@@ -73,82 +76,6 @@ class SubmissionModel:
             mrkts.append(mrkt)
         return mrkts
 
-    #######################################################
-    #############  MS GRAPH API MODEL  ####################
-    #######################################################
-    def process_user_CC(
-        self,
-        cc_1: str,
-        cc_2: str,
-    ) -> str:
-        "TODO: EXTRACT TO EMAIL MODEL"
-        cc_1_list = [x.strip() for x in cc_1.split(";")]
-        cc_2_list = [x.strip() for x in cc_2.split(";")]
-        cc = list(set(cc_1_list + cc_2_list))
-        validated_cc = []
-        for email in cc:
-            try:
-                email_info = validate_email(email, check_deliverability=False)
-                email = email_info.normalized
-            except EmailNotValidError as e:
-                print(str(e))
-            else:
-                validated_cc.append(email)
-        return ";".join(validated_cc)
-
-    def format_cc_for_api(self, all_addresses: list | str) -> list[str]:
-        """Prepares list of CC addresses to be properly formatted for api call."""
-        if isinstance(all_addresses, list):
-            split_address = self._split_addresses(input_list=all_addresses)
-            formatted_address = self._eliminate_whitespaces_invalid_chars(
-                list_of_str=split_address
-            )
-            return formatted_address
-        elif isinstance(all_addresses, str):
-            formatted_address = self._del_whitespace_invalid_chars(input=all_addresses)
-            return formatted_address
-        else:
-            raise TypeError(
-                "email address is neither a string nor list. Please double-check."
-            )
-
-    def format_to_for_api(self, addresses: str) -> list[str]:
-        list_of_strings: list[str] = []
-        if ";" in addresses:
-            x = addresses.split(";")
-            for y in x:
-                if y.strip("; ") != "":
-                    list_of_strings.append(y)
-            formatted_addresses = self._eliminate_whitespaces_invalid_chars(
-                list_of_strings
-            )
-        else:
-            formatted_addresses = self._del_whitespace_invalid_chars(addresses)
-        return formatted_addresses
-
-    def _split_addresses(self, input_list: list[str]) -> list[str]:
-        list_of_strings: list[str] = []
-        for item in input_list:
-            x = item.split(";")
-            for y in x:
-                if y.strip() != "":
-                    list_of_strings.append(y)
-        return list_of_strings
-
-    def _eliminate_whitespaces_invalid_chars(self, list_of_str: list[str]) -> list[str]:
-        list_of_formatted_str: list[str] = []
-        for item in list_of_str:
-            x = self._del_whitespace_invalid_chars(input=item)
-            list_of_formatted_str.append(x)
-        return list_of_formatted_str
-
-    def _del_whitespace_invalid_chars(self, input: str) -> str:
-        x = input.translate({ord(i): None for i in r'"() ,:;<>[\]'})
-        return x
-
-    #######################################################
-    #############  MS GRAPH API MODEL  ####################
-    #######################################################
 
     #######################################################
     ################  FROM THE PRESENTER  #################

@@ -44,8 +44,7 @@ class Presenter:
         model_graph_api: protocols.GraphAPI,
         model_dir_handler: protocols.Dirhandler,
         model_dir_watcher: protocols.DirWatch,
-        model_email_handler: protocols.EmailHandler,
-        model_email_options: protocols.EmailOptionsModel,
+        model_email_builder: protocols.EmailBuilder,
         model_new_alert: protocols.AlertModel,
         model_surplus_lines: protocols.SurplusLinesAutomator,
         model_submission: protocols.SubmissionModel,
@@ -63,8 +62,7 @@ class Presenter:
         self.model_graph_api = model_graph_api
         self.model_dir_handler = model_dir_handler
         self.model_dir_watcher = model_dir_watcher
-        self.model_email_handler = model_email_handler
-        self.model_email_options = model_email_options
+        self.model_email_builder = model_email_builder
         self.model_new_alert = model_new_alert
         self.model_submission = model_submission
         self.model_surplus_lines = model_surplus_lines
@@ -260,7 +258,12 @@ class Presenter:
         # the Outlook call fails.
         # NOTE: this will be handled internally within the API module...
         # Prep the submission for an outlook email API call
-        self.model_email_handler.PROCESS(self.submission)
+        user_carbon_copies = view_results["user_CC1"] + view_results["user_CC2"]
+        self.model_email_builder.make_all_emails(
+            submission=self.submission,
+            extra_notes=view_results["extra_notes"],
+            user_CC=user_carbon_copies,
+        )
         # Send the API call to send emails
         self.model_graph_api.run_graph_calls(
             submission=self.submission,

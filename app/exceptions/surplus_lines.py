@@ -17,7 +17,7 @@ class DocException(Exception):
         self.file_name = doc_path.name
         self.doc_dir = doc_path.parent
 
-    def save_msg(Self, message):
+    def save_msg(self, message):
         super().__init__(message)
 
 
