@@ -46,13 +46,20 @@ class EmailBuilder(EmailContent):
             market: Market,
             settings: dict[str, str]
         ) -> Email:
-        # make signature
-        signature = self._make_sig(settings=settings)
-        body = self._make_body(market=market, signature=signature)
-        # get recipients
         recipients = self._get_recipients(market=market)
         cc_recipients = self._get_carbon_copies(settings=settings)
-        email = Email()
+        subject = self.make_subject_line()
+        signature = self._make_sig(settings=settings)
+        body = self._make_body(market=market, signature=signature)
+        attachments = [self.submission.quoteform.path]
+        attachments.append(self.submission.attachments)
+        email = Email(
+            to=recipients,
+            cc=cc_recipients,
+            subject=subject,
+            body=body,
+            attachments=attachments,
+        )
         return email
 
     

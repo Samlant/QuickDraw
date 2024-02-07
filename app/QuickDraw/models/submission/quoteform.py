@@ -4,7 +4,7 @@ import ctypes
 
 from fillpdf import fillpdfs
 
-from QuickDraw.models.submission.underwriting import Submission
+from QuickDraw.helper import open_config
 
 
 @dataclass(kw_only=True)
@@ -40,9 +40,9 @@ class Quoteform:
     vessel: str
     referral: str
 
-    def __post_init__(self, name, path):
-        self.name = name
+    def __post_init__(self, path, name,):
         self.path = path
+        self.name = name
 
     def values(self) -> tuple[str]:
         return (
@@ -128,11 +128,11 @@ class FormBuilder:
         counter = {}
         for quoteform in forms:
             count = 0
-            for desired_key, field_name in quoteform.items():
+            for field_name in quoteform.values():
                 if "," in field_name:
                     fields = field_name.split(",")
                     for field in fields:
-                        if field in pdf_fields_values.keys():
+                        if field.strip() in pdf_fields_values.keys():
                             count += 1
                 elif field_name in pdf_fields_values.keys():
                     count += 1
@@ -172,7 +172,7 @@ class FormBuilder:
         return form_registry
 
     def __get_all_quoteforms(self) -> list[dict[str, str]]:
-        config = self.config_worker._open_config()
+        config = open_config()
         form_names = self.__get_names_from_config(config)
         forms = self.__get_values_from_config(config, form_names)
         return forms

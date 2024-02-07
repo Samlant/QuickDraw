@@ -66,7 +66,7 @@ class EmailContent:
         </p>
         """
         if self.options._use_CC_defaults:
-            signature = f"<img src='{settings["sig_img_url"]}'>" + signature
+            signature = f"<img src='{settings['sig_img_url']}'>" + signature
         return signature
         
     def _make_body(self, market: Market, signature: str,):
@@ -129,7 +129,7 @@ class EmailContent:
         return addresses
     
     def __validate_addresses(self, addresses: list[str]) -> list[str]:
-        validated_addresses = []
+        _validated_addresses = []
         for address in addresses:
             try:
                 email_info = validate_email(address, check_deliverability=False)
@@ -137,12 +137,14 @@ class EmailContent:
             except EmailNotValidError as e:
                 print(str(e))
             else:
-                validated_addresses.append(email)
-        unique_valid_addresses = list(set(validated_addresses))
+                _validated_addresses.append(email)
+        unique_valid_addresses = list(set(_validated_addresses))
         return unique_valid_addresses
-    
-    def get_attachments(self):
-        pass
         
-    def get_subject_line(self, submission: Submission):
-        pass
+    def make_subject_line(self, submission: Submission)-> str:
+        _ = f"""New Quote Submission from Novamar |
+        {self.submission.customer.lfname} |
+        {self.submission.vessel.year}
+        {self.submission.vessel.make}"""
+        subject = _.replace("\n", " ")
+        return subject

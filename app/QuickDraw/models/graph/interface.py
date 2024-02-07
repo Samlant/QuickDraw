@@ -36,13 +36,33 @@ class GraphAPI:
 
     def run_graph_calls(self, submission, outlook: bool = False, *args, **kwargs,):
         if outlook:
-            pass
+            for email in kwargs.get("emails"):
+                manager = OutlookManager(
+                    service=self.services.mail,
+                )
+                # Format message into json/dict
+                # save into a variable
+                # send email msg and receive server response
+                # TODO: apply error handling to the responses
+                if not kwargs["send"]:
+                    # create msg DRAFT, then open/view for user to see.
+                    pass
+                else:
+                    self.services.mail.send_my_mail(
+                        message="",
+                        save_to_send_items=True,
+                    )
+
         manager = ExcelManager(
             service=self.services.workbooks,
             group_id=self.connection_data.group_id,
             quote_tracker_id=self.connection_data.quote_tracker_id,
             submission=submission,
         )
+        if manager.client_is_already_on_tracker():
+            manager.update_client_entry()
+        else:
+            manager.add_client_to_tracker()
 
     ########################################################
     ############   END Preferred Methods END   #############

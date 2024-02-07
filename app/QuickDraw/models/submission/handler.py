@@ -1,8 +1,6 @@
 from pathlib import Path
 from typing import Literal
 
-from email_validator import validate_email, EmailNotValidError
-
 from QuickDraw.helper import open_config, validate_paths
 from QuickDraw.models.submission.quoteform import FormBuilder
 from QuickDraw.models.submission.underwriting import Submission, Market, Carrier
@@ -48,11 +46,14 @@ class SubmissionModel:
         )
         return submission
 
-    def validate_attachments(self, attachments: str | list[str]) -> list[Path]:
+    def validate_attachments(self, attachments: str) -> Path | list[Path]:
         "TODO: make the error handling USEFUL!"
-        "TODO: PUT INTO LIST THEN PROCESS WITH VALIDATE_PATHS!"
+        if "\n" in attachments:
+            _ = attachments.split("\n")
+        elif isinstance(attachments, str):
+            _ = attachments
         try:
-            paths = validate_paths(pathnames=attachments)
+            paths = validate_paths(pathnames=_)
         except OSError as ose:
             print(str(ose))
         else:
