@@ -95,7 +95,7 @@ class EmailContent:
         return body
 
     def _get_recipients(self, market: Market) -> list[str]:
-        _a = self.__split_addresses(addresses=market.address)
+        _a = self.__split_addresses(_addresses=market.address)
         _b = self.__format_addresses(_addresses=_a)
         recipients = self.__validate_addresses(addresses=_b)
         return recipients

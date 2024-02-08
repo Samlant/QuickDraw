@@ -2,6 +2,7 @@ from pprint import pprint
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from requests import HTTPError
 
 from Quickdraw.models.graph.client import MicrosoftGraphClient
 from Quickdraw.models.graph.accessories import (
@@ -16,10 +17,6 @@ class GraphAPI:
     """Responsible for creating a connection with Microsoft's Graph API and establishing authorization.  This module is able to read/write data to and from Microsoft services and has been tailored for Business-use."""
 
     def __init__(self):
-        # DO WE NEED JSON DATA LIKE THIS? Could be passed as arg...
-        # Correct,  it will be passed to excel/outlook model. DELETE!
-        self.json_data: dict[any, any] = None
-        ####################################################
         self.graph_client = None
         self.services: Services = Services()
         self.connection_data: ConnectionData = None
@@ -36,22 +33,13 @@ class GraphAPI:
 
     def run_graph_calls(self, submission, outlook: bool = False, *args, **kwargs,):
         if outlook:
-            for email in kwargs.get("emails"):
-                manager = OutlookManager(
-                    service=self.services.mail,
-                )
-                # Format message into json/dict
-                # save into a variable
-                # send email msg and receive server response
-                # TODO: apply error handling to the responses
-                if not kwargs["send"]:
-                    # create msg DRAFT, then open/view for user to see.
-                    pass
-                else:
-                    self.services.mail.send_my_mail(
-                        message="",
-                        save_to_send_items=True,
-                    )
+            emails, send = kwargs["emails"], kwargs["send"]
+            manager = OutlookManager(service=self.services.mail)
+            try:
+                response = manager.send_emails(emails=emails, send=send)
+            except HTTPError as e:
+                print(f"code: {e.code}\nmessage: {e.message}\nError: {e.error}")
+
 
         manager = ExcelManager(
             service=self.services.workbooks,
@@ -67,48 +55,6 @@ class GraphAPI:
     ########################################################
     ############   END Preferred Methods END   #############
     ########################################################
-    def setup_api(self, connection_data) -> bool:
-        self._set_connection_data(connection_data)
-        if not self._init_graph_client():
-            return False
-        print("starting users service")
-        self._init_user_service()
-        return True
-
-    def _set_connection_data(self):
-        print("set connection data successfully.")
-        pass
-
-    def run_excel_program(self, json_payload: dict[any, any]):
-        self.json_data = json_payload
-        self._init_graph_client()
-        self._init_workbooks_service()
-        self.session_id = self._create_workbook()
-
-    def _init_graph_client(self) -> bool:
-        self.graph_client = MicrosoftGraphClient(
-            client_id=self.client_id,
-            tenant_id=self.tenant_id,
-            client_secret=self.client_secret,
-            redirect_uri=self.redirect_uri,
-            scope=self.scopes,
-            credentials=self.credentials,
-        )
-        print("logging into graph_client.")
-        if self.try_login():
-            return True
-        else:
-            if self.try_login():
-                return True
-            else:
-                return False
-
-    def try_login(self) -> bool:
-        if self.graph_client.login():
-            print("logged into graph client.")
-            return True
-        else:
-            return False
 
     ###############################################
     ################ EXCEL SERVICES ###############

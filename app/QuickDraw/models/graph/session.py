@@ -202,4 +202,8 @@ class GraphSession:
                 error = error_dict["response_body"]["error"]
                 print(f"Code: {error['code']}")
                 print(f"Message: {error['message']}")
-                # raise requests.HTTPError()
+                _e = requests.HTTPError()
+                _e.code = error['code']
+                _e.message = error['message']
+                _e.error = error_dict
+                raise _e
