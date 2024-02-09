@@ -89,16 +89,7 @@ class Presenter:
     ########### Refactor within API Models #################
     ########################################################
     def setup_api(self) -> bool:
-        if self.model_graph_api.setup():
-            return True
-
-    def start_api_calls(self, service: Literal["excel", "outlook"]):
-        if service == "excel":
-            self.model_graph_api.run_excel_api()
-
-        elif service == "outlook":
-            self.model_graph_api.run_outlook_api()
-
+        return self.model_graph_api.setup()
     ###################### END #############################
     ########### Refactor within API Models #################
     ########################################################
@@ -227,14 +218,8 @@ class Presenter:
                 carriers.append(carrier)
         return carriers
 
-    def btn_process_envelopes(self, view_first: bool = False) -> None:
-        """TODO REFACTOR BELOW USING SUBMISSION & EMAIL MODELS!"""
-        print("clicked send button")
-        # Check if user only wants to view the msg prior to sending
-        self.only_view_msg = view_first
-        # Save carriers
+    def btn_process_envelopes(self, auto_send: bool = True) -> None:
         carriers = self.__get_carrier_results(self.view_main)
-        # Make markets from carriers
         carrier_combos = self.get_carrier_combos(
             all=False,
             carrier_list=carriers,
@@ -242,9 +227,7 @@ class Presenter:
         markets = self.model_submission.make_markets(
             maket_tuples=(carrier_combos),
         )
-        # get results from the home view (QF + attachments + extra notes + CC)
         view_results = self.view_main.home
-        # Make Submission from quoteform, carriers and markets
         self.submission = self.model_submission.process_quoteform(
             _quoteform_path=view_results["quoteform"],
             carriers=carriers,
@@ -254,23 +237,18 @@ class Presenter:
         self.submission.attachments = self.model_submission.validate_attachments(
             attachments=view_results["attachments"],
         )
-        # Send a preliminary Excel API call just in case
-        # the Outlook call fails.
-        # NOTE: this will be handled internally within the API module...
-        # Prep the submission for an outlook email API call
         user_carbon_copies = view_results["user_CC1"] + view_results["user_CC2"]
-        self.model_email_builder.make_all_emails(
+        emails = self.model_email_builder.make_all_emails(
             submission=self.submission,
             extra_notes=view_results["extra_notes"],
             user_CC=user_carbon_copies,
         )
-        # Send the API call to send emails
         self.model_graph_api.run_graph_calls(
             submission=self.submission,
             outlook=True,
+            emails=emails,
+            auto_send=auto_send,
         )
-        # Once sent,  make another API call to update Excel tracker entry.
-        self.loop_through_envelopes()
 
     ########################################################
     ########## BEGIN --PLACEHOLDERS FUNCS-- BEGIN ##########

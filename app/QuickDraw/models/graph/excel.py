@@ -34,16 +34,7 @@ class ExcelManager:
             group_id=self.c_data.group_id,
             item_id=self.c_data.quote_tracker_id,
         )
-        self.username: str = self.get_user_initials()
-        # this is to add the row...
-        # dont forget to implement checking if the row already exists
-        # and that the whole process (opening session, getting row data,
-        # checking that row data, then adding/updating the row depending on
-        # that, THEN closing it---is all implemented fairly simply...)
-        self.json: JsonBuilder = JsonBuilder()
-        self.json.make_excel_row_entry()
-        # send JSON to api request. Dont forget that this is only to
-        # add a row, so fix it!
+        
 
     def _open_session(
         self,
@@ -65,13 +56,54 @@ class ExcelManager:
         initials = f"{first[0]}{last[0]}"
         return initials.upper()
 
-    def _close_session(self, session: str) -> bool:
-        pass
+    def close_session(self) -> bool:
+        self.service.close_session(
+            session_id=self.session_id,
+            group_drive=self.c_data.group_id,
+            item_id=self.c_data.quote_tracker_id,
+        )
+        return True
+    
+    def process_client_entry(self, results: dict[str, str] | None, index: str = "",):
+        initials = self.get_user_initials()
+        json = JsonBuilder()
+        row_data = json.make_excel_row_entry(
+            submission=self.submission,
+            initials=initials,
+            index=index,
+            results=results,
+        )
+        self._add_row(json_excel_row=row_data, index=index)
 
-    def client_is_already_on_tracker(self):
-        self.service.get_table_rows(
+    def _add_row(self, json_excel_row, index: str = ""):
+        self.service.add_row(
+            group_drive=self.c_data.group_id,
+            workbook_id=self.c_data.quote_tracker_id,
+            table_id = self.submission.tracker_month,
+            session_id=self.session_id,
+            json_data=json_excel_row,
+            index=index,
+            )
+
+    def client_already_on_tracker(self) -> str | bool:
+        rows_data = list[dict[str, int | list[list, str | int]]]
+        rows_data = self.service.get_table_rows(
             group_id=self.c_data.group_id,
             workbook_id=self.c_data.quote_tracker_id,
             table_id=self.submission.tracker_month,
             session_id=self.session_id,
-        )
+        )["value"]
+        target_name = self.submission.customer.lfname
+        target_vessel_year = self.submission.vessel.year
+        target_vessel_make = self.submission.vessel.make
+        print("Identifying if client already exists on tracker...")
+        for row in rows_data:
+            row_name = row["values"][0][3]
+            row_vessel_year = row["values"][0][7]
+            row_vessel_make = row["values"][0][8]
+            if ((target_name == row_name) and 
+                (target_vessel_year == row_vessel_year) and 
+                (target_vessel_make == row_vessel_make)):
+                index = str(row["index"])
+                return index
+        return False

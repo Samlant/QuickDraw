@@ -8,6 +8,8 @@ from QuickDraw.models.email.options import EmailOptions
 from QuickDraw.models.email.format import EmailFormat
 
 class Email(NamedTuple):
+    name: str
+    ids: list[str]
     to: list[str]
     cc: list[str]
     subject: str
@@ -54,6 +56,8 @@ class EmailBuilder(EmailContent):
         attachments = [self.submission.quoteform.path]
         attachments.append(self.submission.attachments)
         email = Email(
+            name=market.name,
+            ids=market.ids,
             to=recipients,
             cc=cc_recipients,
             subject=subject,

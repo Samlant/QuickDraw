@@ -38,7 +38,6 @@ from QuickDraw.views.submission.quoteforms.detections.allocate import (
 from QuickDraw.views.themes import palettes
 
 from QuickDraw.helper import (
-    MS_GRAPH_STATE_PATH,
     TRAY_ICON,
     APP_ICON,
     README,
@@ -51,30 +50,6 @@ def get_theme() -> palettes.Palette:
     palette_name = open_config.get("View theme", "theme")
     theme = getattr(palettes, palette_name)
     return theme
-
-
-def login_to_MS_graph():
-    """Logs into Microsoft's Graph API
-    TODO: Revise overall process structure of how we login!"""
-    try:
-        model_api_client = MSGraphClient(
-            ms_graph_state_path=str(
-                MS_GRAPH_STATE_PATH,
-            )
-        )
-    except PermissionError as pe:
-        print(
-            f"Couldn't login using existing credentials. Deleting and trying again.\n {str(pe)}"
-        )
-        # Delete credential file
-        Path.unlink(MS_GRAPH_STATE_PATH)
-        # Retry login
-        model_api_client = MSGraphClient(
-            ms_graph_state_path=str(
-                MS_GRAPH_STATE_PATH,
-            )
-        )
-        return model_api_client
 
 
 def initialize_modules() -> Presenter:

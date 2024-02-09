@@ -141,7 +141,7 @@ class EmailContent:
         unique_valid_addresses = list(set(_validated_addresses))
         return unique_valid_addresses
         
-    def make_subject_line(self, submission: Submission)-> str:
+    def make_subject_line(self)-> str:
         _ = f"""New Quote Submission from Novamar |
         {self.submission.customer.lfname} |
         {self.submission.vessel.year}

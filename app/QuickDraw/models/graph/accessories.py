@@ -65,12 +65,18 @@ class JsonBuilder:
         self,
         submission: Submission,
         initials: str,
+        index: str,
+        results: dict[str, str],
     ) -> dict[str, int | list[list[str]]]:
-        carriers = self._assign_carrier_statuses(submission=submission)
+        carriers = self._assign_carrier_statuses(
+            submission=submission,
+            results=results,
+        )
         _ = datetime.now()
         current_date = f"{_.month}-{_.day}"
+
         json = {
-            "index": 1,
+            "index": index,
             "values": [
                 [
                     "",  # A
@@ -110,12 +116,21 @@ class JsonBuilder:
     def _assign_carrier_statuses(
         self,
         submission: Submission,
+        results = None,
     ) -> dict[str, str]:
-        default = ""
         carriers = {}
-        for carrier in submission.carriers:
-            carriers[carrier.id] = carrier.status
-        for carrier in AVAILABLE_CARRIERS:
-            if carrier.id not in carriers:
-                carriers[carrier.id] = carrier.status
-        return carriers
+        status = ""
+        if results:
+            for _r in results.values():
+                if _r["success"]:
+                    status = "P"
+                for _id in _r["ids"]:
+                    carriers[_id] = status
+            return carriers
+        else:
+            for carrier in submission.carriers:
+                carriers[carrier.id] = status
+            for carrier in AVAILABLE_CARRIERS:
+                if carrier.id not in carriers:
+                    carriers[carrier.id] = status
+            return carriers

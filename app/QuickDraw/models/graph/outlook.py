@@ -3,7 +3,11 @@ from pathlib import Path
 from typing import Protocol
 import win32com.client as win32
 
+from requests import HTTPError
+
 class Email(Protocol):
+    name: str
+    ids: list[str]
     to: list[str]
     cc: list[str]
     subject: str
@@ -14,35 +18,30 @@ class OutlookManager:
     def __init__(self, service, emails: list[Email]):
         self.service = service
         self.emails: list[Email] = emails
+        self.attachments = None
 
-    def send_emails(self, emails: list[Email], send: bool) -> dict[str, str]:
+    def send_emails(self, emails: list[Email], auto_send: bool) -> dict[str, str]:
+        self.attachments = self._make_attachments(emails[0].attachments)
+        results: dict[str, dict[str, str | bool]] = {}
         for email in emails:
-            # format attachments
-            self.attachments = self._make_attachments(email.attachments)
-            # format json request
-            msg_json = self._email_to_json(email=email, send=send)
-            # send or view API request
-            if send:
-                self.service.send_my_mail(message=msg_json)
+            msg_json = self._email_to_json(email=email, auto_send=auto_send)
+            try:
+                if auto_send:
+                    self.service.send_my_mail(message=msg_json)
+                else:
+                    self.service.create_my_message(message=msg_json)
+                    outlook = win32.Dispatch('outlook.application')
+                    drafts = outlook.GetNamespace("MAPI").GetDefaultFolder(16)
+                    mail = drafts.Items.GetLast()
+                    mail.Display(False)
+            except HTTPError as e:
+                print(f"Error upon sending email for the {email.name} markets.")
+                print(f"code: {e.code}\nmessage: {e.message}\nError: {e.error}")
+                results[email.name] = {"ids": email.ids, "success": False}
             else:
-                self.service.create_my_message(message=msg_json)
-                outlook = win32.Dispatch('outlook.application')
-                # Decide whether to create draft email using Graph API THEN grab 
-                # the local draft email using its ID ---or--- by using the win32com 
-                # interface instead, similar to how prog was originally written...
-                # mail = outlook.CreateItem(0)
-                # mail.To = email.to
-                # mail.CC = email.cc
-                # mail.Subject = email.subject
-                # mail.HtmlBody = email.body
-                # mail.Attachment = email.attachments
-                drafts = outlook.GetNamespace("MAPI").GetDefaultFolder(16)
-                mail = drafts.Items.GetLast()
-                ################################
-                # Once we have the draft email item...
-                ###############################
-                mail.Display(False)
-
+                results[email.name] = {"ids": email.ids, "success": True}
+        return results
+                
     def _make_attachments(
         self, _attachments: list[Path]
     ) -> list[dict[str, str]]:
@@ -78,7 +77,7 @@ class OutlookManager:
     def _email_to_json(
         self, 
         email: Email,
-        send: bool,
+        auto_send: bool,
     ) -> dict[str, str | dict[str, str] | list[dict[str, dict[str, str]]]]:
         _json = {
                 "subject": email.subject,
@@ -89,7 +88,7 @@ class OutlookManager:
             }
         if email.cc:
             _json["ccRecipients"] = self.__make_addresses(email.cc)
-        if send:
+        if auto_send:
             json = {"message": _json}
         else:
             json = _json

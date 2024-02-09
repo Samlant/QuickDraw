@@ -196,12 +196,9 @@ class GraphSession:
                     "response_request": dict(response.request.headers),
                     "response_method": response.request.method,
                 }
-
                 # Log the error.
                 logging.error(msg=json_lib.dumps(obj=error_dict, indent=4))
                 error = error_dict["response_body"]["error"]
-                print(f"Code: {error['code']}")
-                print(f"Message: {error['message']}")
                 _e = requests.HTTPError()
                 _e.code = error['code']
                 _e.message = error['message']

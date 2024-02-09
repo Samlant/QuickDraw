@@ -334,6 +334,7 @@ class Workbooks:
         table_path: str = None,
         session_id: str = None,
         json_data: dict = None,
+        index: str,
     ) -> dict:
         """Retrieves a list of named objects using the Item ID or
         Item Path.
@@ -356,6 +357,8 @@ class Workbooks:
             "Content-Type": "application/json",
             # "Workbook-Session-Id": session_id,
         }
+        if index:
+            index = f"/{index}"
         if group_drive:
             path = f"groups/{group_drive}"
         else:
@@ -363,14 +366,14 @@ class Workbooks:
         if workbook_id and table_id:
             content = self.graph_session.make_request(
                 method="post",
-                endpoint=f"{path}/drive/items/{workbook_id}/workbook/tables/{table_id}/rows",
+                endpoint=f"{path}/drive/items/{workbook_id}/workbook/tables/{table_id}/rows{index}",
                 additional_headers=header_payload,
                 json=json_data,
             )
         elif workbook_path and table_path and worksheet_path:
             content = self.graph_session.make_request(
                 method="post",
-                endpoint=f"{path}/drive/items/{workbook_path}/workbook/worksheets/{worksheet_path}/tables/{table_path}/rows",
+                endpoint=f"{path}/drive/items/{workbook_path}/workbook/worksheets/{worksheet_path}/tables/{table_path}/rows{index}",
                 additional_headers=header_payload,
                 data=json_data,
             )
