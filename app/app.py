@@ -4,21 +4,15 @@ import threading
 import time
 from tkinter import Tk
 
-# TODO revise paths on these
-from model.graph.graph import MSGraphClient
-from model.graph.model import API
-from model.email.email import EmailHandler
-
 # NOTE These are likely OKAY!
 # PRESENTER
 from QuickDraw.presenter.presenter import Presenter
 
 # MODELS
-# from QuickDraw.models.windows.dirs import
-# from QuickDraw.models.windows.registrations import
-# from QuickDraw.models.windows.email_options import
 from QuickDraw.models.dir.handler import DirHandler
 from QuickDraw.models.dir.watcher import DirWatch
+from QuickDraw.models.email.builder import EmailBuilder
+from QuickDraw.models.graph.interface import GraphAPI
 from QuickDraw.models.surplus_lines.interface import SurplusLinesAutomator
 from QuickDraw.models.updater import update_app
 from QuickDraw.models.submission.handler import SubmissionModel
@@ -26,6 +20,9 @@ from QuickDraw.models.windows.alert import AlertModel
 from QuickDraw.models.windows.allocate import AllocateModel
 from QuickDraw.models.windows.templates import TemplatesModel
 from QuickDraw.models.windows.home import HomeModel
+# from QuickDraw.models.windows.dirs import
+# from QuickDraw.models.windows.registrations import
+# from QuickDraw.models.windows.email_options import
 
 # VIEWS
 from QuickDraw.views.submission.interface import MainWindow

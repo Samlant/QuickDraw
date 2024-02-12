@@ -61,48 +61,71 @@ class Submission(Protocol):
     markets: list[Market]
     attachments: list[Path]
 
+class Email(Protocol):
+    name: str
+    ids: list[str]
+    to: list[str]
+    cc: list[str]
+    subject: str
+    body: str
+    attachments: list[Path]
 
 ####################################################
 ##################    MODELS    ####################
 ####################################################
+class AlertModel(Protocol):
+    def __init__(self) -> None: ...
 
+    def get_current_month(self) -> str: ...
 
-class API(Protocol):
-    def create_excel_json(self, data) -> dict[str, any]: ...
-
+    def get_next_months(self) -> list[str]: ...
 
 class DirHandler(Protocol):
+    def __init__(self) -> None: ...
+
     def process_dirs(
         self,
         submission,
-        section_obj,
     ) -> Submission: ...
 
-
-class DirsModel(Protocol): ...
-
+    def assign_parent_dir(self, referral, section_obj) -> Path:
+        ...
 
 class DirWatch(Protocol):
+    path: Path
+
     def begin_watch(self) -> None: ...
 
+class EmailBuilder(Protocol) -> list[Email]:
+    def make_all_emails(
+            self,
+            submission: Submission,
+            extra_notes: str,
+            user_carbon_copies: str,
+    ):
+        ...
+        
+class GraphAPI(Protocol):
+    
+    def setup(self) -> bool:
+        ...
 
-class EmailOptionsModel(Protocol): ...
+    def run_graph_calls(
+            self,
+            submission: Submission,
+            outlook: bool,
+            emails: list[Email],
+            auto_send: bool,
+        ):
+        ...
 
+class SurplusLinesAutomator(Protocol):
+    def gat_output_dir(self) -> str | None:
+        ...
 
-class EmailHandler(Protocol):
-    subject: str
-    cc: str
-    to: str
-    body: str
-    extra_notes: str
-    username: str
-    img_sig_url: str
-    attachments_list: str
+    def start(self) -> None:
+        ...
 
-    def view_letter(self) -> bool:
-        raise NotImplementedError
-
-    def stringify_subject(self, formatted_values: dict[str, str]) -> str: ...
 
 
 class SubmissionModel(Protocol):
@@ -143,28 +166,6 @@ class HomeModel(Protocol):
     def get_all_attachments(self) -> list: ...
 
 
-class Interface(Protocol):
-    def send_graph_call(self, service: Literal["excel", "outlook"]) -> bool: ...
-
-
-class MSGraphClient(Protocol):
-    def run_excel_program(self, json_payload: dict) -> None: ...
-
-    def client_already_exists(self) -> bool: ...
-
-    def add_row(self) -> None: ...
-
-    def close_workbook_session(self) -> None: ...
-
-    def send_message(self, message) -> None: ...
-
-
-class AlertModel(Protocol):
-    def __init__(self) -> None: ...
-
-    def get_current_month(self) -> str: ...
-
-    def get_next_months(self) -> list[str]: ...
 
 
 class RegistrationsModel(Protocol): ...
@@ -173,8 +174,6 @@ class RegistrationsModel(Protocol): ...
 class TemplatesModel(Protocol): ...
 
 
-class SurplusLinesAutomator(Protocol):
-    def start(self) -> None: ...
 
 
 ####################################################

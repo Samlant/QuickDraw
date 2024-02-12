@@ -1,6 +1,6 @@
 from pathlib import Path
 
-log_file: Path = Path.home() / "AppData" / "Local" / "QuickDraw" / "sys.log"
+log_file: Path = Path.home() / "AppData" / "Local" / "QuickDraw" / "surplus_lines.log"
 
 LOGGING_CONFIG = {
     "version": 1,

@@ -3,13 +3,12 @@ import errno
 import os
 import sys
 import tempfile
+from typing import NamedTuple
 
 from tkinterdnd2 import TkinterDnD
 from configupdater import ConfigUpdater
 
-from QuickDraw.models.submission.underwriting import Carrier
-
-TEST = False
+TEST = True
 
 _view_backend = TkinterDnD.Tk()
 _view_backend.withdraw()
@@ -37,6 +36,13 @@ else:
     TRAY_ICON: Path = app_resources / "img" / "sys_tray.ico"
     README: Path = app_resources / "docs" / "readme.html"
 
+class Carrier(NamedTuple):
+    friendly_name: str
+    name: str
+    id: str
+    redundancies: int = 0
+    redundancy_group: int = 0
+    status: str = ""
 
 AVAILABLE_CARRIERS = [
     Carrier("Seawave", "Seawave", "SW", 3, 1),

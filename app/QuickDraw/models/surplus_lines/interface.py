@@ -3,22 +3,67 @@ import subprocess
 import sys
 from win10toast import ToastNotifier
 import logging.config
+from pathlib import Path
 
-from QuickDraw.models.surplus_lines.dev.logs import LOGGING_CONFIG
+from exceptions import surplus_lines as exceptions
+from logs.surplus_lines import LOGGING_CONFIG
+from QuickDraw.helper import validate_paths
 from QuickDraw.models.surplus_lines.automation import Automator
-from QuickDraw.models.surplus_lines.dev import exceptions
 
 logging.config.dictConfig(LOGGING_CONFIG)
 log = logging.getLogger(__name__)
 
 
 class SurplusLinesAutomator:
+    """ TODO: Move self.app into the 'start' method, make it a local variable,  and pass
+    it into the output dir method....
+    NOTE: this actually may not be doable.. relook at it another time.
+    """
     def __init__(self):
         self.app = Automator()
+        self.user_doc_path: Path
 
-    def start(self):
+    def get_output_dir(self) -> str | None:
+        if self.app.output_dir:
+            return self.app.output_dir
+        else:
+            return None
+
+    def start(self, doc_path: str):
+        if not self.app.output_dir:
+            log.info(
+                msg="The output folder isn't set. This needs to be set before proceeding with the program. ",
+            )
+            exceptions.spawn_message(
+                "Warning",
+                """Please choose a folder to save the final, stamped file
+                in first. Click 'OK' here first, then click the 'Browse' button to select your desired folder.""",
+                0x10 | 0x0,
+            )
+        else:
+            try:
+                _d = validate_paths(pathnames=doc_path.strip("{}"))
+            except OSError as e:
+                msg = f"The file provided to the program is not a valid file.\nPath: {doc_path.strip('{}')}"
+                log.warning(msg=msg)
+                exceptions.spawn_message(
+                "Warning",
+                msg,
+                0x10 | 0x0,
+            )
+            else:
+                self.user_doc_path = _d
+                self.app.exited = False
+                log.info(
+                    msg="Saved the PDF's path. Destroying the UI window.",
+                )
+                log.debug(
+                    msg="The PDF path is: {0}".format(self.user_doc_path),
+                )
+
         if not self.app.exited:
             try:
+                self.app.user_doc_path = doc_path
                 self.app.parse_doc()
                 stamp_num = 1
                 stamp_paths = []

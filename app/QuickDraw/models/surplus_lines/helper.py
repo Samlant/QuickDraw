@@ -1,10 +1,12 @@
 from pathlib import Path
 
+from QuickDraw.helper import TEST
+
 # from dotenv import load_dotenv
 # from os import environ
 
-
-INDIVIDUAL_MODULE = True
+# If testing: set to True:
+INDIVIDUAL_MODULE = TEST
 
 if INDIVIDUAL_MODULE:
     FSL_DOC_PATH = Path(__file__).parents[1] / "resources" / "fsl_stamp.pdf"
@@ -17,7 +19,7 @@ else:
         / "east_coast_forms"
         / "fsl_stamp.pdf"
     )
-    ENV_PATH = Path.home() / "AppData" / "QuickDraw" / ".env"
+    ENV_PATH = Path.home() / "AppData" / "Local" / "QuickDraw" / ".env"
 
 # load_dotenv(
 #     str(ENV_PATH),

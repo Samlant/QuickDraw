@@ -5,8 +5,8 @@ from email_validator import validate_email, EmailNotValidError
 
 from QuickDraw.helper import open_config
 from QuickDraw.models.submission.underwriting import Submission, Market
-from app.QuickDraw.models.email.format import EmailFormat
-from app.QuickDraw.models.email.options import EmailOptions
+from QuickDraw.models.email.format import EmailFormat
+from QuickDraw.models.email.options import EmailOptions
 
 class Email(Protocol):
     to: list[str]

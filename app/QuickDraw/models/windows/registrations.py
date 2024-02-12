@@ -1,5 +1,5 @@
 from QuickDraw.helper import open_config
-from QuickDraw.models.customer.form import Quoteform
+from QuickDraw.models.submission.quoteform import Quoteform
 
 FORM_PREFIX = "Form_"
 

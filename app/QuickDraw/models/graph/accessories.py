@@ -1,8 +1,8 @@
 from typing import NamedTuple
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Literal
 from datetime import datetime
+
 from QuickDraw.helper import open_config, MS_GRAPH_STATE_PATH, AVAILABLE_CARRIERS
 from QuickDraw.models.submission.underwriting import Submission
 from QuickDraw.models.graph.services.mail import Mail

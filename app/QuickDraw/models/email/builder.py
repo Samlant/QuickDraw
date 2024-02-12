@@ -1,7 +1,6 @@
 from typing import NamedTuple
 from pathlib import Path
 
-from QuickDraw.helper import open_config
 from QuickDraw.models.submission.underwriting import Submission, Market
 from QuickDraw.models.email.content import EmailContent
 from QuickDraw.models.email.options import EmailOptions

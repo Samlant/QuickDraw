@@ -2,9 +2,14 @@ import ctypes
 import threading
 from ast import literal_eval
 from pathlib import Path
-from tkinter import TclError
+##################################
+# this is kept to catch Tclerrors if they show up again;
+from tkinter import TclError 
+# was caused by issues arising from multi-threading with Tkinter.
+# NOTE: Tkinter needs to stem from the main thread ONLY (darn).
+# *NOT* thread-safe.
+##################################
 import itertools
-from typing import Literal
 
 # from multiprocessing import p
 
@@ -12,7 +17,6 @@ from typing import Literal
 import QuickDraw.models.windows.registrations as qf_reg
 from QuickDraw.helper import open_config, VIEW_INTERPRETER, AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import set_start_tab, ALL_TABS
-from QuickDraw.models.submission.quoteform import Quoteform
 import QuickDraw.presenter.protocols as protocols
 
 
@@ -40,12 +44,11 @@ class Presenter:
 
     def __init__(
         self,
-        model_allocate: protocols.AllocateModel,
-        model_graph_api: protocols.GraphAPI,
-        model_dir_handler: protocols.Dirhandler,
+        model_alert_new_qf: protocols.AlertModel,
+        model_dir_handler: protocols.DirHandler,
         model_dir_watcher: protocols.DirWatch,
         model_email_builder: protocols.EmailBuilder,
-        model_new_alert: protocols.AlertModel,
+        model_graph_api: protocols.GraphAPI,
         model_surplus_lines: protocols.SurplusLinesAutomator,
         model_submission: protocols.SubmissionModel,
         model_tab_dirs: protocols.DirsModel,
@@ -58,12 +61,12 @@ class Presenter:
         view_surplus_lines: protocols.SurplusLinesView,
         view_palette: protocols.Palette,
     ) -> None:
-        self.model_allocate = model_allocate
+        self.model_alert = model_alert
         self.model_graph_api = model_graph_api
         self.model_dir_handler = model_dir_handler
         self.model_dir_watcher = model_dir_watcher
         self.model_email_builder = model_email_builder
-        self.model_new_alert = model_new_alert
+        self.model_alert_new_qf = model_alert_new_qf
         self.model_submission = model_submission
         self.model_surplus_lines = model_surplus_lines
         self.model_tab_dirs = model_tab_dirs
@@ -103,7 +106,7 @@ class Presenter:
             _quoteform_path=file,
         )
         print(f"the current client is: {self.submission.__repr__}")
-        months = self.model_new_alert.get_next_months()
+        months = self.model_alert_new_qf.get_next_months()
         self.view_new_file_alert.initialize(
             presenter=self,
             view_interpreter=VIEW_INTERPRETER,
@@ -125,11 +128,8 @@ class Presenter:
             # SEND EXCEL API (in case submission prog crashes...)
             
             quoteform_path = self.submission.quoteform.path
-            tracker_month = self.submission.tracker_month
             self.submission = None
-            self.start_submission_program(
-                quoteform=quoteform_path, tracker_month=tracker_month
-            )
+            self.start_submission_program(quoteform=quoteform_path)
         else:
             self._start_thread_for_excel()
             self.submission = None
@@ -452,7 +452,7 @@ class Presenter:
         form_names = self.view_main.reg_tv.get_all_names()
         name = qf_reg.standardize_name(self.view_main.form_name)
         if qf_reg.validate_name(form_names, name):
-            qf = Quoteform(
+            qf = protocols.Quoteform(
                 name=name,
                 fname=self.view_main.fname,
                 lname=self.view_main.lname,
@@ -471,7 +471,19 @@ class Presenter:
 
     ############# --Surplus Lines Automator-- #############
     def run_surplus_lines(self):
-        self.model_surplus_lines.start_view(VIEW_INTERPRETER, self.view_palette)  #
+        output_dir = self.model_surplus_lines.get_output_dir()
+        self.view_surplus_lines.show_view(
+            presenter=self,
+            view_interpreter=VIEW_INTERPRETER,
+            view_palette=self.view_palette,
+            output_dir=output_dir,
+        )
+
+    def process_SL_doc(self, event):
+        doc_path = event.data
+        self.view_surplus_lines.root.destroy()
+        self.model_surplus_lines.start(doc_path)
+
 
     ############# END --Surplus Lines Automator-- END #############
 

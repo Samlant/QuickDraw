@@ -4,35 +4,26 @@ from pathlib import Path
 import base64
 
 from QuickDraw.helper import open_config
-from QuickDraw.presenter.protocols import Submission, Quoteform
+from QuickDraw.presenter.protocols import Submission
 from QuickDraw.models.graph.accessories import JsonBuilder
-
-class ConnectionData(Protocol):
-    scope: list[str]
-    client_id: str
-    tenant_id: str
-    client_secret: str
-    redirect_uri: str
-    user_id: str
-    group_id: str
-    quote_tracker_id: str
-    credentials: Path
 
 class ExcelManager:
 
     def __init__(
         self,
         service,
-        connection_data: ConnectionData,
+        group_id: str,
+        quote_tracker_id: str,
         submission: Submission,
     ):
-        self.c_data = connection_data
+        self.group_id = group_id
+        self.quote_tracker_id = quote_tracker_id
         self.submission = submission
         self.service = service
         self.session_id: str = self._open_session(
             service=service,
-            group_id=self.c_data.group_id,
-            item_id=self.c_data.quote_tracker_id,
+            group_id=self.group_id,
+            item_id=self.quote_tracker_id,
         )
         
 
@@ -59,8 +50,8 @@ class ExcelManager:
     def close_session(self) -> bool:
         self.service.close_session(
             session_id=self.session_id,
-            group_drive=self.c_data.group_id,
-            item_id=self.c_data.quote_tracker_id,
+            group_drive=self.group_id,
+            item_id=self.quote_tracker_id,
         )
         return True
     
@@ -77,8 +68,8 @@ class ExcelManager:
 
     def _add_row(self, json_excel_row, index: str = ""):
         self.service.add_row(
-            group_drive=self.c_data.group_id,
-            workbook_id=self.c_data.quote_tracker_id,
+            group_drive=self.group_id,
+            workbook_id=self.quote_tracker_id,
             table_id = self.submission.tracker_month,
             session_id=self.session_id,
             json_data=json_excel_row,
@@ -88,8 +79,8 @@ class ExcelManager:
     def client_already_on_tracker(self) -> str | bool:
         rows_data = list[dict[str, int | list[list, str | int]]]
         rows_data = self.service.get_table_rows(
-            group_id=self.c_data.group_id,
-            workbook_id=self.c_data.quote_tracker_id,
+            group_id=self.group_id,
+            workbook_id=self.quote_tracker_id,
             table_id=self.submission.tracker_month,
             session_id=self.session_id,
         )["value"]

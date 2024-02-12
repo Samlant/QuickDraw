@@ -17,7 +17,9 @@ log = logging.getLogger(__name__)
 
 class SurplusLinesView:
     def __init__(self):
-        pass
+        self.root: Toplevel = None
+        self.style  = None
+        self.palette = None
 
     @property
     def output_dir(self) -> str:
@@ -50,6 +52,7 @@ class SurplusLinesView:
         presenter,
         view_interpreter: TkinterDnD.Tk,
         view_palette,
+        output_dir: str | None,
     ):
         self.root: Toplevel = Toplevel(
             master=view_interpreter,
@@ -59,6 +62,8 @@ class SurplusLinesView:
         self.palette = view_palette
         self._assign_window_traits()
         self._create_widgets(presenter)
+        if output_dir:
+            self.output_dir = output_dir
 
     def _assign_window_traits(self):
         self.root.geometry("730x250")

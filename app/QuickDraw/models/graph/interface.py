@@ -1,5 +1,5 @@
-from Quickdraw.models.graph.client import MicrosoftGraphClient
-from Quickdraw.models.graph.accessories import (
+from QuickDraw.models.graph.client import MicrosoftGraphClient
+from QuickDraw.models.graph.accessories import (
     ConnectionData,
     Services,
     make_connect_data,

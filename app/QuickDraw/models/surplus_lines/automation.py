@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import logging
 
-from Quickdraw.helper import open_config
-from QuickDraw.models.surplus_lines.dev import exceptions
+from QuickDraw.helper import open_config, validate_paths
+from exceptions import surplus_lines as exceptions
 from QuickDraw.models.surplus_lines.carriers.base import Carrier
 from QuickDraw.models.surplus_lines.doc.filler import DocFiller
 from QuickDraw.models.surplus_lines.doc.parser import DocParser
@@ -32,28 +32,37 @@ class Payload:
 
 class Automator:
     def __init__(self):
-        self.user_doc_path: Path = None
+        self._user_doc_path: Path = None
         self.payloads: list[Payload] = []
         self.form_data: dict[str, float | str] = None
         self.exited: bool = False
         self.carrier_obj: Carrier = None
         self.stamps: list[Path] = []
         self.doc_filler: DocFiller = None
+        self.root = None
 
     @property
     def output_dir(self) -> str:
-        "TODO DOUBLE CHECK!"
         config = open_config()
-        value = config.get(
-            "Surplus lines settings",
+        _dir = config.get(
+            "Surplus lines",
             "output_save_dir",
-        )
-        return value[1].value
-
-    def _save_user_doc_path(self, event):
+        ).value
+        try:
+            output_dir = validate_paths(pathnames=_dir)
+        except OSError as OSE:
+            return None
+        else:
+            return str(output_dir)
+    @property
+    def user_doc_path(self):
+        return self._user_doc_path
+    
+    @user_doc_path.setter
+    def user_doc_path(self, doc_path: str):
         log.info(msg="Saving the PDF's path.")
         log.debug(
-            msg="Event data: {0}".format(event.data),
+            msg=f"Event data: {doc_path}",
         )
         if not self.output_dir:
             log.info(
@@ -66,7 +75,7 @@ class Automator:
                 0x10 | 0x0,
             )
         else:
-            self.user_doc_path = Path(event.data.strip("{}")).resolve()
+            self.user_doc_path = Path(doc_path.strip("{}")).resolve()
             self.exited = False
             log.info(
                 msg="Saved the PDF's path. Destroying the UI window.",
@@ -77,26 +86,25 @@ class Automator:
             self.root.destroy()
 
         def install_placeholders(self):
-            
         #####################################################################
         #####################################################################
         #####################################################################
         ################ IMPLEMENT THIS HERE! ########################
-        if self.output_dir:
+            if self.output_dir:
+                log.debug(
+                    msg="output_dir detected, prefilling Text box with its path: {0}".format(
+                        self.output_dir
+                    ),
+                )
+                self.output_path.insert("1.0", self.output_dir)
+            else:
+                log.info(
+                    msg="No output folder selected.  Please choose a folder to save the finalized, stamped file in before dragging a PDF file onto the window.",
+                )
             log.debug(
-                msg="output_dir detected, prefilling Text box with its path: {0}".format(
-                    self.output_dir
-                ),
+                msg="Spawning window, starting mainloop.",
             )
-            self.output_path.insert("1.0", self.output_dir)
-        else:
-            log.info(
-                msg="No output folder selected.  Please choose a folder to save the finalized, stamped file in before dragging a PDF file onto the window.",
-            )
-        log.debug(
-            msg="Spawning window, starting mainloop.",
-        )
-        self.root.mainloop()
+            self.root.mainloop()
 
     #####################################################################
     #####################################################################
