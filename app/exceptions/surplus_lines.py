@@ -1,7 +1,15 @@
 import ctypes
 from pathlib import Path
-from QuickDraw.models.surplus_lines.carriers.base import Carrier, CarrierBuilder
+from QuickDraw.models.surplus_lines.carriers.base import Carrier
 
+
+class OutputDirNotSet(Exception):
+    """Exception for when trying to process a PDF without a save location set."""
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+        message = "There is no save location set currently.  Please select a location using the window and re-drag your file to continue."
+        super().__init__(message)
 
 class DocException(Exception):
     """Base exception for PDF-related errors when running the Surplus Lines automator.

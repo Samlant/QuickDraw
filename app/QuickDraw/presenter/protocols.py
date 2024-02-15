@@ -70,6 +70,9 @@ class Email(Protocol):
     body: str
     attachments: list[Path]
 
+class Palette(Protocol):
+    ...
+
 ####################################################
 ##################    MODELS    ####################
 ####################################################
@@ -120,7 +123,7 @@ class GraphAPI(Protocol):
         ...
 
 class SurplusLinesAutomator(Protocol):
-    def gat_output_dir(self) -> str | None:
+    def output_dir(self, new_dir: str = None) -> str | None:
         ...
 
     def start(self) -> None:

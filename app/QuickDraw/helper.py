@@ -76,7 +76,7 @@ Windows-specific error code indicating an invalid pathname.
 """
 
 
-def validate_paths(pathnames: str | list[str]) -> Path | list[Path]:
+def validate_paths(pathnames: str | list[str] | tuple[Path]) -> Path | list[Path]:
     if isinstance(pathnames, str):
         if _is_path_exists_or_creatable_portable(pathnames):
             return Path(pathnames).resolve()

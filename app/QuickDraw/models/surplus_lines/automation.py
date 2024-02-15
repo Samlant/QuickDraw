@@ -64,26 +64,8 @@ class Automator:
         log.debug(
             msg=f"Event data: {doc_path}",
         )
-        if not self.output_dir:
-            log.info(
-                msg="The output folder isn't set. This needs to be set before proceeding with the program. ",
-            )
-            exceptions.spawn_message(
-                "Warning",
-                """Please choose a folder to save the final, stamped file
-                in first. Click 'OK' here first, then click the 'Browse' button to select your desired folder.""",
-                0x10 | 0x0,
-            )
-        else:
-            self.user_doc_path = Path(doc_path.strip("{}")).resolve()
-            self.exited = False
-            log.info(
-                msg="Saved the PDF's path. Destroying the UI window.",
-            )
-            log.debug(
-                msg="The PDF path is: {0}".format(self.user_doc_path),
-            )
-            self.root.destroy()
+        self._user_doc_path = doc_path
+
 
         def install_placeholders(self):
         #####################################################################
@@ -120,23 +102,23 @@ class Automator:
         )
         try:
             dp = DocParser(self.user_doc_path)
-        except exceptions.UnknownDocType as UDT:
-            exceptions.spawn_message("Error", str(UDT), 0x10 | 0x0)
+        except exceptions.UnknownDocType as e:
+            exceptions.spawn_message("Error", str(e), 0x10 | 0x0)
             # btn = OK
             # exit SL window and terminate thread
             log.warning(
-                msg="{0}".format(str(UDT)),
+                msg="{0}".format(str(e)),
                 exc_info=1,
             )
             self.root.destroy()
-            raise exceptions.DocError(self.user_doc_path) from UDT
+            raise exceptions.DocError(self.user_doc_path) from e
         try:
             carrier_builder, trans_type = dp.build_market_class(self.user_doc_path)
-        except exceptions.DocParseError as DPE:
+        except exceptions.DocParseError as e:
             log.warning(
-                msg=str(DPE),
+                msg=str(e),
             )
-            output = exceptions.spawn_message("Error", str(DPE), 5)
+            output = exceptions.spawn_message("Error", str(e), 5)
             if output == 4:
                 # btn = retry
                 self.restart_GUI()
@@ -151,9 +133,9 @@ class Automator:
                     msg="User decided to cancel instead of trying again. Exiting.",
                     exc_info=1,
                 )
-                raise exceptions.DocError(self.user_doc_path) from DPE
-        except exceptions.UnsupportedDocType as UDT:
-            output = exceptions.spawn_message("Error", str(UDT), 5)
+                raise exceptions.DocError(self.user_doc_path) from e
+        except exceptions.UnsupportedDocType as e:
+            output = exceptions.spawn_message("Error", str(e), 5)
             if output == 4:
                 # btn = retry
                 log.info(
@@ -169,27 +151,27 @@ class Automator:
                     exc_info=1,
                 )
                 self.root.destroy()
-                raise exceptions.DocError(self.user_doc_path) from UDT
-        except exceptions.UnknownDocType as UDT:
-            exceptions.spawn_message("Error", str(UDT), 0x10 | 0x0)
+                raise exceptions.DocError(self.user_doc_path) from e
+        except exceptions.UnknownDocType as e:
+            exceptions.spawn_message("Error", str(e), 0x10 | 0x0)
             # btn = OK
             # exit SL window and terminate thread
             log.warning(
-                msg="{0}".format(str(UDT)),
+                msg="{0}".format(str(e)),
                 exc_info=1,
             )
             self.root.destroy()
-            raise exceptions.DocError(self.user_doc_path) from UDT
-        except exceptions.SurplusLinesNotApplicable as SLNA:
-            exceptions.spawn_message("Error", str(SLNA), 0x10 | 0x0)
+            raise exceptions.DocError(self.user_doc_path) from e
+        except exceptions.SurplusLinesNotApplicable as e:
+            exceptions.spawn_message("Error", str(e), 0x10 | 0x0)
             # btn = OK
             # exit SL window and terminate thread
             log.warning(
-                msg="{0}".format(str(SLNA)),
+                msg="{0}".format(str(e)),
                 exc_info=1,
             )
             self.root.destroy()
-            raise exceptions.DocError(self.user_doc_path) from SLNA
+            raise exceptions.DocError(self.user_doc_path) from e
         else:
             log.debug(
                 msg="Starting to build carrier object using the CarrierBuilder.",

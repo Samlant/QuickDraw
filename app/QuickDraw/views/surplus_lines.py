@@ -8,7 +8,10 @@ from QuickDraw.views.themes.applicator import create_style
 
 
 class Presenter(Protocol):
-    def save_SL_doc_path(self, event):
+    def process_SL_doc(self, event):
+        ...
+    
+    def save_sl_output_dir(self, event):
         ...
 
 
@@ -47,7 +50,7 @@ class SurplusLinesView:
     def doc_path(self) -> None:
         self._doc_path.delete("1.0", "end")
 
-    def show_view(
+    def make_view(
         self,
         presenter,
         view_interpreter: TkinterDnD.Tk,
@@ -177,7 +180,7 @@ class SurplusLinesView:
         self._doc_path.drop_target_register(DND_FILES)
         self._doc_path.dnd_bind(
             "<<Drop>>",
-            presenter.save_SL_doc_path,
+            presenter.process_SL_doc,
         )
         self._doc_path.pack(
             fill="both",
@@ -187,32 +190,16 @@ class SurplusLinesView:
         log.debug(
             msg="Created and activated drag-n-drop for Text box.",
         )
-        if self.output_dir:
-            log.debug(
-                msg="output_dir detected, prefilling Text box with its path: {0}".format(
-                    self.output_dir
-                ),
-            )
-            self.output_path.insert("1.0", self.output_dir)
-        else:
-            log.info(
-                msg="No output folder selected.  Please choose a folder to save the finalized, stamped file in before dragging a PDF file onto the window.",
-            )
-        log.debug(
-            msg="Spawning window and starting mainloop.",
-        )
-
-        self.root.mainloop()
 
     def _browse_output_dir(self, presenter: Presenter):
         try:
-            dir_path = filedialog.askdirectory(mustexist=True)
+            _dir = filedialog.askdirectory(mustexist=True)
         except AttributeError as e:
             log.info(
                 msg="The Folder Browser window must have been closed before user clicked 'OK'. Continuing on.",
             )
             log.debug(
-                msg="Caught {0}, continuing on.".format(e),
+                msg=f"Caught {e}, continuing on.",
             )
-            self.output_dir = dir_path
-            presenter.save_SL_output_dir(dir_path)
+        else:
+            presenter.save_sl_output_dir(_dir)

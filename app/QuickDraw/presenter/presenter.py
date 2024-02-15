@@ -4,21 +4,22 @@ from ast import literal_eval
 from pathlib import Path
 ##################################
 # this is kept to catch Tclerrors if they show up again;
-from tkinter import TclError 
+# from tkinter import TclError 
 # was caused by issues arising from multi-threading with Tkinter.
 # NOTE: Tkinter needs to stem from the main thread ONLY (darn).
 # *NOT* thread-safe.
 ##################################
 import itertools
-
 # from multiprocessing import p
+
+from win10toast import ToastNotifier
 
 
 import QuickDraw.models.windows.registrations as qf_reg
 from QuickDraw.helper import open_config, VIEW_INTERPRETER, AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import set_start_tab, ALL_TABS
 import QuickDraw.presenter.protocols as protocols
-
+from exceptions.surplus_lines import OutputDirNotSet
 
 class Presenter:
     """Responsible for communicating between the Models and
@@ -51,7 +52,7 @@ class Presenter:
         model_graph_api: protocols.GraphAPI,
         model_surplus_lines: protocols.SurplusLinesAutomator,
         model_submission: protocols.SubmissionModel,
-        model_tab_dirs: protocols.DirsModel,
+        # model_tab_dirs: protocols.DirsModel,
         model_tab_home: protocols.HomeModel,
         model_tab_registrations: protocols.RegistrationsModel,
         model_tab_templates: protocols.TemplatesModel,
@@ -61,15 +62,14 @@ class Presenter:
         view_surplus_lines: protocols.SurplusLinesView,
         view_palette: protocols.Palette,
     ) -> None:
-        self.model_alert = model_alert
+        self.model_alert_new_qf = model_alert_new_qf
         self.model_graph_api = model_graph_api
         self.model_dir_handler = model_dir_handler
         self.model_dir_watcher = model_dir_watcher
         self.model_email_builder = model_email_builder
-        self.model_alert_new_qf = model_alert_new_qf
         self.model_submission = model_submission
         self.model_surplus_lines = model_surplus_lines
-        self.model_tab_dirs = model_tab_dirs
+        # self.model_tab_dirs = model_tab_dirs
         self.model_tab_home = model_tab_home
         self.model_tab_registrations = model_tab_registrations
         self.model_tab_templates = model_tab_templates
@@ -88,14 +88,9 @@ class Presenter:
         self.run_SL_automator_flag: bool = False
         self.new_file_path = None
 
-    ########################################################
-    ########### Refactor within API Models #################
-    ########################################################
     def setup_api(self) -> bool:
         return self.model_graph_api.setup()
-    ###################### END #############################
-    ########### Refactor within API Models #################
-    ########################################################
+    
     def start_program(self):
         print(f"Watching for any new PDF files in: {str(self.model_dir_watcher.path)}.")
         self.model_dir_watcher.begin_watch()
@@ -179,7 +174,11 @@ class Presenter:
         if is_quoteform:
             del self.view_main.quoteform
             self.view_main.quoteform = path
+        elif isinstance(path, list):
+            for _a in path:
+                # Add
         else:
+            for _a in 
             self.view_main.attachments = path
 
     def process_file_path(
@@ -435,18 +434,6 @@ class Presenter:
     ##############################################################
     #################   NEED TO REFACTOR BELOW   #################
     ##############################################################
-
-    ############ END --PLACEHOLDERS FUNCS-- END ############
-    ################ Establish Templates Tab ###############
-
-    ############# END --Templates Tab-- END #############
-
-    ### Folder Settings Tab ###
-    ### End of Watch Dir Settings ###
-    ### Begin Custom Dir Creation Settings ###
-
-    ### End of Custom Dir Creation Settings ###
-    ### End of Folder Settings Tab ###
     ### Begin Quoteform Registrations Tab ###
     def add_qf_registration(self):
         form_names = self.view_main.reg_tv.get_all_names()
@@ -468,22 +455,41 @@ class Presenter:
                 "Warning",
                 0x10 | 0x0,
             )
+    ##############################################################
+    ##############################################################
+    ##############################################################
 
     ############# --Surplus Lines Automator-- #############
     def run_surplus_lines(self):
-        output_dir = self.model_surplus_lines.get_output_dir()
-        self.view_surplus_lines.show_view(
+        output_dir = self.model_surplus_lines.output_dir()
+        self.view_surplus_lines.make_view(
             presenter=self,
             view_interpreter=VIEW_INTERPRETER,
             view_palette=self.view_palette,
             output_dir=output_dir,
         )
+        self.view_surplus_lines.root.mainloop()
 
     def process_SL_doc(self, event):
-        doc_path = event.data
-        self.view_surplus_lines.root.destroy()
-        self.model_surplus_lines.start(doc_path)
+        doc_path = event.data.strip("{}")
 
+        self.view_surplus_lines.root.destroy()
+        try:
+            self.model_surplus_lines.start(doc_path)
+        except OutputDirNotSet:
+            self.run_surplus_lines()
+        else:
+            toaster = ToastNotifier()
+            toaster.show_toast(
+                "SUCCESS! Your doc is now stamped.",
+                "A new window will show you the finished file.",
+                duration=5,
+            )
+
+    def save_sl_output_dir(self, event):
+        _dir = event.data.strip("{}")
+        self.model_surplus_lines.output_dir(new_dir=_dir)
+        self._set_tab_placeholders(tab_name="surplus lines")
 
     ############# END --Surplus Lines Automator-- END #############
 

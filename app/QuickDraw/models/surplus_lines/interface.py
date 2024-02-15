@@ -1,7 +1,6 @@
 import os
 import subprocess
 import sys
-from win10toast import ToastNotifier
 import logging.config
 from pathlib import Path
 
@@ -23,13 +22,16 @@ class SurplusLinesAutomator:
         self.app = Automator()
         self.user_doc_path: Path
 
-    def get_output_dir(self) -> str | None:
-        if self.app.output_dir:
+    def output_dir(self, new_dir: str = None) -> str | None:
+        if self.app.output_dir and not new_dir:
             return self.app.output_dir
+        elif new_dir:
+            _valid_dir = validate_paths(new_dir)
+            self.app.output_dir = str(_valid_dir)
         else:
             return None
 
-    def start(self, doc_path: str):
+    def start(self, doc_path: str) -> bool:
         if not self.app.output_dir:
             log.info(
                 msg="The output folder isn't set. This needs to be set before proceeding with the program. ",
@@ -40,17 +42,19 @@ class SurplusLinesAutomator:
                 in first. Click 'OK' here first, then click the 'Browse' button to select your desired folder.""",
                 0x10 | 0x0,
             )
+            raise exceptions.OutputDirNotSet()
         else:
             try:
-                _d = validate_paths(pathnames=doc_path.strip("{}"))
+                _d: Path = validate_paths(pathnames=doc_path)
             except OSError as e:
-                msg = f"The file provided to the program is not a valid file.\nPath: {doc_path.strip('{}')}"
+                msg = f"The file provided to the program is not a valid file.\nPath: {doc_path}"
                 log.warning(msg=msg)
                 exceptions.spawn_message(
                 "Warning",
                 msg,
                 0x10 | 0x0,
             )
+                return False
             else:
                 self.user_doc_path = _d
                 self.app.exited = False
@@ -60,10 +64,14 @@ class SurplusLinesAutomator:
                 log.debug(
                     msg="The PDF path is: {0}".format(self.user_doc_path),
                 )
+            if self._automate():
+                return True
+            else:
+                return False
 
+    def _automate(self):
         if not self.app.exited:
             try:
-                self.app.user_doc_path = doc_path
                 self.app.parse_doc()
                 stamp_num = 1
                 stamp_paths = []
@@ -87,6 +95,7 @@ class SurplusLinesAutomator:
                 sys.exit(1)
             except Exception as e:
                 print(str(e))
+                log.error(msg=str(e), stack_info=True)
                 sys.exit(1)
             else:
                 log.info(
@@ -109,9 +118,4 @@ class SurplusLinesAutomator:
                 log.debug(
                     msg="Initializing and showing notification box via ToastNotifier.",
                 )
-                toaster = ToastNotifier()
-                toaster.show_toast(
-                    "SUCCESS! Your doc is now stamped.",
-                    "A new window will show you the finished file.",
-                    duration=5,
-                )
+                
