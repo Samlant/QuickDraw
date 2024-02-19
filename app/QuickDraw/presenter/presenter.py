@@ -50,11 +50,10 @@ class Presenter:
         model_dir_watcher: protocols.DirWatch,
         model_email_builder: protocols.EmailBuilder,
         model_graph_api: protocols.GraphAPI,
-        model_surplus_lines: protocols.SurplusLinesAutomator,
         model_submission: protocols.SubmissionModel,
+        model_surplus_lines: protocols.SurplusLinesAutomator,
         # model_tab_dirs: protocols.DirsModel,
         model_tab_home: protocols.HomeModel,
-        model_tab_registrations: protocols.RegistrationsModel,
         model_tab_templates: protocols.TemplatesModel,
         view_allocate: protocols.AllocateView,
         view_main: protocols.MainWindow,
@@ -63,15 +62,14 @@ class Presenter:
         view_palette: protocols.Palette,
     ) -> None:
         self.model_alert_new_qf = model_alert_new_qf
-        self.model_graph_api = model_graph_api
         self.model_dir_handler = model_dir_handler
         self.model_dir_watcher = model_dir_watcher
         self.model_email_builder = model_email_builder
+        self.model_graph_api = model_graph_api
         self.model_submission = model_submission
         self.model_surplus_lines = model_surplus_lines
         # self.model_tab_dirs = model_tab_dirs
         self.model_tab_home = model_tab_home
-        self.model_tab_registrations = model_tab_registrations
         self.model_tab_templates = model_tab_templates
         self.view_allocate = view_allocate
         self.view_main = view_main
@@ -174,11 +172,10 @@ class Presenter:
         if is_quoteform:
             del self.view_main.quoteform
             self.view_main.quoteform = path
-        elif isinstance(path, list):
+        elif isinstance(path, list) or isinstance(path, tuple):
             for _a in path:
-                # Add
+                self.view_main.attachments = path
         else:
-            for _a in 
             self.view_main.attachments = path
 
     def process_file_path(

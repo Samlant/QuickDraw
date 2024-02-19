@@ -7,10 +7,10 @@ from QuickDraw.views.submission.base.protocols import Quoteform
 class ViewInterface(Window):
     def __init__(
         self,
-        icon_path: str,
+        icon_src: str,
     ):
         super().__init__(
-            icon_path,
+            icon_src,
         )
 
     # Submission Request getter

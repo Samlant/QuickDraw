@@ -97,15 +97,22 @@ class DirHandler(Protocol):
 class DirWatch(Protocol):
     path: Path
 
+    def __init__(self, path_to_watch: Path) -> None: ...
+
+    def assign_presenter(self, presenter) -> None:
+        ...
+
     def begin_watch(self) -> None: ...
 
-class EmailBuilder(Protocol) -> list[Email]:
+class EmailBuilder(Protocol):
+    def __init__(self) -> None: ...
+    
     def make_all_emails(
             self,
             submission: Submission,
             extra_notes: str,
             user_carbon_copies: str,
-    ):
+    ) -> list[Email]:
         ...
         
 class GraphAPI(Protocol):
@@ -167,11 +174,6 @@ class HomeModel(Protocol):
     ) -> str: ...
 
     def get_all_attachments(self) -> list: ...
-
-
-
-
-class RegistrationsModel(Protocol): ...
 
 
 class TemplatesModel(Protocol): ...

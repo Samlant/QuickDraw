@@ -1,7 +1,7 @@
 from tkinter import ttk
 from typing import Protocol
 
-from QuickDraw.views.submission import base
+from QuickDraw.views.submission.base.window import Window
 from QuickDraw.views.submission.quoteforms.registrations.current import (
     CurrentRegistrations,
 )
@@ -9,7 +9,7 @@ from QuickDraw.views.submission.quoteforms.registrations.new import NewRegistrat
 from QuickDraw.views.submission.base.protocols import Presenter
 
 
-def make_quoteform_widgets(view: base.MainWindow, presenter: Presenter):
+def make_quoteform_widgets(view: Window, presenter: Presenter):
     ### START TITLE ###
     title_frame = ttk.Frame(
         view.tabs.quoteforms, style="TFrame",
@@ -71,7 +71,7 @@ def make_quoteform_widgets(view: base.MainWindow, presenter: Presenter):
         master=buttons_box,
         text="Revert Back",
         command=lambda: presenter.btn_revert_view_tab("quoteforms", style="TButton",
-    ).pack(
+    )).pack(
         fill="both",
         expand=True,
         side="left",

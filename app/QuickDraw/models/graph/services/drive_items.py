@@ -1,4 +1,4 @@
-from model.graph.session import GraphSession
+from QuickDraw.models.graph.session import GraphSession
 
 
 class DriveItems:

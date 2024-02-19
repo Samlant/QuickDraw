@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Union
-from model.graph.session import GraphSession
+from QuickDraw.models.graph.session import GraphSession
 
 
 def build_endpoint(inputs: dict) -> str:

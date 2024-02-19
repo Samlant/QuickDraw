@@ -2,7 +2,7 @@ from tkinter import ttk
 from typing import Protocol
 
 
-from QuickDraw.views.submission import base
+from QuickDraw.views.submission.base.window import Window
 
 
 class Presenter(Protocol):
@@ -13,7 +13,7 @@ class Presenter(Protocol):
 class NewRegistrations(ttk.LabelFrame):
     def __init__(
         self,
-        view: base.MainWindow,
+        view: Window,
         presenter: Presenter,
         parent,
         text: str,

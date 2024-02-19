@@ -29,7 +29,7 @@ class NewFileAlert:
         self,
         icon_src,
     ) -> None:
-        self.icon_path = icon_src
+        self.icon_src = icon_src
         self.submission: Submission = None
         self.presenter: Presenter = None
         self.root: Toplevel = None
@@ -114,7 +114,7 @@ class NewFileAlert:
         self.root.attributes("-topmost", True)
         self.root.update()
         self.root.attributes("-topmost", False)
-        self.root.iconbitmap(self.icon_path)
+        self.root.iconbitmap(self.icon_src)
 
     def _create_widgets(
         self,

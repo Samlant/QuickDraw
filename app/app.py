@@ -17,11 +17,10 @@ from QuickDraw.models.surplus_lines.interface import SurplusLinesAutomator
 from QuickDraw.models.updater import update_app
 from QuickDraw.models.submission.handler import SubmissionModel
 from QuickDraw.models.windows.alert import AlertModel
-from QuickDraw.models.windows.allocate import AllocateModel
+# from QuickDraw.models.windows.allocate import AllocateModel
 from QuickDraw.models.windows.templates import TemplatesModel
 from QuickDraw.models.windows.home import HomeModel
 # from QuickDraw.models.windows.dirs import
-# from QuickDraw.models.windows.registrations import
 # from QuickDraw.models.windows.email_options import
 
 # VIEWS
@@ -44,64 +43,51 @@ from QuickDraw.helper import (
 
 
 def get_theme() -> palettes.Palette:
-    palette_name = open_config.get("View theme", "theme")
-    theme = getattr(palettes, palette_name)
-    return theme
+    palette_name = open_config().get("View theme", "theme").value
+    theme_palette = getattr(palettes, palette_name)
+    return theme_palette
 
 
 def initialize_modules() -> Presenter:
     """Creates and passes all models and views to the Presenter and
     returns the Presenter as an object."""
     # Models
-    model_allocate = AllocateModel()
-    model_api_client = login_to_MS_graph()
-    model_api = API()
+    model_graph_api = GraphAPI()
+    model_alert_new_qf = AlertModel()
     model_dir_handler = DirHandler()
-    watch_dir: Path = Path(
-        open_config.get(
-            "Folder settings",
+    config = open_config()
+    watch_dir = Path(config.get(
+            "dirs",
             "watch_dir",
-        )
-    )
+        ).value)
     model_dir_watcher = DirWatch(path_to_watch=watch_dir)
-    model_email_handler = EmailHandler()
-    model_new_alert = AlertModel(
-        icon_src=str(APP_ICON),
-    )
+    model_email_builder = EmailBuilder()
     model_submission = SubmissionModel()
     model_surplus_lines = SurplusLinesAutomator()
     model_tab_home = HomeModel()
     model_tab_templates = TemplatesModel()
     # Views
-    theme = get_theme()
-    view_allocate = (AllocateView(icon_src=str(APP_ICON)),)
-    view_main = MainWindow(
-        icon_src=str(TRAY_ICON),
-        view_interpreter=VIEW_INTERPRETER,
-        view_palette=theme,
-    )
-    view_new_file_alert = NewFileAlert()
+    theme_palette = get_theme()
+    view_allocate = (AllocateView(icon_src=str(APP_ICON)))
+    view_main = MainWindow(icon_src=str(TRAY_ICON))
+    view_new_file_alert = NewFileAlert(icon_src=str(APP_ICON))
     view_surplus_lines = SurplusLinesView()
     # Presenter
     presenter = Presenter(
-        model_allocate=model_allocate,
-        model_api_client=model_api_client,
-        model_api=model_api,
+        model_alert_new_qf=model_alert_new_qf,
         model_dir_handler=model_dir_handler,
         model_dir_watcher=model_dir_watcher,
-        model_email_handler=model_email_handler,
-        model_new_alert=model_new_alert,
+        model_email_builder=model_email_builder,
+        model_graph_api=model_graph_api,
         model_submission=model_submission,
         model_surplus_lines=model_surplus_lines,
         model_tab_home=model_tab_home,
-        model_tab_registrations=model_tab_registrations,
-        model_tab_dirs=model_tab_dirs,
         model_tab_templates=model_tab_templates,
         view_allocate=view_allocate,
         view_main=view_main,
         view_new_file_alert=view_new_file_alert,
         view_surplus_lines=view_surplus_lines,
-        view_theme=theme,
+        view_palette=theme_palette,
     )
     return presenter
 
@@ -121,11 +107,11 @@ def main():
     )
     thread2.start()
     while tray_icon.active is True:
-        if presenter.new_file_path != None:
+        if presenter.new_file_path:
             try:
                 presenter.trigger_new_file(file=presenter.new_file_path)
-            except:
-                print("exception raised during triggering new file.")
+            except Exception as e:
+                print(f"exception raised during triggering new file.\n{e}")
             else:
                 presenter.new_file_path = None
         elif presenter.run_flag:

@@ -1,5 +1,5 @@
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 from QuickDraw.helper import Carrier
@@ -31,6 +31,6 @@ class Submission:
         "SUBMIT TO MRKTS",
         "PENDING WITH UW",
     ] = "ALLOCATE AND SUBMIT TO MRKTS"
-    carriers: list[Carrier] = []
-    markets: list[Market] = []
-    attachments: list[Path] = []
+    carriers: list[Carrier] = field(default_factory=list)
+    markets: list[Market] = field(default_factory=list)
+    attachments: list[Path] = field(default_factory=list)

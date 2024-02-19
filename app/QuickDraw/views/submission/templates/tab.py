@@ -1,13 +1,13 @@
 from tkinter import ttk, Text
 
-from QuickDraw.views.submission import base
+from QuickDraw.views.submission.base.window import Window
 from QuickDraw.views.submission.helper import create_dropdown
 from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.submission.base.protocols import Presenter
 
 
 def make_templates_widgets(
-    view: base.MainWindow, presenter: Presenter, palette: Palette
+    view: Window, presenter: Presenter, palette: Palette
 ):
     view.tabs.templates.columnconfigure(0, minsize=740, pad=5)
     view.tabs.templates.rowconfigure(2, minsize=100, pad=5)
@@ -43,10 +43,10 @@ def make_templates_widgets(
         column=0, row=0, padx=15, pady=10, sticky="nsew", columnspan=2
     )
     view.dropdown_menu = create_dropdown(
-        view,
+        view=view,
         parent=template_select_frame,
         presenter=presenter,
-        style=palette,
+        palette=palette,
     )
     view.dropdown_menu.pack(padx=15, ipady=5, fill="x", expand=True)
     view._selected_template.trace_add(

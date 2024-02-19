@@ -16,7 +16,7 @@ class Presenter(Protocol):
 
 class AllocateView:
     def __init__(self, icon_src) -> None:
-        self.icon_path: str = icon_src
+        self.icon_src: str = icon_src
         self.market_info: dict[str, any] = None
         self.root: Tk = None
         self.presenter: Presenter = None
@@ -80,7 +80,7 @@ class AllocateView:
         self.root.mainloop()
 
     def assign_window_traits(self):
-        self.root.iconbitmap(self.icon_path)
+        self.root.iconbitmap(self.icon_src)
         self.root.geometry("260x560")
         self.root.title("Allocate Markets")
         self.root.attributes("-topmost", True)

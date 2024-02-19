@@ -4,7 +4,7 @@ import logging
 
 import fitz
 
-from QuickDraw.models.surplus_lines.dev import exceptions
+from exceptions import surplus_lines as exceptions
 from QuickDraw.models.surplus_lines.carriers.base import CarrierBuilder
 from QuickDraw.models.surplus_lines.carriers.builders.concept import ConceptBuilder
 from QuickDraw.models.surplus_lines.carriers.builders.kemah import KemahBuilder

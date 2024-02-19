@@ -1,4 +1,4 @@
-from model.graph.session import GraphSession
+from QuickDraw.models.graph.session import GraphSession
 
 
 class Workbooks:
@@ -326,6 +326,7 @@ class Workbooks:
 
     def add_row(
         self,
+        index: str,
         group_drive: str = None,
         workbook_id: str = None,
         workbook_path: str = None,
@@ -334,7 +335,6 @@ class Workbooks:
         table_path: str = None,
         session_id: str = None,
         json_data: dict = None,
-        index: str,
     ) -> dict:
         """Retrieves a list of named objects using the Item ID or
         Item Path.

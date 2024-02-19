@@ -10,9 +10,9 @@ from QuickDraw.views.themes.applicator import create_style
 class Window:
     def __init__(
         self,
-        icon_path: str,
+        icon_src: str,
     ) -> None:
-        self.icon = icon_path
+        self.icon = icon_src
 
     def assign_interpreter(
         self,

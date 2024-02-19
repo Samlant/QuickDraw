@@ -56,8 +56,8 @@ def make_drag_drop_txt_box(
 
 def make_checkbutton(parent, text: str, var: BooleanVar):
     x = Checkbutton(
-        parent=parent,
-        name=text,
+        master=parent,
+        name=text.lower(),
         text=text,
         variable=var,
         onvalue=True,
@@ -76,10 +76,12 @@ def make_checkbutton(parent, text: str, var: BooleanVar):
 def create_dropdown(view, parent, presenter: Presenter, palette: Palette) -> OptionMenu:
     """Creates the OptionMenu widget separately for less coupling."""
     options: list[str] = presenter.get_carrier_combos(all=True)
-    menu = OptionMenu(parent, view._selected_template, *options)
+    menu = OptionMenu(parent,
+                      view._selected_template,
+                      *options)
     menu.configure(
-        background=palette.btn_base_bg,
-        foreground=palette.btn_fg,
+        bg=palette.btn_base_bg,
+        fg=palette.btn_fg,
         activebackground=palette.btn_active_bg,
         activeforeground=palette.btn_fg,
         highlightbackground=palette.alt_bg_color,

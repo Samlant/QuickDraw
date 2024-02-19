@@ -38,7 +38,7 @@ def make_connect_data() -> ConnectionData:
 
 def _retrieve_properties_from_config() -> dict[str, str]:
     config = open_config()
-    section = config.get_section(section_name="graph_api").to_dict()
+    section = config.get_section(name="graph_api").to_dict()
     connection_data = {}
     for key, value in section.items():
         connection_data[key] = value

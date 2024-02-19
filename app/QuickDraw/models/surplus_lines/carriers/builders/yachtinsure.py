@@ -4,8 +4,9 @@ import logging
 
 import datefinder
 
-from model.surplus_lines.dev import exceptions
-from model.surplus_lines.surplus_lines.carriers.base import CarrierBuilder
+from exceptions import surplus_lines as exceptions
+
+from QuickDraw.models.surplus_lines.carriers.base import CarrierBuilder
 
 log = logging.getLogger(__name__)
 

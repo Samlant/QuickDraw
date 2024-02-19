@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 # App info
 APP_NAME = "QuickDraw"
-APP_VERSION = "3.4.0"
+APP_VERSION = "4.0.0"
 
 # Current module dir (when frozen this equals sys._MEIPASS)
 MODULE_DIR = Path(__file__).resolve().parents[2]
@@ -38,7 +38,7 @@ TARGET_BASE_URL = "https://raw.githubusercontent.com/Samlant/updater/main/target
 TRUSTED_ROOT_SRC = MODULE_DIR / "root.json"
 if not FROZEN:
     # for development, get the root metadata directly from local repo
-    sys.path.insert(0, str(MODULE_DIR.parent))
+    sys.path.insert(0, str(MODULE_DIR.parent.parent))
     from repo_settings import REPO_DIR
 
     TRUSTED_ROOT_SRC = REPO_DIR / "metadata" / "root.json"

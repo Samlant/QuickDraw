@@ -45,15 +45,21 @@ class Automator:
     def output_dir(self) -> str:
         config = open_config()
         _dir = config.get(
-            "Surplus lines",
-            "output_save_dir",
+            "surplus lines",
+            "output_dir",
         ).value
         try:
             output_dir = validate_paths(pathnames=_dir)
-        except OSError as OSE:
+        except OSError as e:
             return None
         else:
             return str(output_dir)
+    
+    @output_dir.setter
+    def output_dir(self, new_dir: str):
+        config = open_config()
+        config["surplus lines"]["output_dir"] = new_dir
+        
     @property
     def user_doc_path(self):
         return self._user_doc_path
@@ -65,7 +71,6 @@ class Automator:
             msg=f"Event data: {doc_path}",
         )
         self._user_doc_path = doc_path
-
 
         def install_placeholders(self):
         #####################################################################

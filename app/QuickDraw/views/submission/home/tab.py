@@ -1,7 +1,7 @@
 from tkinter import ttk, Text, Checkbutton
 from typing import Protocol
 from operator import attrgetter
-from QuickDraw.views.submission import base
+from QuickDraw.views.submission.base.window import Window
 from QuickDraw.views.submission.helper import make_drag_drop_txt_box, make_checkbutton
 from QuickDraw.helper import AVAILABLE_CARRIERS
 
@@ -26,7 +26,7 @@ class Presenter(Protocol):
 
 
 def make_home_widgets(
-    view: base.MainWindow,
+    view: Window,
     presenter: Presenter,
     palette: Palette,
 ):
@@ -168,7 +168,8 @@ def make_home_widgets(
     ttk.Button(
         view.tabs.home,
         text="View Each Before Sending!",
-        command=lambda: presenter.btn_process_envelopes(view_first=True), style="TButton",
+        command=lambda: presenter.btn_process_envelopes(auto_send=False),
+        style="TButton",
     ).grid(column=1, row=2, sticky="nsew", padx=(10), pady=10)
     # .pack(ipady=20, ipadx=2, pady=10, anchor=S, fill=Y, expand=False)
     right_header_frame = ttk.Frame(view.tabs.home)
@@ -176,7 +177,7 @@ def make_home_widgets(
     ttk.Label(
         right_header_frame,
         style="Header.TLabel",
-        text="Choose Markets:", style="TLabel",
+        text="Choose Markets:",
     ).pack(fill="x", expand=True, side="left")
 
     frame_right = ttk.Frame(view.tabs.home, style="TFrame",)

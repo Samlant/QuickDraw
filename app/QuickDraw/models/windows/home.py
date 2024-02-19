@@ -55,7 +55,7 @@ class HomeModel:
                 pass
             else:
                 _valid_path = self.valid_path(pathnames=path)
-        self.save_path(path=_valid_path, path_purpose=is_quoteform)
+        return _valid_path
         
     def valid_path(self, pathnames: str | list[str]) -> Path | list[Path]:
         try:
@@ -67,15 +67,9 @@ class HomeModel:
         else:
             return _valid_path
 
-    def save_path(self, path: Path | list[Path], path_purpose: str) -> None:
-        if path_purpose == "quoteform" and isinstance(path, Path):
-            self.quoteform_path = str(path)
-        else:
-            for _a in path:
-                self.attachments.append(str(_a))
-
-    def filter_out_brackets(self, path: str) -> str:
-        """Cleans up the path str by removing any brackets---if present."""
-        if "{" in path:
-            path = path.translate({ord(c): None for c in "{}"})
-        return path
+    # def save_path(self, path: Path | list[Path], path_purpose: str) -> None:
+    #     if path_purpose == "quoteform" and isinstance(path, Path):
+    #         self.quoteform_path = str(path)
+    #     else:
+    #         for _a in path:
+    #             self.attachments.append(str(_a))

@@ -2,11 +2,11 @@ from tkinter import ttk
 from typing import Protocol
 
 from QuickDraw.views.themes.palettes import Palette
-from QuickDraw.views.submission import base
+from QuickDraw.views.submission.base.window import Window
 from QuickDraw.views.submission.base.protocols import Presenter
 
 
-def make_dirs_widgets(view: base.MainWindow, presenter: Presenter, palette: Palette):
+def make_dirs_widgets(view: Window, presenter: Presenter, palette: Palette):
     ### Start Watch Dir Settings ###
     view.tabs.dirs.rowconfigure(3, minsize=100, pad=5)
     ### START TITLE ###

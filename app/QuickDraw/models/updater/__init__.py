@@ -4,7 +4,7 @@ import time
 
 from tufup.client import Client
 
-from model.updater import settings
+from QuickDraw.models.updater import settings
 
 logger = logging.getLogger(__name__)
 
