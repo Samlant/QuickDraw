@@ -1,6 +1,7 @@
 from pathlib import Path
 
-log_file: Path = Path.home() / "AppData" / "Local" / "QuickDraw" / "surplus_lines.log"
+from QuickDraw.helper import LOG_FILE
+
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -16,7 +17,7 @@ LOGGING_CONFIG = {
             "level": "DEBUG",
             "formatter": "standard",
             "class": "logging.FileHandler",
-            "filename": str(log_file),
+            "filename": str(LOG_FILE),
             "mode": "w",
         },
     },
@@ -31,42 +32,42 @@ LOGGING_CONFIG = {
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.automation": {
+        "QuickDraw.models.surplus_lines.automation": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.carriers.base": {
+        "QuickDraw.models.surplus_lines.carriers.base": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.carriers.builders.concept": {
+        "QuickDraw.models.surplus_lines.carriers.builders.concept": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.carriers.builders.kemah": {
+        "QuickDraw.models.surplus_lines.carriers.builders.kemah": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.carriers.builders.yachtinsure": {
+        "QuickDraw.models.surplus_lines.carriers.builders.yachtinsure": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.doc.filler": {
+        "QuickDraw.models.surplus_lines.doc.filler": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.doc.parser": {
+        "QuickDraw.models.surplus_lines.doc.parser": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "model.surplus_lines.web.scraper": {
+        "QuickDraw.models.surplus_lines.web.scraper": {
             "handlers": ["default"],
             "level": "DEBUG",
             "propagate": True,

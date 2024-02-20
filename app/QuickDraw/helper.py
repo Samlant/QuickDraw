@@ -21,6 +21,7 @@ if TEST:
     CONFIG_PATH = resource_path / "configurations.ini"
     MS_GRAPH_STATE_PATH = resource_path / "ms_graph_state.jsonc"
     # App resources
+    LOG_FILE = Path()
     APP_ICON = resource_path / "img" / "app.ico"
     TRAY_ICON = resource_path / "img" / "sys_tray.ico"
     README = app_dir / "docs" / "site" / "index.html"
@@ -30,11 +31,13 @@ else:
     MS_GRAPH_STATE_PATH: Path = user_resources / "ms_graph_state.jsonc"
     CONFIG_PATH: Path = user_resources / "configurations.ini"
     # App resources
+    LOG_FILE = user_resources / "sys.log"
     app_dir: Path = Path("C:/Program Files/QuickDraw")
     app_resources: Path = app_dir / "_internal" / "resources"
     APP_ICON: Path = app_resources / "img" / "app.ico"
     TRAY_ICON: Path = app_resources / "img" / "sys_tray.ico"
     README: Path = app_resources / "docs" / "readme.html"
+
 
 class Carrier(NamedTuple):
     friendly_name: str
@@ -43,6 +46,7 @@ class Carrier(NamedTuple):
     redundancies: int = 0
     redundancy_group: int = 0
     status: str = ""
+
 
 AVAILABLE_CARRIERS = [
     Carrier("Seawave", "Seawave", "SW", 3, 1),
