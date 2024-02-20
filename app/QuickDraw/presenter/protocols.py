@@ -157,7 +157,7 @@ class SubmissionModel(Protocol):
 
     def validate_attachments(
         self,
-        attachments: list[str],
+        attachments: str,
     ) -> list[Path]: ...
 
 

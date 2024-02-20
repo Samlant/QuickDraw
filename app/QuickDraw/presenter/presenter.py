@@ -187,14 +187,11 @@ class Presenter:
         """Sends the raw path of attachment/quoteform to model for
         processing and saving."""
         if quoteform:
-            path = quoteform
+            path = str(quoteform)
         else:
-            path = Path(self.model_tab_home.filter_out_brackets(event.data))
-        setattr(self.view_main, path_purpose, path.name)
-        if path_purpose != "sig_image_file_path":
-            return self.model_tab_home.save_path(path, path_purpose)
-        else:
-            return True
+            path = event.data
+        output = self.model_tab_home.process_file(path, path_purpose)
+        setattr(self.view_main, path_purpose, output)
 
     def btn_clear_attachments(self) -> None:
         self.model_tab_home.attachments: list = []

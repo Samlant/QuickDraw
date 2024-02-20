@@ -2,7 +2,7 @@ from typing import Protocol
 from dataclasses import dataclass
 from pathlib import Path
 
-from QuickDraw.helper import validate_paths
+from QuickDraw.helper import validate_paths, open_config
 from tkinter import filedialog
 
 
@@ -34,12 +34,15 @@ class HomeModel:
 
     def browse_file_path(
         self,
-        event=None,
-        is_quoteform: bool = False,
+        path_purpose: str,
+        event = None,
     ):
-        if is_quoteform:
+        if path_purpose == "quoteform" or path_purpose =="sig_image_file_path":
             try:
-                path: str = filedialog.askopenfilename(filetypes=[("Quoteforms", "*.pdf")])
+                if path_purpose == "quoteform":
+                    path: str = filedialog.askopenfilename(filetypes=[("Quoteforms", "*.pdf")])
+                else:
+                    path: str = filedialog.askopenfilename()
             except AttributeError as e:
                 # log.info("The file browser window must have been closed before choosing a file.")
                 # log.debug(f"Caught {e}.\nContinuing on...")
@@ -66,10 +69,23 @@ class HomeModel:
             pass
         else:
             return _valid_path
+        
+    def process_file(self, path: str, path_purpose: str) -> str:
+        if path_purpose == "sig_image_file_path":
+            config = open_config()
+            config.set("email", "signature_image", path)
+            return path
+        else:
+            _p = validate_paths(pathnames=path)
+        if path_purpose == "quoteform":
+            self.quoteform_path = str(_p)
+        elif path_purpose == "attachments":
+            self.attachments.append(str(_p))
+        return _p.name
 
-    # def save_path(self, path: Path | list[Path], path_purpose: str) -> None:
-    #     if path_purpose == "quoteform" and isinstance(path, Path):
-    #         self.quoteform_path = str(path)
-    #     else:
-    #         for _a in path:
-    #             self.attachments.append(str(_a))
+    def save_path(self, path: Path | list[Path], path_purpose: str) -> None:
+        if path_purpose == "quoteform" and isinstance(path, Path):
+            self.quoteform_path = str(path)
+        else:
+            for _a in path:
+                self.attachments.append(str(_a))
