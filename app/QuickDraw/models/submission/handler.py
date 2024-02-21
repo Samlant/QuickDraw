@@ -46,16 +46,12 @@ class SubmissionModel:
         )
         return submission
 
-    def validate_attachments(self, attachments: str) -> Path | list[Path]:
+    def validate_attachments(self, attachments: list[str]) -> Path | list[Path]:
         "TODO: make the error handling USEFUL!"
-        if "\n" in attachments:
-            _ = attachments.split("\n")
-        elif isinstance(attachments, str):
-            _ = attachments
         try:
-            paths = validate_paths(pathnames=_)
-        except OSError as ose:
-            print(str(ose))
+            paths = validate_paths(pathnames=attachments)
+        except OSError as e:
+            print(str(e))
         else:
             return paths
 

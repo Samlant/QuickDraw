@@ -129,6 +129,10 @@ class GraphAPI(Protocol):
         ):
         ...
 
+class PostImgInterface:
+    def upload_photo(self, image_path: Path) -> str:
+        ...
+
 class SurplusLinesAutomator(Protocol):
     def output_dir(self, new_dir: str = None) -> str | None:
         ...
@@ -162,24 +166,35 @@ class SubmissionModel(Protocol):
 
 
 class HomeModel(Protocol):
-    def save_path(
+    all_attachments: list[str]
+    quoteform: str
+    attachments: list[str]
+
+    def browse_file_path(
         self,
-        path,
-        is_quoteform: bool,
-    ) -> None: ...
+        path_purpose: Literal[
+            "quoteform", 
+            "attachments", 
+            "sig_image_file_path",    
+        ],
+    ) -> Path | list[Path]:
+        ...
 
-    def filter_out_brackets(
-        self,
-        path,
-    ) -> str: ...
+    def process_file(
+            self,
+            path: Path | list[Path] | str,
+            path_purpose: Literal[
+                "quoteform", 
+                "attachments"
+                "sig_image_file_path",
+                ],
+    ) -> str | list[str]:
+        ...
 
-    def get_all_attachments(self) -> list: ...
-
+    def valid_path(pathnames: str | list[str]) -> Path | list[Path]:
+        ...
 
 class TemplatesModel(Protocol): ...
-
-
-
 
 ####################################################
 ###################    VIEWS    ####################

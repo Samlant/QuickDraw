@@ -20,7 +20,7 @@ class OutlookManager:
         self.emails: list[Email] = emails
         self.attachments = None
 
-    def send_emails(self, emails: list[Email], auto_send: bool) -> dict[str, str]:
+    def send_emails(self, emails: list[Email], auto_send: bool) -> dict[str, dict[str, list[str] | bool]]:
         self.attachments = self._make_attachments(emails[0].attachments)
         results: dict[str, dict[str, str | bool]] = {}
         for email in emails:

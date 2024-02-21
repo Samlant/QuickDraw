@@ -108,12 +108,11 @@ def make_email_widgets(view: Presenter, presenter: Presenter, palette: Palette):
         ipady=3,
         sticky="w",
     )
-    ttk.Frame(signature_lf, style="TFrame",).grid(row=0, column=2, columnspan=3)
     ttk.Label(
         signature_lf,
-        text="Name image:", style="TLabel",
+        text="Your name's image:", style="TLabel",
     ).grid(row=1, column=0, padx=5, pady=(5, 0))
-    view.sig_image_file_path = Text(
+    view._sig_image_file_path = Text(
         signature_lf,
         name="sig_image_path_file",
         height=2,
@@ -124,7 +123,7 @@ def make_email_widgets(view: Presenter, presenter: Presenter, palette: Palette):
         selectbackground=palette.alt_fg_color,
         selectforeground=palette.alt_bg_color,
     )
-    view.sig_image_file_path.grid(
+    view._sig_image_file_path.grid(
         row=1,
         column=1,
         columnspan=2,
@@ -132,15 +131,16 @@ def make_email_widgets(view: Presenter, presenter: Presenter, palette: Palette):
         padx=(0, 1),
         sticky="ew",
     )
-    view.sig_image_file_path.drop_target_register(DND_FILES)
-    view.sig_image_file_path.dnd_bind(
+    view._sig_image_file_path.drop_target_register(DND_FILES)
+    view._sig_image_file_path.dnd_bind(
         "<<Drop>>",
-        presenter.process_signature_image_path,
+        lambda: presenter.process_file_path(path_purpose="sig_image_file_path"),
     )
     view.sig_image_btn = ttk.Button(
         signature_lf,
-        command=view._browse_name_img,
-        text="Browse", style="TButton",
+        command=lambda: presenter.browse_file_path(path_purpose="sig_image_file_path"),
+        text="Browse",
+        style="TButton",
     )
     view.sig_image_btn.grid(
         row=1,
@@ -149,17 +149,81 @@ def make_email_widgets(view: Presenter, presenter: Presenter, palette: Palette):
         pady=(2, 1),
         padx=5,
     )
-    view.sig_upload_btn = ttk.Button(
+    ttk.Label(
         signature_lf,
-        command=view._upload_img_btn,
-        text="Upload", style="TButton",
+        text="Office Phone #:", style="TLabel",
+    ).grid(row=2, column=0, padx=(0, 5), pady=(5, 0))
+    office_ph_entry = ttk.Entry(
+        master=signature_lf,
+        textvariable=view._office_phone,
+        font=1, style="TEntry",
     )
-    view.sig_upload_btn.grid(
-        row=1,
-        column=4,
-        ipady=8,
-        pady=(2, 1),
-        padx=5,
+    office_ph_entry.grid(
+        row=2,
+        column=1,
+        columnspan=2,
+        padx=(0, 7),
+        pady=(5, 0),
+        ipadx=30,
+        ipady=3,
+        sticky="w",
+    )
+    ttk.Label(
+        signature_lf,
+        text="Office Fax #:", style="TLabel",
+    ).grid(row=3, column=0, padx=(0, 5), pady=(5, 0))
+    office_fax_entry = ttk.Entry(
+        master=signature_lf,
+        textvariable=view._office_fax,
+        font=1, style="TEntry",
+    )
+    office_fax_entry.grid(
+        row=3,
+        column=1,
+        columnspan=2,
+        padx=(0, 7),
+        pady=(5, 0),
+        ipadx=30,
+        ipady=3,
+        sticky="w",
+    )
+    ttk.Label(
+        signature_lf,
+        text="Office Street:", style="TLabel",
+    ).grid(row=4, column=0, padx=(0, 5), pady=(5, 0))
+    office_st_entry = ttk.Entry(
+        master=signature_lf,
+        textvariable=view._office_street,
+        font=1, style="TEntry",
+    )
+    office_st_entry.grid(
+        row=4,
+        column=1,
+        columnspan=2,
+        padx=(0, 7),
+        pady=(5, 0),
+        ipadx=30,
+        ipady=3,
+        sticky="w",
+    )
+    ttk.Label(
+        signature_lf,
+        text="Office City, State, Zip:", style="TLabel",
+    ).grid(row=5, column=0, padx=(0, 5), pady=(5, 0))
+    office_city_st_zip_entry = ttk.Entry(
+        master=signature_lf,
+        textvariable=view._office_city_st_zip,
+        font=1, style="TEntry",
+    )
+    office_city_st_zip_entry.grid(
+        row=5,
+        column=1,
+        columnspan=2,
+        padx=(0, 7),
+        pady=(5, 0),
+        ipadx=30,
+        ipady=3,
+        sticky="w",
     )
     ### BUTTONS FRAME ###
     buttons_frame = ttk.Frame(

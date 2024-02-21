@@ -100,28 +100,6 @@ class Window:
     def get_active_focus(self) -> dict:
         return self.root.focus_get()
 
-    def _browse_name_img(self):
-        try:
-            file_name = filedialog.askopenfile().name
-            del self._sig_image_file_path
-            self._sig_image_file_path = file_name
-        except AttributeError as e:
-            print(f"caught {e}. Continuing on.")
-        # del self.sig_image_file_path
-
-    def _upload_img_btn(self):
-        try:
-            file_path = self._sig_image_file_path
-            # send URL request to upload img to hosting site
-            # save uri
-            uri = ""
-            # delete existing entry
-            # del self._sig_image_file_path
-            # insert received response url into text box
-            # self._sig_image_file_path = uri
-        except AttributeError as e:
-            print(f"caught {e}. Continuing on.")
-
     def _browse_watch_dir(self):
         try:
             dir_name = filedialog.askdirectory()

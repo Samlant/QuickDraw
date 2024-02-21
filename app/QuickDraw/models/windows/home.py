@@ -1,42 +1,70 @@
-from typing import Protocol
-from dataclasses import dataclass
+from typing import Literal
 from pathlib import Path
-
-from QuickDraw.helper import validate_paths, open_config
 from tkinter import filedialog
 
-
-@dataclass
-class ClientInfo(Protocol):
-    markets: list
-    status: str
+from QuickDraw.helper import validate_paths, open_config
 
 
 class HomeModel:
     def __init__(
         self,
     ) -> None:
-        self.quoteform_path: str = None
-        self.attachments: list = []
+        self._quoteform_path: str = None
+        self._attachments: list = []
 
-    def get_all_attachments(self) -> list:
-        attachments = []
-        attachments.append(self.quoteform_path)
+    ###############################################
+    #############   Getters/Setters   #############
+    ###############################################
+    
+    @property
+    def quoteform(self) -> str:
+        return str(self._quoteform_path)
+    
+    @quoteform.setter
+    def quoteform(self, new_path: Path):
+        del self.quoteform
+        self._quoteform_path = new_path
+
+    @quoteform.deleter
+    def quoteform(self):
+        self._quoteform_path = None
+
+    @property
+    def attachments(self) -> list[str | None]:
+        paths = []
+        for _p in self._attachments:
+            paths.append(str(_p))
+        return paths
+    
+    @attachments.setter
+    def attachments(self, new_path: Path):
+        del self.attachments
+        self._attachments.append(new_path)
+
+    @attachments.deleter
+    def attachments(self):
+        self._attachments = []
+
+    @property
+    def all_attachments(self) -> list[str]:
         if len(self.attachments) >= 1:
-            for _a in self.attachments:
-                attachments.append(_a)
+            attachments = [self.quoteform] + self.attachments
+        else:
+            return [self.quoteform]
         return attachments
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
-    #####################################################################
+    ###############################################
+    ##############   Class Methods   ##############
+    ###############################################
 
     def browse_file_path(
         self,
-        path_purpose: str,
-        event = None,
-    ):
+        path_purpose: Literal[
+            "quoteform", 
+            "attachments", 
+            "sig_image_file_path",    
+        ],
+    ) -> Path | list[Path]:
         if path_purpose == "quoteform" or path_purpose =="sig_image_file_path":
             try:
                 if path_purpose == "quoteform":
@@ -46,46 +74,65 @@ class HomeModel:
             except AttributeError as e:
                 # log.info("The file browser window must have been closed before choosing a file.")
                 # log.debug(f"Caught {e}.\nContinuing on...")
-                pass
+                return False
             else:
-                _valid_path = self.valid_path(pathnames=path)
+                return self.valid_path(pathnames=path)
+                
         else:
             try:
                 path: tuple[str] = filedialog.askopenfilenames()
             except AttributeError as e:
                 # log.info("The file browser window must have been closed before choosing a file.")
                 # log.debug(f"Caught {e}.\nContinuing on...")
-                pass
+                return False
             else:
-                _valid_path = self.valid_path(pathnames=path)
-        return _valid_path
+                return self.valid_path(pathnames=path)
+    
         
-    def valid_path(self, pathnames: str | list[str]) -> Path | list[Path]:
+    def process_file(
+            self,
+            path: Path | list[Path] | str,
+            path_purpose: Literal[
+                "quoteform", 
+                "attachments"
+                "sig_image_file_path",
+                ],
+    ) -> str | list[str]:
+        if path_purpose == "sig_image_file_path":
+            assert(isinstance(path, str))
+            config = open_config()
+            config.set("email", "signature_image", path)
+            return path
+        elif path_purpose == "quoteform":
+            assert(isinstance(path, Path))
+            del self.quoteform
+            self.quoteform = path
+            return path.name
+        elif path_purpose == "attachments":
+            assert(isinstance(
+                path,
+                (list[Path] | tuple[Path]),
+            ))
+            paths = []
+            for _p in path:
+                self.attachments = _p
+                paths.append(_p.name)
+            return paths
+        # else:
+        # raise CustomException as e:
+        # point to needing to add specific use-case
+    
+    ###############################################
+    #############   Static Methods   ##############
+    ###############################################
+    
+    @staticmethod
+    def valid_path(pathnames: str | list[str]) -> Path | list[Path]:
         try:
             _valid_path = validate_paths(pathnames=pathnames)
         except OSError as e:
             # log.info("The file path is invalid.")
             # log.debug(f"Caught {e}.\nContinuing on...")
-            pass
+            return False
         else:
             return _valid_path
-        
-    def process_file(self, path: str, path_purpose: str) -> str:
-        if path_purpose == "sig_image_file_path":
-            config = open_config()
-            config.set("email", "signature_image", path)
-            return path
-        else:
-            _p = validate_paths(pathnames=path)
-        if path_purpose == "quoteform":
-            self.quoteform_path = str(_p)
-        elif path_purpose == "attachments":
-            self.attachments.append(str(_p))
-        return _p.name
-
-    def save_path(self, path: Path | list[Path], path_purpose: str) -> None:
-        if path_purpose == "quoteform" and isinstance(path, Path):
-            self.quoteform_path = str(path)
-        else:
-            for _a in path:
-                self.attachments.append(str(_a))

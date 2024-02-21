@@ -1,7 +1,6 @@
 from QuickDraw.views.submission.helper import ALL_TABS
 from QuickDraw.helper import AVAILABLE_CARRIERS
 from QuickDraw.views.submission.base.window import Window
-from QuickDraw.views.submission.base.protocols import Quoteform
 
 
 class ViewInterface(Window):
@@ -28,8 +27,6 @@ class ViewInterface(Window):
     @property
     def home(self) -> dict[str, str]:
         return {
-            "quoteform": self.quoteform,
-            "attachments": self.attachments,
             "extra_notes": self.extra_notes,
             "user_CC1": self.user_CC1,
             "user_CC2": self.user_CC2,
@@ -74,6 +71,10 @@ class ViewInterface(Window):
             "default_cc2": self.default_cc2,
             "username": self.username,
             "sig_image_file_path": self.sig_image_file_path,
+            "office_phone": self.office_phone,
+            "office_fax": self.office_fax,
+            "office_street": self.office_street,
+            "office_city_st_zip": self.office_city_st_zip,
         }
 
     @email.setter
@@ -221,8 +222,12 @@ class ViewInterface(Window):
         return self._attachments.get("1.0", "end-1c")
 
     @attachments.setter
-    def attachments(self, new_attachment: str):
-        self._attachments.insert("1.0", new_attachment + "\n")
+    def attachments(self, new_attachment: str | list[str]):
+        if isinstance(new_attachment, str):
+            self._attachments.insert("1.0", new_attachment + "\n")
+        else:
+            for _a in new_attachment:
+                self._attachments.insert("1.0", new_attachment + "\n")
 
     @attachments.deleter
     def attachments(self):
@@ -342,6 +347,54 @@ class ViewInterface(Window):
     @sig_image_file_path.deleter
     def sig_image_file_path(self):
         self._sig_image_file_path.delete("1.0", "end")
+
+    @property
+    def office_phone(self) -> str:
+        return self._office_phone.get()
+
+    @office_phone.setter
+    def office_phone(self, new_office_phone: str):
+        self._office_phone.set(new_office_phone)
+
+    @office_phone.deleter
+    def office_phone(self) -> None:
+        self._office_phone.set("")
+
+    @property
+    def office_fax(self) -> str:
+        return self._office_fax.get()
+
+    @office_fax.setter
+    def office_fax(self, new_office_fax: str):
+        self._office_fax.set(new_office_fax)
+
+    @office_fax.deleter
+    def office_fax(self) -> None:
+        self._office_fax.set("")
+
+    @property
+    def office_street(self) -> str:
+        return self._office_street.get()
+
+    @office_street.setter
+    def office_street(self, new_office_street: str):
+        self._office_street.set(new_office_street)
+
+    @office_street.deleter
+    def office_street(self) -> None:
+        self._office_street.set("")
+
+    @property
+    def office_city_st_zip(self) -> str:
+        return self._office_city_st_zip.get()
+
+    @office_city_st_zip.setter
+    def office_city_st_zip(self, new_office_city_st_zip: str):
+        self._office_city_st_zip.set(new_office_city_st_zip)
+
+    @office_city_st_zip.deleter
+    def office_city_st_zip(self) -> None:
+        self._office_city_st_zip.set("")
 
     # Folder Settings Tab: getters/setters
     @property

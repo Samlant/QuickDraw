@@ -13,6 +13,7 @@ from QuickDraw.models.dir.handler import DirHandler
 from QuickDraw.models.dir.watcher import DirWatch
 from QuickDraw.models.email.builder import EmailBuilder
 from QuickDraw.models.graph.interface import GraphAPI
+from QuickDraw.models.postimages.interface import PostImgInterface
 from QuickDraw.models.surplus_lines.interface import SurplusLinesAutomator
 from QuickDraw.models.updater import update_app
 from QuickDraw.models.submission.handler import SubmissionModel
@@ -37,7 +38,6 @@ from QuickDraw.helper import (
     TRAY_ICON,
     APP_ICON,
     README,
-    VIEW_INTERPRETER,
     open_config,
 )
 
@@ -62,6 +62,7 @@ def initialize_modules() -> Presenter:
         ).value)
     model_dir_watcher = DirWatch(path_to_watch=watch_dir)
     model_email_builder = EmailBuilder()
+    model_post_image = PostImgInterface()
     model_submission = SubmissionModel()
     model_surplus_lines = SurplusLinesAutomator()
     model_tab_home = HomeModel()
@@ -79,6 +80,7 @@ def initialize_modules() -> Presenter:
         model_dir_watcher=model_dir_watcher,
         model_email_builder=model_email_builder,
         model_graph_api=model_graph_api,
+        model_post_image = model_post_image,
         model_submission=model_submission,
         model_surplus_lines=model_surplus_lines,
         model_tab_home=model_tab_home,

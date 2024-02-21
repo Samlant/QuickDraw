@@ -121,6 +121,10 @@ ALL_TABS = {
         "default_cc2": "str",
         "username": "str",
         "sig_image_file_path": "text",
+        "office_phone": "str",
+        "office_fax": "str",
+        "office_street": "str",
+        "office_city_st_zip": "str",
     },
     "dirs": {
         "watch_dir": "str",

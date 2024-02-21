@@ -13,7 +13,7 @@ class Presenter(Protocol):
     def process_file_path(
         self,
         event,
-        is_quoteform: bool,
+        path_purpose: bool,
         quote_path: str = None,
     ) -> None:
         ...
@@ -79,7 +79,7 @@ def make_home_widgets(
     ttk.Button(
         labelframe_dd_ea,
         text="Browse",
-        command=lambda: presenter.browse_file_path(is_quoteform=False), style="TButton",
+        command=lambda: presenter.browse_file_path(path_purpose="attachments"), style="TButton",
     ).pack(fill="none", pady=5, expand=False, side="top")
     ttk.Button(
         view.tabs.home,

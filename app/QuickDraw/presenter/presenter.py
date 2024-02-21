@@ -2,6 +2,7 @@ import ctypes
 import threading
 from ast import literal_eval
 from pathlib import Path
+from typing import Literal
 ##################################
 # this is kept to catch Tclerrors if they show up again;
 # from tkinter import TclError 
@@ -50,6 +51,7 @@ class Presenter:
         model_dir_watcher: protocols.DirWatch,
         model_email_builder: protocols.EmailBuilder,
         model_graph_api: protocols.GraphAPI,
+        model_post_image: protocols.PostImgInterface,
         model_submission: protocols.SubmissionModel,
         model_surplus_lines: protocols.SurplusLinesAutomator,
         # model_tab_dirs: protocols.DirsModel,
@@ -66,6 +68,7 @@ class Presenter:
         self.model_dir_watcher = model_dir_watcher
         self.model_email_builder = model_email_builder
         self.model_graph_api = model_graph_api
+        self.model_post_image = model_post_image
         self.model_submission = model_submission
         self.model_surplus_lines = model_surplus_lines
         # self.model_tab_dirs = model_tab_dirs
@@ -117,14 +120,12 @@ class Presenter:
         if choice == "track_allocate":
             self.allocate_markets()
 
-        elif choice == "track_submit":
-            # SEND EXCEL API (in case submission prog crashes...)
-            
+        elif choice == "track_submit":        
             quoteform_path = self.submission.quoteform.path
             self.submission = None
             self.start_submission_program(quoteform=quoteform_path)
         else:
-            self._start_thread_for_excel()
+            self.model_graph_api.run_graph_calls(submission=self.submission)
             self.submission = None
 
     def _refresh_submission_with_user_input(self) -> bool:
@@ -145,7 +146,7 @@ class Presenter:
         carriers = self.__get_carrier_results(self.view_allocate)
         self.view_allocate.root.destroy()
         self.submission.carriers = carriers
-        self._start_thread_for_excel()
+        self.model_graph_api.run_graph_calls(submission=self.submission)
         self.submission = None
 
     #######################################################
@@ -154,12 +155,14 @@ class Presenter:
     def start_submission_program(
         self, specific_tab: str = None, quoteform: Path = None
     ) -> None:
-        """Starts the program by creating GUI object,
-        configuring initial values,  then running it
-        This also sets the default mail application.
+        """Starts the submission tool by spawning UI, ensuring we start from a
+        clean slate, prefills as-needed, then sets the view to the starting tab,
+        if specified.
         """
         print("starting email submission program")
         self.view_main.create_UI_obj(self, VIEW_INTERPRETER, self.view_palette)
+        del self.model_tab_home.quoteform
+        del self.model_tab_home.attachments
         if quoteform:
             self._set_initial_placeholders(quoteform)
         else:
@@ -167,35 +170,74 @@ class Presenter:
         if specific_tab:
             set_start_tab(self.view_main, specific_tab)
 
-    def browse_file_path(self, event=None, is_quoteform: bool = False):
-        path = self.model_tab_home.browse_file_path(is_quoteform)
-        if is_quoteform:
-            del self.view_main.quoteform
-            self.view_main.quoteform = path
-        elif isinstance(path, list) or isinstance(path, tuple):
-            for _a in path:
-                self.view_main.attachments = path
-        else:
-            self.view_main.attachments = path
+    def browse_file_path(
+            self,
+            event,
+            path_purpose: Literal[
+            "quoteform", 
+            "attachments"
+            "sig_image_file_path",
+            ],
+    ):
+        """Presents a pop-up file browser to user, then passes to 
+        the main file_processer method for further validation/saving.
+        """
+        path = self.model_tab_home.browse_file_path(path_purpose)
+        self.process_file_path(
+            event=None,
+            path_purpose=path_purpose,
+            path=path,
+        )
 
     def process_file_path(
         self,
         event,
-        path_purpose: str,
+        path_purpose: Literal[
+                "quoteform", 
+                "attachments"
+                "sig_image_file_path",
+        ],
         quoteform: Path = None,
+        path: Path = None,
     ) -> None:
         """Sends the raw path of attachment/quoteform to model for
         processing and saving."""
         if quoteform:
-            path = str(quoteform)
+            # quoteform path is already validated
+            _x = quoteform
+        elif event:
+            _x = self.model_tab_home.valid_path(pathnames=event.data)
+        elif path:
+            # browsed path has already been validated
+            _x = path
+        if path_purpose == "sig_image_file_path":
+            _y = self.model_post_image.upload_photo(
+                image_path=_x
+            )
         else:
-            path = event.data
-        output = self.model_tab_home.process_file(path, path_purpose)
-        setattr(self.view_main, path_purpose, output)
+            _y = _x
+        friendly_path_name = self.model_tab_home.process_file(
+            path=_y,
+            path_purpose=path_purpose
+        )
+        if isinstance(friendly_path_name, list[str]):
+            for _z in friendly_path_name:
+                setattr(
+                    self.view_main,
+                    path_purpose,
+                    _z,
+                )
+        else:
+            setattr(
+                self.view_main,
+                path_purpose,
+                friendly_path_name,
+            )
 
     def btn_clear_attachments(self) -> None:
-        self.model_tab_home.attachments: list = []
-        self.model_tab_home.quoteform_path: str = ""
+        "Clears all attachments from both the view & home tab model."
+        del self.model_tab_home.quoteform
+        del self.model_tab_home.attachments
         del self.view_main.quoteform
         del self.view_main.attachments
         print("cleared attachments.")
@@ -222,13 +264,13 @@ class Presenter:
         )
         view_results = self.view_main.home
         self.submission = self.model_submission.process_quoteform(
-            _quoteform_path=view_results["quoteform"],
+            _quoteform_path=self.model_tab_home.quoteform,
             carriers=carriers,
             markets=markets,
             status="SUBMIT TO MRKTS",
         )
         self.submission.attachments = self.model_submission.validate_attachments(
-            attachments=view_results["attachments"],
+            attachments=self.model_tab_home.attachments,
         )
         user_carbon_copies = view_results["user_CC1"] + view_results["user_CC2"]
         emails = self.model_email_builder.make_all_emails(
@@ -236,12 +278,29 @@ class Presenter:
             extra_notes=view_results["extra_notes"],
             user_CC=user_carbon_copies,
         )
-        self.model_graph_api.run_graph_calls(
+        # run multithreaded
+        results = self.model_graph_api.run_graph_calls(
             submission=self.submission,
             outlook=True,
             emails=emails,
             auto_send=auto_send,
         )
+        if results:
+            self.show_results(results=results)
+        else:
+            ToastNotifier().show_toast(title="Results", msg="Added/Updated tracker!")
+
+    def show_results(self, results) -> bool:
+        "Shows results of the outlook calls"
+        _msg = ""
+        for result in results.values():
+            _msg += f'{result["ids"]}: {result["success"]}\n'
+        toaster = ToastNotifier()
+        toaster.show_toast(
+            title="Results",
+            msg=_msg,
+        )
+
 
     ########################################################
     ########## BEGIN --PLACEHOLDERS FUNCS-- BEGIN ##########

@@ -53,3 +53,4 @@ class GraphAPI:
         else:
             manager.process_client_entry(results=results)
         manager.close_session()
+        
