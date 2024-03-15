@@ -1,5 +1,5 @@
-from tkinter import Text, Frame, StringVar, BooleanVar, Checkbutton
-from tkinter.ttk import OptionMenu
+from tkinter import Text, Frame, StringVar, BooleanVar, Checkbutton, OptionMenu
+# from tkinter.ttk import OptionMenu
 from typing import Protocol
 
 from tkinterdnd2 import DND_FILES
@@ -80,8 +80,8 @@ def create_dropdown(view, parent, presenter: Presenter, palette: Palette) -> Opt
                       view._selected_template,
                       *options)
     menu.configure(
-        bg=palette.btn_base_bg,
-        fg=palette.btn_fg,
+        background=palette.btn_base_bg,
+        foreground=palette.btn_fg,
         activebackground=palette.btn_active_bg,
         activeforeground=palette.btn_fg,
         highlightbackground=palette.alt_bg_color,

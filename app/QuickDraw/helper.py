@@ -21,7 +21,7 @@ if TEST:
     CONFIG_PATH = resource_path / "configurations.ini"
     MS_GRAPH_STATE_PATH = resource_path / "ms_graph_state.jsonc"
     # App resources
-    LOG_FILE = Path()
+    LOG_FILE = app_dir / "app" / "logs" / "sys.log"
     APP_ICON = resource_path / "img" / "app.ico"
     TRAY_ICON = resource_path / "img" / "sys_tray.ico"
     README = app_dir / "docs" / "site" / "index.html"

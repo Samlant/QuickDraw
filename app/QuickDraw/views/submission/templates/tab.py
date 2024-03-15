@@ -202,7 +202,7 @@ def make_templates_widgets(
         name="btnViewTemplate",
         text="View Current Example",
         width=20,
-        command=presenter.btn_view_template,
+        command=lambda: presenter.btn_process_envelopes(auto_send=False),
         style="TButton",
     ).pack(
         padx=4,

@@ -41,3 +41,6 @@ class Presenter(Protocol):
 
     def btn_revert_view_tab(self, tab_name: str):
         ...
+        
+    def btn_process_envelopes(self, auto_send: bool = True) -> None:
+        ...

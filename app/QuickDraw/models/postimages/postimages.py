@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import random
 import string
+import mimetypes
 import magic
 import os
 import json
@@ -120,6 +121,7 @@ class PostImages:
 
     def upload_image(self, image_path: str, optimize:bool = False) -> dict:
         img_data = open(image_path, 'rb',).read().decode("latin1")
+#        file_content_type = mimetypes.guess_type(url=image_path)[0]
         file_content_type = magic.from_file(image_path, mime=True)
         file_name = os.path.basename(image_path)
         data = self._form_post_data([

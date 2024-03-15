@@ -2,6 +2,29 @@ from pathlib import Path
 from QuickDraw.helper import open_config
 from QuickDraw.models.postimages.postimages import PostImages
 
+
+class FlickrInterface:
+    def __init__(self) -> None:
+        pass
+    
+    @property
+    def email(self) -> str:
+        config = open_config()
+        email = config.get("post_img", "email").value
+        return email
+
+    @property
+    def password(self) -> str:
+        config = open_config()
+        pw = config.get("post_img", "password").value
+        return pw
+
+    def upload_photo(self, image_path: Path):
+        pass
+
+    def login(self):
+        pass
+
 class PostImgInterface: 
     def __init__(self): 
         pass    
@@ -9,14 +32,16 @@ class PostImgInterface:
     @property
     def email(self) -> str:
         config = open_config()
-        config.get("post_img", "email").value
+        email = config.get("post_img", "email").value
+        return email
 
     @property
     def password(self) -> str:
         config = open_config()
-        config.get("post_img", "password").value
+        pw = config.get("post_img", "password").value
+        return pw
     
-    def upload_photo(self, image_path: Path)
+    def upload_photo(self, image_path: Path):
         client = PostImages(self.email, self.password)
 
         # Login to your PostImages account
