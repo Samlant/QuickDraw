@@ -59,17 +59,18 @@ def make_email_widgets(view: Presenter, presenter: Presenter, palette: Palette):
     ttk.Label(
         default_cc_lf,
         text="CC Group 2:",
+        style="TLabel",
     ).grid(
         column=0,
         row=1,
         pady=6,
-        padx=(0, 5), style="TLabel",
+        padx=(0, 5),
     )
     cc2 = ttk.Entry(
         default_cc_lf,
         textvariable=view._default_cc2,
         name="default_cc2",
-        font=1, style="TEntry",
+        font=1, 
     )
     cc2.grid(
         column=1,

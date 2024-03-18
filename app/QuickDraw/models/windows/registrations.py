@@ -19,13 +19,14 @@ def process_retrieval() -> list[Quoteform]:
         section = config.get_section(name)
         options = section.items()
         form = Quoteform(
-                    name,
-                    options[0][1].value,
-                    options[1][1].value,
-                    options[2][1].value,
-                    options[3][1].value,
-                    options[4][1].value,
-                )
+            path=None,
+            name=name,
+            fname=options[0][1].value,
+            lname=options[1][1].value,
+            year=options[2][1].value,
+            vessel=options[3][1].value,
+            referral=options[4][1].value,
+        )
         forms.append(form)
     return forms
 

@@ -167,8 +167,7 @@ class Presenter:
             self._set_initial_placeholders(quoteform)
         else:
             self._set_initial_placeholders()
-        if specific_tab:
-            set_start_tab(self.view_main, specific_tab)
+        set_start_tab(self.view_main, specific_tab)
 
     def browse_file_path(
             self,
@@ -272,6 +271,8 @@ class Presenter:
         self.submission.attachments = self.model_submission.validate_attachments(
             attachments=self.model_tab_home.attachments,
         )
+        config = open_config()
+        config.set(section="home", option="use_default_cc_addresses", value=view_results["use_CC_defaults"])
         user_carbon_copies = view_results["user_CC1"] + view_results["user_CC2"]
         emails = self.model_email_builder.make_all_emails(
             submission=self.submission,
@@ -308,6 +309,10 @@ class Presenter:
     def _set_initial_placeholders(self, quoteform: Path = None) -> None:
         """Sets initial texts for all tabs, if applicable"""
         for tab in ALL_TABS:
+            if tab == "home":
+                config = open_config()
+                use_cc = config.get(section="email", option="use_default_cc_addresses", fallback=False).value
+                self.view_main.use_CC_defaults = use_cc
             self.btn_revert_view_tab(tab)
         if quoteform:
             self.process_file_path(
@@ -322,10 +327,14 @@ class Presenter:
         if tab_name == "quoteforms":
             self.view_main.reg_tv.delete(*self.view_main.reg_tv.get_children())
             forms = qf_reg.process_retrieval()
-            self.view_main.reg_tv.add_registration(forms)
+            for form in forms:
+                self.view_main.reg_tv.add_registration(form)
             return True
         elif tab_name == "template":
-            tab_name = self.view_main.selected_template
+            if self.view_main.selected_template:
+                tab_name = self.view_main.selected_template
+            else:
+                tab_name = "Initial placeholders"
         return self._set_tab_placeholders(tab_name=tab_name)
 
     def _set_tab_placeholders(self, tab_name: str) -> bool:
@@ -543,6 +552,7 @@ class Presenter:
         _dir = event.data.strip("{}")
         self.model_surplus_lines.output_dir(new_dir=_dir)
         self._set_tab_placeholders(tab_name="surplus lines")
+
 
     ############# END --Surplus Lines Automator-- END #############
 

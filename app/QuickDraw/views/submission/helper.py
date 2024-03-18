@@ -108,7 +108,7 @@ ALL_TABS = {
         "user_CC2": "text",
         "use_CC_defaults": "bool",
     },
-    "templates": {
+    "template": {
         "selected_template": "str",
         "address": "str",
         "greeting": "str",

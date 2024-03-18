@@ -40,7 +40,7 @@ class Quoteform:
     vessel: str
     referral: str
 
-    def __post_init__(self, path, name,):
+    def __post_init__(self, path, name):
         self.path = path
         self.name = name
 

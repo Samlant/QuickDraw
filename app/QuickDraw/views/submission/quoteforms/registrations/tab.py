@@ -5,11 +5,12 @@ from QuickDraw.views.submission.base.window import Window
 from QuickDraw.views.submission.quoteforms.registrations.current import (
     CurrentRegistrations,
 )
+from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.submission.quoteforms.registrations.new import NewRegistrations
 from QuickDraw.views.submission.base.protocols import Presenter
 
 
-def make_quoteform_widgets(view: Window, presenter: Presenter):
+def make_quoteform_widgets(view: Window, presenter: Presenter, palette: Palette):
     ### START TITLE ###
     title_frame = ttk.Frame(
         view.tabs.quoteforms, style="TFrame",
@@ -18,7 +19,7 @@ def make_quoteform_widgets(view: Window, presenter: Presenter):
     ttk.Label(title_frame, text="Quoteform Registrations", style="Header.TLabel").pack(
         fill="both",
         expand=True,
-        padx=200, style="TLabel",
+        padx=200,
     )
     # END OF TITLE
     # START CONTENT

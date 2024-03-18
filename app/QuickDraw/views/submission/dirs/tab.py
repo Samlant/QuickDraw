@@ -14,10 +14,10 @@ def make_dirs_widgets(view: Window, presenter: Presenter, palette: Palette):
         view.tabs.dirs, style="TFrame",
     )
     title_frame.grid(column=0, row=0, sticky="nsew")
-    ttk.Label(title_frame, text="Folder Settings Page", style="Header.TLabel").pack(
+    ttk.Label(master=title_frame, text="Folder Settings Page", style="Header.TLabel").pack(
         fill="both",
         expand=True,
-        padx=200, style="TLabel",
+        padx=200,
     )
     # END OF TITLE
     # START CONTENT

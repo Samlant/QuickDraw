@@ -187,7 +187,7 @@ def make_templates_widgets(
         buttons_frame,
         name="btnResetTemplate",
         text="Revert Back",
-        command=lambda: presenter.btn_revert_view_tab("templates"),
+        command=lambda: presenter.btn_revert_view_tab("template"),
         style="TButton",
     ).pack(
         padx=10,
@@ -217,7 +217,7 @@ def make_templates_widgets(
         name="btnSaveTemplate",
         text="Save",
         width=20,
-        command=presenter.btn_save_view_tab("templates"),
+        command=lambda: presenter.btn_save_view_tab("template"),
         style="TButton",
     ).pack(
         padx=10,

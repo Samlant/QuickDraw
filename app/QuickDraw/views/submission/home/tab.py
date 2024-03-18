@@ -67,7 +67,8 @@ def make_home_widgets(
     labelframe_dd_ea = ttk.Labelframe(
         frame_left,
         text="Dag-N-Drop Extra Files Below",
-        name="labelframe_dd_ea", style="TLabelframe",
+        name="labelframe_dd_ea", 
+        style="TLabelframe",
     )
     labelframe_dd_ea.pack(fill="none", expand=False, side="top", pady=(15, 0))
     view._extra_attachments = make_drag_drop_txt_box(
@@ -76,6 +77,7 @@ def make_home_widgets(
         name="raw_attachments_path_list",
         command=lambda: presenter.process_file_path(path_purpose="attachments"),
     )
+    view._extra_attachments.pack(fill="both", expand=False, anchor="n")
     ttk.Button(
         labelframe_dd_ea,
         text="Browse",
