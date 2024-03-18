@@ -1,5 +1,7 @@
+beautifulsoup4==4.12.3
 configupdater==3.2
 datefinder==0.7.3
+email-validator==2.1.1
 et-xmlfile==1.1.0
 fillpdf==0.7.2
 msal==1.26.0
@@ -11,7 +13,9 @@ pyparser==1.0
 pysocks==1.7.1
 pystray==0.19.5
 python-dotenv==1.0.0
+python-magic==0.4.27
+python-magic-bin==0.4.14
 selenium==4.16.0
 tkinterdnd2==0.3.0
-tufup @ git+https://github.com/dennisvang/tufup.git@master
+tufup==0.7.1
 win10toast==0.9
