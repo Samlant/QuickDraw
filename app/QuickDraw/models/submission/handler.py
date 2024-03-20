@@ -77,6 +77,8 @@ class SubmissionModel:
     #######################################################
     ################  FROM THE PRESENTER  #################
     #######################################################
+    #####  VERY LIKELY OUTDATED AND SHOULD BE REMOVED  ####
+    #######################################################
 
     def loop_through_envelopes(self):
         """This loops through each submission;  it:

@@ -1,8 +1,9 @@
 from typing import Protocol
-from dataclasses import dataclass
 from operator import attrgetter
+from tkinter import Tk, BooleanVar, ttk
 
-from tkinter import Tk, BooleanVar, Checkbutton, ttk, Toplevel
+from tkinterdnd2 import TkinterDnD
+
 
 from QuickDraw.helper import AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import make_checkbutton
@@ -64,13 +65,9 @@ class AllocateView:
     def initialize(
         self,
         presenter: Presenter,
-        view_interpreter: Tk,
         view_palette,
     ):
-        self.root: Toplevel = Toplevel(
-            master=view_interpreter,
-            background=view_palette.base_bg_color,
-        )
+        self.root = TkinterDnD.Tk()
         self.style = create_style(self.root, view_palette)
         self.palette = view_palette
         self.presenter = presenter

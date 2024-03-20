@@ -2,6 +2,9 @@ from typing import Protocol
 from pathlib import Path
 from tkinter import StringVar, Tk, Toplevel, ttk
 from tkinter.ttk import Style
+
+from tkinterdnd2 import TkinterDnD
+
 from QuickDraw.views.themes.palettes import Palette
 from QuickDraw.views.themes.applicator import create_style
 
@@ -67,23 +70,21 @@ class NewFileAlert:
     def initialize(
         self,
         presenter: Presenter,
-        view_interpreter: Tk,
         view_palette,
         submission: Submission,
         months: list[str],
     ) -> str:
         self.presenter = presenter
-        self._setup_window(view_interpreter, view_palette, months[0])
+        self._setup_window(view_palette, months[0])
         self._create_widgets(submission, months)
         self.root.mainloop()
 
     def _setup_window(
         self,
-        view_interpreter: Tk,
         view_palette,
         current_month: str,
     ):
-        self.__assign_window_attributes(view_interpreter, view_palette)
+        self.__assign_window_attributes(view_palette)
         self._selected_template = StringVar(
             master=self.root, value=current_month.capitalize()
         )
@@ -103,10 +104,8 @@ class NewFileAlert:
             name="referral",
         )
 
-    def __assign_window_attributes(self, view_interpreter: Tk, view_palette):
-        self.root: Toplevel = Toplevel(
-            master=view_interpreter, background=view_palette.base_bg_color
-        )
+    def __assign_window_attributes(self, view_palette):
+        self.root = TkinterDnD.Tk()
         self.style = create_style(self.root, view_palette)
         self.palette = view_palette
         self.root.geometry("300x400")

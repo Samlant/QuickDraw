@@ -56,9 +56,14 @@ class Automator:
             return str(output_dir)
     
     @output_dir.setter
-    def output_dir(self, new_dir: str):
+    def output_dir(self, new_dir: str) -> bool:
         config = open_config()
-        config["surplus lines"]["output_dir"] = new_dir
+        config.set(section="surplus lines", option="output_dir", value=new_dir)
+        config.update_file()
+        if config.get(section="surplus lines", option="output_dir").value == new_dir:
+            return True
+        else:
+            return False
         
     @property
     def user_doc_path(self):
@@ -72,26 +77,26 @@ class Automator:
         )
         self._user_doc_path = doc_path
 
-        def install_placeholders(self):
-        #####################################################################
-        #####################################################################
-        #####################################################################
-        ################ IMPLEMENT THIS HERE! ########################
-            if self.output_dir:
-                log.debug(
-                    msg="output_dir detected, prefilling Text box with its path: {0}".format(
-                        self.output_dir
-                    ),
-                )
-                self.output_path.insert("1.0", self.output_dir)
-            else:
-                log.info(
-                    msg="No output folder selected.  Please choose a folder to save the finalized, stamped file in before dragging a PDF file onto the window.",
-                )
-            log.debug(
-                msg="Spawning window, starting mainloop.",
-            )
-            self.root.mainloop()
+        # def install_placeholders(self):
+        # #####################################################################
+        # #####################################################################
+        # #####################################################################
+        # ################ IMPLEMENT THIS HERE! ########################
+        #     if self.output_dir:
+        #         log.debug(
+        #             msg="output_dir detected, prefilling Text box with its path: {0}".format(
+        #                 self.output_dir
+        #             ),
+        #         )
+        #         self.output_path.insert("1.0", self.output_dir)
+        #     else:
+        #         log.info(
+        #             msg="No output folder selected.  Please choose a folder to save the finalized, stamped file in before dragging a PDF file onto the window.",
+        #         )
+        #     log.debug(
+        #         msg="Spawning window, starting mainloop.",
+        #     )
+        #     self.root.mainloop()
 
     #####################################################################
     #####################################################################
@@ -106,7 +111,7 @@ class Automator:
             ),
         )
         try:
-            dp = DocParser(self.user_doc_path)
+            dp = DocParser(pdf_path=self.user_doc_path)
         except exceptions.UnknownDocType as e:
             exceptions.spawn_message("Error", str(e), 0x10 | 0x0)
             # btn = OK

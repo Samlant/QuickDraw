@@ -117,8 +117,10 @@ def main():
             else:
                 presenter.new_file_path = None
         elif presenter.run_flag:
+            print("starting submission prorgram within APP")
             presenter.start_submission_program()
             presenter.run_flag = False
+            print("ending submission prorgram within APP")
         elif presenter.run_template_settings_flag:
             presenter.start_submission_program(specific_tab="template")
             presenter.run_template_settings_flag = False

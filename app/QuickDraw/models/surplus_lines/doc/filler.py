@@ -24,61 +24,29 @@ class DocFiller:
         Returns:
             list[Path]: Paths to the stamp files--to be combined later.
         """
-        stamp_doc = fitz.open(FSL_DOC_PATH)
-        stamp_pg = stamp_doc[0]
-        log.debug(
-            msg="The stamp template PDF was opened and we're using this page from it: {0}".format(
-                stamp_pg
-            ),
-            exc_info=1,
-        )
-        for field in stamp_pg.widgets():
-            if field.field_name not in form_data.keys():
-                pass
-            else:
-                log.debug(
-                    msg="field: {0} -- was identified as being in form_data and is a relevant key.".format(
-                        field.field_name
-                    ),
-                    exc_info=1,
-                )
-                field.field_value = form_data[field.field_name]
-                field.update()
-                log.debug(
-                    msg="The corresponding form field's value: {0} -- was added to the stamp's field.".format(
-                        form_data[field.field_name]
-                    ),
-                    exc_info=1,
-                )
-        # Create a new, flattened doc
-        pdfbytes = stamp_doc.convert_to_pdf()
-        temp_stamp = fitz.open("pdf", pdfbytes)
-        # Assign file name --- will not overwrite in-use stamps
-        stamp_file_name = f"temp_stamp{stamp_num}.pdf"
-        stamp_path = Path.cwd() / stamp_file_name
-        log.debug(
-            msg="The new temp stamp name is: {0}, and the file location is: {1}".format(
-                stamp_file_name, stamp_path
-            ),
-            exc_info=1,
-        )
-        # Save flattened doc using resulting stamp path
-        temp_stamp.save(stamp_path)
-        log.debug(
-            msg="The new temp stamp was saved.",
-            exc_info=1,
-        )
-        # Close docs
-        stamp_doc.close()
-        log.debug(
-            msg="Closed the original stamp doc.",
-            exc_info=1,
-        )
-        temp_stamp.close()
-        log.debug(
-            msg="Closed the temp stamp file.",
-            exc_info=1,
-        )
+        with fitz.open(FSL_DOC_PATH) as doc:
+            out = fitz.open()
+            for page in doc:  # Iterate through each page
+                widgets = page.widgets()  # Get the form fields
+                for widget in widgets:  # Iterate through the form fields
+                    if widget.field_name not in form_data.keys():
+                        pass
+                    else:
+                        widget.field_value = form_data[widget.field_name]
+                        widget.update()  # Update the widget with the new value
+                w, h = page.rect.br  # page width / height taken from bottom right point coords
+                outpage = out.new_page(width=w, height=h)  # out page has same dimensions
+                pix = page.get_pixmap(dpi=150)  # set desired resolution
+                outpage.insert_image(page.rect, pixmap=pix)
+            stamp_file_name = f"temp_stamp{stamp_num}.pdf"
+            stamp_path = Path.cwd() / stamp_file_name
+            log.debug(
+                msg="The new temp stamp name is: {0}, and the file location is: {1}".format(
+                    stamp_file_name, stamp_path
+                ),
+                exc_info=1,
+            )
+            out.save(filename=stamp_path, garbage=3, deflate=True)
         return stamp_path
 
     def combine_stamps_into_pdf(

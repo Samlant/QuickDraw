@@ -9,8 +9,8 @@ from QuickDraw.helper import TEST
 INDIVIDUAL_MODULE = TEST
 
 if INDIVIDUAL_MODULE:
-    FSL_DOC_PATH = Path(__file__).parents[1] / "resources" / "fsl_stamp.pdf"
-    ENV_PATH = Path(__file__).parents[1] / "resources" / ".env"
+    FSL_DOC_PATH = Path(__file__).parents[3] / "resources" / "fsl_stamp.pdf"
+    ENV_PATH = Path(__file__).parents[3] / "resources" / ".env"
 else:
     FSL_DOC_PATH = (
         Path(__file__).parents[2]

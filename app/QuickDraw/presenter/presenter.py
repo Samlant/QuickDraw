@@ -17,7 +17,7 @@ from win10toast import ToastNotifier
 
 
 import QuickDraw.models.windows.registrations as qf_reg
-from QuickDraw.helper import open_config, VIEW_INTERPRETER, AVAILABLE_CARRIERS
+from QuickDraw.helper import open_config, AVAILABLE_CARRIERS
 from QuickDraw.views.submission.helper import set_start_tab, ALL_TABS
 import QuickDraw.presenter.protocols as protocols
 from exceptions.surplus_lines import OutputDirNotSet
@@ -89,6 +89,15 @@ class Presenter:
         self.run_SL_automator_flag: bool = False
         self.new_file_path = None
 
+    def run_flags_off(self, obj):
+        self.run_flag = False
+        self.run_template_settings_flag = False
+        self.run_email_settings_flag = False
+        self.run_folder_settings_flag = False
+        self.run_SL_automator_flag = False
+        obj.root.destroy()
+        obj.root = None
+
     def setup_api(self) -> bool:
         return self.model_graph_api.setup()
     
@@ -105,7 +114,6 @@ class Presenter:
         months = self.model_alert_new_qf.get_next_months()
         self.view_new_file_alert.initialize(
             presenter=self,
-            view_interpreter=VIEW_INTERPRETER,
             view_palette=self.view_palette,
             submission=self.submission,
             months=months,
@@ -138,7 +146,6 @@ class Presenter:
     def allocate_markets(self):
         self.view_allocate.initialize(
             self,
-            VIEW_INTERPRETER,
             self.view_palette,
         )
 
@@ -160,14 +167,16 @@ class Presenter:
         if specified.
         """
         print("starting email submission program")
-        self.view_main.create_UI_obj(self, VIEW_INTERPRETER, self.view_palette)
+        self.view_main.create_UI_obj(self, self.view_palette)
         del self.model_tab_home.quoteform
         del self.model_tab_home.attachments
         if quoteform:
             self._set_initial_placeholders(quoteform)
         else:
             self._set_initial_placeholders()
+        print("starting to use view's helper func to spawn window.")
         set_start_tab(self.view_main, specific_tab)
+        print("The 'start_submission_program' func has finished running. last msg now.")
 
     def browse_file_path(
             self,
@@ -273,6 +282,7 @@ class Presenter:
         )
         config = open_config()
         config.set(section="home", option="use_default_cc_addresses", value=view_results["use_CC_defaults"])
+        config.update_file()
         user_carbon_copies = view_results["user_CC1"] + view_results["user_CC2"]
         emails = self.model_email_builder.make_all_emails(
             submission=self.submission,
@@ -313,7 +323,8 @@ class Presenter:
                 config = open_config()
                 use_cc = config.get(section="email", option="use_default_cc_addresses", fallback=False).value
                 self.view_main.use_CC_defaults = use_cc
-            self.btn_revert_view_tab(tab)
+            else:
+                    self.btn_revert_view_tab(tab)
         if quoteform:
             self.process_file_path(
                 event=None,
@@ -432,6 +443,7 @@ class Presenter:
         if tab_name == "surplus lines":
             x = self.view_surplus_lines.output_path
             config.set(tab_name, "output_save_dir", x)
+            config.update_file()
             return True
         elif tab_name == "quoteforms":
             row_data = self.view_main.reg_tv.get_all_rows()
@@ -451,8 +463,10 @@ class Presenter:
                         values = x[key].splitlines()
                         option = config.get(tab_name, key)
                         option.set_values(values=values)
+                        config.update_file()
                     else:
                         config.set(section=tab_name, option=key, value=x[key])
+                        config.update_file()
 
     def on_focus_out(self, event) -> bool | None:
         """Replaces blank text on template tab with prior saved data
@@ -526,7 +540,6 @@ class Presenter:
         output_dir = self.model_surplus_lines.output_dir()
         self.view_surplus_lines.make_view(
             presenter=self,
-            view_interpreter=VIEW_INTERPRETER,
             view_palette=self.view_palette,
             output_dir=output_dir,
         )
@@ -548,9 +561,8 @@ class Presenter:
                 duration=5,
             )
 
-    def save_sl_output_dir(self, event):
-        _dir = event.data.strip("{}")
-        self.model_surplus_lines.output_dir(new_dir=_dir)
+    def save_sl_output_dir(self, save_path: str):
+        self.model_surplus_lines.output_dir(new_dir=save_path)
         self._set_tab_placeholders(tab_name="surplus lines")
 
 

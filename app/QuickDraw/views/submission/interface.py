@@ -21,13 +21,12 @@ class MainWindow(ViewInterface):
     def create_UI_obj(
         self,
         presenter: Presenter,
-        view_interpreter,
         view_palette,
     ):
         """This creates the GUI root,  along with the main
         functions to create the widgets.
         """
-        self.assign_interpreter(view_interpreter, view_palette)
+        self.assign_interpreter(view_palette)
         self.assign_private_string_bool_vars()
         self.assign_window_traits()
         self.create_notebook()

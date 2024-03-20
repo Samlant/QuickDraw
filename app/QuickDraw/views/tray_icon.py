@@ -41,7 +41,7 @@ class TrayIcon:
     def _on_clicked(self, icon, item):
         if str(item) == "Run QuickDraw":
             print("Running QuickDraw")
-            if self.presenter.run_email_settings_flag is False:
+            if self.presenter.run_flag is False:
                 self.presenter.run_flag = True
 
         elif str(item) == "Custom Templates":

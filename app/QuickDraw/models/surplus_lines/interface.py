@@ -23,7 +23,7 @@ class SurplusLinesAutomator:
         self.user_doc_path: Path
 
     def output_dir(self, new_dir: str = None) -> str | None:
-        if self.app.output_dir and not new_dir:
+        if not new_dir and self.app.output_dir:
             return self.app.output_dir
         elif new_dir:
             _valid_dir = validate_paths(new_dir)
@@ -57,6 +57,7 @@ class SurplusLinesAutomator:
                 return False
             else:
                 self.user_doc_path = _d
+                self.app.user_doc_path = self.user_doc_path
                 self.app.exited = False
                 log.info(
                     msg="Saved the PDF's path. Destroying the UI window.",

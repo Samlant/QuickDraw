@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 class SurplusLinesView:
     def __init__(self):
-        self.root: Toplevel = None
+        self.root: TkinterDnD = None
         self.style  = None
         self.palette = None
 
@@ -30,7 +30,7 @@ class SurplusLinesView:
 
     @output_dir.setter
     def output_dir(self, new_output_dir) -> None:
-        del self._output_dir
+        del self.output_dir
         self._output_dir.insert("1.0", new_output_dir)
 
     @output_dir.deleter
@@ -53,14 +53,10 @@ class SurplusLinesView:
     def make_view(
         self,
         presenter,
-        view_interpreter: TkinterDnD.Tk,
         view_palette,
         output_dir: str | None,
     ):
-        self.root: Toplevel = Toplevel(
-            master=view_interpreter,
-            background=view_palette.base_bg_color,
-        )
+        self.root = TkinterDnD.Tk()
         self.style = create_style(self.root, view_palette)
         self.palette = view_palette
         self._assign_window_traits()
@@ -142,7 +138,7 @@ class SurplusLinesView:
         )
         ttk.Button(
             middle1,
-            command=self._browse_output_dir,
+            command=lambda: self._browse_output_dir(presenter=presenter),
             text="Browse",
         ).pack(
             side="left",
@@ -153,7 +149,7 @@ class SurplusLinesView:
             msg="Created button for UI, creating drag-n-drop Text box.",
         )
         self._output_dir = Text(
-            middle1,
+            master=middle1,
             foreground=self.palette.alt_fg_color,
             background=self.palette.alt_bg_color,
             highlightcolor=self.palette.alt_bg_color,

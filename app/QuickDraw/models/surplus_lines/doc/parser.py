@@ -209,12 +209,12 @@ class DocParser:
             interim = block[4].replace("’", "'")
             formatted = interim.strip().replace("\n", " ")
             page.append(formatted)
-        log.debug(
-            msg="Finished saving the formatted blocks within the page. Formatted page results: {0}".format(
-                page
-            ),
-            exc_info=1,
-        )
+        # log.debug(
+        #     msg="Finished saving the formatted blocks within the page. Formatted page results: {0}".format(
+        #         page
+        #     ),
+        #     exc_info=1,
+        # )
         return page
 
     @staticmethod

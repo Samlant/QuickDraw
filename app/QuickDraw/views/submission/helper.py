@@ -16,20 +16,20 @@ class MyStringVars(StringVar):
         super().__init__(*args, **kwargs)
 
 
-def set_start_tab(obj, specific_tab: str) -> None:
+def set_start_tab(obj, specific_tab: str = None) -> None:
     if specific_tab == "template":
-        obj.root.tabControl.select(1)
+        obj.tabs.select(1)
     elif specific_tab == "email":
-        obj.root.tabControl.select(2)
+        obj.tabs.select(2)
     elif specific_tab == "folder":
-        obj.root.tabControl.select(3)
+        obj.tabs.select(3)
     elif specific_tab == "forms":
-        obj.root.tabControl.select(4)
+        obj.tabs.select(4)
     obj.root.attributes("-topmost", True)
     obj.root.update()
     obj.root.attributes("-topmost", False)
     obj.root.mainloop()
-
+    print("MAINLOOP is DONE! Yay!")
 
 def make_drag_drop_txt_box(
     parent: Frame,

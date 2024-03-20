@@ -102,6 +102,7 @@ class HomeModel:
             assert(isinstance(path, str))
             config = open_config()
             config.set("email", "signature_image", path)
+            config.update_file()
             return path
         elif path_purpose == "quoteform":
             assert(isinstance(path, Path))

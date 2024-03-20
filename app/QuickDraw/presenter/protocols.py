@@ -205,7 +205,6 @@ class AllocateView(Protocol):
     def initialize(
         self,
         presenter,
-        view_interpreter: TkinterDnD.Tk,
         view_palette: Style,
     ) -> str: ...
 
@@ -255,7 +254,6 @@ class MainWindow(Protocol):
     def create_UI_obj(
         self,
         presenter,
-        view_interpreter: TkinterDnD.Tk,
         view_palette: Style,
     ) -> None: ...
 
@@ -281,7 +279,6 @@ class NewFileAlert(Protocol):
     def initialize(
         self,
         presenter,
-        view_interpreter: TkinterDnD.Tk,
         view_palette: Style,
         submission: Submission,
         months: list[str],
@@ -295,6 +292,5 @@ class SurplusLinesView(Protocol):
     def show_view(
         self,
         presenter,
-        view_interpreter: TkinterDnD.Tk,
         view_palette: Style,
     ): ...

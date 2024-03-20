@@ -5,14 +5,11 @@ import sys
 import tempfile
 from typing import NamedTuple
 
-from tkinterdnd2 import TkinterDnD
+# from tkinterdnd2 import TkinterDnD
 from configupdater import ConfigUpdater
 
 TEST = True
 
-_view_backend = TkinterDnD.Tk()
-_view_backend.withdraw()
-VIEW_INTERPRETER = _view_backend
 
 if TEST:
     app_dir = Path(__file__).parents[2]

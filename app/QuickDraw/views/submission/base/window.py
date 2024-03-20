@@ -1,4 +1,4 @@
-from tkinter import ttk, filedialog, StringVar, BooleanVar, Toplevel
+from tkinter import ttk, filedialog, StringVar, BooleanVar, Toplevel, Frame
 
 from tkinterdnd2 import TkinterDnD
 
@@ -16,13 +16,9 @@ class Window:
 
     def assign_interpreter(
         self,
-        view_interpreter: TkinterDnD.Tk,
         view_palette,
     ):
-        self.root: Toplevel = Toplevel(
-            master=view_interpreter,
-            background=view_palette.base_bg_color,
-        )
+        self.root = TkinterDnD.Tk()
         self.style = create_style(self.root, view_palette)
         self.palette = view_palette
 
