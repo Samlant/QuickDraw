@@ -77,8 +77,8 @@ Windows-specific error code indicating an invalid pathname.
 """
 
 
-def validate_paths(pathnames: str | list[str] | tuple[Path]) -> Path | list[Path]:
-    if isinstance(pathnames, str):
+def validate_paths(pathnames: str|Path | list[str]|tuple[Path]) -> Path | list[Path]:
+    if isinstance(pathnames, str | Path):
         if _is_path_exists_or_creatable_portable(pathnames):
             return Path(pathnames).resolve()
         else:
@@ -114,13 +114,13 @@ def _is_path_exists_or_creatable_portable(pathname: str) -> bool:
         return False
 
 
-def __is_pathname_valid(pathname: str) -> bool:
+def __is_pathname_valid(pathname: str | Path) -> bool:
     """
     `True` if the passed pathname is a valid pathname for the current OS;
     `False` otherwise.
     """
     try:
-        if not isinstance(pathname, str) or not pathname:
+        if not isinstance(pathname, str | Path) or not pathname:
             return False
         _, pathname = os.path.splitdrive(pathname)
 

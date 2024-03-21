@@ -1,6 +1,6 @@
 from typing import Protocol
 from pathlib import Path
-from tkinter import StringVar, Tk, Toplevel, ttk
+from tkinter import StringVar, OptionMenu, Toplevel, ttk
 from tkinter.ttk import Style
 
 from tkinterdnd2 import TkinterDnD
@@ -108,7 +108,7 @@ class NewFileAlert:
         self.root = TkinterDnD.Tk()
         self.style = create_style(self.root, view_palette)
         self.palette = view_palette
-        self.root.geometry("300x400")
+        self.root.geometry("330x400")
         self.root.title("Next Steps")
         self.root.attributes("-topmost", True)
         self.root.update()
@@ -147,7 +147,6 @@ class NewFileAlert:
         ).grid(column=0, row=0, pady=(3, 0))
         name_entry = ttk.Entry(text_frame, width=30, justify="center", style="TEntry")
         name_entry.insert(0, client_name)
-        name_entry.configure(state="readonly")
         name_entry.grid(column=0, row=1, pady=(0, 8))
 
         ttk.Label(
@@ -177,7 +176,7 @@ class NewFileAlert:
             justify="center",
             style="TEntry",
         )
-        self.year = submission.quoteform.vessel_year
+        self.year = submission.quoteform.year
         year_entry.grid(column=0, row=5, pady=(0, 8))
 
         ttk.Label(
@@ -209,7 +208,7 @@ class NewFileAlert:
                 months[1].capitalize(),
                 months[2].capitalize(),
             ]
-            dropdown_menu = ttk.OptionMenu(
+            dropdown_menu = OptionMenu(
                 text_frame, self._selected_template, *options
             )
             dropdown_menu.configure(
@@ -234,31 +233,31 @@ class NewFileAlert:
             btn_frame,
             text="Create Folder & Track Client",
             width=36,
-            height=3,
+            
             command=lambda: self.presenter.choice("track_create"),
             default="active",
             style="TButton",
         )
-        create_folder_only_btn.grid(row=0, column=0, padx=5, pady=(0, 0))
+        create_folder_only_btn.grid(row=0, column=0, padx=5, pady=(0, 0), ipady=10)
 
         allocate_btn = ttk.Button(
             btn_frame,
-            text="Create & Track Client + Allocate Markets",
+            text="Create, Track, & Allocate Markets",
             width=36,
-            height=3,
+            
             command=lambda: self.presenter.choice("track_allocate"),
             default="active",
             style="TButton",
         )
-        allocate_btn.grid(row=1, column=0, padx=5, pady=(3, 3))
+        allocate_btn.grid(row=1, column=0, padx=5, pady=(9, 9), ipady=10)
 
         submit_btn = ttk.Button(
             btn_frame,
-            text="Create & Track Client + SUBMIT to Markets",
+            text="Create, Track, & Submit to Markets",
             width=36,
-            height=3,
+            # height=3,
             command=lambda: self.presenter.choice("track_submit"),
             default="active",
             style="TButton",
         )
-        submit_btn.grid(row=2, column=0, padx=5, pady=(0, 5))
+        submit_btn.grid(row=2, column=0, padx=5, pady=(0, 5), ipady=10)

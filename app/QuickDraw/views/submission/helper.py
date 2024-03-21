@@ -29,7 +29,6 @@ def set_start_tab(obj, specific_tab: str = None) -> None:
     obj.root.update()
     obj.root.attributes("-topmost", False)
     obj.root.mainloop()
-    print("MAINLOOP is DONE! Yay!")
 
 def make_drag_drop_txt_box(
     parent: Frame,
