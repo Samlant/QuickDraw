@@ -111,6 +111,7 @@ class Automator:
             ),
         )
         try:
+            dp = None
             dp = DocParser(pdf_path=self.user_doc_path)
         except exceptions.UnknownDocType as e:
             exceptions.spawn_message("Error", str(e), 0x10 | 0x0)

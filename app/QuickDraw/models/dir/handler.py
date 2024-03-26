@@ -46,11 +46,11 @@ class DirHandler:
 
         Returns:  Path obj of the new path of the .PDF file itself.
         """
-        fname = submission.fname
-        lname = submission.lname
+        fname = submission.customer.fname
+        lname = submission.customer.lname
         config = open_config()
         section_obj = config.get_section("Folder settings")
-        parent_dir = self.assign_parent_dir(submission.referral, section_obj)
+        parent_dir = self.assign_parent_dir(submission.quoteform.referral, section_obj)
         client_dir = self.__create_client_dir(
             parent_dir=parent_dir,
             fname=fname,

@@ -56,13 +56,28 @@ class SurplusLinesView:
         view_palette,
         output_dir: str | None,
     ):
-        self.root = TkinterDnD.Tk()
-        self.style = create_style(self.root, view_palette)
-        self.palette = view_palette
-        self._assign_window_traits()
-        self._create_widgets(presenter)
-        if output_dir:
-            self.output_dir = output_dir
+        if not self.root:
+            self.root = TkinterDnD.Tk()
+            self.style = create_style(self.root, view_palette)
+            self.palette = view_palette
+            self._assign_window_traits()
+            self._create_widgets(presenter)
+            if output_dir:
+                self.output_dir = output_dir
+            self.root.mainloop()
+        else:
+            try:
+                self.root = TkinterDnD.Tk()
+            except:
+                pass
+            finally:
+                self.root.iconify()
+        # self.root.mainloop()
+                
+    def on_close(self):
+        print('destroying window')
+        self.root.destroy()
+        self.root = None
 
     def _assign_window_traits(self):
         self.root.geometry("730x250")
@@ -70,6 +85,7 @@ class SurplusLinesView:
         self.root.attributes("-topmost", True)
         self.root.title("FSL AutoFiller")
         self.root.attributes("-alpha", 0.95)
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         log.debug(
             msg="Window attributes are set., creating frames for UI.",
         )
@@ -155,13 +171,13 @@ class SurplusLinesView:
             highlightcolor=self.palette.alt_bg_color,
             selectbackground=self.palette.alt_fg_color,
             selectforeground=self.palette.alt_bg_color,
-            height=1,
+            height=2,
             width=48,
         )
         self._output_dir.pack(
             side="left",
             padx=3,
-            ipady=4,
+            ipady=0,
         )
 
         self._doc_path = Text(

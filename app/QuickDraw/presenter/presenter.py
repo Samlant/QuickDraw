@@ -543,12 +543,15 @@ class Presenter:
             view_palette=self.view_palette,
             output_dir=output_dir,
         )
-        self.view_surplus_lines.root.mainloop()
+        if self.view_surplus_lines.root:
+            self.view_surplus_lines.root.destroy()
+            self.view_surplus_lines.root = None
 
     def process_SL_doc(self, event):
         doc_path = event.data.strip("{}")
-
-        self.view_surplus_lines.root.destroy()
+        if self.view_surplus_lines.root:
+            self.view_surplus_lines.root.destroy()
+            self.view_surplus_lines.root = None
         try:
             self.model_surplus_lines.start(doc_path)
         except OutputDirNotSet:

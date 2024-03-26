@@ -73,6 +73,8 @@ class SurplusLinesAutomator:
     def _automate(self):
         if not self.app.exited:
             try:
+                self.app.payloads = None
+                self.app.payloads = []
                 self.app.parse_doc()
                 stamp_num = 1
                 stamp_paths = []

@@ -23,7 +23,7 @@ class ConceptBuilder(CarrierBuilder):
             "quote": "Quotation",
             "binder": "Temporary Binder",
             "policy": "Cover Note",
-            "renewal": "Renewal",
+            "renewal": "Renewal Quotation",
             "endt": "Policy Endorsement",
         }
         endt_finder = {
@@ -78,7 +78,7 @@ class ConceptBuilder(CarrierBuilder):
 
     def get_client_name(self) -> bool:
         "This is complete 12/7"
-        if self.user_doc_type == "quote":
+        if self.user_doc_type == "quote" or self.user_doc_type == "renewal":
             txt = "Applicant:"
         else:
             txt = "Assured:"
@@ -170,7 +170,7 @@ class ConceptBuilder(CarrierBuilder):
 
     def get_policy_nums(self) -> bool:
         "This is correct 12/7"
-        if self.user_doc_type == "quote":
+        if self.user_doc_type == "quote" or self.user_doc_type == "renewal":
             txt = "Quote Number:"
         else:
             txt = "Declaration Number:"
